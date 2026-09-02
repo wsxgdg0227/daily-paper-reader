@@ -1,10 +1,74 @@
 {
   "date": "20260804-20260902",
   "date_label": "2026-08-04 ~ 2026-09-02",
-  "generated_at": "2026-09-02 16:53:53 UTC",
+  "generated_at": "2026-09-02 17:18:18 UTC",
   "recommend_exists": true,
-  "run_count": 1,
+  "run_count": 2,
   "papers": [
+    {
+      "paper_id": "2608.17071v1",
+      "route": "20260804-20260902/2608.17071v1-kernelarc-a-multi-agent-framework-for-gpu-kernel-optimization",
+      "title": "KernelArc: A Multi-Agent Framework for GPU Kernel Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "多智能体自主GPU内核优化框架，通过共享内存协作生成跨异构工作负载的高性能内核",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.17379v1",
+      "route": "20260804-20260902/2608.17379v1-ptxbench-benchmark-and-adapt-llms-for-gpu-kernel-optimization-with-architecture-specific-ptx",
+      "title": "PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "评测并微调大语言模型，以架构特定PTX优化GPU内核并提升性能。",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.25570v1",
+      "route": "20260804-20260902/2608.25570v1-beyond-scaling-self-evolving-llm-agents-for-hardware-kernel-optimization-via-an-experience-driven-workflow-and-experience-graph-memory",
+      "title": "Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "KOPE同时结合LLM内核优化、经验图记忆、经验检索与自进化，对应复合主题",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2609.00058v1",
+      "route": "20260804-20260902/2609.00058v1-cuda-harness-harnessing-agentic-cuda-kernel-generation-and-optimization-from-natural-language",
+      "title": "CUDA-Harness: Harnessing Agentic CUDA Kernel Generation and Optimization from Natural Language",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "直接从自然语言生成并优化CUDA内核，采用智能体化流程，完整对应基于LLM的GPU算子生成与调优需求。",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
     {
       "paper_id": "2608.05033v1",
       "route": "20260804-20260902/2608.05033v1-sparseditto-customizing-gpu-kernels-for-different-sparsity-patterns-with-llm-based-agentic-system",
@@ -22,9 +86,9 @@
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
     {
-      "paper_id": "2608.17379v1",
-      "route": "20260804-20260902/2608.17379v1-ptxbench-benchmark-and-adapt-llms-for-gpu-kernel-optimization-with-architecture-specific-ptx",
-      "title": "PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX",
+      "paper_id": "2608.04003v1",
+      "route": "20260804-20260902/2608.04003v1-past-bench-benchmarking-the-foundations-of-recursive-self-improvement-in-personal-agents",
+      "title": "PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents",
       "section": "deep",
       "tags": [
         {
@@ -32,10 +96,282 @@
           "label": "gkg"
         }
       ],
-      "score": 10.0,
-      "evidence": "评测并微调LLM生成架构特定PTX以优化GPU内核",
+      "score": 9.0,
+      "evidence": "通过开启与关闭保留经验的对照基准，衡量个人智能体跨会话的递归自我改进",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.04761v1",
+      "route": "20260804-20260902/2608.04761v1-insightemb-learning-action-intent-embeddings-for-agentic-insight-retrieval",
+      "title": "InsightEmb: Learning Action-Intent Embeddings for Agentic Insight Retrieval",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "学习面向决策进展的洞察嵌入，帮助智能体检索能越过当前决策瓶颈的经验。",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.05033v2",
+      "route": "20260804-20260902/2608.05033v2-sparseditto-customizing-gpu-kernels-for-different-sparsity-patterns-with-llm-based-agentic-system",
+      "title": "SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "基于LLM的智能体系统按稀疏模式和目标GPU自动构造并调优GPU内核",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.06128v3",
+      "route": "20260804-20260902/2608.06128v3-contextual-information-policy-optimization-for-search-agents",
+      "title": "Contextual Information Policy Optimization for Search Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "直接评估检索后动作是否受证据支撑，以减少先验驱动决策",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.06745v1",
+      "route": "20260804-20260902/2608.06745v1-memprism-task-conditioned-relational-memory-views-for-long-horizon-agents",
+      "title": "MemPrism: Task-Conditioned Relational Memory Views for Long-Horizon Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "按任务上下文动态构造关系记忆视图，使长时程智能体在决策时检索并重组历史经验",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.09044v1",
+      "route": "20260804-20260902/2608.09044v1-tree-of-experience-hierarchical-experience-management-for-self-evolving-agents",
+      "title": "Tree-of-Experience: Hierarchical Experience Management for Self-Evolving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向自进化智能体的分层经验管理，提升经验更新与检索以持续改进性能",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.09160v1",
+      "route": "20260804-20260902/2608.09160v1-swiftqk-fast-and-communication-efficient-tensor-parallelism-for-query-key-normalization",
+      "title": "SwiftQK: Fast and Communication-Efficient Tensor Parallelism for Query-Key Normalization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "提出多GPU RMSNorm内核，减少QK-Norm跨GPU通信，直接指向GPU内核执行性能优化。",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.10157v1",
+      "route": "20260804-20260902/2608.10157v1-sbco-self-supervised-verifier-grounded-harness-optimization-for-planning-agents",
+      "title": "SBCO: Self-Supervised, Verifier-Grounded Harness Optimization For Planning Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "提出自监督、验证器锚定的框架优化方法，使规划智能体无需人工干预即可自我改进",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.10504v1",
+      "route": "20260804-20260902/2608.10504v1-mega-self-evolving-agent-optimization-infrastructure-via-wisdom-graph",
+      "title": "MEGA: Self-Evolving Agent Optimization Infrastructure via Wisdom Graph",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向编码智能体的自进化基础设施，通过智慧图积累可迁移知识并依据运行证据持续改进，命中智能体无需人工干预即可迭代提升。",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.10676v1",
+      "route": "20260804-20260902/2608.10676v1-self-correcting-long-horizon-search-agents-via-tree-structured-memory",
+      "title": "Self-Correcting Long-Horizon Search Agents via Tree-Structured Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "为智能体设计树状结构化记忆，存储来源证据和有界摘要，支持检索、更新与自我纠正",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.12629v1",
+      "route": "20260804-20260902/2608.12629v1-cake-compiler-agent-co-design-for-frontier-kernel-evolution",
+      "title": "CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "编译器与智能体协同设计，以硬件显式IR支持前沿GPU内核演化",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.12720v1",
+      "route": "20260804-20260902/2608.12720v1-erskill-evolving-for-skill-guided-adaptive-memory-retrieval",
+      "title": "ERSkill: Evolving for Skill-Guided Adaptive Memory Retrieval",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "将交互历史编译为结构化记忆库，以可演化技能驱动按需检索。",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.15008v1",
+      "route": "20260804-20260902/2608.15008v1-harness-the-memory-a-holistic-evaluation-of-memory-substrates-in-memory-agents",
+      "title": "Harness the Memory: A Holistic Evaluation of Memory Substrates in Memory Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "对记忆增强智能体的各类记忆基板的存储与检索能力进行系统受控评测",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.20711v1",
+      "route": "20260804-20260902/2608.20711v1-asmevo-agentic-assembly-level-optimization-of-amd-gpu-kernels-with-functional-equivalence-verification",
+      "title": "AsmEvo: Agentic Assembly-Level Optimization of AMD GPU Kernels with Functional Equivalence Verification",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "用LLM智能体在已编译AMD GPU内核上进行低层编辑与功能等价验证，直接回应如何用大模型生成优化的GPU内核",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.20920v2",
+      "route": "20260804-20260902/2608.20920v2-foredreamer-a-self-evolving-dual-agent-memory-architecture-for-future-event-prediction",
+      "title": "ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "通过自进化双智能体记忆架构将嘈杂网络证据转为结构化事实记忆，支撑智能体的存储、检索与推理",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.21157v1",
+      "route": "20260804-20260902/2608.21157v1-hiera-workload-aware-planning-across-implementation-spaces-for-gpu-kernel-optimization",
+      "title": "HIERA: Workload-Aware Planning Across Implementation Spaces for GPU Kernel Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向自动GPU内核生成与优化的LLM分层搜索空间规划，根据工作负载跨实现空间选择并调优",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.25061v2",
+      "route": "20260804-20260902/2608.25061v2-datakernelbench-can-llms-optimize-database-queries-on-gpus",
+      "title": "DataKernelBench: Can LLMs Optimize Database Queries on GPUs?",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "用LLM生成并修复CUDA/Triton内核以优化GPU上的数据库查询",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.27454v1",
+      "route": "20260804-20260902/2608.27454v1-wikiskill-compiling-agent-experience-into-persistent-knowledge-for-skill-evolution",
+      "title": "WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "智能体将执行经验整合为持久知识库并共同演化技能",
+      "first_seen_at": "2026-09-02 16:53:53 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.04761v2",
@@ -50,134 +386,6 @@
       ],
       "score": 9.0,
       "evidence": "检索能解决当前决策瓶颈的智能体历史洞察，直接匹配经验检索需求",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.06128v3",
-      "route": "20260804-20260902/2608.06128v3-contextual-information-policy-optimization-for-search-agents",
-      "title": "Contextual Information Policy Optimization for Search Agents",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "搜索智能体检索外部证据并将推理建立在证据之上，处理检索与使用的一致性问题",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.06745v1",
-      "route": "20260804-20260902/2608.06745v1-memprism-task-conditioned-relational-memory-views-for-long-horizon-agents",
-      "title": "MemPrism: Task-Conditioned Relational Memory Views for Long-Horizon Agents",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "将智能体经验按事件流存储并按任务上下文检索出关系视图以支持决策",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.09044v1",
-      "route": "20260804-20260902/2608.09044v1-tree-of-experience-hierarchical-experience-management-for-self-evolving-agents",
-      "title": "Tree-of-Experience: Hierarchical Experience Management for Self-Evolving Agents",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "通过分层经验管理支持智能体无人工干预地迭代改进并复用知识",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.09160v1",
-      "route": "20260804-20260902/2608.09160v1-swiftqk-fast-and-communication-efficient-tensor-parallelism-for-query-key-normalization",
-      "title": "SwiftQK: Fast and Communication-Efficient Tensor Parallelism for Query-Key Normalization",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "多GPU RMSNorm内核通信优化，直接改善张量并行下的归一化内核性能",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.10157v1",
-      "route": "20260804-20260902/2608.10157v1-sbco-self-supervised-verifier-grounded-harness-optimization-for-planning-agents",
-      "title": "SBCO: Self-Supervised, Verifier-Grounded Harness Optimization For Planning Agents",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "规划智能体无需人工干预即可自我优化与进化",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.10504v1",
-      "route": "20260804-20260902/2608.10504v1-mega-self-evolving-agent-optimization-infrastructure-via-wisdom-graph",
-      "title": "MEGA: Self-Evolving Agent Optimization Infrastructure via Wisdom Graph",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "通过智慧图积累可迁移知识并以运行证据精炼智能体系统的自演化优化基础设施",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.10676v1",
-      "route": "20260804-20260902/2608.10676v1-self-correcting-long-horizon-search-agents-via-tree-structured-memory",
-      "title": "Self-Correcting Long-Horizon Search Agents via Tree-Structured Memory",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "自纠正树状记忆存储有界摘要、带源证据与修订历史，支撑智能体检索和推理修复",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.12720v1",
-      "route": "20260804-20260902/2608.12720v1-erskill-evolving-for-skill-guided-adaptive-memory-retrieval",
-      "title": "ERSkill: Evolving for Skill-Guided Adaptive Memory Retrieval",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "自进化技能引导的记忆检索，按查询动态匹配检索技能以构建定制证据",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
@@ -230,22 +438,6 @@
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
     {
-      "paper_id": "2608.20711v1",
-      "route": "20260804-20260902/2608.20711v1-asmevo-agentic-assembly-level-optimization-of-amd-gpu-kernels-with-functional-equivalence-verification",
-      "title": "AsmEvo: Agentic Assembly-Level Optimization of AMD GPU Kernels with Functional Equivalence Verification",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "对AMD GPU已编译内核进行智能体汇编级优化并做功能等价验证",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
       "paper_id": "2608.20725v1",
       "route": "20260804-20260902/2608.20725v1-enabling-memory-efficient-im2win-convolution-with-multi-precision-support-on-gpu-cuda-and-tensor-cores",
       "title": "Enabling Memory-efficient Im2win Convolution with Multi-precision Support on GPU CUDA and Tensor Cores",
@@ -258,38 +450,6 @@
       ],
       "score": 9.0,
       "evidence": "面向GPU的CUDA/Tensor Core卷积内核优化方法，直接相关于内核性能提升",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.20920v2",
-      "route": "20260804-20260902/2608.20920v2-foredreamer-a-self-evolving-dual-agent-memory-architecture-for-future-event-prediction",
-      "title": "ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "双智能体记忆架构，将原始网页证据转化为结构化记忆以供存储和检索",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.21157v1",
-      "route": "20260804-20260902/2608.21157v1-hiera-workload-aware-planning-across-implementation-spaces-for-gpu-kernel-optimization",
-      "title": "HIERA: Workload-Aware Planning Across Implementation Spaces for GPU Kernel Optimization",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "基于LLM的分层搜索空间规划，跨多种实现空间进行GPU内核优化",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
@@ -310,22 +470,6 @@
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
     {
-      "paper_id": "2608.25061v2",
-      "route": "20260804-20260902/2608.25061v2-datakernelbench-can-llms-optimize-database-queries-on-gpus",
-      "title": "DataKernelBench: Can LLMs Optimize Database Queries on GPUs?",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "评测大模型生成CUDA/Triton代码以优化GPU数据库查询内核",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
       "paper_id": "2608.25469v1",
       "route": "20260804-20260902/2608.25469v1-hierarchical-shared-memory-aware-optimization-for-trsm-on-gpu-platforms",
       "title": "Hierarchical Shared Memory-Aware Optimization for TRSM on GPU Platforms",
@@ -338,54 +482,6 @@
       ],
       "score": 9.0,
       "evidence": "层级共享内存感知GPU TRSM内核优化",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.25570v1",
-      "route": "20260804-20260902/2608.25570v1-beyond-scaling-self-evolving-llm-agents-for-hardware-kernel-optimization-via-an-experience-driven-workflow-and-experience-graph-memory",
-      "title": "Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "结合经验图记忆的自进化LLM智能体用于硬件内核优化",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.27454v1",
-      "route": "20260804-20260902/2608.27454v1-wikiskill-compiling-agent-experience-into-persistent-knowledge-for-skill-evolution",
-      "title": "WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "智能体持续将经验沉淀为持久知识并实现技能进化，无需人工干预",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2609.00058v1",
-      "route": "20260804-20260902/2609.00058v1-cuda-harness-harnessing-agentic-cuda-kernel-generation-and-optimization-from-natural-language",
-      "title": "CUDA-Harness: Harnessing Agentic CUDA Kernel Generation and Optimization from Natural Language",
-      "section": "deep",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 9.0,
-      "evidence": "从自然语言出发进行智能体化CUDA内核生成与优化",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
@@ -406,9 +502,9 @@
       "updated_at": "2026-09-02 16:53:53 UTC"
     },
     {
-      "paper_id": "2608.04003v1",
-      "route": "20260804-20260902/2608.04003v1-past-bench-benchmarking-the-foundations-of-recursive-self-improvement-in-personal-agents",
-      "title": "PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents",
+      "paper_id": "2608.03537v1",
+      "route": "20260804-20260902/2608.03537v1-comfuse-fusing-complex-memory-intensive-subgraphs-with-compute-intensive-kernels-for-modern-gpu-architectures",
+      "title": "ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures",
       "section": "quick",
       "tags": [
         {
@@ -417,9 +513,9 @@
         }
       ],
       "score": 8.0,
-      "evidence": "评测保留经验是否随新会话任务序列提升智能体后续表现",
+      "evidence": "自动化GPU编译系统将内存密集子图与计算密集内核融合优化",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.11350v1",
@@ -433,9 +529,9 @@
         }
       ],
       "score": 8.0,
-      "evidence": "免训练自演化具身智能体，通过回滚持续改进技能与上下文代码框架",
+      "evidence": "通过环境试错演化技能与上下文代码执行框架，实现免人类干预的智能体自进化。",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.11654v1",
@@ -449,25 +545,9 @@
         }
       ],
       "score": 8.0,
-      "evidence": "给出智能体记忆的存储基、可检索性与最优容量的形式化理论",
+      "evidence": "将智能体记忆形式化为基、张成与覆盖，刻画最优记忆",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
-    },
-    {
-      "paper_id": "2608.12629v1",
-      "route": "20260804-20260902/2608.12629v1-cake-compiler-agent-co-design-for-frontier-kernel-evolution",
-      "title": "CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution",
-      "section": "quick",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 8.0,
-      "evidence": "编译器与智能体协同设计，让智能体用显式调度IR生成和演化GPU内核",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.13122v1",
@@ -481,9 +561,25 @@
         }
       ],
       "score": 8.0,
-      "evidence": "基于LLM的智能体为大型传统天气预报代码生成GPU移植代码",
+      "evidence": "以LLM驱动的AI智能体生成并改造大段遗留Fortran代码以完成GPU移植，属于LLM用于生成源代码的场景",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
+    },
+    {
+      "paper_id": "2608.13759v1",
+      "route": "20260804-20260902/2608.13759v1-gpu-offload-in-rust-portable-safe-and-fast",
+      "title": "GPU Offload in Rust: Portable, Safe, and Fast",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "基于rustc与LLVM的原生GPU卸载编译框架，利用所有权模型优化执行与数据传输",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.03509v2",
@@ -497,14 +593,14 @@
         }
       ],
       "score": 7.0,
-      "evidence": "针对自进化体利用经验转技能的学习管线发起攻击",
+      "evidence": "研究自进化智能体的经验到技能转化管线，揭示其自身学习过程可被植入持久技能后门",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
-      "paper_id": "2608.03537v1",
-      "route": "20260804-20260902/2608.03537v1-comfuse-fusing-complex-memory-intensive-subgraphs-with-compute-intensive-kernels-for-modern-gpu-architectures",
-      "title": "ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures",
+      "paper_id": "2608.31057v1",
+      "route": "20260804-20260902/2608.31057v1-measure-before-you-manage-evaluating-agent-working-memory-in-coding-agents",
+      "title": "Measure Before You Manage: Evaluating Agent Working Memory in Coding Agents",
       "section": "quick",
       "tags": [
         {
@@ -513,9 +609,9 @@
         }
       ],
       "score": 7.0,
-      "evidence": "自动GPU编译系统融合内存密集型子图与计算密集内核以提升执行性能",
-      "first_seen_at": "2026-09-02 16:53:53 UTC",
-      "updated_at": "2026-09-02 16:53:53 UTC"
+      "evidence": "面向编码智能体分析并管理工作记忆对象，处理保留与压缩的语义异质性",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.19628v1",
@@ -548,6 +644,22 @@
       "evidence": "系统考察智能体记忆检索如何影响不可回答问题决策的可靠性",
       "first_seen_at": "2026-09-02 16:53:53 UTC",
       "updated_at": "2026-09-02 16:53:53 UTC"
+    },
+    {
+      "paper_id": "2608.24275v2",
+      "route": "20260804-20260902/2608.24275v2-repolicy-reinforcement-learning-for-safety-policy-invocation-in-agent-safeguards",
+      "title": "RePolicy: Reinforcement Learning for Safety-Policy Invocation in Agent Safeguards",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "用强化学习学习在评估智能体轨迹时从动态策略库中检索并调用合适的策略，属于智能体决策中的外部知识检索与使用过程。",
+      "first_seen_at": "2026-09-02 17:18:18 UTC",
+      "updated_at": "2026-09-02 17:18:18 UTC"
     },
     {
       "paper_id": "2608.21240v1",

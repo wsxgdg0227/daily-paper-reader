@@ -51,14 +51,14 @@
       <span class="dpr-home-dashboard-kicker">2026-08-04 ~ 2026-09-02</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 36 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 43 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
-    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>25</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>2 次</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>31</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>12</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-02 16:53:53 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-02 17:18:18 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日36篇论文精读25篇，重心锁定GPU内核优化：基于LLM代理的稀疏模式定制与PTX专用调优双双满分级。速读方向则指向智能体记忆与自我进化，其中PAST-Bench为递归自我改进基准提供新框架。建议优先精读两篇满分工作，再顺速读切入Agent记忆的下一步迭代。</p>
+<p>今日精读43篇中，GPU内核优化与PTX架构适配成最热焦点；重点推荐两篇满分工作：《KernelArc》多智能体优化框架与《PTXBench》架构专属基准，前者面向自动调优，后者为LLM定制PTX任务提供评测。普通读者可优先跟踪这两项技术，后续建议从速读的《ComFuse》切入，了解子图融合与内核级优化如何协同。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">25 篇</strong>
+    <strong class="dpr-home-dashboard-count">31 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System">SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System</span></li><li><span class="dpr-home-dashboard-paper-title" title="PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX">PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX</span></li><li><span class="dpr-home-dashboard-paper-title" title="InsightEmb: Learning Action-Intent Embeddings for Agentic Insight Retrieval">InsightEmb: Learning Action-Intent Embeddings for Agentic Insight Retrieval</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="KernelArc: A Multi-Agent Framework for GPU Kernel Optimization">KernelArc: A Multi-Agent Framework for GPU Kernel Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX">PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX</span></li><li><span class="dpr-home-dashboard-paper-title" title="Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory">Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>25</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>31</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">11 篇</strong>
+    <strong class="dpr-home-dashboard-count">12 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents">PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Embodied Agents via Skill-Harness Evolution">Self-Evolving Embodied Agents via Skill-Harness Evolution</span></li><li><span class="dpr-home-dashboard-paper-title" title="Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem">Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures">ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Embodied Agents via Skill-Harness Evolution">Self-Evolving Embodied Agents via Skill-Harness Evolution</span></li><li><span class="dpr-home-dashboard-paper-title" title="Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem">Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>12</strong></span></div>
 </section>
 </div>
 

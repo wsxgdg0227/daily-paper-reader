@@ -1,0 +1,505 @@
+Title: GPU Offload in Rust: Portable, Safe, and Fast
+
+URL Source: https://arxiv.org/pdf/2608.13759v1
+
+Published Time: Mon, 17 Aug 2026 00:10:49 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+# GPU Offload in Rust: Portable, Safe, and Fast 
+
+## Manuel S. Drehwald ∗
+
+manuel.drehwald@utoronto.ca University of Toronto Toronto, Canada Lawrence Livermore National Laboratory Livermore, California, USA 
+
+## Marcelo Domínguez 
+
+ma.dominguez.2022@alumnos.urjc.es Universidad Rey Juan Carlos Madrid, Spain 
+
+## Kevin Sala 
+
+salapenades1@llnl.gov Lawrence Livermore National Laboratory Livermore, California, USA 
+
+## Alán Aspuru-Guzik †‡ §¶∥∗∗†† 
+
+alan@aspuru.com Department of Computer Science University of Toronto Toronto, Ontario, Canada 
+
+## Johannes Doerfert 
+
+jdoerfert@llnl.gov Lawrence Livermore National Laboratory Livermore, California, USA 
+
+## Abstract 
+
+High-performance GPU programming has traditionally forced a compromise between execution efficiency and memory safety. While Rust guarantees compile-time memory safety for host CPUs via its strict ownership model, applying these constraints to massively parallel GPU execution environ-ments has previously mandated either vendor-locked Domain-Specific Languages (DSLs) or escaping to explicit unsafe raw pointers. This paper presents a zero-overhead, multi-vendor GPU compilation framework built natively into the Rust compiler (rustc) and LLVM backends. We leverage Rust’s rich type system, ownership system, and strict aliasing guarantees ( 𝑛𝑜𝑎𝑙𝑖𝑎𝑠 ) to efficiently manage and optimize data transfers through LLVM’s Offload infras-tructure. We expose the technical challenges of cross-vendor ABI lowering mismatches between Host and Device targets and introduce a two-pass compilation pipeline capable of safely handling both manual and compiler-generated mem-ory movements. Evaluating our framework on RAJAPerf demonstrates that our rustc-based solution can generate competitive LLVM IR for GPU kernels, achieving a solid ker-nel performance against native, hand-optimized CUDA and HIP C++ baselines. 
+
+> ∗Also with Vector Institute for Artificial Intelligence.
+> †Also with Department of Chemistry, University of Toronto.
+> ‡Also with Department of Materials Science & Engineering, University of Toronto.
+> §Also with Department of Chemical Engineering & Applied Chemistry, University of Toronto.
+> ¶Also with Institute of Medical Science, University of Toronto.
+> ∥Also with Vector Institute for Artificial Intelligence.
+> ∗∗ Also with Acceleration Consortium.
+> †† Also with Canadian Institute for Advanced Research (CIFAR).
+
+## 1 Introduction 
+
+High-performance computing (HPC) and scientific appli-cations remain heavily dominated by memory-unsafe lan-guages like C, C++, or Fortran, with GPU support avail-able through vendor-specific APIs, e.g., CUDA, and HIP, and portable programming models such as OpenMP, and SYCL [1]. A defining characteristic of these paradigms is that they require developers to explicitly annotate data mappings, manually manage memory transfers, or embed their data into special buffers. Since these traditional programming lan-guages lack the concept of safety boundaries, the burden of preventing memory corruption and data races falls entirely on the programmer. Rust [25] has emerged as a compelling alternative for mod-ern systems programming, steadily gaining traction within the HPC [9, 26, 33] and Scientific Computing [16, 24, 28, 30] communities due to its ability to enforce[22] memory safety and data-race freedom at compile time. Furthermore, Rust’s strict ownership and aliasing guar-antees provide benefits that extend beyond basic software correctness; they provide such a good information baseline for the compiler backend, that we can start thinking about interfaces and optimizations that would barely be usable in unsafe languages. One of the examples is the noalias 
+
+metadata, which (almost) all safe Rust references receive by default, with no manual restrict annotations required. Despite these compiler advantages, utilizing Rust for het-erogeneous acceleration remains bottlenecked by the lack of a portable GPU programming interface and a highly frag-mented GPU software ecosystem. Existing GPU interfaces force developers into restrictive execution paradigms. For instance, rust-gpu , based on SPIR-V, has recently been re-oriented from graphics to compute workloads, but it lacks support for general pointers. Other compute-oriented so-lutions are either restricted to low-level bindings that re-quire unsafe code regions for all kernels ( rust-cuda ), or are tightly coupled to specific hardware vendors ( cuda-oxide ). arXiv:2608.13759v1 [cs.PL] 13 Aug 2026 Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert 
+
+A portable interface and infrastructure that supports safe and idiomatic Rust across multiple vendors has so far been missing. To close these gaps, we present a cross-vendor interface for GPU programming in Rust, integrated directly within the upstream Rust compiler ( rustc ), and based on the LLVM Of-fload infrastructure. This architecture generates native code for NVIDIA and AMD GPUs, and can extend to Intel and Apple targets as their upstream LLVM components mature. Our design introduces a two-pass compilation pipeline that strictly separates host and device intermediate representa-tions (IR). We designed three interfaces to accommodate a broad spectrum of use cases, ranging from managed, out-of-the-box offloading to explicit user-controlled offloading. The first interface allows developers to write native GPU kernels in safe and unsafe Rust with automatic data transfers and trans-parent optimizations. The second interface integrates vendor libraries like cuBLAS and rocBLAS, building upon these same automatic data-movement mechanisms. Lastly, the third in-terface permits manual execution of data transfers, granting developers absolute control over data movement, similar to CUDA or OpenMP. Our key contributions are: 
+
+• Flexible GPU Programming: Three offloading in-terfaces spanning from convenient wrappers for ven-dor libraries to explicit, type-enforced interfaces for custom kernel execution and manual memory man-agement. 
+
+• Safe memory access strategies: A safe and extensi-ble GPU programming frontend that separates paral-lel data-indexing and memory partitioning from the actual kernel execution, eliminating the need for user-written unsafe blocks in typical parallel workloads. 
+
+• An In-Tree Cross-Vendor Toolchain: Design and implement a portable two-pass compiler pipeline link-ing rustc to the LLVM Offload infrastructure, provid-ing a unified target for NVIDIA and AMD hardware. 
+
+• Type-Driven Offload Lowering: A Mid-level Inter-mediate Representation (MIR) analysis enabling the automatic and efficient generation of memory trans-fers by leveraging Rust’s type, layout, and mutability information, and the prevention of cpu to gpu com-munication bugs through the Ownership system. 
+
+• Multi-Vendor Benchmarking: A performance eval-uation using the RAJAPerf [27] benchmark suite on AMD and NVIDIA accelerators. We demonstrate com-petitive GPU performance of the individual compute kernels. 
+
+## 2 Background 
+
+2.1 Rust 
+
+While a complete introduction is out of scope, we will give a very brief summary of the aspects of Rust which we consider as most valuable to understand this paper. 
+
+Unsafe. A strength of Rust is the explicit separation of safe and unsafe Rust. It is a common goal to isolate unsafe operations, and then provide safe abstractions on top. We “know” that GPU programming is not inherently unsafe -Rust currently just often leaves us without an opportunity to express that our parallel writes into an object are safe. In this work, we explore how such safe abstractions for GPU programming might look like. 
+
+References and Raw Pointers. Rust offers raw, c-style pointers, e.g. ∗ mut f32 . Their usage is very uncommon out-side of Foreign-Function-Interfaces (FFI). References provide various benefits over raw pointers. The compiler enforces that references can not be used after the object to which they point went out of scope or got dropped. As such, there is no null-pointer equivalent for references. There are two types of references: const and unique (aka. mut able). If a unique reference (& mut T) exists, no other reference (neither const nor mut) may exist to the same object. However, if no mu-table reference exists, arbitrary many const references (&T) may exist. This rule is often referred to as the aliasing XOR mutability rule . More detailed models are explained in [32] and [21]. A user can only create a mutable reference if the underlying object was defined as mutable.        
+
+> 1let mut x: Vec<i32> = vec![10; 1024];
+> 2let y: & mut [i32] = & mut x;
+
+The compiler enforces all of these requirements. On the LLVM-Intermediate Representation (LLVM-IR) level, refer-ences are represented as pointers with the noalias attribute. The only exception is described next. 
+
+Interior Mutability. An advanced concept which allows users to create a const reference to a mutable object wrapped in an UnsafeCell . For example, a reference of type &UnsafeCell <i32 > can be used to mutate an underlying 
+
+i32 value, even if the reference is not unique. 
+
+Generics. Generic functions and structs in Rust are similar to templates in C++. They are instantiated, aka “monomor-phized”, at compile time, based on the concrete types with which they are invoked. 
+
+Lifetimes. All references have a lifetime, which ties them to their underlying object. Lifetimes can usually be inferred by the compiler, but at times have to be annotated explicitly with an apostrophe: &'a f32 . An example from the Rust docs[7] shows an application:               
+
+> 1fn longest<'a>(x: &'a str, y: &'a str) −> &'a str {
+> 2if x.len() > y.len() {x } else {y }
+
+GPU Offload in Rust: Portable, Safe, and Fast  
+
+> cargo host-metadata pass
+> -Zoffload=HostMetadata=<manifest>
+> (codegen omitted)
+> Monomorphization Collection
+> (force kernel monomorphization)
+> Instance Filtering
+> (select only offload kernels)
+> Manifest Serialization
+> <manifest>
+> cargo device pass
+> -Zoffload=Device=<manifest> –target <gpu-device-triple>
+> Device LLVM bitcode
+> device.bc
+> [Automated] rustc Offload Packing
+> clang-offload-packager -equivalent
+> Packaged device image
+> device.bin
+> (embeds device.bc )
+> cargo host pass
+> -Zoffload=Host –target <cpu-device-triple> /path/to/device.bin
+> Lowered offload intrinsic from Rust to LLVM-IR Offload Runtime API
+> (Kernel launch & memory mgmt)
+> host.o
+> .text / .rodata .llvm.offloading llvm_offload_entries clang-linker-wrapper
+> Linker & Embedding Step
+> [Automation in progress]
+> a.out
+> Host CPU binary
+> (contains embedded GPU image) lowers to
+> Pass 1: Host-Side Metadata Collection Pass 2: Device-Side Compilation Pass 3: Host-Side Compilation & Embedding
+
+Figure 1. Current three-pass implementation pipeline for Rust offloading.  
+
+> 3
+
+}
+
+This function might return either of the two references. As such, the returned reference is only alive while both of the input references are alive. They therefore use the same life-time. 
+
+config (“cfg”). Configurations in packages serve two main purposes. Compile times in Rust are a major concern, so most crates offer a larger number of features. A crate user can then select in their Cargo.toml which features of which dependency they want to enable or disable. Inside their crate, a developer can use the #[ cfg (CONFIG == VALUE)] syntax to ask the Rust compiler if a certain config was set to the given value. If a cfg attribute evaluates to false, the guarded function, module, or struct will be discarded at the Abstract Syntax Tree (AST) level, to minimize compile-time impact. Compute heavy crates [23] often also use different cfg checks to provide multiple algorithm implementations that are opti-mized for different compilation targets like aarch64 or x86_64 and use intrinsics that are not generally available. 
+
+2.2 LLVM/OpenMP and Libomptarget 
+
+We build our work on top of LLVM’s OpenMP/Offload library. This has the benefit, that we are able to support both the “nvptx64-nvidia-cuda” and “amdgcn-amd-amdhsa” target, which are already available in today’s Rust compiler. An Intel GPU target is under development, which will allow us to support safe abstractions for all major GPU vendors. 
+
+OpenMP target vs. Offload. OpenMP supports parallel CPU and GPU programming. LLVM originally implemented the required OpenMP GPU support within the OpenMP tar-get runtime. Later, GPU Offload was split from OpenMP to make it easier for other language frontends to utilize the func-tionality. This refactoring is still in progress. Rustc currently generates OpenMP target runtime calls, but we consider this an implementation detail and will transfer to Offload calls in the near future. For consistency, we will generally refer to Offload, unless talking about concrete elements like the libomptarget library. 
+
+## 3 A Frontend For Safe GPU Programming 
+
+3.1 Heterogeneous Execution Models 
+
+We define three programming models, from a fully auto-mated host-managed execution to explicit, type-enforced device memory layout control. 
+
+3.1.1 Interface A: Compiler-Managed Rust Kernels. 
+
+Interface A is the default interface for writing GPU kernels in Rust. The programmer writes a Rust function over ordinary references and invokes it with an offload macro:  
+
+> 1
+
+offload!(matrix_multiply,  
+
+> 2
+
+&matrix_a, &matrix_b, & mut matrix_c Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert  
+
+> 3);
+
+The callee is compiled by rustc for the device target. The host invocation is lowered into runtime calls that allocate device storage, transfer inputs, launch the generated kernel, and synchronize outputs according to the Rust types at the call boundary. Immutable references ( &T ) are treated as read-only inputs, while mutable references ( &mut T ) are values that may be written by the kernel and therefore must be made visible on the host after the call. This interface is intentionally plug-and-play: callers do not explicitly manage device memory. That convenience also defines its performance limit. Because each offload operation is specified in terms of host references, an intervening host use of a value forces the runtime to make the latest device value visible on the CPU. Consequently, chains of kernels can suffer from implicit host-device synchronization unless the compiler can prove that a transfer is redundant.       
+
+> 1offload!(kernel_1, &input, & mut output);
+> 2// Host usage of output forces a datatransfer
+> 3println!("{:?}", &output);
+> 4offload!(kernel_2, &input, & mut output);
+
+Although the program does not mention memory move-ment, the host read of output forces a device-to-host syn-chronization after kernel_1 . The second kernel then re-quires the updated value to be available on the device again, inducing a host-to-device transfer before kernel_2 . This behaviour is safe and convenient, but it makes data move-ment depend on seemingly unrelated host-side uses such as logging or debugging. 
+
+3.1.2 Interface B: Interoperability with Host-launched GPU Vendor Libraries. Many GPU applications obtain their performance from highly optimized vendor libraries such as cuBLAS or rocBLAS. These are called from host code and internally manage their own kernel launches, so the Rust compiler cannot optimize or inspect the device code itself. However, the compiler can still use the Rust type system to reason about the data passed across the call boundary. Interface B treats such calls as host-side offload operations. Our intrinsic defaults to automatic data transfers to and from the device before and after invoking the underlying library, but other behaviour like forwarding existing GPU pointers can also be specified. The compiler uses the same mapping infrastructure as for GPU kernels to materialize the required device pointers before invoking the library API.      
+
+> 1core::intrinsics::offload_args::<_, _, ()>(
+> 2rocblas_sgemv_wrapper,
+> 3(&A, &x, & mut y)
+> 4);
+
+The main benefit is that with this intrinsic normal Rust func-tions, vendor library calls and Rust GPU kernels can share one interface. This lets programmers incrementally replace hot CPU operations with GPU vendor implementations. It also allows the compiler to hoist, reuse, or eliminate data transfers around the call boundary. We describe a set of op-timizations to leverage this opportunity in 5. It also gives the runtime a uniform point at which to collect profiling data and diagnostics for offloaded operations, even when vendor-library internals remain opaque. 
+
+3.1.3 Interface C: Explicit Type-Staged Memory Con-trol. Interface C makes the Host or Device location of data explicit through Rust types. In Interface B, host-side uses can silently introduce transfers between kernels. Interface C instead exposes this synchronization point in the program: values that may be modified on the device are managed through a type that keeps the corresponding host object borrowed until the GPU version of the value is dropped.               
+
+> 1pub struct Preload<'a, T: ?Sized> {
+> 2cpu_ptr: * const T,
+> 3_marker: PhantomData<&'a T>,
+> 4}
+> 5pub struct PreloadMut<'a, T: ?Sized> {
+> 6cpu_ptr: * mut T,
+> 7_marker: PhantomData<&'a mut T>,
+> 8}
+
+These types conservatively store raw host pointers rather than Rust references. A Rust reference has significantly higher correctness requirements than a raw pointer. For example the referenced memory must be valid for the duration of the borrow and the usual aliasing rules must be upheld when-ever the reference is used. After preloading, however, the most recent version of the data will live on the device, whose allocation has a Different address from the original host al-location. The host pointer is therefore only a runtime key identifying the mapped allocation, not a reference to the current contents of the value. While we intentionally avoided references, the preloaded value must still participate in Rust’s lifetime and aliasing rules, to avoid trivial Undefined Behaviour (UB). The PhantomData 
+
+field provides this connection without requiring the struct to contain an actual reference. A Preload<’a, T> carries the lifetime of an immutable borrow, while a PreloadMut<’a, T> carries the lifetime of a mutable borrow. The two vari-ants express different access guarantees. First, Preload<’a, T> is read-only: it behaves like an immutable borrow of the host value, so other host reads remain valid, but mu-tation is forbidden while the Preload handle exists. Second, 
+
+PreloadMut<’a, T> may be modified by device code: it be-haves like a mutable borrow, so Rust code cannot read or write the original host value until the GPU handle is dropped. This follows Rust’s standard aliasing rule: either one muta-ble reference exists, or any number of immutable references exist, but not both.                   
+
+> 1fn main() {
+> 2let mut output = vec![0.0f32; 1024]; GPU Offload in Rust: Portable, Safe, and Fast
+> 34// Stage output on the device; output is
+> 5// borrowed until out_gpu is dropped.
+> 6let out_gpu =
+> 7core::intrinsics::preload_mut(
+> 8&mut output
+> 9);
+> 10 11 offload!(kernel_1, &input, &out_gpu);
+> 12 offload!(kernel_2, &input, &out_gpu);
+> 13 14 // Explicitly synchronize back to host.
+> 15 drop(out_gpu);
+> 16 17 println!("{:?}", output);
+> 18 }
+
+The LLVM backend of rustc lowers the constructor of the Preload values into an offload begin-data-mapper operation and lowers drop ("destructor") calls into the corresponding end-mapper operation. Calling preload multiple times on a immutable reference simply creates multiple Preload handles and increases a reference counter in the runtime. Dropping a Preload Type therefore decreases the reference counter and only results in an actual freeing of the gpu memory location if the counter reaches zero. PreloadMut types can not alias by design, and as such the reference counter is irrelevant. Each drop call does not only result in a free, but also generates a Device to Host transfer, since the underlying GPU allocation has likely been modified. The memory transfer at the begin of a Kernel launch therefore becomes a no-op, if all arguments have been preloaded. This design trades some convenience for predictable per-formance. An intermediate host read of output can no longer silently introduce a transfer between kernel_1 and kernel_2 .With PreloadMut , such a read is rejected by the borrow checker until the mutably preloaded value is dropped; the drop marks the explicit point at which the device result is synchronized back to the host. Interface C is therefore the appropriate interface for more complex gpu pipelines and li-brary APIs that expect inputs or outputs to already be present on the GPU. 
+
+3.2 Safe Rust Kernels 
+
+As described in Section 2.1, references in Rust follow the 
+
+aliasing XOR mutability rule . A mutable reference there-fore might be better described as a unique reference. This is clearly at odds with even the most basic vec_add example:        
+
+> 1fn vec_add(a: &[f32], b: &[f32], c: & mut [f32]) {
+> 2let idx = _block_dim_x();
+> 3c[idx] = a[idx] + b[idx];
+> 4}
+
+In GPU programming, kernels are often executed with mul-tiple threads, which can cause UB when sharing mutable references. The most direct solution is turning all mutable in-puts into raw pointers, as required by rust-cuda . However, building a GPU ecosystem on unsafe code blocks diminishes the purpose of the Rust language. Drehwald et al. [15] and 
+
+cuda-oxide introduce a path towards safe GPU program-ming by decoupling the memory access patterns from kernel implementation. The underlying idea is that slices should fun-damentally work safely, given that in most kernels, threads access disjoint elements of the slices they are modifying. The challenge therefore lied in expressing this safely within the language, to the compiler. We want users to write safe Rust using standard slices, so our frontend handles it with raw pointers under the hood. We introduce an abstraction called a Region , which lets users safely work with slices in a parallel environment.       
+
+> 1let mut x = [0.0f64; 256];
+> 2let mut reg =
+> 3Region::<_, Linear1D>::new(& mut x, ());
+
+Every Region is tied to a PartitioningStrategy . This strategy decides exactly which elements each thread is al-lowed to read and write to, ensuring that no pair of threads ever get overlapping memory regions.                          
+
+> 1pub unsafe trait PartitioningStrategy {
+> 2type Shape: Copy;
+> 3type View<'a, T: 'a>;
+> 4type ViewMut<'a, T: 'a>;
+> 56unsafe fn get<'a, T>(
+> 7ptr: * const T,
+> 8len: usize,
+> 9shape: Self ::Shape,
+> 10 ) -> Option< Self ::View<'a, T>>;
+> 11 unsafe fn get_mut<'a, T>(
+> 12 ptr: * mut T,
+> 13 len: usize,
+> 14 shape: Self ::Shape,
+> 15 ) -> Option< Self ::ViewMut<'a, T>>;
+> 16 }
+
+The trait here is unsafe, because any incorrect implemen-tation of a PartitionStrategy will likely result in Undefined Behaviour. Beyond that, both the get and get_mut func-tions are unsafe, since the passed pointer must point to an allocation with at least len elements. Neither of these re-quirements can be verified by the compiler, therefore both trait and functions are unsafe. The safety is introduced by the individual implementa-tions of the PartitionStrategy, which promise to uphold these invariants. To support our benchmarks in 6, we implemented multiple PartitionStrategy variants. We want to emphasize that all these strategies are implemented in pure Rust, with-out relying on any internal compiler features or any compiler internal abilities. While it seems sensible to place at least Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert 
+
+the trait definition and some of the more popular strategies into the standard library, we have no technical need to do so. By releasing our interface as a standalone crate, we hope to encourage users to explore additional partitioning schemes. 
+
+Comparison with cuda-oxide . While our implementa-tion is highly inspired by the design of Drehwald et al. [15], we want to analyze the differences with the cuda-oxide 
+
+frontend. Although cuda-oxide has a similar design, there are three primary differences: Firstly, their DisjointSlice 
+
+is part of the cuda-oxide project and can not be extended by users. Secondly, their design is currently scalar oriented, whereas our interface allows the return of disjoint chunks of data. Finally, cuda-oxide allows safe indexing into their 
+
+DisjointSlice via a special ThreadIndex object with an advanced set of type system checks, while our Partition-Strategies skip this complexity, compute the index internally, and directly return a mutable reference for each thread. While both frontends currently support a different set of access patterns, we see no fundamental reason why they can not be extended to support the same kernels. We hope that through enough end-user feedback Rust offload and 
+
+cuda-oxide can eventually converge into a single design for safe kernels. Outside of the frontend, both projects diverge on other major axes (vendor-agnostic vs. vendor specific, single-pass vs. multi-pass compilation). If both projects can use a similar or even identical frontend, we hope that the remaining Rust GPU projects will also adopt a compatible design to achieve safety. 
+
+3.3 Exposing GPU Shared Memory 
+
+Advanced GPU algorithms frequently utilize shared memory as a high-performance scratchpad [2] to store temporary variables within kernels. This memory space is private to each thread block, allowing threads within the same block to efficiently exchange data. In Section 3.2, we described how we can safely encode strictly disjoint thread-access patterns to cover most use cases for input arguments by assigning disjoint subsections to individual threads. However, shared memory usually has the opposite purpose, as threads actively cooperate over this block-local storage to execute efficient block-level primitives such as reductions and tiled operations. To demonstrate its use in Rust, in 3.3 we show how a kernel can requests two blocks of BLOCK_SIZE 2 bytes from the shared memory space, in order to perform a tiled matrix multiplications within each block:                                    
+
+> 1core::intrinsics::offload::<_, _, ()>(
+> 2gpu_square_matrix_mult,
+> 3[grid_cols, grid_rows, 1],
+> 4[nthreads, nthreads, 1],
+> 5(2 * BLOCK_SIZE * BLOCK_SIZE) as u32,
+> 6..args
+> 7)
+> 1pub unsafe extern "gpu-kernel"
+> 2fn gpu_square_matrix_mult(..args) {
+> 3unsafe {
+> 4const LENGTH: usize =
+> 5(BLOCK_SIZE * BLOCK_SIZE) as usize;
+> 6let tile_a =
+> 7gpu_launch_sized_workgroup_mem::<i32>()
+> 8as *mut [i32; LENGTH];
+> 9let tile_b =
+> 10 gpu_launch_sized_workgroup_mem::<i32>()
+> 11 .add(len) as *mut [i32; LENGTH];
+> 12 ...
+> 13 }
+
+As we can see in the example, exposing raw accelerator shared memory to high-level code introduces four distinct safety hazards: 1. Accessing an object stored on shared memory whose size exceeds the shared memory bytes requested at kernel launch can lead to out-of-bounds accesses. 2. If the shared memory space holds multiple objects, applying an incorrect offset when accessing a specific object can lead to incorrect outcomes and memory errors. 3. Casting a shared memory pointer to a standard Rust reference ( &T or &mut T ), while multiple threads con-currently read and write from the memory at that address, causes UB. 4. The guaranteed alignment of the pointer returned by gpu_launch_sized_workgroup_mem::<T> is the alignment of type T. This can lead to UB if the pointer is later casted to a type with a higher alignment re-quirement. Returning a raw pointer in gpu_launch_sized_workgroup_-mem::<T> is already a clear signal to developers. Since the pointer is only usable within device code, additional safety guardrails seem unlikely to justify their complexity. 
+
+## 4 Toolchain & Lowering Implementation 
+
+The Rust compiler supports two modes of compilation. Code can either be compiled for the host on which the compiler is running or cross-compiled for a different target. We need both abilities when compiling a single codebase for the CPU host and the GPU target. Existing compiler infrastructures typically address this using either a single-pass or a two-pass compilation pipeline. In a single-pass pipeline, the compiler frontend (e.g., rustc ) is invoked once, duplicating an in-termediate representation (IR) to target each architecture. For our toolchain, we implement a two-pass compilation pipeline, as shown in Figure 1. To give a realistic pipeline overview, we demonstrate our pipeline using Rust’s official build manager, cargo , even though our implementation modifications reside entirely GPU Offload in Rust: Portable, Safe, and Fast 
+
+within the compiler frontend ( rustc ) and the LLVM back-end. The experimental -Z offload=Device flag is forwarded transparently from cargo to rustc , requiring no changes to the build manager itself and ensuring that alternative build systems like Bazel or Buck2 can support our offload-ing workflow with minimal changes. This device pass uses existing upstream target definitions for AMD and NVIDIA architectures (with ongoing development for Intel GPU sup-port). Our modified pipeline only alters the final stage of code generation: instead of just emitting device bitcode, our compiler wraps the bitcode into a device binary. This part is similar to the Clang-based C++ OpenMP toolchain, al-though Clang delegates this packaging step to an external 
+
+clang-offload-packager executable, while rustc invokes the underlying Offload APIs directly. This allows us to mini-mize the number of binaries involved in our pipeline. The second cargo invocation manages the host-side com-pilation. We again trigger our modified pipeline via the modi-fied pipeline flag -Z Offload=Host=/path/to/device.bin .During this pass, the compiler lowers our new Rust offload intrinsics introduced in Section 3 into OpenMP target (i.e., 
+
+libomptarget ) runtime calls. Following the intrinsic low-ering, our toolchain embeds the device binary generated in the previous pass directly into the host LLVM IR to produce the final host object. Notably, because the underlying LLVM Offload infrastructure supports fat binaries, this embedded payload can bundle multiple device binaries, which allows support for both AMD and NVIDIA architectures from one executable. To finalize the compilation, the pipeline invokes the clang-linker-wrapper executable, which links the re-quired offload runtime libraries into the executable. While it may appear cumbersome to pass the device binary path explicitly between compiler invocations, it is intentional. Even though rustc and cargo are co-developed within the same GitHub organization, rustc is prohibited from making assumptions regarding the filesystem location of interme-diate build artifacts. This separation for example simplifies caching, and generally just ensures that cargo and rustc 
+
+can be developed and improved independently. End-users do not need to run this multi-step sequence manually, since the entire workflow can be handled by a standard cargo 
+
+subcommand wrapper. 
+
+Alternative Design Considerations: An alternative de-sign which we considered was a single-pass implementa-tion, in which we would only invoke cargo once, similar to cuda-oxide . The Rust compiler fundamentally expects one compilation target per invocation. If that target is also used to determine both host and device target semantics, we would need to choose between the CPU target (e.g. x86_64-unknown-linux-gnu ), the GPU target (e.g. amdgcn-amd-amdhsa ), or a new combined target. None of these choices seemed optimal to us. An alternative, as used by cuda-oxide, is to retain the CPU target for frontend com-pilation and separate device code at a later stage. This pre-serves host-target semantics, but frontend target-dependent decisions such as cfg evaluation are still made only once. Rust is a systems language that has direct support for both inline assembly and target specific intrinsics like avx512 or neon instructions. Compute-heavy crates can therefore provide a default implementation, supported by faster but vendor-specific implementations which are gated behind 
+
+#[cfg(target_arch=<X>)] checks. Using the CPU target preserves these host-side optimizations, but it means that 
+
+cfg evaluation may select CPU-specific implementations be-fore host and device code are separated. Consequently, MIR reachable from a GPU kernel can contain CPU-specific in-trinsics or inline assembly. For the general case, we consider translating such target-specific code into GPU-compatible IR infeasible. We therefore favour separate frontend passes, which allow target-dependent source constructs to be evalu-ated independently for the CPU and GPU. This choice comes with a cost: single-pass compilation keeps host and device in-formation within one compilation, simplifying cross-target communication and monomorphization, while our multi-pass design must explicitly communicate this information between passes. It might seem tempting to compromise between the two approaches. A granular compromise would require us not to evaluate cfg attributes and macros in the AST, and instead carry them throughout the compiler, till our final MIR layer, where we would split the IR between host and device IR. This would require adjusting most IR and lowering code, and furthermore pessimize compile times and memory usage. To avoid imposing this overhead on non-GPU users, rustc would need to retain its existing behaviour for ordinary com-pilations, adding further implementation complexity. A more coarse compromise would be to simply have two completely independent AST and IR copies in a single rustc invocation. While the coarse compromise would simplify some of our communication, we believe the actual simplifications for us would not outweigh the increased complexity in other parts of the compiler. For now, we therefore use a two-pass compi-lation also performed by OpenMP offload, HIP, CUDA, and others. 
+
+4.1 Lowering of our Offload intrinsics 
+
+Discrete accelerator memory spaces typically require ex-plicit, developer-directed data mapping, as alternative Uni-fied Shared Memory (USM) abstractions or software-managed runtimes often introduce notable performance overhead and microarchitectural constraints [1]. Rather than forcing pro-grammers to manually annotate data-sharing boundaries via verbose pragmas, as is common in OpenMP or SYCL, our toolchain derives data directionality semantics automatically from Rust’s type system and ownership model. Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert 
+
+Because safe Rust enforces immutability by default and triggers compiler warnings for redundant mut qualifiers, ar-gument mutability provides a sound signal for data direction-ality. During Rust MIR lowering, the framework walks the kernel parameter layouts to compute the number of bytes to be transferred and to synthesize corresponding LLVM 
+
+Libomptarget data-mapping clauses: 
+
+• Immutable references ( &T ) and constant raw pointers (*const T ) lower to the MapTo directive, copying data exclusively to the device. 
+
+• Mutable references ( &mut T ) and mutable raw point-ers ( *mut T) lower to the bidirectional MapToFrom 
+
+directive and enable post-kernel synchronization. 
+
+• Scalar arguments up to 64 bits are passed by value using OpenMP target’s IMPLICIT and LITERAL flags, bypassing pointer indirection and allocation overhead. 
+
+Cross-Boundary Monomorphization. Idiomatic Rust relies on compile-time monomorphization to generate spe-cialized, concrete function instances from generic defini-tions. This mechanism is important for GPU targets, where static type resolution enables additional LLVM optimiza-tions. However, our two-pass compilation pipeline breaks standard monomorphization tracking. Because the host ap-plication’s entry point ( main ) is omitted or conditionally compiled out during the device pass, the concrete type sub-stitutions requested by host-side offload! invocations are invisible during the device compilation pass. To resolve this mismatch, we considered two strategies: 1. Dual-Pass Main Compilation: Compiling the host entry point (main) during the device pass solely to force kernel instantiations. This approach has a simi-lar challenge to a single-pass solution; target-specific conditional compilation ( #[cfg] ) can cause the device pass to miss code paths that are active during the host pass. 2. Cross-Pass Metadata Exportation: Leveraging a dedicated compiler pass to serialize kernel definition identifiers ( DefId ) and their concrete type substitu-tions during the host phase. The subsequent device pass imports this metadata to seed its root monomor-phization collection. We implemented the second approach as a new query in the Rust compiler. The compilation overhead of this metadata serialization is expected to be negligible, as it integrates with incremental compilation caching, and the first host pass can skip the expensive codegen part. 
+
+4.2 Discussion on Future Support 
+
+While we implemented most of our desired features in this prototype, there are two important features that we plan to add or extend, namely the support to pass additional types between the host and device, and the ability to run most of the standard library on GPUs. 
+
+Frontend ABI Validation. Since our two-pass architec-ture decouples host and device compilations, type layouts and ABI lowerings can diverge between the two targets. For instance, we identified a target discrepancy in how primitive slices are lowered: the x86_64 host and amdgcn backends represent a slice as two scalar values ( ptr, int ), whereas the upstream nvptx64 target lowers it as a fixed-size array ([i64; 2] ). While we are engaging with upstream main-tainers to unify these lowering targets where sensible, the divergence, even on the basic slice type, shows the neces-sity of automated cross-boundary validation before adding support for more advanced types like structs. This static validation is only required for host-device ker-nel entry points; GPU-to-GPU device calls are lowered by the same target, so arbitrary types can be passed. 
+
+Standard Library Support on GPUs. Providing a full GPU implementation of Rust’s std is outside the scope of this work. Reimplementing broad standard-library support inside the Rust frontend would also duplicate a difficult and largely orthogonal engineering effort. We instead plan to adopt the idea established by LLVM’s libc-for-gpu [19, 29] and later replicated for Rust (outside of LLVM) in [31]. 
+
+## 5 Compiler Optimization Passes 
+
+Rust Offload provides two interfaces which support Rust-written GPU kernels: an explicit interface, where users con-trol data movement directly, and a more convenient inter-face, where data is transferred automatically for each kernel launch. The convenient interface is easier to use, but it can be substantially slower when the same data is reused across multiple kernels. Without relying on the evaluation results in detail, our experiments show that repeated automatic transfers can make this interface over 400 × slower than the explicit version with dedicated data movement. We expect that most Rust offload users will start proto-typing GPU applications with our convenient interface. We therefore propose a set of optimizations that, for the com-mon case, can make the convenient interface as performant as manual transfers. These optimizations would be enough to match the overall runtime of our explicit interface on the evaluated RAJAPerf Benchmarks. We prototyped most of these optimizations as an extension to the LLVM OpenMP-opt pass [14, 20]. Based on initial experiments, we are con-fident that with further testing and upstreaming, we can eliminate the need for most Rust Offload users to reach for the dedicated data movement interface. 
+
+Automatic data prefetching. LLVM’s offload API pro-vide an interface which already matches our convenient offload intrinsic. In a single call, it transfers all arguments to the GPU, launches a kernel, and transfers some arguments back to the host. This is not easy to optimize, so we adjusted our code generation to be more explicit. Each offload intrinsic GPU Offload in Rust: Portable, Safe, and Fast 
+
+now generates three calls: (1) a Host2Device transfer for all arguments, (2) a kernel launch, (3) a Device2Host transfer for selected arguments. As part of this transfer, we prototyped an extension to turn these blocking transfers into async ones. The Host2Device is started earlier, if we can prove that it is legal to do so. We then await it at the kernel launch loca-tion. Similarly, the Device2Host transfer is started directly after the kernel has terminated, but we only block to await it before its next use [17]. 
+
+LICM. The second optimization we prototyped is a variant of Loop-Invariant-Code-Motion (LICM).          
+
+> 1for iin 0..100 {
+> 2offload!(vec_add, &a, &b, & mut c);
+> 3}
+
+Based on our work in the previous step, we have already generated separate memory transfer and kernel launch in-structions. We extended our previous optimization to try and hoist both transfers out of the loop. If we succeed, we could then continue to turn them into async transfers for further improvements. In order to also handle unrolled loops, we prototyped handling of repeated kernel calls, which might only differ by scalar offsets:               
+
+> 1...
+> 2offload!(vec_add, &a, &b, & mut c, 0);
+> 3offload!(vec_add, &a, &b, & mut c, 1);
+> 4offload!(vec_add, &a, &b, & mut c, 2);
+> 5offload!(vec_add, &a, &b, & mut c, 3);
+> 6...
+
+Here we can clearly cancel out all intermediate data transfers that were generated in the lowering of our intrinsics. 
+
+Further experiments. The benchmark that is the least amenable to our optimization experiments is the “Energy” benchmark in RAJAPerf [27]. It consists of six different ker-nels which share a large number of arguments. However, each kernel has a few unique arguments, and such an opti-mization would need a heuristic for whether it is reasonable to preload all of the data. If applied, the transformation would increase the peak memory consumption on the GPU, poten-tially significantly, so we have therefore not prototyped it. 
+
+Rust-based performance improvements. Most of our optimizations target the convenient offload interface and are therefore prototyped in LLVM, on which rustc already relies for many performance optimizations. For explicit data movement, however, rustc could also help through Clippy, the official Rust linter. In particular, a future lint could warn when a preload call is placed unnecessarily late, leaving a lot of wasted time between the last CPU usage and the start of our Host to Device transfer. 
+
+## 6 Evaluation 
+
+To show the portability and efficiency of our Rust GPU solu-tion, we ported a subset of RAJAPerf [27] to pure Rust and evaluated it against the original variants. RAJAPerf is the benchmark suite of RAJA [10], a portable C++ framework for expressing loop-level parallelism across accelerators using different backends such as CUDA, HIP, and OpenMP. Its ker-nels are derived from HPC applications and are commonly used to evaluate backend performance. RAJA and its bench-marks are useful for our study as they allow us to compare our Rust Offload against the same RAJA-based code with different high-performance backends. We ran the benchmarks on three different servers, using an AMD MI250X GPU, NVIDIA H100 GPU, and an NVIDIA RTX A2000 GPU. Our extended Rust compiler is based on LLVM 23.1.0-rc1. We evaluate five aspects: (1) kernel times, (2) memory transfer size, (3) total runtime, (4) fast-math impact, and (5) kernel register usage. 
+
+Kernel Times. Figure 2 shows the kernel times for Rust and RAJA variants on MI250X and H100. Rust kernels per-form similarly to RAJA kernels except in the FIR and LTIMES benchmarks, where Rust shows slower kernel times. Both are simple micro-benchmarks where each thread repeatedly performs a small number of multiply/add operations, with FIR using a compile-time loop count and LTIMES taking the iteration count as an argument. Since these kernels are small and sensitive to unrolling decisions, larger differences are not surprising. 
+
+Memory Transfer Sizes. While kernel times are similar, memory transfer behaviour differs between Rust and RAJA on both AMD and NVIDIA GPUs. On H100 and across all benchmarks, RAJA performs slightly more and larger host-to-device transfers than Rust: 55 vs. 53 transfers, totalling 468 MB vs. 423 MB. After the kernels, both perform 9 device-to-host transfers, but RAJA transfers 99 MB compared to Rust’s 69 MB. Rust moves less data overall, but this does not translate into lower transfer time: its transfers take 46 ms compared to 16 ms for RAJA. We suspect differences in memory kinds and asynchronous transfers to be the cause of the slowdown. 
+
+Benchmark Runtimes. Figure 3 and 4 show the bench-mark runtime for Rust and RAJA on MI250X and H100, re-spectively. These mainly include the kernel launch time, the kernel time, and the synchronization time. As per RAJAPerf default, each benchmark kernel is launched in a loop, be-tween 50 and 700 times, and the total runtime of this loop is then reported. Memory transfer times are excluded by RAJAPerf, as transfers are generally done at the begin and end of the program. As a smoke test, we add a naive Rust Offload implementation in Figure 3 based on interface A, which transfers data once per kernel launch instead of once Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert 
+
+per benchmark. On our MI250X, this naive implementation can be over 400 × slower than our optimized Rust imple-mentation, which highlights the need for our optimizations described in 5 to close this gap. On MI250X (Figure 3), Rust is between 32% faster and 43% slower when measuring the whole runtime and not indi-vidual kernel timings. On H100 (Figure 4), Rust is between 11% faster and 46% slower than the base CUDA implementa-tion. The biggest differences in favour of BaseCuda can be seen on the FIR and LTIMES benchmark, where Rust is 44% and 46% slower, respectively. These two benchmarks also give Rust the biggest advantage over BaseHIP, with 15% and 32% respectively. Both benchmarks consist only of a very small loop with few instructions, and as such different un-roll decisions between the three compilers can have a major impact. 
+
+Fast-Math Impact. To assess whether Rust kernel times benefit from common GPU optimization settings, we evalu-ate relaxed floating-point semantics. C++ GPU codes com-monly use fast-math, which combines seven flags that enable optimizations based on weaker floating-point guarantees. Rust does not allow users to enable fast-math directly, since they include “no NaN” (nnan) and “no infinity” (ninf) as-sumptions that could trigger UB in safe Rust code. Instead, Rust provides experimental algebraic [6] floating-point op-erations, which expose most of the relevant optimization op-portunities while excluding the nnan and ninf assumptions. As Figure 5 shows, on an RTX A2000, algebraic floats pro-vide a 2 × speedup on FIR and improve DEL_DOT_VEC_2D, VOL3D, and MATVEC3D by about 20%. The FIR kernel is a trivial loop and already unrolled in the case of normal floats. Algebraic floats allow LLVM to further vectorize it with a vector-width of 4, explaining the large impact. Algebraic floats do not have a relevant impact on other kernels. Using algebraic floats on the MI250X has not shown significant performance improvements. 
+
+Register Usage. We primarily care about the pure ker-nel times, but register usage is another indicator to confirm that we generate efficient LLVM-IR. On RTX 2070, the av-erage register usage of Rust is 33, while the RAJA-CUDA solution averages 28 across the 13 implemented RAJAPerf kernels. Using fast-math via algebraic floats in Rust only re-sults in a minimal increase in two of the kernels. The overall slightly higher register usage could be caused by additional bounds-checking in the Rust code. In Rust CPU code, bounds checking is usually avoided by iterating over all elements in an array instead of indexing into it. GPU code uses explicit indexing based on the thread and block indices instead, so Rust must verify that the access is within bounds. In RA-JAPerf, most array, block, and thread dimensions are known at compile time, and we have not measured any runtime impact of bounds-checking on Rust GPU kernels.       
+
+> 050 100 150 200 pressurecalc2 matvec3d pressurecalc1 ltimes energycalc5 energycalc3 deldotvec2d energycalc1 vol3d fir energycalc4 energycalc2 energycalc6
+> Average runtime [ 𝜇 s] Rust (H100) RAJA (H100) Rust (MI250X) RAJA (MI250X)
+
+Figure 2. Average kernel runtime comparison between Rust and RAJA on H100 and MI250X. 
+
+## 7 Related Work 
+
+The Rust GPU ecosystem is under active development, with multiple approaches currently in progress: 
+
+rust-gpu : A SPIR-V-based approach[5] which was orig-inally targeting graphics programming in Rust, later ex-tended to also target compute kernels. Due to using the Vulkan flavour of SPIR-V, the rust-gpu project has to emu-late pointers[8], which we consider a blocking issue for most HPC benchmarks. GPU Offload in Rust: Portable, Safe, and Fast    
+
+> DEL_DOT_VEC_2D ENERGY FIR LTIMES MATVEC_3D_STENCIL PRESSURE VOL3D
+> 10 0.7
+> 10 1
+> 10 1.3
+> 10 1.7
+> 10 2
+> 10 2.3
+> 10 2.7
+> 10 3
+> 10 3.3
+> Mean runtime (ms, log scale)
+> Base_Seq Rust Interface A Rust Interface C Base_HIP RAJA_HIP
+
+Figure 3. Mean benchmark runtime of Rust and RAJAPerf implementations on an AMD MI250X GPU.   
+
+> DEL_DOT_VEC_2D ENERGY FIR LTIMES MATVEC_3D_STENCIL PRESSURE VOL3D
+> 10 0
+> 10 0.3
+> 10 0.7
+> 10 1
+> 10 1.3
+> 10 1.7
+> 10 2
+> 10 2.3
+> 10 2.7
+> 10 3
+> 10 3.3
+> Mean runtime (ms, log scale)
+> Base_Seq Rust Interface C Base_CUDA RAJA_CUDA
+
+Figure 4. Mean benchmark runtime of Rust and RAJAPerf implementations on an H100 NVIDIA GPU. 
+
+rust-cuda : An NVIDIA-only approach[4] that uses raw pointers for all mutable arguments, consequently giving up on the portability and safety aspects our work provides. A very early paper[18] which precedes the first stable Rust release. It demonstrates GPU programming in Rust, by targeting both OpenCL and PTX directly. They also describe a two-pass compilation pipeline. 
+
+cuda-oxide : A new NVIDIA-led approach[3] to allow safe programming for NVIDIA GPUs. Although portability is not given, the safety ideas are comparable to those in our work and in [15]. Beyond existing implementation differences, we are therefore curious if a unified frontend in the style of [12]       
+
+> 0200 400 600 800 1,000 1,200 pressurecalc2 matvec3d pressurecalc1 ltimes energycalc5 energycalc3 deldotvec2d energycalc1 vol3d fir energycalc4 energycalc2 energycalc6
+
+Average runtime [ 𝜇 s] Rust Rust (Algebraic Floats) Base_CUDA RAJA_CUDA 
+
+Figure 5. Average kernel runtime comparison between Rust and RAJA on NVIDIA RTX A2000. is possible. Their single-pass compilation makes a different trade-off from ours: it simplifies communication between host and device code, but frontend target-dependent deci-sions are evaluated only once. Our multi-pass design instead preserves independent host and device target semantics at the cost of explicit cross-pass communication. Beyond Rust, our work shares commonalities with many of the common offloading languages. A subset of CUDA Manuel S. Drehwald, Marcelo Domínguez, Kevin Sala, Alán Aspuru-Guzik, and Johannes Doerfert 
+
+was implemented on top of the OpenMP target infrastruc-ture [13], and we follow a similar path to reuse the OpenMP target efforts in LLVM [11]. In LLVM, OpenMP target run-times have been co-developed with (mostly) language spe-cific compiler optimizations [14, 20]. Similarly, we co-developed compiler optimizations for redundant data transfers, stem-ming from automatic data movement at kernel boundaries. It is worth to note that while our optimizations are API specific, they apply to any language, which for now includes OpenMP target; a language that can suffer from the same issues if code is ported naively to the GPU. Ongoing efforts are currently porting SYCL on top of the LLVM Offload infrastructure, which is the generic part spun out of OpenMP target. As these efforts mature, we will port our approach to the more generic Offload APIs as well and enable our transformations for more input languages. 
+
+## 8 Conclusions 
+
+In this work, we presented a suite of portable interfaces for offloading Rust code to GPU accelerators, proving that memory safety does not preclude high performance. To cover a wide range of GPU programming paradigms, we provided three distinct interfaces: (1) offloading for standard Rust regions with automatic, compiler-managed data move-ment; (2) offloading via third-party libraries like cuBLAS and rocBLAS; and (3) a manual, user-controlled data movement interface. Regarding kernel programming, developers retain high flexibility: kernels can be implemented as unsafe code blocks, with CUDA and HIP-style thread indexing, or written entirely as safe code by leveraging our novel partitioning abstractions for transparent data-to-thread mapping. Built upon the LLVM Offload infrastructure, our interfaces achieve broad vendor portability, currently supporting NVIDIA and AMD accelerators, with planned support for Intel GPUs. Our experiments demonstrate that this Rust offloading approach achieves near-parity with native kernel execu-tion times on both NVIDIA and AMD GPUs. While we ob-served overheads related to total benchmark execution time— primarily stemming from current host-device synchroniza-tion inefficiencies—our approach stands as a highly competi-tive acceleration method for both safe and unsafe Rust code on major GPU vendors. Future work will focus on minimizing device-host syn-chronization overhead by transparently integrating asyn-chronous data transfers and kernel launches. Furthermore, we plan to extend the frontend to support multi-device en-vironments, enabling developers to scale their workloads across all available GPUs on a given node. 
+
+## Acknowledgements 
+
+We thank the Rust Foundation for their support of this work. Manuel Drehwald was supported in part by the Rust Founda-tion, and Marcelo Domínguez was supported in part through Google Summer of Code. The views and opinions expressed in this paper are those of the authors and do not necessarily reflect those of the Rust Foundation or Google. We also especially thank Oli Scherer for discussion on supporting generics and for general code review, the Rust Infrastructure Team and Shota Sugano for their support in distributing our work through Rust’s infrastructure, and Travis Cross for championing this work within the Rust Language Team. Alán Aspuru-Guzik thanks Anders G. Frøseth for his gen-erous support. Alán Aspuru-Guzik also acknowledges the generous support of Natural Resources Canada and the Canada 150 Research Chairs program. This work was performed under the auspices of the U.S. Department of Energy by Lawrence Livermore National Lab-oratory under Contract DE-AC52-07NA27344 (LLNL-CONF-2023077). This manuscript has been partially co-authored by Lawrence Livermore National Security, LLC under Con-tract No. DE-AC52-07NA27344 with the US. Department of Energy. The United States Government retains, and the pub-lisher, by accepting the article for publication, acknowledges that the United States Government retains a non-exclusive, paid-up, irrevocable, world-wide license to publish or repro-duce the published form of this manuscript, or allow others to do so, for United States Government purposes. 
+
+## References                                     
+
+> [1] 2020. Optimizing GPU Memory Allocation and Move-ment using SYCL |Argonne Leadership Computing Facility.
+> https://www.alcf.anl.gov/support-center/training/optimizing-gpu-memory-allocation-and-movement-using-sycl-0
+> [2] 2024. Make Inference Faster: Efficient GPU Memory Management for Butterfly Sparse Matrix Multiplication. [Online; accessed 12. Jun. 2026]. https://arxiv.org/html/2405.15013v1
+> [3] 2026. cuda-oxide. https://github.com/NVlabs/cuda-oxide
+> [4] 2026. rust-cuda. https://github.com/Rust-GPU/Rust-CUDA
+> [5] 2026. rust-gpu. https://github.com/rust-gpu/rust-gpu
+> [6] 2026. Tracking Issue for algebraic floating point methods ·Issue #136469 ·rust-lang/rust. https://github.com/rust-lang/rust/issues/ 136469
+> [7] 2026. Validating References with Lifetimes - The Rust Programming Language. https://doc.rust-lang.org/book/ch10-03-lifetime-syntax. html#generic-lifetimes-in-functions
+> [8] 2026. Writing GPU shaders in plain Rust. Presentation at the 2026 RustWeek conference. https://drive.google.com/file/d/1pX0kC0gN_ 8ueKGvnuAAxcH7B-EBAatKA/view
+> [9] Javad Abdi, Guowei Zhang, and Mark C. Jeffrey. 2023. Brief Announce-ment: Is the Problem-Based Benchmark Suite Fearless with Rust? In
+> SPAA ’23: Proceedings of the 35th ACM Symposium on Parallelism in Algorithms and Architectures . Association for Computing Machinery, New York, NY, USA, 303–305. doi: 10.1145/3558481.3591313
+> [10] David A. Beckingsale, Jason Burmark, Rich Hornung, Holger Jones, William Killian, Adam J. Kunen, Olga Pearce, Peter Robinson, Brian S. Ryujin, and Thomas RW Scogland. 2019. RAJA: Portable Performance for Large-Scale Scientific Applications. In 2019 IEEE/ACM International Workshop on Performance, Portability and Productivity in HPC (P3HPC) .71–81. doi: 10.1109/P3HPC49587.2019.00012
+
+GPU Offload in Rust: Portable, Safe, and Fast 
+
+[11] Carlo Bertolli, Samuel F. Antao, Gheorghe-Teodor Bercea, Arpith C. Jacob, Alexandre E. Eichenberger, Tong Chen, Zehra Sura, Hyo-jin Sung, Georgios Rokos, David Appelhans, and Kevin O’Brien. 2015. Integrating GPU support for OpenMP offloading directives into Clang. In Proceedings of the Second Workshop on the LLVM Com-piler Infrastructure in HPC (Austin, Texas) (LLVM ’15) . Association for Computing Machinery, New York, NY, USA, Article 5, 11 pages. doi: 10.1145/2833157.2833161 
+
+[12] Valentin Churavy. 2026. KernelAbstractions.jl. Zenodo (2026). doi: 10. 5281/zenodo.19162524 
+
+[13] Johannes Doerfert, Marc Jasper, Joseph Huber, Khaled Abdelaal, Gior-gis Georgakoudis, Thomas Scogland, and Konstantinos Parasyris. 2023. Breaking the Vendor Lock: Performance Portable Program-ming through OpenMP as Target Independent Runtime Layer. In 
+
+Proceedings of the International Conference on Parallel Architectures and Compilation Techniques (Chicago, Illinois) (PACT ’22) . Asso-ciation for Computing Machinery, New York, NY, USA, 494–504. doi: 10.1145/3559009.3569687 
+
+[14] Johannes Doerfert, Atmn Patel, Joseph Huber, Shilei Tian, Jose M Mon-salve Diaz, Barbara Chapman, and Giorgis Georgakoudis. 2022. Co-Designing an OpenMP GPU Runtime and Optimizations for Near-Zero Overhead Execution. In 2022 IEEE International Parallel and Distributed Processing Symposium (IPDPS) . 504–514. doi: 10.1109/IPDPS53621.2022. 00055 
+
+[15] Manuel Drehwald, Marcelo Domínguez, Kevin Sala, and Johannes Do-erfert. 2025. Taming GPU programming with safe Rust. Presentation at the 2025 LLVM Developers’ Meeting. https://llvm.org/devmtg/2025-10/slides/technical_talks/drehwald.pdf .[16] Paul J. Goulart and Yuwen Chen. 2024. Clarabel: An interior-point solver for conic programs with quadratic objectives. arXiv:2405.12762 [math.OC] [17] Rafael A. Herrera Guaitero, Jose M Monsalve Diaz, Thomas App-lencourt, Xiaoming Li, and Johannes Doerfert. 2022. Automatic Asynchronous Execution of Synchronously Offloaded OpenMP Tar-get Regions. In 2022 IEEE/ACM Eighth Workshop on the LLVM Com-piler Infrastructure in HPC (LLVM-HPC) . 23–33. doi: 10.1109/LLVM-HPC56686.2022.00008 
+
+[18] Eric Holk, Milinda Pathirage, Arun Chauhan, Andrew Lumsdaine, and Nicholas D. Matsakis. 2013. GPU Programming in Rust: Implementing High-Level Abstractions in a Systems-Level Language. In 2013 IEEE International Symposium on Parallel & Distributed Processing, Work-shops and Phd Forum, Cambridge, MA, USA, May 20-24, 2013 . IEEE, 315–324. doi: 10.1109/IPDPSW.2013.173 
+
+[19] Joseph Huber. 2023. LLVM C Library for GPUs. Presentation at the 2023 LLVM Developers’ Meeting. https://llvm.org/devmtg/2023-10/slides/techtalks/Huber-LibCforGPUs.pdf .[20] Joseph Huber, Melanie Cornelius, Giorgis Georgakoudis, Shilei Tian, Jose M Monsalve Diaz, Kuter Dinel, Barbara Chapman, and Johannes Doerfert. 2022. Efficient execution of OpenMP on GPUs. In Proceedings of the 20th IEEE/ACM International Symposium on Code Generation and Optimization (Virtual Event, Republic of Korea) (CGO ’22) . IEEE Press, 41–52. doi: 10.1109/CGO53902.2022.9741290 
+
+[21] Ralf Jung, Hoang-Hai Dang, Jeehoon Kang, and Derek Dreyer. 2019. Stacked borrows: an aliasing model for Rust. Proc. ACM Program. Lang. 4, POPL (Dec. 2019), 1–32. doi: 10.1145/3371109 
+
+[22] Ralf Jung, Jacques-Henri Jourdan, Robbert Krebbers, and Derek Dreyer. 2017. RustBelt: securing the foundations of the Rust programming language. Proc. ACM Program. Lang. 2, POPL (Dec. 2017), 1–34. doi: 10. 1145/3158154 
+
+[23] Sarah Quiñones El Kazdadi. 2026. faer: A linear algebra library for the Rust programming language. Journal of Open Source Software 11, 123 (2026), 6099. doi: 10.21105/joss.06099 
+
+[24] Johannes Köster. 2015. Rust-Bio: a fast and safe bioin-formatics library. Bioinformatics 32, 3 (10 2015), 444– 446. arXiv:https://academic.oup.com/bioinformatics/article-pdf/32/3/444/49016785/bioinformatics_32_3_444.pdf doi: 10.1093/ bioinformatics/btv573 
+
+[25] Nicholas D Matsakis and Felix S Klock. 2014. The rust language. ACM SIGAda Ada Letters 34, 3 (2014), 103–104. [26] John Parrish, Nicole Wren, Tsz Hang Kiang, Akihiro Hayashi, Jeffrey Young, and Vivek Sarkar. 2023. Towards Safe HPC: Productivity and Performance via Rust Interfaces for a Distributed C++ Actors Library (Work in Progress). In MPLR 2023: Proceedings of the 20th ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes . Association for Computing Machinery, New York, NY, USA, 165–172. doi: 10.1145/3617651.3622992 
+
+[27] Olga Pearce, Jason Burmark, Rich Hornung, Befikir Bogale, Ian Lums-den, Michael McKinsey, Dewi Yokelson, David Boehme, Stephanie Brink, Michela Taufer, and Tom Scogland. 2024. RAJA Performance Suite: Performance Portability Analysis with Caliper and Thicket. In 
+
+ACM Conferences . IEEE Press, 1206–1218. doi: 10.1109/SCW63240.2024. 00162 
+
+[28] Jeffrey M. Perkel. 2020. Why scientists are turning to Rust. Nature 
+
+588 (Dec. 2020), 185–186. doi: 10.1038/d41586-020-03382-2 
+
+[29] Shilei Tian, Joseph Huber, Konstantinos Parasyris, Barbara Chapman, and Johannes Doerfert. 2022. Direct GPU Compilation and Execution for Host Applications with OpenMP Parallelism. In 2022 IEEE/ACM Eighth Workshop on the LLVM Compiler Infrastructure in HPC (LLVM-HPC) . 43–51. doi: 10.1109/LLVM-HPC56686.2022.00010 
+
+[30] Matthew Treinish, Ivan Carvalho, Georgios Tsilimigkounakis, and Nahum Sá. 2022. rustworkx: A High-Performance Graph Library for Python. Journal of Open Source Software 7, 79 (2022), 3968. doi: 10. 21105/joss.03968 
+
+[31] VectorWare. 2026. Rust’s standard library on the GPU. (Jan. 2026). 
+
+https://www.vectorware.com/blog/rust-std-on-gpu 
+
+[32] Neven Villani, Johannes Hostert, Derek Dreyer, and Ralf Jung. 2025. Tree Borrows. Proc. ACM Program. Lang. 9, PLDI (June 2025), 1019– 1042. doi: 10.1145/3735592 
+
+[33] Yuchen Zhang, Yunhang Zhang, Georgios Portokalidis, and Jun Xu. 2022. Towards Understanding the Runtime Performance of Rust. In 
+
+ASE ’22: Proceedings of the 37th IEEE/ACM International Conference on Automated Software Engineering . Association for Computing Machin-ery, New York, NY, USA, 1–6. doi: 10.1145/3551349.3559494
