@@ -1,0 +1,535 @@
+Title: An HPC Approach to Accelerate Tensor Decompositions
+
+URL Source: https://arxiv.org/pdf/2608.24307v1
+
+Published Time: Wed, 26 Aug 2026 00:52:59 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# An HPC Approach to Accelerate Tensor Decompositions 
+
+Markus Hellgren 1, Erna Begovi´ c Kovaˇ c2[0000 −0002 −3213 −1465] , Hans O. Karlsson 1[0000 −0002 −5366 −4949] , and Roman Iakymchuk 1,3[0000 −0003 −2414 −700 X] 
+
+> 1
+
+Uppsala University, Department of Information Technology, Sweden 
+
+markus.hellgren@gmail.com, hans.karlsson@it.uu.se, roman.iakymchuk@it.uu.se  
+
+> 2
+
+University of Zagreb, Faculty of Chemical Engineering and Technology, Croatia 
+
+ebegovic@fkit.unizg.hr  
+
+> 3
+
+Ume˚ a University, Department of Computing Science, Sweden 
+
+Abstract. Quantum systems grow in complexity so rapidly that even modest models become difficult to simulate, creating a strong need for methods that can handle high-dimensional data, also known as tensors. In this work, we investigate a novel Jacobi-type tensor algorithm for ten-sor decomposition and develop a CUDA-based algorithm that supports tensors of arbitrary order on a single GPU. We test the implementation on NVIDIA H100 GPUs and show that the algorithm converges correctly for diagonalizable tensors up to nine dimensions, with runtime scaling in a predictable way as tensor order grows. Finally, our general algorithm outperforms the original MATLAB reference by more than two orders of magnitude. 
+
+Keywords: Tensors · Tucker decomposition · Jacobi-type method · GPUs 
+
+· Quantum Computing. 
+
+## 1 Introduction 
+
+The curse of dimensionality appears across many fields of science and engineer-ing, and quantum physics is no exception. As the number of particles increases, the dimensionality of the Hilbert space grows exponentially, making even rela-tively small quantum systems difficult to treat. For example, an N -qubit quan-tum computer has a state space of dimension 2 N , which increases exponentially with each additional qubit. Tensor decomposition techniques are essential for de-scribing strongly correlated systems in condensed matter [17], quantum dynamics of high-dimensional molecular vibrations [9] as well as quantum simulations of spin transport in one-dimensional Heisenberg chains [10]. This challenge is driving development and evaluation of new algorithms and implementations that can handle high-dimensional problems more efficiently, particularly in high performance computing (HPC) environments where large-sca-le simulations are carried out. In the context of quantum physics, representative examples of such studies are presented in [14] and [3]. In particular, there is strong motivation for tools that support spectral analysis, which plays a central arXiv:2608.24307v1 [cs.DC] 25 Aug 2026 2 M. Hellgren et al. 
+
+role in understanding the properties of quantum systems. Many of the relevant models, operators, and data structures in this context can naturally be expressed as higher-order tensors (multidimensional arrays), making tensor-based methods appealing. Tensor decompositions are surveyed in [8]. Tucker methods such as HOSVD and HOOI [5,4] produce a generally dense core, whereas orthogonal tensor di-agonalization maximizes the norm of its diagonal. Jacobi-type algorithms have been developed for symmetric and general third-order tensors [11,12,18,2,1]. The present work extends the third-order approach of [2] to arbitrary-order tensors and develops a GPU implementation based on parallel pivot sets. Although parallel and GPU-accelerated Jacobi methods are well established for matrix problems [13,6,15], comparable implementations for diagonalizing general dense tensors of arbitrary order appear to be unavailable. Our main contributions: 
+
+– based on the theoretical derivation with the corresponding Matlab imple-mentation for the third order tensors [2], we designed a general algorithm for the Jacobi-type tensor decomposition, see Sect. 3.2, that is capable of handling tensors of an arbitrary order. 
+
+– we developed a high performing implementation of the algorithm on Nvidia H100 GPUs leveraging their enormous performance, see Sects. 3.3 and 4. 
+
+– we evaluated the implementation on the arbitrary order and increasingly large tensors, yielding to good predictable scalability, see Sect. 5, and com-pared against the Matlab reference implementation, showing more than two orders of magnitude speedup. The remainder of the article is organized as follows: Sect. 2 contains the-oretical background plus an introduction to tensors, while Sect. 3 dives into our general Jacobi-type algorithm for tensor decomposition. Sect. 4 provides an overview of tensor representation and our high performing implementation. Sect. 5 presents convergence and performance results, and Sect. 6 discusses the main outcomes and outlines future work. 
+
+## 2 Background and theory 
+
+In this section, we present the theoretical background required to understand the algorithm under study and the developments that follow. We provide an overview of tensors and tensor operations that are fundamental to the algorithms and concepts discussed in this article. Unless stated otherwise, all the definitions concerning tensors found here align with the definitions presented in [8]. In this context, tensors can be thought of as multidimensional arrays that generalize vectors and matrices to higher orders. A vector is a 1-dimensional tensor and a matrix is a 2-dimensional tensor. Tensors can be used to rep-resent problems that depend on several significant variables. Therefore, they arise naturally in physics and scientific computing. Many-body quantum sys-tems, high-dimensional simulations, and tensor-structured operators produce data with multiple interacting dimensions. Tensors also appear in signal pro-cessing, where measurements may vary between sensors, time, and frequency, An HPC Approach to Accelerate Tensor Decompositions 3
+
+and in imaging tasks such as color images and video sequences. In these ar-eas, tensor representations preserve the full multi-dimensional structure of the problem without loss of information. A tensor, or multidimensional array, is of order D if it has D dimensions (modes). Such a tensor can be denoted X ∈ RI1×I2×···× ID , and, like vectors and matrices, it is indexed through D indices as xi1i2...i D . We work with cubical 
+
+tensors, which are those with I1 = I2 = · · · = ID , and we say that a cubical tensor is diagonal if its only non-zero entries are those on positions ( i1, i 2, . . . , i D ), for 
+
+i1 = i2 = · · · = iD . Tensor matricization refers to reorganizing a higher order tensor into a matrix by selecting mode n, 1 ≤ n ≤ D, as the row dimension and flattening all remaining modes into the columns according to some fixed, consistent ordering. This produces a mode-n unfolding that exposes the structure of the tensor along a single mode while preserving all entries. A matricized tensor can then be vectorized by flattening the unfolding into a single long vector. Let X ∈ RI1×···× In×···× ID and M ∈ RJ×In . The mode-n multiplication is a tensor-matrix product 
+
+T = X × n M, 
+
+where T is a I1 × · · · × In−1 × J × In+1 × · · · × ID tensor, such that 
+
+ti1...i n−1ji n+1 ...i D =
+
+> In
+
+X
+
+> in=1
+
+xi1...i n...i D mji n , 1 ≤ j ≤ J. (1) The Tucker decomposition is a factorization of a tensor X ∈ RI1×I2×···× ID into one core tensor C and D factor matrices M1, M 2, . . . , M D ,
+
+X ≈ C × 1 M1 ×2 M2 · · · × D MD . (2) A comprehensive overview of applications of the Tucker decomposition can be found in [8]. A number of software libraries support Tucker decompositions of tensors of arbitrary dimensionality. Most of these libraries provide Tucker decom-position methods based on higher-order singular value decomposition (HOSVD), which is a direct numerical method, or on higher-order orthogonal iteration (HOOI), both originally introduced by De Lathauwer et al. [4,5]. In addition, there are many libraries that offer building blocks for the im-plementation of Tucker decomposition methods such as HOSVD. For example, the following CUDA specific libraries are relevant in this context: cuBLAS, cu-SOLVER, cuTensor, cuTensorNet. While Tucker decomposition libraries are widely available and provide effi-cient implementations of standard methods like HOSVD and HOOI, they are not designed to diagonalize the core tensor. In contrast, the Jacobi-type algorithm studied in this work explicitly seeks orthogonal transformations to make the core tensor as diagonal as possible. Because standard Tucker software leaves the core unconstrained and dense, it solves a fundamentally different optimization prob-lem and cannot serve as a direct performance baseline for the diagonalization approach presented here 4 M. Hellgren et al. 
+
+## 3 Jacobi-type methods for tensor decomposition 
+
+One of the main advantages of the Jacobi matrix algorithm is its inherent par-allelism [13,6,15]. Following the same idea, we develop a parallelization strategy for the Jacobi-type algorithm for diagonalization of the tensors of order-D. In this section, we describe the Jacobi-type diagonalization algorithm for tensors and present the overall approach to its acceleration on GPUs. 
+
+3.1 Third-order Jacobi diagonalization algorithm 
+
+As a generalization of the well-studied Jacobi eigenvalue algorithm that diag-onalizes symmetric/Hermitian matrices [7,6], we introduce the diagonalization algorithm for tensors. It was studied for symmetric tensors [11,12,18] and for general tensors [2,1]. We work with general tensors and the algorithm developed in [2] forms the basis of the work presented here. For A ∈ RN ×N ×N , our goal is to obtain the Tucker decomposition 
+
+A = C × 1 U ×2 V ×3 W, 
+
+where U , V , and W are orthogonal matrices, and the core tensor C is diagonal, in the case of unitarily diagonalizable tensors, or as diagonal as possible for nondiagonalizable cases. Thus, our objective function takes the form 
+
+f (U, V, W ) = ∥diag( A × 1 U T ×2 V T ×3 W T )∥2 → max . (3) The main idea of the algorithm is the following: For A ∈ RN ×N ×N , in each iteration k, we apply to the underlying tensor three Givens rotations, one in each mode. The rotations are chosen to maximize the Frobenius norm of the tensor diagonal. We have 
+
+A(k+1) = A(k) ×1 RT 
+
+> 1,k
+
+×2 RT 
+
+> 2,k
+
+×3 RT
+
+> 3,k
+
+, k ≥ 0.
+
+Givens rotations Ri,k , i = 1 , 2, 3, differ from the identity matrix IN in a 2 × 2submatrix "
+
+cos ϕ(k) 
+
+> i
+
+− sin ϕ(k)
+
+> i
+
+sin ϕ(k) 
+
+> i
+
+cos ϕ(k)
+
+> i
+
+#
+
+,
+
+which is placed at the intersection of the p(k)th and q(k)th row and column of Ri,k . Therefore, in the kth iteration, rotations have the same pivot position (p(k), q (k)), but a different rotation angle. Pivot pairs are taken cyclically from the set {(p, q ), 1 ≤ p < q ≤ N } .Rotation angles are chosen, one by one, by the alternating least squares approach. In other words, each iteration is made of three microiterations. In the first microiteration we consider only the change in the first mode, while the other two rotations are assumed to be identity, etc. Then, ϕ(k)1 is the solution of the maximization problem 
+
+g(ϕ) = ( Appp cos ϕ + Aqpp sin ϕ)2 + ( −A pqq sin ϕ + Aqqq cos ϕ)2 → max ,
+
+given by tan(2 ϕ) = 2λμ , (4) An HPC Approach to Accelerate Tensor Decompositions 5
+
+where 
+
+λ = 2( Appp Aqpp − A pqq Aqqq )sign( A2 
+
+> ppp
+
++ A2 
+
+> qqq
+
+− A 2 
+
+> pqq
+
+− A 2
+
+> qpp
+
+), (5) 
+
+μ = |A 2 
+
+> ppp
+
++ A2 
+
+> qqq
+
+− A 2 
+
+> pqq
+
+− A 2
+
+> qpp
+
+|. (6) Note that it is not needed to compute ϕ explicitly, but to get sin ϕ and cos ϕ
+
+using (4). Rotations in the second and the third mode are obtained analogously, see [2] for details. According to the convergence results from [2], a pivot pair is accepted if it satisfies the gradient-based condition 2|(Λ(Q)) pq | ≥ η∥Λ(Q)∥2, (7) for Q = U, V, W , in modes 1 , 2, 3, respectively. Here, η > 0 is a tuning parameter, 0 < η ≤ 2 
+
+> N
+
+, and 
+
+Λ(Q) = QT ∇Q ˜f − (∇Q ˜f )T Q
+
+2 (8) is a projection of the function ˜f , defined in the same way as f from (3), but for any square matrices U, V, W . Its gradient is calculated element-wise as (∇U ˜f )ml = 2( A × 1 U T ×2 V T ×3 W T )lll (A × 2 V T ×3 W T )mll , (9) in mode-1, and in the same way for modes 2 and 3. 
+
+3.2 Generalization to order-D tensors 
+
+This algorithm can be extended to tensors of arbitrary order D ≥ 3, however theoretical proofs are much more elaborate. For a tensor T ∈ RN ×N ×···× N of order D, the generalized method seeks a decomposition 
+
+T = C × 1 M1 ×2 M2 · · · × D MD ,
+
+such that M1, . . . , M D are orthogonal matrices and the order-D core tensor C is as diagonal as possible. Now, one iteration consists of D microiterations, which requires generalizing the quantities λ and μ from the relations (5) and (6), re-spectively. We set the index-replacement notation, 
+
+Ap→q,n := Ap...pqp...p ,
+
+where the nth index is q, while the other indices are equal to p. Then, 
+
+λ = 2( App...p Ap→q,n − A q→p,n Aqq...q )sign( A2 
+
+> pp...p
+
++ A2 
+
+> qq...q
+
+− A 2 
+
+> q→p,n
+
+− A 2
+
+> p→q,n
+
+),μ = |A 2 
+
+> pp...p
+
++ A2 
+
+> qq...q
+
+− A 2 
+
+> q→p,n
+
+− A 2
+
+> p→q,n
+
+|.
+
+The gradient (9) is generalized in the same manner, (∇M1
+
+˜f )ml = 2( A × 1 M T 
+
+> 1
+
+· · · × D M TD )ll ··· l(A × 2 M2 · · · × D MD )l→m, 1, (10) in the first mode, etc. These expressions are a direct higher-order analogues of the third-order formulas, with the only difference being that the tensor now has 
+
+D indices rather than three. The higher-order structure is shown in Alg. 1. 6 M. Hellgren et al. 
+
+Algorithm 1: General higher-order Jacobi diagonalization algorithm. 
+
+Procedure diagonalize( A ∈ RN ×N ×···× N of order D)
+
+A(0) ← B ← A 
+
+M (0)  
+
+> d
+
+← I for all d = 1 , . . . , D k = 0 
+
+while not converged do 
+
+Choose pivot pair ( p, q )
+
+for m = 1 to D do if (p, q ) satisfies (7) then 
+
+Find cos ϕk, sin ϕk for Rm,k using (4) 
+
+B ← B × m Rm,k 
+
+M (k+1)  
+
+> m
+
+← M (k) 
+
+> m
+
+Rm,k 
+
+end end 
+
+A(k+1) ← B 
+
+end 3.3 Parallelization strategy 
+
+The generalized Jacobi-type algorithm admits a natural form of parallelism. As shown in [2], convergence is guaranteed for any cyclic pivot strategy, meaning that pivot pairs may be processed in any fixed order across iterations. This flex-ibility allows the pivot pairs to be reorganized into groups that allow parallelism within each group. For a given mode m, two pivot pairs ( p1, q 1) and ( p2, q 2) affect disjoint sets of tensor entries whenever 
+
+p1̸ = p2, p1̸ = q2, q1̸ = p2, q1̸ = q2.
+
+If these conditions hold, the corresponding rotations commute and may be ap-plied independently. This makes it possible to partition the full set of N (N −1) 2
+
+pivot pairs into groups in which all pairs satisfy the disjointness condition. For even N , such a partition consists of N − 1 groups; for odd N , it consists of N
+
+groups. For example, when N = 4, a valid partition is 
+
+{(1 , 2) , (3 , 4) }, {(1 , 3) , (2 , 4) }, {(1 , 4) , (2 , 3) }.
+
+## 4 High performing implementation 
+
+The CUDA implementation follows the overall structure outlined in Alg. 2, uti-lizing the inherent parallelism of GPUs. A key design choice is that no data, except the convergence check, is transferred between host and device during the execution of the algorithm. Instead, all device buffers are allocated and the nec-essary data is copied from host to device prior to execution. The implementation An HPC Approach to Accelerate Tensor Decompositions 7
+
+Algorithm 2: Parallel higher-order Jacobi diagonalization algorithm. 
+
+Procedure diagonalize( A ∈ RN ×N ×···× N of order D)
+
+A(0) ← B ← A 
+
+M (0)  
+
+> d
+
+← I for all d = 1 , . . . , D k = 0 
+
+while not converged do 
+
+Choose pivot group G
+
+for m = 1 to D do 
+
+F ← { (p, q ) ∈ G | (p, q ) satisfies pivot check (7) for Q = Mm}
+
+foreach (p, q ) ∈ F do 
+
+Compute cos ϕk and sin ϕk for Rm,k 
+
+end 
+
+Apply all rotations {Rm,k | (p, q ) ∈ F } to B and Mm
+
+end 
+
+A(k+1) ← B 
+
+end 
+
+then operates entirely in device memory, and results are moved back to the host once the algorithm has completed. The implementation is exposed through a function named diagonalize ,which accepts the input tensor and the initialized factor matrices. Internally, this function allocates all required device memory buffers, and copies the input data to the device. The full list of device buffers is extensive and includes the input tensor, the factor matrices, the workspaces used by external library routines, the sines and cosines corresponding to the optimal rotation angles, and storage for intermediate results. Additionally, diagonalize also generates a pivot pair partitioning as explained in Sect. 3.2, and copies that to the device memory. After buffer allocation and data transfer, diagonalize implements the algorithm’s main loop, which invokes three main functionalities 1. filter pq group takes a group of pivot pairs and filters it so that only the pairs that pass the pivot check remain. Internally, it invokes a number of custom kernels, as well as a few cuBLAS, cuSOLVER, and CUB routines. 2. set rotations takes a group of pivot pairs filtered by filter pq group 
+
+and the core tensor at the current micro-iteration, and computes the optimal sine and cosine for each pivot pair. 3. apply rotations takes the core tensor or the factor matrix, at the current micro-iteration, the filtered pivot pair group, and the corresponding sines and cosines as calculated by set rotations , and performs the update. The above three steps are performed for each iteration, for each pivot pair group, for each mode. Once the algorithm has completed, the core tensor and the factor matrices are copied back to the host. 8 M. Hellgren et al. 
+
+4.1 Tensor Representation 
+
+In the implementation, a tensor is represented by a contiguous array of values (a vectorization) together with its order, a uniform dimension size, and an array of memory strides. This representation allows the tensor layout in memory to be fully described by the stride array, which provides flexibility in how multi-indices map to linear indices. The array of tensor values is stored in the global memory. The stride array is placed in the constant memory, since it is small and read-only throughout the algorithm. The tensor order and dimension size are passed by value to kernels. 
+
+4.2 Workload Partitioning 
+
+All custom CUDA kernels use the same one-dimensional launch configuration. Blocks are arranged in a 1D grid, and threads within each block are also 1D. Given a problem size S and a chosen number of threads per block tb, the number of blocks is computed dynamically so that the total number of threads equals the largest power of two not exceeding S, divided by tb. This ensures that no thread is assigned more than two elements of the workload. Each thread identifies itself by a global thread index ( i = bid · tb + tid ) and uses this index to determine the bounds of its assigned sub-problem. The total workload of size S is partitioned into p = bg · tb contiguous chunks that differ in size by at most one element. Each thread computes the first and last index of its chunk using a standard linear partitioning scheme, ensuring full coverage of the workload without overlap and a per-thread workload that is as balanced as possible. This strategy is used consistently across the kernels in the implementation. 
+
+4.3 Core Functions Filtering Pivot Pairs. Filtering of the current pivot pair group is arguably the most complex part of the entire implementation. Both in terms of its representa-tion in code and in terms of computational cost. Internally, filter pq group 
+
+consists of multiple calls to custom built kernels, and to external CUDA li-braries like cuBLAS, cuSOLVER, and CUB (all of which are available through the CUDA Toolkit [16]). For a given mode m, the current core tensor A(k), and the current group of pivot pairs, the following steps outline its implementation: 1. Calculation of Λ(Q). This is the most complex part of filter pq group .Given the current core tensor A(k) and the current factor matrices U (k)1 , U (k)2 ,. . . , U (k) 
+
+> D
+
+, it involves calculation of ∇Q ˜f as defined by (10), which in turn requires reconstruction of the two tensors, 
+
+T1 = A(k) ×1 U (k)1 ×2 U (k)2 · · · × D U (k) 
+
+> D
+
+,
+
+T2 = A(k) ×1 U (k)1 ×m−1 U (k) 
+
+> m−1
+
+×m+1 U (k) 
+
+> m+1
+
+· · · × D U (k) 
+
+> D
+
+.
+
+Construction of the two full tensors is implemented as a sequential loop over the modes, running on the CPU, with each iteration invoking a custom built CUDA kernel implementing element-wise mode-n multiplication. Using An HPC Approach to Accelerate Tensor Decompositions 9
+
+the two tensors, another custom built kernel then produces ∇Q ˜f . Together with the factor matrix Q, ∇Q ˜f then forms Λ(Q) through a series of calls to cuBLAS routines for matrix-matrix multiplication according to (8). 2. Calculation of || Λ(Q)|| 2. After construction of Λ(Q), its 2-norm || Λ(Q)|| 2 is needed to perform the actual pivot checks. Since the 2-norm, at least in this context, is equivalent to the largest singular value of the matrix, this step is implemented using SVD routines available through cuSOLVER. 3. Filtering based on Λ(Q) and || Λ(Q)|| 2. After calculation of Λ(Q) and its 2-norm, the current group of pivot pairs is then filtered according to the condition in (7), using a mark-compact approach. This involves computing an array of flags where a flag is set if and only if the corresponding pivot pair passed the pivot check. The flag array is then used to calculate an array of prefix sums that tell us how the group should be compacted to remove the pairs that did not pass the check. Calculation of the prefix sum array is implemented using CUB routines. Finally, the prefix sum array is used to compact the pivot pair group, using a custom kernel. After passing a pivot pair group through the above steps, it contains only the pivot pairs that pass the pivot check, and it is then ready to be used by 
+
+set rotation and apply rotations .
+
+Application of Rotations. For a given mode and pivot–pair group, the appli-cation of rotations is parallelized over tensor entries. According to the workload-partitioning strategy, each thread executing apply rotations is assigned at most two tensor multi–indices, which provides a fixed and predictable amount of work per thread regardless of tensor order or dimension size. Each thread processes its assigned multi-indices independently. For each multi-index, it extracts the nth coordinate in. The filtered pivot-pair group for mode n is stored as a list whose length does not exceed the dimension size N ,which allows in to be used directly as an index into this list. If in is smaller than the size of the filtered pivot-pair group, the corresponding rotation parameters are retrieved and the associated Givens rotation is applied to that specific tensor entry. If in falls outside the range of the pivot-pair list, no update is performed for that entry. Apart from this bounds check, the kernel performs no additional branching. Listing 1.1 outlines the procedure.                                                                              
+
+> 1__global__ void apply_rotations(float* tensor, int tensor_size, int N,
+> 2const PQPair* group, int group_size, const float* s_values,
+> 3const float c_values, int mode)
+> 4{
+> 5int start, end;
+> 6if (!compute_thread_bounds(tensor_size, &start, &end))
+> 7return;
+> 89for (int i=start; i<end; ++i) {
+> 10 int in =get_mode_n_index(i, mode, N); // Extract n-th coordinate
+> 11 12 if (in >= group_size) // Check whether arotation applies
+> 13 continue;
+> 14 15 float c=c_values[in]; // Retrieve rotation and pivot pair
+> 16 float s=-s_values[in];
+> 17 PQPair pq =group[in];
+
+10 M. Hellgren et al.                                                        
+
+> 18 19 int base =set_mode_n_index(i, in, 0, mode); // Compute linear indices
+> 20 int idx_p =set_mode_n_index(base, 0, pq.p, mode);
+> 21 int idx_q =set_mode_n_index(base, 0, pq.q, mode);
+> 22 23 float Tp =tensor[idx_p];
+> 24 float Tq =tensor[idx_q];
+> 25 tensor[idx_q] =s* Tp +c*Tq; // Apply Givens rotation
+> 26 tensor[idx_p] =c* Tp -s*Tq;
+> 27 }}
+
+Listing 1.1: Sketch of the apply rotations kernel to update the core tensor. 
+
+## 5 Experimental results 
+
+We conducted measurements of the MATLAB version, the sequential C-version, and the CUDA versions on the Pelle cluster at UPPMAX using Nvidia H100 GPUs. We examined the convergence and runtime behavior of the final CUDA implementation using diagonalizable tensors with progressively increasing order and dimension sizes. We also measured the end-to-end speedup achieved by the CUDA version in comparison with the original MATLAB implementation. 
+
+5.1 Convergence behavior 
+
+Here we present the convergence behavior of the final CUDA version, when applied to diagonalizable tensors of different sizes. We look at the convergence of the relative off-diagonal norm of the core tensor off 2(X ) := ∥X ∥ 2 
+
+> F
+
+− ∥ diag( X )∥2
+
+> F
+
+under two types of scaling, separately; scaling of the number of dimensions, and scaling of the dimension size. All diagonalizable tensors were generated according to the following steps: (i) Generate a diagonal tensor C with random values on the diagonal. (ii) Generate D random unitary matrices M1, M 2, . . . , M D .(iii) Form T as T = C × 1 M1 ×2 M2 · · · × D MD .(iv) Verification: We apply the implementation to T and verify its correctness by comparing the obtained results to the original components. Fig. 1 (left) shows convergence behavior with pivot checks enabled. The pivot check mathematically guarantees convergence for 0 < η ≤ 2 
+
+> N
+
+. Increasing η ac-celerates convergence, but it also causes the algorithm to settle at a solution that is less accurate than the one obtained for smaller values. An example of the effect of the choice of η is shown in Fig. 1 (left) where, given the specific problem of size N = 8 and D = 3, the relative off-diagonal norm converges to its initial value for η = 0 .00125, and to approximately zero (the expected solution) for η = 0 .000125. Furthermore, by this logic, setting η to equal zero (which is equivalent to completely disabling pivot checks) should yield the most exact solution possible. The problem is just that, for this case, convergence is not mathematically proven. Interestingly, the evaluation presented here, performed on diagonalizable ten-sors, indicates that the algorithm converges even when η is set to zero, Fig. 1 An HPC Approach to Accelerate Tensor Decompositions 11                 
+
+> 0246810 00.25 0.50.75 1
+> Iteration Relative off-diagonal norm
+> N=8
+> D=3 D=5 D=7 D=9 Target
+> 0246810 00.25 0.50.75 1
+> Iteration Relative off-diagonal norm
+> No pivot checks, N = 8
+> D=3 D=5 D=7 D=9 Target
+
+Fig. 1: Convergence of the relative off-diagonal norm on four different diagonaliz-able tensors with dimension size N = 8 and orders D = 3 , 5, 7, 9: (left) with pivot checks; (right) no checks. All measurements, except for the one corresponding to the dashed blue line, were generated using η = 0 .00125. (right). Fig. 1 shows the convergence behavior when increasing dimensionality, while Fig. 2 for the behavior when increasing dimension size. Both graphs show how the relative off-diagonal norm converges to zero even with pivot checks dis-abled. Additionally, supporting the theory that η = 0 should be optimal for performance (if convergence is achieved), when analyzing the accuracy of the resulting decompositions, as described in the verification step above, all results matched expectations up to the numerical tolerance ( ϵ = 10 −7). These results together could have highly positive implications for the usability of the imple-mentation, because as shown in Sect. 5.2, the pivot checks are computationally expensive. 
+
+5.2 Performance evaluation 
+
+Here we present performance results of the CUDA version (including the opti-mization steps) and the sequential C version, which served as a transitional point from Matlab to CUDA. We used the same diagonalizable tensors for which con-vergence is demonstrated in Sect. 5.1. Since all convergence results indicate that the implementation converges both with and without pivot checks, we evaluated runtime performance for both cases. Additionally, all measurements presented here represent 10 full cycles of the algorithm. A fixed number of iterations was used to ensure that we actually show scaling behavior rather than behavior in-duced by the specific problem, and 10 was chosen to ensure convergence; as demonstrated in Sect. 5.1, convergence was achieved within 10 iterations for all evaluated tensors. For the CUDA versions we present elapsed GPU time, meaning that the cor-responding measurements do not include time for memory allocation on host or device, data movement, kernel launch overhead, or execution on the CPU. Instead, they isolate the cost of the kernels, which dominates the total runtime. 12 M. Hellgren et al.                 
+
+> 0246810 00.25 0.50.75 1
+> Iteration Relative off-diagonal norm
+> D=3
+> N=32 N=64 N=128 N=256 Target
+> 0246810 00.25 0.50.75 1
+> Iteration Relative off-diagonal norm
+> No pivot checks, D = 3
+> N=32 N=64 N=128 N=256 Target
+
+Fig. 2: Convergence of the relative off-diagonal norm on four different diagonal-izable tensors with order D = 3 and dimension sizes N = 32 , 64 , 128 , 256: (left) with pivot checks; (right) no checks. All measurements were generated using 
+
+η = 0 .00125. In a similar manner, the measurements corresponding to the CPU-version ex-clude memory allocation and setup, but here we measured wall-time over the implementation’s main loop, when running with a single CPU thread. Note that the sequential C-version is utilized here to demonstrate relative acceleration and scaling behavior rather than as an exhaustive multi-core CPU baseline. All mea-surements were made on the Pelle cluster with two 48-core AMD EPYC 9454P (Zen4) @2.75 GHz and two H100 GPUs per node, but one was utilized. 
+
+Scaling . Figs. 3 and 4 (left) present scaling with pivot checks, while the same figures (right) show scaling without pivot checks. In these figures, ‘CUDA 1’ corresponds to the initial CUDA version; ‘CUDA 2’ to the version that follows a new representation of tensors, which makes it possible to remove recurring calculation of tensor strides; ‘CUDA 3’ to the final CUDA version that leverages the CUDA GPU’s constant memory to achieve faster and more effective memory access. The runtime of the sequential C-version increases (approximately) exponen-tially both when the tensor order increases by one (see Fig. 3), and when the order is kept constant and the dimension size increases by a factor of two (see Fig. 4). However, the CUDA versions show much better scaling up to a certain point, at which they seem to gradually transition to scale in ways similar to the CPU version. This transition is expected, since the GPU has limited par-allel resources too. When the parallel resources become saturated, additional work can no longer be parallelized. Beyond this saturation point, computations inevitably become increasingly sequential. To conclude the overall scaling behav-ior, we can say that the runtime of the CUDA implementation (approximately) scales exponentially with tensor order, and linearly in tensor size, as problems get large. An HPC Approach to Accelerate Tensor Decompositions 13 
+
+Another important observation is that when running with pivot checks, the pivot check itself dominates the runtime. For example, for the tensor of size 8 9,Fig. 3 (right) shows a measurement of around 0.8 seconds (for the final CUDA version), while the corresponding measurement in Fig. 3 (left) is approximately 28 seconds, which 35 times higher.                   
+
+> 345678910 −210 −110 010 110 210 3
+> Order (D) Time in seconds
+> N=8
+> CUDA 1 CUDA 2 CUDA 3 C
+> 345678910 −410 −310 −210 −110 010 110 210 310 4
+> Order (D) Time in seconds
+> No pivot checks, N=8
+> CUDA 1 CUDA 2 CUDA 3 C
+
+Fig. 3: Runtime in seconds of the different implementation versions when keep-ing dimension size constant ( N = 8) while varying the tensor order ( D =3, 4, 5, 6, 7, 8, 9): (left) with pivot checks; (right) no checks. 
+
+Speedup . We also present the end-to-end speedup achieved by the final CUDA version without pivot checks compared to the MATLAB implementation. This comparison is limited to 3D tensors, since the MATLAB code does not support higher orders. Here, the end-to-end runtime is defined as the time elapsed be-tween function invocation and having the result available in host memory. For the CUDA implementation this includes device memory allocation/ deallocation, memory transfer between device and host, and execution of the algorithm’s main loop (i.e., the entire process of achieving the result). Each runtime measurement was gathered by running 10 full cycles of the algorithm. For the evaluated (relatively small) problem sizes, the end-to-end runtime of the CUDA implementation varies by a very small amount, and is dominated not by the algorithm execution, but by the overhead from the memory management, data movement, and kernel launches. This is certainly not the case for the MAT-LAB program, whose end-to-end runtime increases drastically with an increase of the dimension size. For 3D tensors with dimension sizes N = 8 , 16 , 32, the CUDA implementation proved to be approximately 2, 11, and 550 times faster (see Table 1). 14 M. Hellgren et al.               
+
+> 816 32 64 128
+> 10 −210 −110 010 110 210 3
+> Dimension size (N) Time in seconds
+> D=3
+> CUDA 1 CUDA 2 CUDA 3 C816 32 64 128
+> 10 −410 −310 −210 −110 010 110 2
+> Dimension size (N) Time in seconds
+> No pivot checks, D=3
+> CUDA 1 CUDA 2 CUDA 3 C
+
+Fig. 4: Runtime in seconds of the different implementation versions (without pivot checks) when keeping tensor order constant ( D = 3) while varying the dimension size ( N = 8 , 16 , 32 , 64 , 128): (left) with pivot checks; (right) no checks. Tab. 1: End-to-end execution time comparison between the MATLAB reference and the CUDA implementation for 3D tensors ( D = 3). 
+
+Dimension Size ( N ) MATLAB (s) CUDA (s) Speedup 
+
+8 0.64 0.36 1.8×
+
+16 4.21 0.37 11 .3×
+
+32 214.45 0.39 551 .3×
+
+## 6 Conclusion and future work 
+
+We developed a CUDA implementation of the Jacobi-type algorithm for tensor decomposition for arbitrary dense tensors of order D ≥ 3 on a single CUDA-enabled GPU, without assuming symmetry or sparsity. Numerical experiments on tensors of up to nine dimensions confirmed convergence to the expected di-agonal form and demonstrated runtime scaling on H100 GPUs as tensor order increases. A key finding is that the algorithm converges correctly even without pivot checks, despite these checks being the most computationally expensive part of the implementation, suggesting significant potential runtime reductions. As future work, we plan to extend the implementation to structured tensor cases, such as symmetric and skew-symmetric tensors. We also aim to demon-strate its applicability to spectral analysis of Heisenberg spin chains from Quan-tum Chemistry, including the observation of eigenvalue distributions. 
+
+Acknowledgments. This work was partially supported by eSSENCE, a Swedish strategic research program in e-Science. The computations were enabled by resources via the project UPPMAX 2025/2-247 provided by Uppsala University at UPPMAX. An HPC Approach to Accelerate Tensor Decompositions 15 
+
+## References 
+
+1. Begovi´ c Kovaˇ c, E., Perkovi´ c, A.: Trace maximization algorithm for the approximate tensor diagonalization. Linear Multilinear Algebra 72 (3), 429–450 (2024). https: //doi.org/10.1080/03081087.2022.2158997 
+
+2. Begovi´ c Kovaˇ c, E.: Convergence of a Jacobi-type method for the approximate orthogonal tensor diagonalization. Calcolo 60 (1), 3 (2023). https://doi.org/ 10.1007/s10092-022-00498-x 
+
+3. Borrelli, R., Gelin, M.F.: Quantum dynamics of vibrational energy flow in oscillator chains driven by anharmonic interactions. New J. Phys. 22 (12), 123002 (2020). 
+
+https://doi.org/10.1088/1367-2630/abc9ed 
+
+4. De Lathauwer, L., De Moor, B., Vandewalle, J.: A multilinear singular value decomposition. SIAM J. Matrix Anal. Appl. 21 (4), 1253–1278 (2000). https: //doi.org/10.1137/S0895479896305696 
+
+5. De Lathauwer, L., De Moor, B., Vandewalle, J.: On the best rank-1 and rank-(r1 ,r2 ,. . .,rn) approximation of higher-order tensors. SIAM J. Matrix Anal. Appl. 
+
+21 (4), 1324–1342 (2000). https://doi.org/10.1137/S0895479898346995 
+
+6. Drmaˇ c, Z., Veseli´ c, K.: New fast and accurate Jacobi SVD algorithm. I. SIAM J. Matrix Anal. Appl. 29 (4), 1322–1342 (2007). https://doi.org/10.1137/ 050639193 
+
+7. Golub, G.H., Van Loan, C.F.: Matrix computations. JHU Press, 4th edn. (2013) 8. Kolda, T.G., Bader, B.W.: Tensor decompositions and applications. SIAM Review 
+
+51 (3), 455–500 (2009). https://doi.org/10.1137/07070111X 
+
+9. Larsson, H.R.: A tensor network view of multilayer multiconfiguration time-dependent hartree methods. Mol. Phys. 122 (14), e2306881 (2024). https://doi. org/10.1080/00268976.2024.2306881 
+
+10. Lee, Y.T., Pokharel, B., Cohn, J., Schleife, A., Banerjee, A.: Digital quantum simulation of spin transport. Phys. Rev. Lett. 136 , 050603 (2026). https:// doi.org/10.1103/mx9k-kdlj 
+
+11. Li, J., Usevich, K., Comon, P.: Globally convergent Jacobi-type algorithms for simultaneous orthogonal symmetric tensor diagonalization. SIAM J. Matrix Anal. Appl. 39 (1), 1–22 (2018). https://doi.org/10.1137/17M1116295 
+
+12. Li, J., Usevich, K., Comon, P.: On approximate diagonalization of third order symmetric tensors by orthogonal transformations. Linear Algebra Appl. 576 , 324– 351 (2019). https://doi.org/10.1016/j.laa.2019.03.006 
+
+13. Luk, F.T., Park, H.: On parallel Jacobi orderings. SIAM J. Sci. Statist. Comput. 
+
+10 (1), 18–26 (1989). https://doi.org/10.1137/0910002 
+
+14. Menczer, A., Legeza, ¨O.: Massively parallel tensor network state algorithms on hybrid cpu-gpu based architectures. J. Chem. Theory Comput. 21 (4), 1572–1587 (2025). https://doi.org/10.1021/acs.jctc.4c00661 
+
+15. Novakovi´ c, V.: A hierarchically blocked Jacobi SVD algorithm for single and mul-tiple graphics processing units. SIAM J. Sci. Comput. 37 (1), C1–C30 (2015). 
+
+https://doi.org/10.1137/140952429 
+
+16. NVIDIA: Cuda toolkit documentation. https://docs.nvidia.com/cuda/ 
+
+(2025), accessed: 2025-12-10 17. Schollw¨ ock, U.: The density-matrix renormalization group. Rev. Mod. Phys. 77 ,259–315 (2005). https://doi.org/10.1103/RevModPhys.77.259 
+
+18. Usevich, K., Li, J., Comon, P.: Approximate matrix and tensor diagonalization by unitary transformations: convergence of Jacobi-type algorithms. SIAM J. Optim. 
+
+30 (4), 2998–3028 (2020). https://doi.org/10.1137/19M125950X

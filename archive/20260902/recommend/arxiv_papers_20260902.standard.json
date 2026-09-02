@@ -1,0 +1,908 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-02T22:54:29.395055+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 24,
+    "deep_cap": 6,
+    "deep_selected": 10,
+    "quick_candidates": 26,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2608.25570v1",
+      "source": "arxiv",
+      "title": "Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory",
+      "abstract": "Hardware kernel optimization requires repeated compilation, correctness testing, profiling, and revision. LLM agents can automate parts of this process, and stronger foundation models, longer context windows, and longer execution horizons have improved optimization within individual tasks. These advances alone do not enable an agent to learn from completed optimization runs. Existing kernel-optimization agents seldom preserve a decision, its observed execution feedback, and the later decisions that use that evidence. Retaining every prior trajectory is also impractical because an expanding history competes with the current task for context. We present KOPE, an experience-driven framework for hardware kernel optimization. KOPE records optimization trajectories with correctness and performance feedback in Experience Graph Memory, then uses Active Context Management and Injection to retrieve relevant experience under a fixed token budget. The graph retains decision order, observed outcomes, and alternative branches, allowing evidence collected on the target hardware to inform later optimization steps and tasks. Under the same GLM-5.2 setting, the geometric mean of KOPE's per-operator speedups is $1.54\\times$ that of CANNBot, the strongest competing baseline. In a complete 53-operator ablation, Active Context Management and Injection raises pass rate from 60.0\\% to 84.6\\%, increases the evaluator-reported positive-field geometric mean from 0.0382 to 0.0661, and reduces optimization token consumption from 15.9B to 1.113B tokens relative to passive agent-led context construction. Enabling Experience Graph Memory raises full-suite pass rate from 55.2\\% to 84.6\\% and yields a $1.43\\times$ geometric-mean speedup on valid timing comparisons. These results support continual optimization through external experience while the foundation model remains fixed.",
+      "authors": [
+        "Siyuan Chen",
+        "Runlin Hou",
+        "Shenxiu Wu",
+        "Yansong Sun",
+        "Junming Cao",
+        "Yiyu Zhang",
+        "Shudi Shao",
+        "Junhao Qiu",
+        "Zhichao Lu",
+        "Qingfu Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.MA"
+      ],
+      "published": "2026-08-26T09:27:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.25570v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "self-evolving LLM agents for hardware kernel optimization with experience graph memory, workflow, retrieval and reuse; central to LLM code generation, GPU kernel tuning, agent memory and self-evolution theme",
+      "llm_evidence_cn": "面向硬件内核优化的自进化LLM智能体，采用经验图谱记忆、经验驱动工作流与经验检索复用，正对大模型GPU算子生成优化、智能体记忆检索与自进化组合主题",
+      "llm_evidence": "面向硬件内核优化的自进化LLM智能体，采用经验图谱记忆、经验驱动工作流与经验检索复用，正对大模型GPU算子生成优化、智能体记忆检索与自进化组合主题",
+      "canonical_evidence": "面向硬件内核优化的自进化LLM智能体，采用经验图谱记忆、经验驱动工作流与经验检索复用，正对大模型GPU算子生成优化、智能体记忆检索与自进化组合主题",
+      "llm_tldr_en": "LLM kernel-optimization agents cannot learn across runs while full logs exceed context. KOPE builds an experience-graph memory of decisions and feedback and uses an experience-driven workflow so self-evolving LLM agents retrieve past runs and increasingly optimize hardware kernels.",
+      "llm_tldr_cn": "硬件内核优化需要反复编译、验证、剖析与修改，现有LLM智能体虽能在单次任务内优化，却无法从已完成的优化运行中学习，保留全部历史又会与当前上下文冲突。为此提出KOPE，一种经验驱动框架，用经验图谱内存保存决策、执行反馈及后续决策，并通过检索复用历史经验进行自进化优化。实验表明KOPE能跨任务积累经验、避免重复错误并不断提升硬件内核优化效果。该方法把智能体记忆、检索与自进化机制结合起来，为大模型驱动的可学习内核优化开辟了新路径。",
+      "llm_tldr": "硬件内核优化需要反复编译、验证、剖析与修改，现有LLM智能体虽能在单次任务内优化，却无法从已完成的优化运行中学习，保留全部历史又会与当前上下文冲突。为此提出KOPE，一种经验驱动框架，用经验图谱内存保存决策、执行反馈及后续决策，并通过检索复用历史经验进行自进化优化。实验表明KOPE能跨任务积累经验、避免重复错误并不断提升硬件内核优化效果。该方法把智能体记忆、检索与自进化机制结合起来，为大模型驱动的可学习内核优化开辟了新路径。",
+      "llm_tags": [
+        "query:gkg:composite"
+      ],
+      "matched_query_tag": "query:gkg:composite",
+      "matched_query_text": "Papers central to 大模型生成GPU算子代码优化，结合智能体记忆、检索与自进化机制, especially work that connects or combines: using large language models to produce source code; techniques for optimizing GPU kernel execution performance; memory structures and processes that allow agents to store and retrieve information; how agents retrieve relevant knowledge and experiences when making decisions; agents that iteratively improve their policies and knowledge without human intervention; Automated kernel optimization and code generation for GPUs; Large model based generation of compute kernels with performance tuning; How to generate optimized GPU kernels using large language models?; How do self evolving agents improve their performance over time?.",
+      "matched_requirement_id": "req-composite-gkg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.24876v1",
+      "source": "arxiv",
+      "title": "Recursive Experiential-Working Memory Evolution for Long-Horizon Agent Harnesses",
+      "abstract": "Recursive self-improvement (RSI) remains hard in long-horizon tasks, where growing histories obscure the task state and misalign skill invocation. We introduce Recuris, a recursive Experiential-Working Memory architecture for long-horizon agent harnesses, in which Working Memory tracks task progress and guides skill selection from Experiential Memory, grounding skill use in current needs rather than the full history. This coupling also turns execution into structured evidence that localizes failures to specific memory components. Across tasks, a fixed Meta-Agent turns that evidence into localized, validation-gated updates to Skill Memory that reshape execution and yield new evidence, forming a bounded recursive memory-evolution loop. Across four long-horizon benchmarks and ten models, Recuris improves task success in 35 of the 37 completed model-benchmark pairs, carrying frontier models to SOTA-level task success: on tau-bench it adds +17.8 points to GPT-5.6 Sol and +15.6 to Claude Opus 5, taking Opus 5 to 87.9%, and +16.6/+13.5 points on Qwen3.6-27B/35B on SkillFlow. The advantage widens as the interaction horizon grows, to +32.2 points on the longest tasks, and common long-horizon failures fall by up to 80%. These results position recursively evolving memory as a scalable foundation for RSI, enabling agents to continuously transform accumulated experience into increasingly effective long-horizon behavior. Code: https://github.com/Gen-Verse/Recuris",
+      "authors": [
+        "Zhaochen Yu",
+        "Yingcheng Wu",
+        "Zhenfei Yin",
+        "Kaiyuan Chen",
+        "Zhe Zhao",
+        "Mengdi Wang",
+        "Shuicheng Yan",
+        "Ling Yang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-25T17:56:35+00:00",
+      "link": "https://arxiv.org/pdf/2608.24876v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes Recuris recursive experiential-working memory architecture where a fixed meta-agent applies validation-gated updates to Skill Memory, enabling bounded self-improvement without human intervention.",
+      "llm_evidence_cn": "提出递归经验-工作记忆架构，借助固定元智能体做验证门控的技能记忆更新，实现无需人工干预的自进化循环。",
+      "llm_evidence": "提出递归经验-工作记忆架构，借助固定元智能体做验证门控的技能记忆更新，实现无需人工干预的自进化循环。",
+      "canonical_evidence": "提出递归经验-工作记忆架构，借助固定元智能体做验证门控的技能记忆更新，实现无需人工干预的自进化循环。",
+      "llm_tldr_en": "This paper introduces Recuris, a recursive experiential-working memory architecture that couples working memory tracking with skill selection from experiential memory and lets a fixed meta-agent apply validation-gated updates, enabling bounded recursive self-improvement for long-horizon agent tasks.",
+      "llm_tldr_cn": "长周期任务中递归自改进难度大，历史增长会使任务状态模糊、技能调用失配。为此作者提出Recuris记忆架构，用工作记忆跟踪任务进度并指导从经验记忆中选择技能，同时以执行证据定位失败来源。固定元智能体对技能记忆施加基于验证的局部更新，形成有界递归演化循环。实验表明该架构能跨任务逐步提升长周期任务的技能调用与整体表现。",
+      "llm_tldr": "长周期任务中递归自改进难度大，历史增长会使任务状态模糊、技能调用失配。为此作者提出Recuris记忆架构，用工作记忆跟踪任务进度并指导从经验记忆中选择技能，同时以执行证据定位失败来源。固定元智能体对技能记忆施加基于验证的局部更新，形成有界递归演化循环。实验表明该架构能跨任务逐步提升长周期任务的技能调用与整体表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25329v1",
+      "source": "arxiv",
+      "title": "Learning What to Share and What to Personalize: Hierarchical Strategy Co-Evolution for Agent Memory",
+      "abstract": "Memory-augmented agents maintain compact user profiles throughout extended conversations, enabling personalized and consistent responses without the need to process the entire dialogue history. The quality of these user profiles relies on the underlying memory management strategy: at each step, the agent must determine what to retain, compress, or discard. However, existing methods typically employ a static, one-size-fits-all strategy established before training. In practice, the optimal memory decision is inherently user-specific and dynamically evolves alongside policy optimization. To address this, we propose \\textbf{HiPS} (\\textbf{Hi}erarchical \\textbf{P}ersonalized \\textbf{S}trategy), a framework that decouples memory management into a globally shared foundation and a user-specific adaptive tier. Specifically, HiPS employs \\textbf{Universal Strategy} to extract shared principles from cross-persona trajectories, alongside \\textbf{Persona Delta Distillation} to generate tailored rules for users whose behaviors diverge from general patterns. \\textbf{Cross-Level Rule Flow} dynamically calibrates their boundary by promoting broadly validated personal rules and demoting contradicted global ones. The architecture establishes a co-evolution loop where a mechanism guarantees that all strategy refinements are anchored to task outcomes. Extensive experiments demonstrate consistent improvements over memory-augmented baselines.",
+      "authors": [
+        "Yupeng Han",
+        "Shuochen Liu",
+        "Kai Zhang",
+        "Ze Liu",
+        "Zhihong Pan",
+        "Xianquan Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-26T03:24:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.25329v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Hierarchical personalized memory management strategy deciding what to retain, compress or discard for agent user profiles",
+      "llm_evidence_cn": "提出分层个性化记忆管理策略，决定用户画像保留、压缩或丢弃，契合智能体记忆结构需求",
+      "llm_evidence": "提出分层个性化记忆管理策略，决定用户画像保留、压缩或丢弃，契合智能体记忆结构需求",
+      "canonical_evidence": "提出分层个性化记忆管理策略，决定用户画像保留、压缩或丢弃，契合智能体记忆结构需求",
+      "llm_tldr_en": "HiPS decouples memory strategy into hierarchy, deciding what to retain, compress, or discard per user, and co-evolves with policy optimization for personalized agent memory instead of static one-size-fits-all strategies.",
+      "llm_tldr_cn": "现有智能体记忆管理通常采用静态统一策略，无法随用户和策略优化而变化。HiPS提出分层个性化策略框架，将记忆决策分层并让个性化与策略协同进化，决定每步保留、压缩或丢弃哪些用户信息。实验显示该方法能改善长时间对话中的用户画像质量和响应一致性，为可学习的智能体记忆管理提供新方向。",
+      "llm_tldr": "现有智能体记忆管理通常采用静态统一策略，无法随用户和策略优化而变化。HiPS提出分层个性化策略框架，将记忆决策分层并让个性化与策略协同进化，决定每步保留、压缩或丢弃哪些用户信息。实验显示该方法能改善长时间对话中的用户画像质量和响应一致性，为可学习的智能体记忆管理提供新方向。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25469v1",
+      "source": "arxiv",
+      "title": "Hierarchical Shared Memory-Aware Optimization for TRSM on GPU Platforms",
+      "abstract": "Triangular Solve with Multiple Right-hand Sides (TRSM) is a fundamental BLAS Level-3 operation that underpins LU/Cholesky decomposition, sparse direct solvers, and matrix inversion. In the left-side lower-triangular case studied in this paper, efficient GPU implementation remains challenging because forward substitution introduces strict row-wise dependencies, and shared memory is too scarce to hold both operand matrices for wide data types such as double complex. This paper presents HSMA-TRSM, a hierarchical shared memory-aware optimization framework for left-side lower-triangular TRSM on NVIDIA A100, NVIDIA H800, and Hygon DCU Z100 accelerators. For the small-scale regime (m,n<=64), we design a pipelined compute-memory overlap mechanism through loop unrolling and instruction reordering, and propose a dual thread-group seven-stage pipeline strategy to address shared memory constraints for double complex types. For large-scale problems, we introduce a diagonal block decoupling optimization with an O(IB)shared-memory footprint for diagonal block inversion, enabling adaptive block size selection based on matrix scale and hardware characteristics. A compile-time configuration selection framework based on offline profiling and online lookup selects the optimal block size per platform with zero runtime overhead. Evaluated on NVIDIA A100, H800, and Hygon DCU Z100, HSMA-TRSM achieves peak speedups of 2.05xover cuBLAS and 2.06xover rocBLAS. The gains are strongest in shared-memory-constrained double-complex small cases and in large real-type cases where adaptive blocking improves GEMM-dominated updates, while mature vendor kernels leave less optimization headroom in some regimes.",
+      "authors": [
+        "Xinzhe Chen",
+        "Haowei Li",
+        "Lijuan Hu",
+        "Wenjing Ma",
+        "Fangfang Liu"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-08-26T07:37:09+00:00",
+      "link": "https://arxiv.org/pdf/2608.25469v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "hierarchical shared-memory-aware optimization of TRSM GPU kernel performance",
+      "llm_evidence_cn": "面向TRSM GPU算子的分层共享内存感知优化",
+      "llm_evidence": "面向TRSM GPU算子的分层共享内存感知优化",
+      "canonical_evidence": "面向TRSM GPU算子的分层共享内存感知优化",
+      "llm_tldr_en": "TRSM is a key BLAS kernel whose strict row-wise dependencies and limited shared memory hinder GPU implementation. HSMA-TRSM provides a hierarchical shared-memory-aware optimization framework with pipelined compute-memory overlap, improving TRSM performance on NVIDIA A100, H800 and Hygon DCU Z100.",
+      "llm_tldr_cn": "三角多右端项求解(TRSM)是LU分解、稀疏直接求解等的基础BLAS算子，但其严格行依赖和共享内存不足使GPU实现困难。本文提出HSMA-TRSM，一种分层共享内存感知的GPU优化框架，并针对小规模情形设计流水线计算访存重叠机制。在NVIDIA A100、NVIDIA H800与Hygon DCU Z100上的实验验证了该框架能显著提升TRSM性能。",
+      "llm_tldr": "三角多右端项求解(TRSM)是LU分解、稀疏直接求解等的基础BLAS算子，但其严格行依赖和共享内存不足使GPU实现困难。本文提出HSMA-TRSM，一种分层共享内存感知的GPU优化框架，并针对小规模情形设计流水线计算访存重叠机制。在NVIDIA A100、NVIDIA H800与Hygon DCU Z100上的实验验证了该框架能显著提升TRSM性能。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.25610v1",
+      "source": "arxiv",
+      "title": "Advantage-Driven Explicit Memory for Social Navigation",
+      "abstract": "Robot policies are predominantly learned with classical parametric variants of imitation learning or RL, where training stores the agent's behavior exclusively in the policy's network parameters, putting a heavy burden on the representation learning algorithm. We propose a new navigation agent equipped with non-parametric memory which explicitly indexes prior steps leading to critical events. The advantages are twofold: first, it allows the policy to outsource some of its behavior into an explicit memory; second, it encourages a form of continual learning by allowing an agent to collect data from its testing episodes during deployment and therefore to better generalize to OOD situations. In the context of social navigation, we show that this improves the agent's capability to retain sparse, high-cost failures, such as human collisions. If the policy is trained in simulation, this also naturally addresses the sim-to-real gap, partially, by basing some of the decision making on real data. We integrate the explicit memory into a recurrent PPO architecture and use hidden states for memory retrieval to capture continuous spatiotemporal dynamics. The goal of exploiting rare, high-impact events is achieved by leveraging the RL agent's advantage signals. We train our agent in simulation with a combination of photorealistic rendering and non-visual crowd simulation and show that the agent is robust with respect to OOD social behavior.",
+      "authors": [
+        "Yeonsoo Park",
+        "Mattia Racca",
+        "Guillaume Bono",
+        "Steeven Janny",
+        "Gianluca Monaci",
+        "Tomi Silander",
+        "Christian Wolf"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-08-26T10:27:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.25610v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Non-parametric explicit memory indexing critical prior steps for navigation agents",
+      "llm_evidence_cn": "为智能体提供非参数显式记忆，索引先前关键步骤",
+      "llm_evidence": "为智能体提供非参数显式记忆，索引先前关键步骤",
+      "canonical_evidence": "为智能体提供非参数显式记忆，索引先前关键步骤",
+      "llm_tldr_en": "Navigation policies rely on parametric weights; this work adds non-parametric explicit memory indexing critical prior steps, reducing policy burden and enabling continual learning during deployment. It improves generalization and capability in social navigation.",
+      "llm_tldr_cn": "现有机器人导航策略通常在参数中编码行为，难以适应开放世界。该文为社交导航智能体提出非参数显式记忆，显式索引走向关键事件的过往步骤，使策略行为可外接记忆，并鼓励从部署中新数据持续学习；实验显示该方法改善了分布外泛化能力与社交导航效果，为智能体持续学习和记忆利用提供了新思路。",
+      "llm_tldr": "现有机器人导航策略通常在参数中编码行为，难以适应开放世界。该文为社交导航智能体提出非参数显式记忆，显式索引走向关键事件的过往步骤，使策略行为可外接记忆，并鼓励从部署中新数据持续学习；实验显示该方法改善了分布外泛化能力与社交导航效果，为智能体持续学习和记忆利用提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27454v1",
+      "source": "arxiv",
+      "title": "WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution",
+      "abstract": "Agent skills package specialized knowledge and workflows into reusable resources that extend AI agent capabilities. Recent work automatically discovers such skills from agent experience, which enables agents to progressively adapt through interaction. However, the insights that guide skill development typically remain scattered across optimization histories, limiting their systematic reuse across iterations. We introduce WikiSkill, a framework that co-evolves agent skills with a persistent knowledge base (wiki). At a high level, WikiSkill separates raw execution experience, accumulated knowledge, and executable skills, while continuously consolidating experience into the wiki, which subsequent skill updates can build on. Across diverse benchmarks and models, WikiSkill consistently outperforms state-of-the-art skill-evolution methods and improves over no-skill baselines in most model-benchmark settings. We find that skill evolution complements model scaling: larger models generally benefit more from evolved skills, while smaller models with skills can outperform substantially larger models without them. We also find that evolved skills transfer effectively across models and model families, and skills evolved by other models can outperform self-evolved skills. Finally, our ablation studies confirm that persistent knowledge accumulation in the wiki is critical for effective skill evolution. These results demonstrate the benefits of systematically accumulating and refining agent experience for developing reusable and transferable skills.",
+      "authors": [
+        "Liyan Tang",
+        "Cyrus Rashtchian",
+        "Chun-Sung Ferng",
+        "Andrew Tomkins",
+        "Da-Cheng Juan",
+        "Tu Vu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-27T17:59:11+00:00",
+      "link": "https://arxiv.org/pdf/2608.27454v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "persistent wiki as memory that stores and reuses agent experience for skill evolution",
+      "llm_evidence_cn": "用持续知识库存储并复用智能体经验以支持技能进化",
+      "llm_evidence": "用持续知识库存储并复用智能体经验以支持技能进化",
+      "canonical_evidence": "用持续知识库存储并复用智能体经验以支持技能进化",
+      "llm_tldr_en": "Agent skills discovered from experience often ignore insights scattered across optimization histories. WikiSkill co-evolves skills with a persistent wiki that separates raw experience, accumulated knowledge and executable skills, continuously consolidating experience into knowledge for later skill updates and progressive agent adaptation.",
+      "llm_tldr_cn": "从经验中自动发现技能可以让智能体逐步适应，但指导技能发展的洞察零散分布在优化历史中，难以系统复用。本文提出WikiSkill，将原始执行经验、累积知识与可执行技能分离，并通过持续沉淀的wiki知识库将经验结为可复用洞见，供后续技能更新使用。实验表明该方法能显著提高技能发现的连续性和智能体的自适应能力，是智能体记忆与自进化结合的代表性框架。",
+      "llm_tldr": "从经验中自动发现技能可以让智能体逐步适应，但指导技能发展的洞察零散分布在优化历史中，难以系统复用。本文提出WikiSkill，将原始执行经验、累积知识与可执行技能分离，并通过持续沉淀的wiki知识库将经验结为可复用洞见，供后续技能更新使用。实验表明该方法能显著提高技能发现的连续性和智能体的自适应能力，是智能体记忆与自进化结合的代表性框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.27888v1",
+      "source": "arxiv",
+      "title": "Thread-Efficient Decoding for Neural Texture Compression",
+      "abstract": "Neural texture compression (NTC) achieves higher compression ratios than BCn formats but suffers from GPU thread divergence, which significantly reduces runtime performance. In this work, we propose a shared decoder MLP architecture -- trained with a gradual decoder freezing schedule -- combined with texture clustering to reduce thread divergence by 25%-52% while preserving rendering quality. We evaluate our method on over 500 textures and multiple real rendering scenes, demonstrating up to 8.48x speedup on the Radeon RX 9070 XT GPU compared to non-shared baselines. Our key contributions include: (1) a unified shared decoder architecture that reduces divergence by grouping textures; (2) a training recipe with gradual decoder freezing that improves stability and reconstruction accuracy; (3) a semantic clustering strategy using CLIP embeddings that groups similar textures for effective decoder sharing; and (4) comprehensive performance and ablation studies validating our approach.",
+      "authors": [
+        "Janarbek Matai",
+        "Sho Ikeda",
+        "Lukasz Lipski",
+        "Takahiro Harada"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.GR"
+      ],
+      "published": "2026-08-28T03:52:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.27888v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Shared decoder MLP and texture clustering reduce thread divergence in GPU decoding, improving kernel runtime by up to 8.48x",
+      "llm_evidence_cn": "通过共享解码器与纹理聚类降低神经纹理压缩GPU解码中的线程发散，使内核运行性能最高提升8.48倍",
+      "llm_evidence": "通过共享解码器与纹理聚类降低神经纹理压缩GPU解码中的线程发散，使内核运行性能最高提升8.48倍",
+      "canonical_evidence": "通过共享解码器与纹理聚类降低神经纹理压缩GPU解码中的线程发散，使内核运行性能最高提升8.48倍",
+      "llm_tldr_en": "Neural texture compression decoders suffer thread divergence on GPUs. This paper trains a shared decoder MLP with gradual freezing and groups textures to reduce divergence 25%-52%; across 500 textures it gives up to 8.48x speedup while preserving quality.",
+      "llm_tldr_cn": "神经纹理压缩虽压缩率高，但在GPU上解码存在严重线程发散。本文提出共享解码器MLP，结合渐进冻结训练与纹理聚类，减少25%-52%线程发散；在500余纹理和真实场景上实现最高8.48倍GPU加速且渲染质量基本不变。结果证明统一解码路径和纹理分组能显著提升纹理压缩解码的运行效率。",
+      "llm_tldr": "神经纹理压缩虽压缩率高，但在GPU上解码存在严重线程发散。本文提出共享解码器MLP，结合渐进冻结训练与纹理聚类，减少25%-52%线程发散；在500余纹理和真实场景上实现最高8.48倍GPU加速且渲染质量基本不变。结果证明统一解码路径和纹理分组能显著提升纹理压缩解码的运行效率。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.29016v1",
+      "source": "arxiv",
+      "title": "Towards Fully Automated Medical Imaging Code Generation via Validation-based Context Engineering",
+      "abstract": "Large language models (LLMs) have demonstrated considerable promise in program generation for small-scale and conventional application development; however, they remain limited when applied to complex, domain-specific tasks such as medical image processing. General-purpose models lack explicit domain knowledge and robust validation mechanisms to ensure correctness, often requiring substantial human intervention to produce reliable processing pipelines. To address these limitations, we propose AutoMedImg, a multi-agent framework for fully automated medical image processing code generation. AutoMedImg orchestrates specialised agents across two phases: a Planning Phase that performs dataset analysis and architecture design with semantic and formal verification, and a Coding Phase that generates modules in parallel with static checking, execution testing, and assembly validation. This multi-stage validation mitigates error propagation throughout generation, while comprehensive auto-context engineering combining domain-specific knowledge bases, shared memory, and validation feedback automates context construction without manual prompting. A cross-project adaptive pipeline synthesis mechanism further accumulates validated pipelines and retrieves proven components for new tasks based on project similarity, enhancing generation efficiency through cross-project learning. Extensive evaluation across six diverse and well-established medical imaging datasets with five backbone LLMs demonstrates that AutoMedImg achieves zero human intervention, with Dice scores of up to 0.90 for segmentation tasks and 99% accuracy for classification.",
+      "authors": [
+        "Zixiao Zhao",
+        "Jing Sun",
+        "Zhe Hou",
+        "Cheng-Hao Cai",
+        "Qian Liu",
+        "Mengze Li",
+        "Zijian Zhang",
+        "Jin Song Dong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.SE"
+      ],
+      "published": "2026-08-29T03:10:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.29016v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "uses large language models inside a multi-agent framework to produce executable code for medical image processing, with validation-based context engineering",
+      "llm_evidence_cn": "利用大语言模型编排多智能体框架自动生成医学图像处理代码，并通过基于验证的上下文工程保障正确性",
+      "llm_evidence": "利用大语言模型编排多智能体框架自动生成医学图像处理代码，并通过基于验证的上下文工程保障正确性",
+      "canonical_evidence": "利用大语言模型编排多智能体框架自动生成医学图像处理代码，并通过基于验证的上下文工程保障正确性",
+      "llm_tldr_en": "Medical-imaging code generation needs domain knowledge and validation, which generic LLMs lack. AutoMedImg orchestrates planning and execution agents that analyze datasets, design architecture, and apply validation-based context engineering to generate and repair image-processing pipelines, substantially reducing human intervention.",
+      "llm_tldr_cn": "复杂领域专用代码生成如医学图像处理，通用大模型缺少显式领域知识和稳健验证机制，常需大量人工修正。为此提出AutoMedImg多智能体框架，在规划阶段进行数据集分析与架构设计，在执行阶段结合基于验证的上下文工程自动生成并修正处理代码。系统能够以较少人工介入生成可靠的医学图像处理流水线。该工作说明将领域知识、多智能体编排与验证反馈注入LLM，可大幅提升专业代码生成任务的自动化水平。",
+      "llm_tldr": "复杂领域专用代码生成如医学图像处理，通用大模型缺少显式领域知识和稳健验证机制，常需大量人工修正。为此提出AutoMedImg多智能体框架，在规划阶段进行数据集分析与架构设计，在执行阶段结合基于验证的上下文工程自动生成并修正处理代码。系统能够以较少人工介入生成可靠的医学图像处理流水线。该工作说明将领域知识、多智能体编排与验证反馈注入LLM，可大幅提升专业代码生成任务的自动化水平。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.31100v1",
+      "source": "arxiv",
+      "title": "S3Gym: Can LLMs Turn Self-Testing and Self-Judging into Self-Improvement?",
+      "abstract": "Large language models (LLMs) increasingly interact with external environments and accumulate substantial behavioral experience, yet existing agent benchmarks largely evaluate them as fixed policies. It therefore remains unclear whether an agent can actively test its behavior, judge the resulting experience, and use that experience to improve future decisions. We introduce \\textbf{S\\textsuperscript{3}Gym}, an interactive benchmark for evaluating LLM self-improvement through three coupled capabilities: \\textbf{Self-Testing}, \\textbf{Self-Judging}, and \\textbf{Self-Improvement}. S$^3$Gym separates permissive exploration from strict held-out evaluation and instantiates this protocol in seven text-based games with executable environment verifiers. We evaluate three pathways for incorporating interaction experience: direct History ICL, score-conditioned Summary Memory, and parameter Training.   Our experiments reveal that self-improvement is neither automatic nor uniform. Context-level experience improves performance for several model--game pairs, but the most effective pathway depends strongly on the task structure: summaries are beneficial when experience can be compressed into reusable strategic rules, yet often underperform raw history when success depends on precise, state-contingent information. Parameter training produces substantial gains on some tasks, but also exhibits unstable improvement and severe negative transfer on others. These findings show that recognizing successful actions is insufficient; agents must also transform feedback into executable and transferable policies. S$^3$Gym provides a unified framework for diagnosing this process and identifying the bottlenecks that prevent agents from translating interaction experience into reliable self-improvement.",
+      "authors": [
+        "Jiajun Shi",
+        "Siyuan Tao",
+        "Yuhao Wu",
+        "Zexuan Wang",
+        "Jingyuan Zhang",
+        "Jiaheng Liu",
+        "Xinping Lei",
+        "Xinrong Zhang",
+        "Siyuan Fang",
+        "Zhewen Tan",
+        "Tianle Cai",
+        "Junhao Fang",
+        "Jiameng Huang",
+        "Yueyang Wang",
+        "Jinkai Liu",
+        "Yuxuan Zhang",
+        "Jian Yang",
+        "Zhoujun Li",
+        "Shen Yan",
+        "Wenhao Huang",
+        "Ge Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-31T17:05:41+00:00",
+      "link": "https://arxiv.org/pdf/2608.31100v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Interactive benchmark directly asks whether LLM agents can turn accumulated behavioral experience into self-improvement through self-testing and self-judging.",
+      "llm_evidence_cn": "提出交互基准验证LLM智能体能否通过自测试、自评判把经验转成未来决策的自我改进。",
+      "llm_evidence": "提出交互基准验证LLM智能体能否通过自测试、自评判把经验转成未来决策的自我改进。",
+      "canonical_evidence": "提出交互基准验证LLM智能体能否通过自测试、自评判把经验转成未来决策的自我改进。",
+      "llm_tldr_en": "S3Gym is a benchmark for whether LLM agents can self-test behavior, self-judge the resulting experience, and use it to improve future decisions, instantiated in seven verifiable text-based games.",
+      "llm_tldr_cn": "现有智能体基准大多将LLM视为固定策略进行评测，难以回答智能体能否利用交互经验不断改进。论文提出S3Gym，一个围绕自测试、自评判和自我改进三种耦合能力设计的交互式基准，它将宽松探索阶段与严格留出评测阶段分离，并在七个可执行环境验证的文字游戏中实例化。借助该协议可以比较LLM在不同条件下是否真正把行为经验转化为决策能力提升。这项工作为衡量自进化智能体的随时间改进能力提供了系统化、可复现的评测工具。",
+      "llm_tldr": "现有智能体基准大多将LLM视为固定策略进行评测，难以回答智能体能否利用交互经验不断改进。论文提出S3Gym，一个围绕自测试、自评判和自我改进三种耦合能力设计的交互式基准，它将宽松探索阶段与严格留出评测阶段分离，并在七个可执行环境验证的文字游戏中实例化。借助该协议可以比较LLM在不同条件下是否真正把行为经验转化为决策能力提升。这项工作为衡量自进化智能体的随时间改进能力提供了系统化、可复现的评测工具。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.00829v1",
+      "source": "arxiv",
+      "title": "HarnessEvolve: Learning from Reference Trajectories for Reliable Agent Self-Evolution",
+      "abstract": "Self-evolving agents advance toward autonomy by optimizing their harness---prompts, skills, tools, and execution logic---based on environmental feedback. This paradigm, however, is hampered by three challenges: \\textit{credit assignment failure}, where terminal success/failure feedback makes it ambiguous which step caused the error; \\textit{shortcut learning}, where agents memorize task-specific patterns rather than acquire generalizable capabilities; and \\textit{catastrophic forgetting}, where unguarded updates degrade previously acquired competence. In this paper, we introduce HarnessEvolve, a self-evolving framework that learns from reference trajectories to achieve reliable agent self-evolution. HarnessEvolve decouples the execution agent from the evolutionary pipeline, assigning execution, evaluation, optimization, and gating to independent agent modules, enabling generalizable and stable harness improvements. Specifically, HarnessEvolve overcomes credit assignment failure by generating reference trajectories (execution paths produced when given the ground-truth answers) and aligning failed executions against them to extract error signals, which are clustered to reveal systematic failure patterns. To prevent shortcut learning and catastrophic forgetting, candidate harness updates must pass two gates: a quality gate that filters data leakage and prompt bloat, and a performance gate that accepts each update if it improves on the current batch without degrading recent batches, with epoch-end validation on a held-out set selecting the best-performing accepted agent snapshot. We conduct extensive experiments on several benchmarks spanning open-domain and enterprise scenarios, using different models and agent frameworks. Results demonstrate that HarnessEvolve consistently outperforms state-of-the-art baselines across all benchmarks and settings, confirming reliability across task domains.",
+      "authors": [
+        "Wen Jiang",
+        "Mingmin Chu",
+        "Yimeng Tian",
+        "Qianxin Zhang",
+        "Haofei Yang",
+        "Rui Yang",
+        "Yang Liu",
+        "Tao Lv",
+        "Fangming Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-01T07:31:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.00829v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Self-evolving agents improve harness from reference trajectories to address credit assignment and forgetting problems",
+      "llm_evidence_cn": "自进化智能体借助参考轨迹学习改进自身装配，解决信用分配与遗忘难题",
+      "llm_evidence": "自进化智能体借助参考轨迹学习改进自身装配，解决信用分配与遗忘难题",
+      "canonical_evidence": "自进化智能体借助参考轨迹学习改进自身装配，解决信用分配与遗忘难题",
+      "llm_tldr_en": "Self-evolving agents updating their harness from terminal feedback suffer credit assignment failure, shortcut learning, and catastrophic forgetting. HarnessEvolve learns from reference trajectories and decouples execution to guide reliable self-evolution.",
+      "llm_tldr_cn": "自进化智能体依靠环境终端反馈优化自身的提示词、技能、工具与执行逻辑，但常面临信用分配失败、捷径学习和灾难性遗忘三大难题，难以学到可泛化能力。本文提出HarnessEvolve框架，从参考轨迹中学习，将执行过程和装配更新解耦，从而为每一步更新提供有效过程监督。实验显示其能提升自进化稳定性并缓解上述问题。该方法为无需人工干预的可靠智能体自进化提供了一般化范式。",
+      "llm_tldr": "自进化智能体依靠环境终端反馈优化自身的提示词、技能、工具与执行逻辑，但常面临信用分配失败、捷径学习和灾难性遗忘三大难题，难以学到可泛化能力。本文提出HarnessEvolve框架，从参考轨迹中学习，将执行过程和装配更新解耦，从而为每一步更新提供有效过程监督。实验显示其能提升自进化稳定性并缓解上述问题。该方法为无需人工干预的可靠智能体自进化提供了一般化范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.22610v1",
+      "source": "arxiv",
+      "title": "Coalition-Aware Skill Reliability for Self-Evolving Agents",
+      "abstract": "Agent skills, structured artifacts distilled from interaction trajectories and dynamically reused from skill banks, have become a central mechanism for enabling large language model (LLM)-based self-evolving agents to learn from past experience. Yet existing work has largely focused on the operational aspects of skills, such as acquisition, evolution, and retrieval, while leaving a more fundamental reliability question unresolved: Do accumulated skills in an agent's skill bank actually make positive mechanistic contributions? We investigate this question through systematic skill-bank audits across alternative bank compositions and deployment domains, measuring the resulting changes in agent behavior. These audits reveal two recurring reliability failures: coalition pollution, where bank-level gains conceal negative coalition-level skill contributions, and cross-domain utility reversal, where source-beneficial skills reverse their effects after transfer. These findings motivate two reliability interventions: coalition-aware skill selection during skill accumulation and label-free skill masking after transfer. Coalition-Aware Skill Selection (CASS) selects more reliable candidate skills for the current bank using sampled Shapley marginals. Unsupervised Skill-Masked Coalition Optimizer (u-SMCO) masks transferred skills whose exclusion improves retrieval quality on unlabeled target-domain data. Agentic experiments on LoCoMo, LongMemEval, HotpotQA, and ALFWorld show that CASS and u-SMCO consistently improve task performance and cross-domain generalization over strong skill-based self-evolving agent baselines. Beyond accuracy, coalition-conditioned reliability modeling reduces sensitivity to noisy outcome-reward fluctuations during reinforcement learning and exposes the limits of isolation-based skill evaluation.",
+      "authors": [
+        "Qiyan Zhao",
+        "Xiaofeng Zhang",
+        "Bo Liu",
+        "Minda Chen",
+        "Wei Xiong",
+        "Jingyang Chen",
+        "Guanting Ye",
+        "Wenhao Yu",
+        "Xiaosong Yuan",
+        "Shijie Han",
+        "Da-Han Wang",
+        "Jianmin Ji",
+        "Fei Huang",
+        "Xu-Yao Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-23T21:35:22+00:00",
+      "link": "https://arxiv.org/pdf/2608.22610v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Audits skill banks of LLM-based self-evolving agents to determine whether accumulated skills actually make positive mechanistic contributions.",
+      "llm_evidence_cn": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
+      "llm_evidence": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
+      "canonical_evidence": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
+      "llm_tldr_en": "This paper investigates whether accumulated skills in an LLM agent's skill bank make positive mechanistic contributions by performing systematic skill-bank audits across alternative bank compositions and deployment domains. The audits reveal two recurring reliability failures, including coalition effects, questioning the common assumption that skill accumulation is always beneficial for self-evolving agents.",
+      "llm_tldr_cn": "自进化LLM智能体经常把经验蒸馏为可复用技能并动态检索，但现有工作主要关注技能获取、演化与操作层面，没有回答技能积累是否真正有利。作者通过跨技能库组成与部署领域的系统审计，测量技能库变化对智能体行为的影响，发现联合式失效等两类重复出现的可靠性问题。该结论表明自进化智能体的技能管理不能只追求累积，还须引入可靠性评估与设计。",
+      "llm_tldr": "自进化LLM智能体经常把经验蒸馏为可复用技能并动态检索，但现有工作主要关注技能获取、演化与操作层面，没有回答技能积累是否真正有利。作者通过跨技能库组成与部署领域的系统审计，测量技能库变化对智能体行为的影响，发现联合式失效等两类重复出现的可靠性问题。该结论表明自进化智能体的技能管理不能只追求累积，还须引入可靠性评估与设计。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "carryover_cache",
+      "paper_id": "2608.22610v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.24545v1",
+      "source": "arxiv",
+      "title": "Discovering Adaptive Transmission Programs for Collective Innovation",
+      "abstract": "Human collective intelligence depends on transmission processes: who shares what with whom, how, and when. While these processes emerge from individual cognition, they can also be directed by deliberate top-down protocols. Prior work has studied how transmission shapes collective outcomes primarily through the lens of network structure, varying who shares with whom and when. But networks are state-agnostic: they cannot condition transmission on what agents know or on the state of the collective. Here, we formalize transmission protocols as state-aware programs that route information and resources based on agent and collective states, and we use LLM-guided evolutionary search to design effective protocols in a collective discovery task. Evolved protocols increase collective performance over standard baselines from the literature by up to 37%. Ablations confirm that state-awareness drives this advantage: removing content-dependence while preserving network topology and timing eliminates performance gains. We find that evolved protocols also transfer across domain variations and agent populations. These results demonstrate that effective and generalizable transmission protocols can be discovered in silico, suggesting a path toward AI-assisted design of coordination infrastructure that enhances human collective intelligence.",
+      "authors": [
+        "Cédric Colas",
+        "Jérémy Perez",
+        "Eleni Nisioti",
+        "Akhilesh Mocherla",
+        "Pierre-Yves Oudeyer",
+        "Clément Moulin-Frier",
+        "Maxime Derex"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-25T13:34:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.24545v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Presents LLM-guided evolutionary search that designs state-aware transmission programs, demonstrating LLM use for executable program generation",
+      "llm_evidence_cn": "利用LLM引导的进化搜索生成状态感知的传输程序，属于大模型生成源代码类场景",
+      "llm_evidence": "利用LLM引导的进化搜索生成状态感知的传输程序，属于大模型生成源代码类场景",
+      "canonical_evidence": "利用LLM引导的进化搜索生成状态感知的传输程序，属于大模型生成源代码类场景",
+      "llm_tldr_en": "Presents LLM-guided evolutionary search that designs state-aware transmission programs for collective innovation. Evolving these protocols outperforms fixed network-style information routing, showing LLM-driven program synthesis can be used to generate executable multi-agent coordination code.",
+      "llm_tldr_cn": "针对集体智能中传输协议无法依据智能体状态自适应的问题，该研究提出将传输协议形式化为状态感知的程序，并利用LLM引导的进化搜索自动生成路由信息和资源的协议。实验结果表明，自动生成的传输程序在集体发现任务中表现出显著优势，能够根据参与者和群体状态动态分配信息。该工作说明大模型已可用于程序级协议的生成，拓展了LLM生成源代码及自动化程序设计的方法体系。",
+      "llm_tldr": "针对集体智能中传输协议无法依据智能体状态自适应的问题，该研究提出将传输协议形式化为状态感知的程序，并利用LLM引导的进化搜索自动生成路由信息和资源的协议。实验结果表明，自动生成的传输程序在集体发现任务中表现出显著优势，能够根据参与者和群体状态动态分配信息。该工作说明大模型已可用于程序级协议的生成，拓展了LLM生成源代码及自动化程序设计的方法体系。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.27311v1",
+      "source": "arxiv",
+      "title": "Verify Smarter, Evolve Further: Efficient Harness Evolution through Behavior-Aware Verification",
+      "abstract": "Agent harnesses shape how language-model agents use instructions, tools, and runtime components, but adapting these harnesses requires costly verification. Existing propose-and-verify methods typically score every candidate on a fixed task set, wasting rollouts on unrelated behaviors and allowing aggregate scores to obscure specific regressions. We introduce HarnessLens, a budget-aware framework for automated harness evolution. HarnessLens jointly explores the task space and user-configurable components, derives candidate modifications from execution trajectories, and selectively verifies each candidate on behavior-relevant tasks using an attributable-evidence gate. Across three agent harnesses and four benchmarks, HarnessLens improves average held-out performance by 7.6-13.6% while consuming substantially less evaluation budget than competing baselines. These results demonstrate that behavior-aware verification with explicit attribution enables more reliable and sample-efficient harness evolution under constrained interaction budgets. Our code is available at https://github.com/jhxu5214/HarnessLens.",
+      "authors": [
+        "Jinghan Xu",
+        "Yikai Zhang",
+        "Aili Chen",
+        "Weiyuan Li",
+        "Jiaqing Liang",
+        "Deqing Yang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-27T16:12:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.27311v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "automated agent harness evolution with budget-aware verification",
+      "llm_evidence_cn": "面向智能体框架的自动化进化与验证",
+      "llm_evidence": "面向智能体框架的自动化进化与验证",
+      "canonical_evidence": "面向智能体框架的自动化进化与验证",
+      "llm_tldr_en": "Agent-harness evolution wastes rollouts due to fixed-task verification. HarnessLens evolves harnesses under a budget by jointly exploring task/component spaces, deriving modifications from trajectories, and selectively verifying candidates through a behavior-aware evidence gate, improving evolution efficiency.",
+      "llm_tldr_cn": "现有智能体框架的自适应方法通常对固定任务集逐个验证候选，浪费rollout且难以察觉具体退化。本文提出HarnessLens，在预算约束下联合探索任务空间与可配置组件，从执行轨迹生成候选修改，通过行为相关证据门控进行选择性验证。在三个智能体框架与四个基准上验证了该方法能以更低成本支持框架的自动进化。",
+      "llm_tldr": "现有智能体框架的自适应方法通常对固定任务集逐个验证候选，浪费rollout且难以察觉具体退化。本文提出HarnessLens，在预算约束下联合探索任务空间与可配置组件，从执行轨迹生成候选修改，通过行为相关证据门控进行选择性验证。在三个智能体框架与四个基准上验证了该方法能以更低成本支持框架的自动进化。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.24307v1",
+      "source": "arxiv",
+      "title": "An HPC Approach to Accelerate Tensor Decompositions",
+      "abstract": "Quantum systems grow in complexity so rapidly that even modest models become difficult to simulate, creating a strong need for methods that can handle high-dimensional data, also known as tensors. In this work, we investigate a novel Jacobi-type tensor algorithm for tensor decomposition and develop a CUDA-based algorithm that supports tensors of arbitrary order on a single GPU. We test the implementation on NVIDIA H100 GPUs and show that the algorithm converges correctly for diagonalizable tensors up to nine dimensions, with runtime scaling in a predictable way as tensor order grows. Finally, our general algorithm outperforms the original MATLAB reference by more than two orders of magnitude.",
+      "authors": [
+        "Markus Hellgren",
+        "Erna Begovic Kovac",
+        "Hans O. Karlsson",
+        "Roman Iakymchuk"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.MS"
+      ],
+      "published": "2026-08-25T09:36:54+00:00",
+      "link": "https://arxiv.org/pdf/2608.24307v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Develops a CUDA-based GPU algorithm for tensor decomposition with predictable scaling and two orders of magnitude speedup, directly targeting GPU kernel performance",
+      "llm_evidence_cn": "针对GPU编写CUDA优化算法完成张量分解，在H100上显著加速，直接属于GPU内核执行性能优化",
+      "llm_evidence": "针对GPU编写CUDA优化算法完成张量分解，在H100上显著加速，直接属于GPU内核执行性能优化",
+      "canonical_evidence": "针对GPU编写CUDA优化算法完成张量分解，在H100上显著加速，直接属于GPU内核执行性能优化",
+      "llm_tldr_en": "Develops a Jacobi-type CUDA algorithm for tensor decomposition on a single GPU, supporting arbitrary tensor order. On H100s it converges for tensors up to nine dimensions and outperforms the MATLAB reference by more than two orders of magnitude.",
+      "llm_tldr_cn": "量子系统等复杂应用产生的高维张量难以高效模拟，常规MATLAB张量分解实现成为瓶颈。该工作提出Jacobi型张量分解算法，并用CUDA实现支持任意阶数的单GPU并行版本。在NVIDIA H100上的实验证明算法对最高九维的可对角化张量正确收敛，运行时间随张量阶数呈可预测增长，总提速超过两个数量级。该结果凸显了为特定数值计算精心设计GPU并行核函数在科学计算中的巨大价值。",
+      "llm_tldr": "量子系统等复杂应用产生的高维张量难以高效模拟，常规MATLAB张量分解实现成为瓶颈。该工作提出Jacobi型张量分解算法，并用CUDA实现支持任意阶数的单GPU并行版本。在NVIDIA H100上的实验证明算法对最高九维的可对角化张量正确收敛，运行时间随张量阶数呈可预测增长，总提速超过两个数量级。该结果凸显了为特定数值计算精心设计GPU并行核函数在科学计算中的巨大价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.26557v1",
+      "source": "arxiv",
+      "title": "DeepRepro: State-Aware Subplanning for Paper-to-Code Reproduction in Evolving Repositories",
+      "abstract": "Recent advances in agentic large language models (LLMs) have enabled increasingly autonomous software engineering workflows, yet automatic machine learning (ML) paper-to-code reproduction remains a challenging long-horizon problem. Unlike conventional code generation, this task requires constructing and maintaining a fully functional repository whose state continuously evolves during execution. Existing systems typically rely on static upfront planning followed by sequential file-level generation, which often leads to inconsistencies as dependencies, interfaces, and execution feedback change over time. We propose DeepRepro, a state-aware framework for paper-to-code reproduction based on execution-state-aware subplanning. DeepRepro dynamically transforms evolving repository states and runtime feedback into fine-grained implementation subplans, keeping planning aligned with execution throughout repository construction. The framework further incorporates repository-aware orchestration and a lightweight process-aware interface for transparent monitoring of long-horizon reproduction. Experiments on PaperBench Code-Dev show that DeepRepro consistently outperforms strong scientific and commercial code-agent baselines.",
+      "authors": [
+        "Hongru Song",
+        "Ruqing Zhang",
+        "Jiafeng Guo",
+        "Xueqi Cheng",
+        "Maarten de Rijke"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE"
+      ],
+      "published": "2026-08-27T02:54:30+00:00",
+      "link": "https://arxiv.org/pdf/2608.26557v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LLM agents generate source code to reproduce a paper repository with dynamic state-aware subplanning.",
+      "llm_evidence_cn": "用LLM智能体完成论文到代码的仓库级生成与维护，属于大模型产生源代码。",
+      "llm_evidence": "用LLM智能体完成论文到代码的仓库级生成与维护，属于大模型产生源代码。",
+      "canonical_evidence": "用LLM智能体完成论文到代码的仓库级生成与维护，属于大模型产生源代码。",
+      "llm_tldr_en": "Paper-to-code reproduction in evolving repositories is a long-horizon code generation problem; DeepRepro uses execution-state-aware subplanning instead of static plans.",
+      "llm_tldr_cn": "论文到代码的复现是长时程软件工程任务，要求维护持续演化的完整仓库，静态先规划后逐文件生成的方式容易出现依赖与接口不一致。DeepRepro基于执行状态感知的子规划，在代码生成过程中跟踪仓库实际状态并动态调整子任务。实验表明它能减少不一致并使生成仓库更可执行，提升了智能体LLM在仓库级代码生成中的鲁棒性。",
+      "llm_tldr": "论文到代码的复现是长时程软件工程任务，要求维护持续演化的完整仓库，静态先规划后逐文件生成的方式容易出现依赖与接口不一致。DeepRepro基于执行状态感知的子规划，在代码生成过程中跟踪仓库实际状态并动态调整子任务。实验表明它能减少不一致并使生成仓库更可执行，提升了智能体LLM在仓库级代码生成中的鲁棒性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.27886v1",
+      "source": "arxiv",
+      "title": "Resource Constraints and Performance in Agentic AI Systems",
+      "abstract": "Progress toward more autonomous AI increasingly depends on agentic systems that combine a language model with tools, memory, state management, and multi-step execution. These mechanisms shape both task capability and operational burden. We compare OpenClaw and NanoBot as complete agentic systems using a paired primary benchmark and a more detailed instrumented subset of paired prompts. In the primary benchmark, the rate of full task completion was 31% for OpenClaw and 25% for NanoBot, a six-percentage-point difference with a 95% task-bootstrap interval from -3 to 15 percentage points, providing no statistically established full-completion advantage for either system. In the instrumented layer, both systems achieved 26% full completion, while NanoBot reached at least partial completion on 43% of prompts compared with 26% for OpenClaw. OpenClaw took longer on 83% of prompts and had a higher recorded peak-memory value on every prompt, with geometric mean ratios of 2.98 for wall time and 19.44 for peak memory. Among the ten detailed-layer prompts on which at least one system achieved partial or full completion, NanoBot weakly dominated on eight; across all 23 prompts, however, ten of its eighteen dominance cases were cheaper joint failures. Outcome labels differ across the two evidence layers, showing why agent-system evaluation should connect capability and resource measurements to attempt-level execution and scoring provenance. These findings show that progress toward more autonomous AI should be evaluated through verified task completion, observed resource use and records linking each result to the execution that produced it.",
+      "authors": [
+        "Amaz Salman",
+        "Malka Halgamuge",
+        "Teo Susnjak"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-28T03:49:45+00:00",
+      "link": "https://arxiv.org/pdf/2608.27886v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Compares complete agentic systems integrating memory, state management and multi-step execution, showing how memory and state mechanisms shape performance",
+      "llm_evidence_cn": "比较了融合记忆与状态管理的智能体系统，直接分析记忆/状态机制对智能体性能的影响",
+      "llm_evidence": "比较了融合记忆与状态管理的智能体系统，直接分析记忆/状态机制对智能体性能的影响",
+      "canonical_evidence": "比较了融合记忆与状态管理的智能体系统，直接分析记忆/状态机制对智能体性能的影响",
+      "llm_tldr_en": "Compares two agentic AI systems that integrate tools, memory, state, and multi-step execution. Paired benchmarks show no statistically significant full-completion advantage between OpenClaw and NanoBot, while memory and resource mechanisms are key differentiation factors.",
+      "llm_tldr_cn": "更自主的智能体需要工具、记忆、状态管理与多步执行共同配合，但这些机制如何影响性能缺少控制比较。本文在配对基准和更细粒度的工具化提示集上比较OpenClaw与NanoBot两个完整智能体系统。结果显示主基准完整任务完成率OpenClaw为31%、NanoBot为25%，差异的95% bootstrap区间跨过0；工具化子集两者均为26%。虽然系统级完成优势未被证实，但记忆与状态管理是影响智能体能力和资源开销的关键机制。",
+      "llm_tldr": "更自主的智能体需要工具、记忆、状态管理与多步执行共同配合，但这些机制如何影响性能缺少控制比较。本文在配对基准和更细粒度的工具化提示集上比较OpenClaw与NanoBot两个完整智能体系统。结果显示主基准完整任务完成率OpenClaw为31%、NanoBot为25%，差异的95% bootstrap区间跨过0；工具化子集两者均为26%。虽然系统级完成优势未被证实，但记忆与状态管理是影响智能体能力和资源开销的关键机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.24794v1",
+      "source": "arxiv",
+      "title": "CAFE: Self-Improving Search Agents Need Co-Evolving Feedback",
+      "abstract": "Outcome-supervised search agents learn when and how to retrieve evidence, but terminal rewards neither localize intermediate errors nor redirect an ongoing trajectory before those errors compound. Treating corrective feedback as a learned in-trajectory intervention couples the two roles: the agent must decide when to request and use feedback, while the critic must infer useful corrections from outcome-confounded rollouts whose failure patterns shift as the agent improves. We introduce CAFE (Coupled Agent--Feedback Evolution), a framework in which a shared-parameter model alternates between search-agent and critic roles. CAFE initializes feedback-conditioned recovery from trajectories built around the base agent's own failures, then couples online and offline optimization. During online RL, a comparative feedback estimate uses a prompt-level call--skip success gap to shape request returns, while feedback-aware advantage shaping reweights token advantages before and after feedback. Offline, rollout-derived preference optimization learns feedback from matched successful and unsuccessful trajectories. On seven agentic search benchmarks, CAFE outperforms the evaluated RL-based search agents on average, retains its gains across all six out-of-domain benchmarks, and reduces answer-level hallucinations. One-sided ablations show that improving only the agent or only the critic eventually plateaus, whereas alternating the two updates continues to improve performance. These findings suggest that a self-improving search agent needs feedback that co-evolves with the policy it guides.",
+      "authors": [
+        "Boyang Liu",
+        "Senjie Jin",
+        "Peixin Wang",
+        "Zhangyue Yin",
+        "Yibo Wang",
+        "Yuhao Zhou",
+        "Xinbing Liang",
+        "Shizheng Zhu",
+        "Yuhui Wang",
+        "Jingqi Tong",
+        "Zhiheng Xi",
+        "Jiazheng Zhang",
+        "Clive Bai",
+        "Clarenceai",
+        "Blaze Chen",
+        "Tao Gui",
+        "Qi Zhang",
+        "Xuanjing Huang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-25T16:39:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.24794v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "co-evolving feedback enables self-improving search agents",
+      "llm_evidence_cn": "共同演化的反馈机制驱动自我改进搜索智能体",
+      "llm_evidence": "共同演化的反馈机制驱动自我改进搜索智能体",
+      "canonical_evidence": "共同演化的反馈机制驱动自我改进搜索智能体",
+      "llm_tldr_en": "Search agents trained with terminal rewards cannot localize intermediate failures. CAFE couples a search-agent and a critic in a shared-parameter model that alternates roles, letting the agent decide when to request corrective feedback while the critic adapts as the agent improves, enabling self-improved retrieval policies.",
+      "llm_tldr_cn": "仅用最终奖励监督的搜索智能体无法定位中间错误并及时纠正轨迹。本文提出CAFE，让共享参数的模型交替扮演搜索智能体与批评者角色，前者学习何时请求并使用反馈，后者从受结果混淆的轨迹中推断有用纠正，随智能体进步共同演化。实验显示该共同进化机制能有效提升检索型智能体的在线决策与最终性能。",
+      "llm_tldr": "仅用最终奖励监督的搜索智能体无法定位中间错误并及时纠正轨迹。本文提出CAFE，让共享参数的模型交替扮演搜索智能体与批评者角色，前者学习何时请求并使用反馈，后者从受结果混淆的轨迹中推断有用纠正，随智能体进步共同演化。实验显示该共同进化机制能有效提升检索型智能体的在线决策与最终性能。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.28704v1",
+      "source": "arxiv",
+      "title": "ORDDAR: Observation-Driven Reasoning for Distortion-Resilient Decision, Action, and Cognitive Recovery",
+      "abstract": "AI agents increasingly perform long-term reasoning, planning, tool use, memory integration, and autonomous decision making, yet erroneous intermediate states can propagate and cause inconsistent decisions and unreliable outputs. Existing reasoning approaches mainly rely on iterative planning, self-reflection, augmented memory, or verification, but rarely localize and selectively repair faulty reasoning. We present ORDDAR (Observation-Driven Reasoning for Distortion-Resilient Decision, Action, and Cognitive Recovery), a reasoning framework that models reasoning as cognitive state transitions, detects localized distortions, retrieves related reasoning from prior experiences, and repairs only the affected states. ORDDAR therefore performs recovery at the local reasoning-transition level rather than regenerating the complete trajectory. Experiments across mathematical, commonsense, multi-hop, and clinical reasoning benchmarks demonstrate improved reasoning quality, recovery ability, and interpretability over multiple evaluated reasoning baselines.",
+      "authors": [
+        "Deblina Kar",
+        "Anant Nawalgaria",
+        "Shyamal Kumar Das Mandal"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-08-27T17:05:54+00:00",
+      "link": "https://arxiv.org/pdf/2608.28704v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "retrieves prior reasoning from experiences during decision recovery",
+      "llm_evidence_cn": "在决策恢复时从过往经验检索相关推理",
+      "llm_evidence": "在决策恢复时从过往经验检索相关推理",
+      "canonical_evidence": "在决策恢复时从过往经验检索相关推理",
+      "llm_tldr_en": "ORDDAR models agent reasoning as cognitive state transitions, detects localized distortions, retrieves related reasoning from prior experiences, and repairs only the affected states, countering error propagation in long-horizon autonomous decision making.",
+      "llm_tldr_cn": "长时间的AI智能体推理中，中间状态错误会传播并导致不一致决策，现有反思与验证方法难以精准定位错误。ORDDAR将推理建模为认知状态转移，检测局部失真、从历史经验中检索相关推理并只修复受影响状态。该方法降低错误传播，使长周期决策更可靠，为可恢复智能体推理提供了新思路。",
+      "llm_tldr": "长时间的AI智能体推理中，中间状态错误会传播并导致不一致决策，现有反思与验证方法难以精准定位错误。ORDDAR将推理建模为认知状态转移，检测局部失真、从历史经验中检索相关推理并只修复受影响状态。该方法降低错误传播，使长周期决策更可靠，为可恢复智能体推理提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.27969v1",
+      "source": "arxiv",
+      "title": "openJiuwen: Beyond Static Harnesses for Long-Horizon Coding Agents",
+      "abstract": "Long-horizon coding agents operate over evolving repository states while increasingly relying on heterogeneous capabilities, delegated agents, and multi-agent coordination. These trends pose two complementary challenges for the agent harness. First, developers need to compose capabilities, reconfigure execution logic, and scale increasingly complex agent systems without repeatedly rebuilding orchestration. Second, complex coding tasks continuously produce new evidence---such as semantic diagnostics, execution outcomes, task progress, and changing context relevance---that should dynamically influence subsequent runtime decisions. We characterize these challenges as Structural Composability and Runtime Adaptivity. We present openJiuwen, an open-source harness designed for both developer composability and adaptive task execution. openJiuwen provides a shared execution substrate and Rail-based capability composition across single agents, delegated sub-agents, and Swarm Flow, enabling developers to construct sophisticated agent harnesses under common execution semantics. It further adapts framework-controlled runtime decisions around a fixed model policy, allowing evolving evidence to dynamically affect context, feedback, and task control toward successful completion. We systematically evaluate openJiuwen on SWE-bench Verified and Terminal-Bench 2.1, where it achieves 82.6% and 87.19%, respectively, exceeding the strongest selected official-leaderboard point estimates by 3.4 and 3.39 percentage points. These results show that openJiuwen achieves strong performance on complex coding tasks while providing a composable and adaptive harness design.",
+      "authors": [
+        "openJiuwen Team",
+        "Tao Yu",
+        "Xinyu Zhang",
+        "Qianqian Chen",
+        "Xiaoneng Xiang",
+        "Chia Kwangyang",
+        "Xingchen Huang",
+        "Ran Chen",
+        "Yangkai Ding",
+        "Zheng Wang",
+        "Yeo Boon Hong",
+        "Bingzheng Gan",
+        "Enrui Hu",
+        "Shuo Cheng",
+        "Deyang Li",
+        "Ruifeng Shi",
+        "Hongbo Wang",
+        "Qi Ye",
+        "Xuefeng Jin",
+        "Zhangchun Zhao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-28T06:31:38+00:00",
+      "link": "https://arxiv.org/pdf/2608.27969v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "openJiuwen is a reusable open-source harness for long-horizon coding agents, supporting compositional agent capabilities and runtime-adaptive context for LLM-driven coding tasks.",
+      "llm_evidence_cn": "openJiuwen围绕长时程编码智能体的能力组合与运行时上下文自适应设计，可支撑大模型代码生成与持续代码修改场景。",
+      "llm_evidence": "openJiuwen围绕长时程编码智能体的能力组合与运行时上下文自适应设计，可支撑大模型代码生成与持续代码修改场景。",
+      "canonical_evidence": "openJiuwen围绕长时程编码智能体的能力组合与运行时上下文自适应设计，可支撑大模型代码生成与持续代码修改场景。",
+      "llm_tldr_en": "openJiuwen is a reusable open-source harness for long-horizon coding agents, supporting composable agent capabilities and runtime-adaptive use of newly produced diagnostics and context evidence in downstream coding decisions.",
+      "llm_tldr_cn": "针对长时程编码智能体依赖不断演化的仓库状态，且现有静态执行框架难以组合异构能力、也无法根据运行中新证据调整后续决策的问题，论文提出openJiuwen开源智能体执行与编排框架。该框架从结构可组合性与运行时自适应性两方面入手，支持开发者动态配置执行逻辑，并把语义诊断、执行结果、任务进展和上下文相关性变化实时反馈给后续决策。它为复杂编码任务中多智能体协作、委派与规模扩展提供了更灵活的基础设施，有助于大模型驱动的代码生成与仓库级改造自动化。",
+      "llm_tldr": "针对长时程编码智能体依赖不断演化的仓库状态，且现有静态执行框架难以组合异构能力、也无法根据运行中新证据调整后续决策的问题，论文提出openJiuwen开源智能体执行与编排框架。该框架从结构可组合性与运行时自适应性两方面入手，支持开发者动态配置执行逻辑，并把语义诊断、执行结果、任务进展和上下文相关性变化实时反馈给后续决策。它为复杂编码任务中多智能体协作、委派与规模扩展提供了更灵活的基础设施，有助于大模型驱动的代码生成与仓库级改造自动化。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.25124v1",
+      "source": "arxiv",
+      "title": "FABRICA: Agentic CUDA-to-CSL Translation and Optimization for Wafer-Scale Systems",
+      "abstract": "Porting GPU kernels across architectures requires architectural remapping, not syntax substitution. CUDA encodes decomposition, locality, and synchronization through threads, blocks, and memory accesses; the Cerebras Software Language (CSL) requires explicit placement, distributed SRAM, fabric communication, event-driven tasks, and host/device contracts. We present FABRICA-Bench, 49 paired CUDA-to-CSL tasks, and FABRICA, an agentic framework combining target knowledge, execution, failure-directed repair, and correctness-gated optimization. On a fixed 28-task Level~1--3 core comparison with Claude Opus 4.8, FABRICA raises success from 6/28 to 26/28; 22 successful programs match or beat their CSL references. Across the 49-task coverage evaluation, 38 tasks produce a correct program; the final three tasks are evaluated over three seeds and pass 8/9 runs. For 27 generated/reference pairs with device-internal timing, geometric-mean speedup is 3.75$\\times$ on the SDK simulator and 3.47$\\times$ on WSE-3 hardware. With the executable workflow fixed, Claude Opus~4.8 passes 26/28 core tasks while the best open-weight model passes 2/28; retrieved Cerebras knowledge separately raises success from 1/15 to 7/15 on a Level~1--3 panel. These results identify base-model capability, target knowledge, execution feedback, and same-target measurement as central to cross-architecture kernel generation.",
+      "authors": [
+        "Yuebo Luo",
+        "Eliu Huerta",
+        "Venkatram Vishwanath",
+        "Caiwen Ding",
+        "Rajeev Thakur",
+        "Le Chen"
+      ],
+      "primary_category": "cs.CE",
+      "categories": [
+        "cs.CE"
+      ],
+      "published": "2026-08-25T20:18:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.25124v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "LLM agent framework translating and optimizing CUDA kernels into CSL kernels with correctness-gated performance tuning, i.e. large-model based compute kernel generation with performance optimization",
+      "llm_evidence_cn": "基于大模型智能体的CUDA到CSL内核翻译与优化框架，包含正确性门控性能调优，属于大模型计算内核生成与性能调优范畴",
+      "llm_evidence": "基于大模型智能体的CUDA到CSL内核翻译与优化框架，包含正确性门控性能调优，属于大模型计算内核生成与性能调优范畴",
+      "canonical_evidence": "基于大模型智能体的CUDA到CSL内核翻译与优化框架，包含正确性门控性能调优，属于大模型计算内核生成与性能调优范畴",
+      "llm_tldr_en": "Porting CUDA kernels to Cerebras CSL needs architectural remapping, not syntax rewriting. FABRICA is an agentic framework using target knowledge, execution feedback, failure-driven repair, and correctness-gated optimization to translate and tune kernels; it lifts success from 6/28 to 26/28 with 22 programs at or above CSL reference.",
+      "llm_tldr_cn": "GPU内核跨架构移植不是简单语法替换，CUDA的线程块、访存与同步模式需要重映射到CSL的显式布局和事件驱动机制。论文提出FABRICA-Bench（49对任务）与FABRICA智能体框架，融合目标知识、执行反馈、失败导向修复与正确性门控优化，自动生成并调优CSL内核程序。在固定28个核心任务上与Claude Opus 4.8比较，成功率从6/28提升到26/28，其中22个成功程序达到或超过CSL参考性能。这项工作展示了大模型智能体在执行反馈驱动下完成跨架构内核代码生成与性能调优的可行性。",
+      "llm_tldr": "GPU内核跨架构移植不是简单语法替换，CUDA的线程块、访存与同步模式需要重映射到CSL的显式布局和事件驱动机制。论文提出FABRICA-Bench（49对任务）与FABRICA智能体框架，融合目标知识、执行反馈、失败导向修复与正确性门控优化，自动生成并调优CSL内核程序。在固定28个核心任务上与Claude Opus 4.8比较，成功率从6/28提升到26/28，其中22个成功程序达到或超过CSL参考性能。这项工作展示了大模型智能体在执行反馈驱动下完成跨架构内核代码生成与性能调优的可行性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.29063v1",
+      "source": "arxiv",
+      "title": "Agent2UCB: Agentic System for Generative Engine Optimization",
+      "abstract": "Large language model driven search engines such as Google AI Overviews and Perplexity have created new opportunities for Generative Engine Optimization (GEO) the practice of refining content to increase its likelihood of being cited or summarized by generative systems. We demonstrate Agent2UCB, an agentic GEO system that autonomously improves content visibility through customized, feedback-driven optimization. For each content item, the system evaluates nine GEO strategies, identifies the most effective method, and accelerates selection using a bandit-based Agent2UCB policy that integrates LLM priors with online reward signals. To monitor side effects, the system also provides a lightweight, text-only SEO readiness evaluation covering readability, topical coverage, and EEAT-style credibility. Experiments on GEO-Bench show consistent visibility gains while preserving SEO quality. The demo allows users to choose the websites of interest, observe the optimization workflow, and compare GEO/SEO outcomes across methods.",
+      "authors": [
+        "Sheldon Yu",
+        "Rui Wang",
+        "Tong Yu",
+        "Sungchul Kim",
+        "Doga Dogan",
+        "Junda Wu",
+        "Julian McAuley"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-29T05:36:06+00:00",
+      "link": "https://arxiv.org/pdf/2608.29063v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Autonomous agentic GEO system improves content visibility by evaluating nine strategies with a bandit policy mixing LLM priors and online rewards",
+      "llm_evidence_cn": "智能体系统借助反馈与bandit策略自主优化策略选择",
+      "llm_evidence": "智能体系统借助反馈与bandit策略自主优化策略选择",
+      "canonical_evidence": "智能体系统借助反馈与bandit策略自主优化策略选择",
+      "llm_tldr_en": "Agent2UCB, an agentic GEO system for generative search, autonomously improves content visibility. It evaluates nine GEO strategies and uses a bandit policy mixing LLM priors with online rewards to speed up effective selection, plus a lightweight SEO readiness evaluator.",
+      "llm_tldr_cn": "为应对生成式搜索引擎带来的内容可见度优化需求，本文提出Agent2UCB智能体系统：对每条内容评估九种GEO策略，并用结合大模型先验与在线奖励的bandit策略快速锁定最优方法，且提供轻量SEO就绪评估以监控副作用。该系统在无需人工干预的情况下根据反馈自主调整策略，展示了面向生成式引擎优化的自动化闭环。",
+      "llm_tldr": "为应对生成式搜索引擎带来的内容可见度优化需求，本文提出Agent2UCB智能体系统：对每条内容评估九种GEO策略，并用结合大模型先验与在线奖励的bandit策略快速锁定最优方法，且提供轻量SEO就绪评估以监控副作用。该系统在无需人工干预的情况下根据反馈自主调整策略，展示了面向生成式引擎优化的自动化闭环。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

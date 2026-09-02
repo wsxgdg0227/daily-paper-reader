@@ -1,101 +1,12 @@
 {
-  "generated_at": "2026-09-02T17:30:04.913224+00:00",
-  "updated_date": "20260804-20260902",
+  "generated_at": "2026-09-02T22:54:29.397231+00:00",
+  "updated_date": "20260902",
   "carryover_days": 9,
   "tag_states": {
     "gkg": {
-      "updated_date": "20260804-20260902",
+      "updated_date": "20260902",
       "carryover_days": 9,
       "items": [
-        {
-          "id": "2608.22610v1",
-          "source": "arxiv",
-          "title": "Coalition-Aware Skill Reliability for Self-Evolving Agents",
-          "abstract": "Agent skills, structured artifacts distilled from interaction trajectories and dynamically reused from skill banks, have become a central mechanism for enabling large language model (LLM)-based self-evolving agents to learn from past experience. Yet existing work has largely focused on the operational aspects of skills, such as acquisition, evolution, and retrieval, while leaving a more fundamental reliability question unresolved: Do accumulated skills in an agent's skill bank actually make positive mechanistic contributions? We investigate this question through systematic skill-bank audits across alternative bank compositions and deployment domains, measuring the resulting changes in agent behavior. These audits reveal two recurring reliability failures: coalition pollution, where bank-level gains conceal negative coalition-level skill contributions, and cross-domain utility reversal, where source-beneficial skills reverse their effects after transfer. These findings motivate two reliability interventions: coalition-aware skill selection during skill accumulation and label-free skill masking after transfer. Coalition-Aware Skill Selection (CASS) selects more reliable candidate skills for the current bank using sampled Shapley marginals. Unsupervised Skill-Masked Coalition Optimizer (u-SMCO) masks transferred skills whose exclusion improves retrieval quality on unlabeled target-domain data. Agentic experiments on LoCoMo, LongMemEval, HotpotQA, and ALFWorld show that CASS and u-SMCO consistently improve task performance and cross-domain generalization over strong skill-based self-evolving agent baselines. Beyond accuracy, coalition-conditioned reliability modeling reduces sensitivity to noisy outcome-reward fluctuations during reinforcement learning and exposes the limits of isolation-based skill evaluation.",
-          "authors": [
-            "Qiyan Zhao",
-            "Xiaofeng Zhang",
-            "Bo Liu",
-            "Minda Chen",
-            "Wei Xiong",
-            "Jingyang Chen",
-            "Guanting Ye",
-            "Wenhao Yu",
-            "Xiaosong Yuan",
-            "Shijie Han",
-            "Da-Han Wang",
-            "Jianmin Ji",
-            "Fei Huang",
-            "Xu-Yao Zhang"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-08-23T21:35:22+00:00",
-          "link": "https://arxiv.org/pdf/2608.22610v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Audits skill banks of LLM-based self-evolving agents to determine whether accumulated skills actually make positive mechanistic contributions.",
-          "llm_evidence_cn": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
-          "llm_evidence": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
-          "canonical_evidence": "系统审计自进化智能体的技能库，检验积累技能是否真的产生正向机制贡献并发现可靠性失败。",
-          "llm_tldr_en": "This paper investigates whether accumulated skills in an LLM agent's skill bank make positive mechanistic contributions by performing systematic skill-bank audits across alternative bank compositions and deployment domains. The audits reveal two recurring reliability failures, including coalition effects, questioning the common assumption that skill accumulation is always beneficial for self-evolving agents.",
-          "llm_tldr_cn": "自进化LLM智能体经常把经验蒸馏为可复用技能并动态检索，但现有工作主要关注技能获取、演化与操作层面，没有回答技能积累是否真正有利。作者通过跨技能库组成与部署领域的系统审计，测量技能库变化对智能体行为的影响，发现联合式失效等两类重复出现的可靠性问题。该结论表明自进化智能体的技能管理不能只追求累积，还须引入可靠性评估与设计。",
-          "llm_tldr": "自进化LLM智能体经常把经验蒸馏为可复用技能并动态检索，但现有工作主要关注技能获取、演化与操作层面，没有回答技能积累是否真正有利。作者通过跨技能库组成与部署领域的系统审计，测量技能库变化对智能体行为的影响，发现联合式失效等两类重复出现的可靠性问题。该结论表明自进化智能体的技能管理不能只追求累积，还须引入可靠性评估与设计。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "How do self evolving agents improve their performance over time?",
-          "matched_requirement_id": "req-9",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.22610v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.25469v1",
-          "source": "arxiv",
-          "title": "Hierarchical Shared Memory-Aware Optimization for TRSM on GPU Platforms",
-          "abstract": "Triangular Solve with Multiple Right-hand Sides (TRSM) is a fundamental BLAS Level-3 operation that underpins LU/Cholesky decomposition, sparse direct solvers, and matrix inversion. In the left-side lower-triangular case studied in this paper, efficient GPU implementation remains challenging because forward substitution introduces strict row-wise dependencies, and shared memory is too scarce to hold both operand matrices for wide data types such as double complex. This paper presents HSMA-TRSM, a hierarchical shared memory-aware optimization framework for left-side lower-triangular TRSM on NVIDIA A100, NVIDIA H800, and Hygon DCU Z100 accelerators. For the small-scale regime (m,n<=64), we design a pipelined compute-memory overlap mechanism through loop unrolling and instruction reordering, and propose a dual thread-group seven-stage pipeline strategy to address shared memory constraints for double complex types. For large-scale problems, we introduce a diagonal block decoupling optimization with an O(IB)shared-memory footprint for diagonal block inversion, enabling adaptive block size selection based on matrix scale and hardware characteristics. A compile-time configuration selection framework based on offline profiling and online lookup selects the optimal block size per platform with zero runtime overhead. Evaluated on NVIDIA A100, H800, and Hygon DCU Z100, HSMA-TRSM achieves peak speedups of 2.05xover cuBLAS and 2.06xover rocBLAS. The gains are strongest in shared-memory-constrained double-complex small cases and in large real-type cases where adaptive blocking improves GEMM-dominated updates, while mature vendor kernels leave less optimization headroom in some regimes.",
-          "authors": [
-            "Xinzhe Chen",
-            "Haowei Li",
-            "Lijuan Hu",
-            "Wenjing Ma",
-            "Fangfang Liu"
-          ],
-          "primary_category": "cs.DC",
-          "categories": [
-            "cs.DC"
-          ],
-          "published": "2026-08-26T07:37:09+00:00",
-          "link": "https://arxiv.org/pdf/2608.25469v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Hierarchical shared memory-aware optimization framework for high-performance TRSM GPU kernels",
-          "llm_evidence_cn": "面向TRSM GPU内核的层次化共享内存感知性能优化",
-          "llm_evidence": "面向TRSM GPU内核的层次化共享内存感知性能优化",
-          "canonical_evidence": "面向TRSM GPU内核的层次化共享内存感知性能优化",
-          "llm_tldr_en": "HSMA-TRSM is a hierarchical shared memory-aware optimization framework for left-side lower-triangular TRSM on GPUs, addressing row-wise dependencies and scarce shared memory for wide data types. It designs pipelined compute-memory overlap and per-regime strategies for A100, H800, and Hygon DCU Z100.",
-          "llm_tldr_cn": "三角多右端项求解（TRSM）是LAPACK等基础库中的关键运算，其GPU实现受行向依赖和共享内存容量限制。HSMA-TRSM提出层次化共享内存感知优化框架，针对小规模与大规模分别设计流水化计算访存重叠等策略，并把优化推广到A100、H800及DCU Z100等多类加速器。该工作通过精细利用共享内存层级来提升TRSM内核性能，展示了面对带宽和容量约束时GPU内核优化的一般方法。",
-          "llm_tldr": "三角多右端项求解（TRSM）是LAPACK等基础库中的关键运算，其GPU实现受行向依赖和共享内存容量限制。HSMA-TRSM提出层次化共享内存感知优化框架，针对小规模与大规模分别设计流水化计算访存重叠等策略，并把优化推广到A100、H800及DCU Z100等多类加速器。该工作通过精细利用共享内存层级来提升TRSM内核性能，展示了面对带宽和容量约束时GPU内核优化的一般方法。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.25469v1",
-          "carry_days": 1
-        },
         {
           "id": "2608.31057v1",
           "source": "arxiv",
@@ -164,13 +75,13 @@
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Systematically studies agent memory methods in a unified agentic RAG framework to see how stored/retrieved information affects reliable question handling",
-          "llm_evidence_cn": "在统一Agentic RAG框架中比较多种记忆方法，考察记忆的存储与复用如何影响智能体可靠处理问题",
-          "llm_evidence": "在统一Agentic RAG框架中比较多种记忆方法，考察记忆的存储与复用如何影响智能体可靠处理问题",
-          "canonical_evidence": "在统一Agentic RAG框架中比较多种记忆方法，考察记忆的存储与复用如何影响智能体可靠处理问题",
-          "llm_tldr_en": "A systematic study of agent memory in a unified agentic RAG framework shows memory gains for reliable unanswerable-question handling are selective and fragile, with cross-model reuse easier than cross-dataset transfer.",
-          "llm_tldr_cn": "智能体系统普遍使用记忆增强可靠性，但记忆对不可回答问题的真实作用仍不明确。作者在统一Agentic RAG框架中系统评估四种代表性记忆方法，覆盖三个不可回答问题数据集和两个基座模型。结果显示记忆收益只出现在部分设置中，会随数据分布迁移而变脆弱，跨模型记忆复用通常比跨数据集复用更易成功。该工作为智能体何时值得依赖记忆提供了经验边界。",
-          "llm_tldr": "智能体系统普遍使用记忆增强可靠性，但记忆对不可回答问题的真实作用仍不明确。作者在统一Agentic RAG框架中系统评估四种代表性记忆方法，覆盖三个不可回答问题数据集和两个基座模型。结果显示记忆收益只出现在部分设置中，会随数据分布迁移而变脆弱，跨模型记忆复用通常比跨数据集复用更易成功。该工作为智能体何时值得依赖记忆提供了经验边界。",
+          "llm_evidence_en": "Systematically studies four agent-memory methods under unified agentic RAG, directly about agent memory storage and retrieval reliability.",
+          "llm_evidence_cn": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
+          "llm_evidence": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
+          "canonical_evidence": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
+          "llm_tldr_en": "This paper examines whether agent memory improves handling of unanswerable questions; across datasets and models it shows memory gains are selective and fragile to dataset shift, informing when memory reuse helps agentic retrieval.",
+          "llm_tldr_cn": "许多智能体系统依赖记忆来提升可靠性，但其对不可回答问题的作用尚不明确。作者在统一智能体RAG框架下比较四种记忆方法，覆盖三个数据集和两个基础模型。结果显示记忆只在部分情况下改善性能，且跨数据集迁移很不稳定。这提醒我们在设计智能体记忆与检索机制时应关注问题可答性转移带来的挑战。",
+          "llm_tldr": "许多智能体系统依赖记忆来提升可靠性，但其对不可回答问题的作用尚不明确。作者在统一智能体RAG框架下比较四种记忆方法，覆盖三个数据集和两个基础模型。结果显示记忆只在部分情况下改善性能，且跨数据集迁移很不稳定。这提醒我们在设计智能体记忆与检索机制时应关注问题可答性转移带来的挑战。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -182,37 +93,33 @@
           "carry_days": 1
         },
         {
-          "id": "2608.20725v1",
+          "id": "2608.28183v1",
           "source": "arxiv",
-          "title": "Enabling Memory-efficient Im2win Convolution with Multi-precision Support on GPU CUDA and Tensor Cores",
-          "abstract": "Convolution is a principal computational bottleneck in deep neural networks, and its efficiency depends on tight integration between algorithms and GPU hardware. Existing GPU convolution methods suffer from large memory overhead, poor cache utilization, limited effectiveness across kernel sizes, or numerical instability. This work extends the im2win paradigm -- a universal, memory-efficient convolution method with contiguous memory access for all kernel sizes -- to run efficiently in full precision on CUDA cores and half precision on tensor cores. By introducing new kernel designs and optimizations such as zig-zag memory access and asynchronous data movement, im2win efficiently exploits hardware-accelerated half-precision matrix multiply-accumulate operations. Across twelve CNN benchmarks, im2win achieves up to 2.8x higher TFLOPS than its CUDA core implementation, 1.4x higher than cuDNN, and 6.4x higher than GEMM-based convolution with cuBLAS, while using as little as 53% and 35% of their memory, respectively. These results establish im2win as a unified, high-performance convolution framework for modern GPU architectures.",
+          "title": "Memory-efficient GPU pipelines for real-time non-line-of-sight reconstruction",
+          "abstract": "Non-line-of-sight (NLOS) imaging reconstructs scenes hidden around a corner from indirect light recorded by a single-photon avalanche diode (SPAD). A single reconstruction is a large inverse problem: billions of photon timestamps must be binned, moved through memory, transformed and inverted. As SPAD arrays raise acquisition throughput, reconstruction becomes the limiting stage. We rebuild the GPU execution of two established wave-based algorithms, f-k migration and phasor-fields, for both streaming and offline processing. On the phasor-fields side we assemble the ring-and-radius kernels of previous work once and offline, using the analytic Fourier transform of a ring, so the propagation kernel never exists in dense form at runtime, reducing the memory and bandwidth. We reorganize the pipeline of both algorithms with fused kernels, warp-level photon binning, batched transforms, CUDA graph replay, and FP16 storage applied only where it reduces the actual bottleneck. Our implementations are up to 42x faster than the reference streaming pipeline and up to 14x faster than the fastest published GPU baseline, all while using a fraction of the memory (down to 2.5%), enabling vastly larger and finer reconstructions on the same hardware, or comparable ones within a much lower memory budget. We report an ablation of each implementation choice and propose three denoising strategies enabled by the resulting frame budget for next-generation NLOS video processing.",
           "authors": [
-            "Xiang Fu",
-            "Jixiang Ma",
-            "Xinpeng Zhang",
-            "Peng Zhao",
-            "Shuai Lu",
-            "Xu Tony Liu"
+            "Alfonso López-Ruiz",
+            "Diego Royo"
           ],
           "primary_category": "cs.DC",
           "categories": [
             "cs.DC",
             "cs.CV"
           ],
-          "published": "2026-08-21T04:09:32+00:00",
-          "link": "https://arxiv.org/pdf/2608.20725v1",
+          "published": "2026-08-28T10:51:37+00:00",
+          "link": "https://arxiv.org/pdf/2608.28183v1",
           "tags": [
             "keyword:gkg",
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "New GPU kernel designs such as zig-zag memory access and asynchronous data movement to optimize convolution kernels",
-          "llm_evidence_cn": "采用锯齿形访存与异步数据移动等新内核设计优化GPU卷积核性能",
-          "llm_evidence": "采用锯齿形访存与异步数据移动等新内核设计优化GPU卷积核性能",
-          "canonical_evidence": "采用锯齿形访存与异步数据移动等新内核设计优化GPU卷积核性能",
-          "llm_tldr_en": "Extends memory-efficient im2win convolution to CUDA and tensor cores with multi-precision support, using zig-zag memory access and asynchronous data movement to improve kernel speed and cache behavior.",
-          "llm_tldr_cn": "卷积是深度神经网络的主要计算瓶颈，现有GPU卷积方法常面临显存开销大、缓存利用率差、跨卷积核尺寸效果有限或数值不稳定等问题。该工作将通用且内存高效的im2win卷积范式扩展到CUDA核心与张量核心，支持多精度计算。通过引入锯齿形访存、异步数据移动等核函数优化，im2win能够更充分利用硬件加速能力。结果表明这些优化设计可实现更低显存开销与更好缓存利用，为GPU上的卷积计算提供更高效且稳定的实现方案。",
-          "llm_tldr": "卷积是深度神经网络的主要计算瓶颈，现有GPU卷积方法常面临显存开销大、缓存利用率差、跨卷积核尺寸效果有限或数值不稳定等问题。该工作将通用且内存高效的im2win卷积范式扩展到CUDA核心与张量核心，支持多精度计算。通过引入锯齿形访存、异步数据移动等核函数优化，im2win能够更充分利用硬件加速能力。结果表明这些优化设计可实现更低显存开销与更好缓存利用，为GPU上的卷积计算提供更高效且稳定的实现方案。",
+          "llm_evidence_en": "Rebuilds GPU pipelines and kernels for NLOS reconstruction with dense-kernel avoidance and memory-efficient streaming, targeting GPU execution performance.",
+          "llm_evidence_cn": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
+          "llm_evidence": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
+          "canonical_evidence": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
+          "llm_tldr_en": "For real-time NLOS imaging, this paper redesigns GPU execution of wave-based f-k migration and phasor-fields, precomputing kernels offline and using analytic transforms so no dense runtime kernel exists, enabling streaming and offline memory-efficient reconstruction.",
+          "llm_tldr_cn": "非视距成像重构计算量巨大，单幅重建需要处理海量光子时间戳，GPU重构成为瓶颈。作者针对两类波动算法重建GPU执行流水线，离线组装环和半径核，利用解析傅里叶变换避免运行时稠密传播核。重构后的流水线同时支持流式与离线处理并显著降低内存占用。这为实时非视距成像提供了存储高效的GPU实现路径。",
+          "llm_tldr": "非视距成像重构计算量巨大，单幅重建需要处理海量光子时间戳，GPU重构成为瓶颈。作者针对两类波动算法重建GPU执行流水线，离线组装环和半径核，利用解析傅里叶变换避免运行时稠密传播核。重构后的流水线同时支持流式与离线处理并显著降低内存占用。这为实时非视距成像提供了存储高效的GPU实现路径。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -220,39 +127,79 @@
           "matched_query_text": "techniques for optimizing GPU kernel execution performance",
           "matched_requirement_id": "req-2",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.20725v1",
+          "paper_id": "2608.28183v1",
           "carry_days": 1
         },
         {
-          "id": "2608.16303v1",
+          "id": "2608.27912v1",
           "source": "arxiv",
-          "title": "FTA-Mem: Fact-Time-Affect Anchored Memory for Low-Density Long-Term Dialogue",
-          "abstract": "Long-term emotional-support agents require memory mechanisms for personalized understanding across sessions. However, emotional-support dialogue is often low-density: turns are incomplete, evidence is scattered, and user states evolve over time. Existing memory methods usually rely on fixed units, such as turn-level notes or session summaries, which may lose details or introduce redundant noise. We propose FTA-Mem, a structured memory framework for low-density long-term dialogue. FTA-Mem uses Boundary-preserving Window Segmentation (BWS) to form coherent situation fragments, and constructs Fact-Time-Affect Memory Units (FTA Units) that jointly encode factual content, temporal grounding, and affective context. Retrieved units are then synthesized into structured context for answer generation. Experiments on ES-MemEval and LoCoMo show that FTA-Mem improves overall long-term memory question answering across benchmarks with different information-density characteristics. On ES-MemEval, FTA-Mem achieves 0.3871 F1 and 0.6668 BERTScore. Further analysis shows that situation-level FTA construction better balances evidence preservation and construction cost than coarse session-level or overly fine-grained turn-pair construction, providing an effective granularity trade-off for long-term dialogue memory.",
+          "title": "ITER: Interaction-Aware Retrieval for Agentic Search",
+          "abstract": "Deep-research agents answer complex user questions through an iterative sequence of search steps, where the agent autonomously formulates sub-queries to retrieve the evidence needed at each stage. However, existing retriever training typically relies only on the sub-query and its corresponding search results at the current step as training signals, leaving the information accumulated from previous interactions largely underutilized.   We introduce iter, an agent interaction-aware dense retriever trained using agent trajectory learning signals. iter represents each query by incorporating not only the current sub-query, but also the main question and preceding sub-queries, and is trained using trajectory-relative learning signals derived from the agent's interactions.   Across six agent backbones from three model families, iter consistently outperforms the existing agent-trajectory-trained dense retriever, LRAT, achieving an average improvement of 7.5% on InfoSeek-Eval and 13.5% on BrowseComp-Plus. iter also demonstrates stronger cross-agent robustness than AgentIR, a deep-research retriever that relies on external LLM-judge signals and the agent's pre-search reasoning. Ablations further show that the main question and previous sub-queries provide the most robust query representation, while previously visited and useful documents, used as redundancy negatives in subsequent searches, provide the strongest trajectory-relative supervision. Code is available at https://github.com/ielab/ITER.",
           "authors": [
-            "Chang Liu",
-            "Shuyi Zhang",
-            "Changsheng Ma",
-            "Yongfeng Tao",
-            "Minqiang Yang",
-            "Bin Hu"
+            "Haodong Chen",
+            "Shuai Wang",
+            "Yu Yin",
+            "Shengyao Zhuang",
+            "Guido Zuccon",
+            "Teerapong Leelanupab"
           ],
-          "primary_category": "cs.CL",
+          "primary_category": "cs.IR",
           "categories": [
-            "cs.CL"
+            "cs.IR"
           ],
-          "published": "2026-08-17T09:14:31+00:00",
-          "link": "https://arxiv.org/pdf/2608.16303v1",
+          "published": "2026-08-28T04:36:02+00:00",
+          "link": "https://arxiv.org/pdf/2608.27912v1",
           "tags": [
-            "keyword:gkg"
+            "keyword:gkg",
+            "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "structured memory framework with fact-time-affect units for storing and retrieving dialogue information",
-          "llm_evidence_cn": "以事实-时间-情感单元进行长期对话信息的存储与检索",
-          "llm_evidence": "以事实-时间-情感单元进行长期对话信息的存储与检索",
-          "canonical_evidence": "以事实-时间-情感单元进行长期对话信息的存储与检索",
-          "llm_tldr_en": "For low-density long-term emotional-support dialogue, FTA-Mem creates coherent situation fragments and Fact-Time-Affect memory units that jointly encode factual, temporal and affective context, improving memory retrieval and response synthesis.",
-          "llm_tldr_cn": "长期情感支持对话中，信息密度低、证据分散，固定粒度记忆容易丢失细节或引入噪声。论文提出FTA-Mem，采用保边界的窗口分割构造情境片段，再以事实-时间-情感记忆单元统一编码内容、时间与情感语境。检索到相关单元后进行综合，用于多轮个性化回应。实验表明该结构可降低冗余噪声并保持关键上下文，为低密度长程对话记忆提供了更精细的记忆方案。",
-          "llm_tldr": "长期情感支持对话中，信息密度低、证据分散，固定粒度记忆容易丢失细节或引入噪声。论文提出FTA-Mem，采用保边界的窗口分割构造情境片段，再以事实-时间-情感记忆单元统一编码内容、时间与情感语境。检索到相关单元后进行综合，用于多轮个性化回应。实验表明该结构可降低冗余噪声并保持关键上下文，为低密度长程对话记忆提供了更精细的记忆方案。",
+          "llm_evidence_en": "Trains a dense retriever using agent trajectory signals and interaction context, directly improving how agents retrieve relevant evidence during decision-making search.",
+          "llm_evidence_cn": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
+          "llm_evidence": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
+          "canonical_evidence": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
+          "llm_tldr_en": "Deep-research agents suffer because retrievers ignore prior interactions; ITER encodes the main question and preceding sub-queries together with the current sub-query and trains on trajectory-relative signals, yielding interaction-aware evidence retrieval for agentic search.",
+          "llm_tldr_cn": "深度研究智能体需要多步搜索获取证据，但现有检索器只按当前子查询训练，忽略了此前交互积累的信息。ITER将主问题与前面的子查询一并编码进当前查询，并利用轨迹相对学习信号训练稠密检索器。这样检索结果能反映agent正在执行的决策上下文。该方法使智能体在复杂问答流程中检索到更相关的证据，提升交互式搜索的整体质量。",
+          "llm_tldr": "深度研究智能体需要多步搜索获取证据，但现有检索器只按当前子查询训练，忽略了此前交互积累的信息。ITER将主问题与前面的子查询一并编码进当前查询，并利用轨迹相对学习信号训练稠密检索器。这样检索结果能反映agent正在执行的决策上下文。该方法使智能体在复杂问答流程中检索到更相关的证据，提升交互式搜索的整体质量。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2608.27912v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2608.26263v2",
+          "source": "arxiv",
+          "title": "SKILL.state: Scalable Long-Horizon Agent Skills",
+          "abstract": "Large Language Models (LLMs) increasingly act as autonomous agents executing complex, long-running procedural skills. Existing agent runtimes maintain execution by continually appending observations, actions, and intermediate reasoning traces to an ever-growing conversation history, causing latency degradation and context-poisoning failures over long horizons. We present SKILL.state, a runtime architecture that replaces append-only conversational history with an explicit, mutable execution state. At each execution step, the model receives only the immutable skill specification, the current structured execution state, and the latest observation. Intermediate reasoning is discarded immediately after producing a validated state update, preventing prompt growth with execution history. Across diverse datasets, models, and execution environments, SKILL. state improves task accuracy while substantially reducing cumulative token consumption. Our results demonstrate that explicit execution state is an effective and architecture-agnostic abstraction for scalable long-horizon agent skills.",
+          "authors": [
+            "Sanket Badhe",
+            "Priyanka Tiwari",
+            "Jonghyun Chung"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.MA"
+          ],
+          "published": "2026-08-26T18:00:06+00:00",
+          "link": "https://arxiv.org/pdf/2608.26263v2",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Runtime replaces append-only history with mutable execution state, providing memory structure for long-horizon agents.",
+          "llm_evidence_cn": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
+          "llm_evidence": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
+          "canonical_evidence": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
+          "llm_tldr_en": "LLM agents fail over long horizons due to context growth; SKILL.state uses explicit mutable execution state and discards intermediate reasoning after validated updates.",
+          "llm_tldr_cn": "LLM智能体在长期技能执行中若不断把观察和推理追加到历史，会引发延迟与上下文污染。SKILL.state用显式、可变的执行状态取代无界对话历史；每一步只送入技能规格、当前状态和最新观察，中间推理在形成有效更新后立即丢弃。该设计阻止提示词随执行历史增长，提升长时程任务的稳定性和可扩展性。",
+          "llm_tldr": "LLM智能体在长期技能执行中若不断把观察和推理追加到历史，会引发延迟与上下文污染。SKILL.state用显式、可变的执行状态取代无界对话历史；每一步只送入技能规格、当前状态和最新观察，中间推理在形成有效更新后立即丢弃。该设计阻止提示词随执行历史增长，提升长时程任务的稳定性和可扩展性。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -260,80 +207,118 @@
           "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
           "matched_requirement_id": "req-3",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.16303v1",
+          "paper_id": "2608.26263v2",
           "carry_days": 1
         },
         {
-          "id": "2608.25469v1",
+          "id": "2608.28264v1",
           "source": "arxiv",
-          "title": "Hierarchical Shared Memory-Aware Optimization for TRSM on GPU Platforms",
-          "abstract": "Triangular Solve with Multiple Right-hand Sides (TRSM) is a fundamental BLAS Level-3 operation that underpins LU/Cholesky decomposition, sparse direct solvers, and matrix inversion. In the left-side lower-triangular case studied in this paper, efficient GPU implementation remains challenging because forward substitution introduces strict row-wise dependencies, and shared memory is too scarce to hold both operand matrices for wide data types such as double complex. This paper presents HSMA-TRSM, a hierarchical shared memory-aware optimization framework for left-side lower-triangular TRSM on NVIDIA A100, NVIDIA H800, and Hygon DCU Z100 accelerators. For the small-scale regime (m,n<=64), we design a pipelined compute-memory overlap mechanism through loop unrolling and instruction reordering, and propose a dual thread-group seven-stage pipeline strategy to address shared memory constraints for double complex types. For large-scale problems, we introduce a diagonal block decoupling optimization with an O(IB)shared-memory footprint for diagonal block inversion, enabling adaptive block size selection based on matrix scale and hardware characteristics. A compile-time configuration selection framework based on offline profiling and online lookup selects the optimal block size per platform with zero runtime overhead. Evaluated on NVIDIA A100, H800, and Hygon DCU Z100, HSMA-TRSM achieves peak speedups of 2.05xover cuBLAS and 2.06xover rocBLAS. The gains are strongest in shared-memory-constrained double-complex small cases and in large real-type cases where adaptive blocking improves GEMM-dominated updates, while mature vendor kernels leave less optimization headroom in some regimes.",
+          "title": "Finding Where the Buck Stops: An Automated Failure Attribution-Based Reflection Framework for Multi-Agent Collaboration",
+          "abstract": "Multi-agent systems (MAS) powered by large language models have shown promise for complex tasks but suffer from high failure rates. Current self-reflection methods for MAS require all agents to reflect upon failure, overlooking a critical reality: failures typically stem from a specific agent leading the task astray, namely the decisive error agent, while others merely fulfill their regular duties. Forcing regular-behaving agents to reflect contaminates their memory with wrong insights. Hence, we propose DoCtOR (Diagnose-then-Correct PPO-enhanced Reflection), a novel reflection framework that enhances multi-agent collaboration. DoCtOR first identifies the decisive error step and decisive error agent through automated failure attribution, then employs counterfactual reasoning to generate a corrected decisive error step, and finally engages only the decisive error agent to produce targeted reflections. Experimental results show DoCtOR achieves 22%, 26%, and 27% improvements over initial success rates on HotPotQA, ChartQAPro, and Mind2Web datasets, outperforming Reflexion, Retroformer, and COPPER. We further establish the generalizability of our diagnose-then-correct paradigm and demonstrate that in low-resource settings, focusing reflection on reasoning steps after the decisive error step achieves comparable quality to reflecting on the complete failure trajectory.",
           "authors": [
-            "Xinzhe Chen",
-            "Haowei Li",
-            "Lijuan Hu",
-            "Wenjing Ma",
-            "Fangfang Liu"
+            "Xiaoqing Wang",
+            "Keman Huang",
+            "Bin Liang",
+            "Hongyu Li",
+            "Xiaoyong Du",
+            "Wuqiong Pan"
           ],
-          "primary_category": "cs.DC",
+          "primary_category": "cs.AI",
           "categories": [
-            "cs.DC"
+            "cs.AI"
           ],
-          "published": "2026-08-26T07:37:09+00:00",
-          "link": "https://arxiv.org/pdf/2608.25469v1",
+          "published": "2026-08-28T12:26:03+00:00",
+          "link": "https://arxiv.org/pdf/2608.28264v1",
           "tags": [
             "keyword:gkg",
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Hierarchical shared memory-aware optimization framework for GPU TRSM kernels, directly improving GPU kernel execution performance.",
-          "llm_evidence_cn": "提出GPU上TRSM内核的分层共享内存感知优化框架，直接属于GPU内核执行性能优化技术。",
-          "llm_evidence": "提出GPU上TRSM内核的分层共享内存感知优化框架，直接属于GPU内核执行性能优化技术。",
-          "canonical_evidence": "提出GPU上TRSM内核的分层共享内存感知优化框架，直接属于GPU内核执行性能优化技术。",
-          "llm_tldr_en": "HSMA-TRSM presents a hierarchical shared-memory-aware optimization framework for GPU triangular solve kernels, using pipelined compute-memory overlap and memory-aware mapping across A100, H800, and DCU Z100.",
-          "llm_tldr_cn": "TRSM作为基础BLAS三级运算，在GPU上因前代递推依赖和共享内存容量限制而难以高效实现，双复数等宽数据类型下共享内存无法同时容纳两个操作数矩阵。HSMA-TRSM提出分层共享内存感知优化框架，为小规模场景设计循环级流水线和计算内存重叠机制，并针对不同规模分层规划共享内存中的数据布局。该框架在NVIDIA A100、H800与Hygon DCU Z100上均能有效提升不同规模TRSM内核性能。这项工作为受共享内存制约的稠密线性代数GPU内核提供了可复用优化思路。",
-          "llm_tldr": "TRSM作为基础BLAS三级运算，在GPU上因前代递推依赖和共享内存容量限制而难以高效实现，双复数等宽数据类型下共享内存无法同时容纳两个操作数矩阵。HSMA-TRSM提出分层共享内存感知优化框架，为小规模场景设计循环级流水线和计算内存重叠机制，并针对不同规模分层规划共享内存中的数据布局。该框架在NVIDIA A100、H800与Hygon DCU Z100上均能有效提升不同规模TRSM内核性能。这项工作为受共享内存制约的稠密线性代数GPU内核提供了可复用优化思路。",
+          "llm_evidence_en": "Automated reflection framework diagnoses decisive error agent and corrects it via PPO, improving multi-agent policies without human intervention",
+          "llm_evidence_cn": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
+          "llm_evidence": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
+          "canonical_evidence": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
+          "llm_tldr_en": "Multi-agent reflection often makes all agents reflect, polluting normal agents' memory. DoCtOR locates the decisive error agent and applies PPO-enhanced reflection only there, improving collaboration and reducing memory pollution over uniform reflection.",
+          "llm_tldr_cn": "现有多智能体自反思让全体智能体统一进行反思，容易污染正常智能体记忆，掩盖真正失败原因。DoCtOR先自动诊断决定性错误步骤和犯错智能体，再用PPO增强的反思仅纠正该智能体。实验表明该框架比统一反思方法更有效地提升多智能体协作成绩并减少无效反思，为多智能体自我进化提供了更精细化机制。",
+          "llm_tldr": "现有多智能体自反思让全体智能体统一进行反思，容易污染正常智能体记忆，掩盖真正失败原因。DoCtOR先自动诊断决定性错误步骤和犯错智能体，再用PPO增强的反思仅纠正该智能体。实验表明该框架比统一反思方法更有效地提升多智能体协作成绩并减少无效反思，为多智能体自我进化提供了更精细化机制。",
           "llm_tags": [
             "query:gkg"
           ],
           "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.25469v1",
+          "paper_id": "2608.28264v1",
           "carry_days": 1
         },
         {
-          "id": "2608.27924v1",
+          "id": "2609.00069v1",
           "source": "arxiv",
-          "title": "What Makes Agent Memory Useful for Reliable Unanswerable Question Handling?",
-          "abstract": "Reliable handling of unanswerable questions (UAQs) is critical for trustworthy LLM-based agents. Although memory is widely used in agent systems, its role in reliable UAQ handling remains unclear. We present a systematic study of agent memory for UAQ handling under a unified agentic RAG framework, evaluating four representative memory methods across three UAQ-related datasets and two base models.   We find that memory can improve UAQ performance in some settings, but such gains are selective rather than universal and remain fragile under dataset shift. Interestingly, cross-model memory reuse is often more feasible than cross-dataset transfer, suggesting that shifts in answerability patterns pose a greater challenge to memory reuse than changes in the base model itself. We further find that UAQ gains are more strongly preserved through decision guidance than through trajectory shaping, and that memory effectiveness depends strongly on representation. In particular, procedural and rule-based memories often provide the most reliable support for UAQ handling, while memory composition is most effective when procedural guidance is combined with complementary behavioral signals. Overall, our findings suggest that reliable UAQ memory depends less on storing larger amounts of experience and more on preserving transferable behavioral guidance.",
+          "title": "Auditing Harness Tampering in Self-Improving Agents",
+          "abstract": "Self-improving agents iteratively modify their own harness to push the frontier of their performance. However, such modifications can produce illusory performance gains or compromise integrity constraints such as authorization, provenance, and completeness without genuinely improving capability. We term this phenomenon as harness tampering, which extends the concept from reward and measurement tampering to the full self-improvement lifecycle. To systematically study this problem, we propose a two-axis taxonomy that categorizes each misaligned edit by the harness functional role in which it occurs and the obligation it violates. Then we build an annotated corpus by seeding tampered-benign edit pairs into the real trajectories of self-improving agents. We adapt and benchmark diverse audit methods on tampering classification and localization tasks. Finally we systematically audit real trajectories of self-improving agents. The results demonstrate that harness tampering consistently occurs in real runs from different agents, often persists in the lineage of the best agent, and forms distinct system-specific profiles across the taxonomy.",
           "authors": [
-            "Chuanyuan Tan",
-            "Junjie Yu",
-            "Yuxin Wang",
-            "Yining Zheng",
-            "Xipeng Qiu",
-            "Wenliang Chen"
+            "Xing Wang",
+            "Xiaoyi Zhang",
+            "Jie Shao"
           ],
           "primary_category": "cs.CL",
           "categories": [
-            "cs.CL"
+            "cs.CL",
+            "cs.AI"
           ],
-          "published": "2026-08-28T05:00:28+00:00",
-          "link": "https://arxiv.org/pdf/2608.27924v1",
+          "published": "2026-08-30T17:18:56+00:00",
+          "link": "https://arxiv.org/pdf/2609.00069v1",
           "tags": [
             "keyword:gkg",
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Systematic study of agent memory methods in an agentic RAG framework, examining when memory storage and retrieval help reliable question handling",
-          "llm_evidence_cn": "在智能体检索增强框架下系统比较多种记忆方法，研究记忆存储与检索对可靠问答的作用",
-          "llm_evidence": "在智能体检索增强框架下系统比较多种记忆方法，研究记忆存储与检索对可靠问答的作用",
-          "canonical_evidence": "在智能体检索增强框架下系统比较多种记忆方法，研究记忆存储与检索对可靠问答的作用",
-          "llm_tldr_en": "This systematic study tests four memory methods in an agentic RAG framework across UAQ datasets and base models, showing memory gains are selective and fragile to dataset shift, while cross-model reuse is often easier than cross-dataset transfer.",
-          "llm_tldr_cn": "可靠的不可回答问题处理对可信任LLM智能体至关重要，但记忆在其中的作用此前缺乏系统认识。该文在统一智能体检索增强框架中评估四种代表性记忆方法，覆盖三个UAQ数据集与两个基础模型。结果显示记忆在某些设定下能改善UAQ处理，但提升具有选择性且跨数据集迁移时较脆弱；相比之下跨模型记忆复用往往更容易。这说明答案性分布变化比模型变化更制约记忆复用的可靠性。",
-          "llm_tldr": "可靠的不可回答问题处理对可信任LLM智能体至关重要，但记忆在其中的作用此前缺乏系统认识。该文在统一智能体检索增强框架中评估四种代表性记忆方法，覆盖三个UAQ数据集与两个基础模型。结果显示记忆在某些设定下能改善UAQ处理，但提升具有选择性且跨数据集迁移时较脆弱；相比之下跨模型记忆复用往往更容易。这说明答案性分布变化比模型变化更制约记忆复用的可靠性。",
+          "llm_evidence_en": "Self-improving agents iteratively alter their harness; auditing this process directly addresses self-evolving agent improvement.",
+          "llm_evidence_cn": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
+          "llm_evidence": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
+          "canonical_evidence": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
+          "llm_tldr_en": "Identifies harness tampering as a risk in self-improving agents, proposes a two-axis taxonomy and an annotated corpus of tampered-benign edits for auditing.",
+          "llm_tldr_cn": "自我改进智能体为提升性能可能修改自己的框架，产生虚假收益或破坏授权、溯源完整性等约束，这些问题从奖励与测量篡改扩展到整个自我改进生命周期。作者提出二维分类法，从框架功能角色和违反义务两个维度刻画每次错误编辑，并通过向真实轨迹中植入篡改-良性编辑对构建标注语料库。相关工作为审计智能体自改进过程中的对齐风险提供了系统基础。",
+          "llm_tldr": "自我改进智能体为提升性能可能修改自己的框架，产生虚假收益或破坏授权、溯源完整性等约束，这些问题从奖励与测量篡改扩展到整个自我改进生命周期。作者提出二维分类法，从框架功能角色和违反义务两个维度刻画每次错误编辑，并通过向真实轨迹中植入篡改-良性编辑对构建标注语料库。相关工作为审计智能体自改进过程中的对齐风险提供了系统基础。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.00069v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.00237v1",
+          "source": "arxiv",
+          "title": "Learning What to Retain: Gated-Memory Routing for Efficient Collaboration in Multi-Agent LLM Systems",
+          "abstract": "Large language model (LLM)-based multi-agent systems tackle complex reasoning by orchestrating how multiple agents are configured and how they collaborate. A central challenge is to adapt orchestration to the evolving collaboration state. Routing from the query alone cannot adapt to intermediate progress or errors, which hurts accuracy. Routing from the complete execution history supplies this missing context, but forces later decisions to process every prior step, including redundant or low-utility ones. This creates an execution-history overload that inflates cost. Effective orchestration instead requires a compact state that captures useful progress without accumulating redundant context. We propose Gated-Memory Routing, which conditions each decision on the query and a learned execution memory. A learned Memory Write Gate commits only non-redundant reasoning steps, and a learned Retrieval Gate supplies each agent a compact, relevant subset, so every decision conditions on a clean, informative state. At each step, the system selects the next role and backbone from this memory, while an Adaptive Halting Controller stops execution once the memory contains sufficient evidence for answering. Across five reasoning and code-generation benchmarks, our framework is both effective and efficient: it attains the best average accuracy, exceeding the strongest baseline by 2.44 points, while reducing HumanEval inference cost by 31.9% relative to that baseline. Code is available at https://github.com/rajibrhasan/gated-memory-routing",
+          "authors": [
+            "Rakibul Hasan Rajib",
+            "Mengxing Zheng",
+            "Qian Lou"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-08-31T18:42:57+00:00",
+          "link": "https://arxiv.org/pdf/2609.00237v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Gated-memory routing compresses execution history into a compact state, directly matched to agent memory storage and retrieval.",
+          "llm_evidence_cn": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
+          "llm_evidence": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
+          "canonical_evidence": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
+          "llm_tldr_en": "Routing from full execution history is costly; Gated-Memory Routing learns compact gated state for orchestration in multi-agent LLM systems.",
+          "llm_tldr_cn": "LLM多智能体系统需要依据协作状态调整组织方式，只用初始查询路由会丢失中间反馈，用完整历史又会造成上下文过载和高成本。Gated-Memory Routing用门控机制学习保留高价值执行进度，压缩为紧凑状态供后续路由决策。该方法在降低冗余历史开销的同时提高了协作编配的正确性和效率。",
+          "llm_tldr": "LLM多智能体系统需要依据协作状态调整组织方式，只用初始查询路由会丢失中间反馈，用完整历史又会造成上下文过载和高成本。Gated-Memory Routing用门控机制学习保留高价值执行进度，压缩为紧凑状态供后续路由决策。该方法在降低冗余历史开销的同时提高了协作编配的正确性和效率。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -341,183 +326,38 @@
           "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
           "matched_requirement_id": "req-3",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.27924v1",
+          "paper_id": "2609.00237v1",
           "carry_days": 1
         },
         {
-          "id": "2608.19628v1",
+          "id": "2609.00843v1",
           "source": "arxiv",
-          "title": "A Thread-Register Decoupled GPU Execution Model for Efficient Tensor Computation",
-          "abstract": "Modern GPUs increasingly integrate Tensor Cores into the execution pipeline. Although aggregate tensor throughput continues to grow, aided by an operand supply that has evolved from register-based in Ampere to redundancy-free, memory-based in Hopper and Blackwell, efficiently orchestrating the complete tensor compute pipeline for the modern AI workloads remains challenging. We identify the fundamental bottlenecks as fixed parallelism and coarse-grained scheduling, both of which are exposed by modern AI workloads that interleave diverse non-GEMM operations with GEMM. To orchestrate tensor computation efficiently, we propose FIBER, a new architecture that extends the GPU SIMT (single instruction, multiple thread) model. Its basic execution instance, the \\emph{fiber}, is decoupled from private register ownership, carrying only minimal control state while accessing an SM's registers through a shared view. This enables dynamic parallelism scaling, fine-grained register-level dataflow scheduling, and offers a redundancy-free alternative for matrix operand supply. We extend the ISA, microarchitecture, and compiler to realize shared-register addressing, conflict-free operand delivery, and fiber-based program mapping. Under a typical mixed-precision LLM serving scenario, FIBER achieves a 2.25x end-to-end speedup on Ampere (1.15x for the original FP16 computation), with 1.8x and 2.09x on Hopper and Blackwell respectively, and kernel-level gains up to 2.49x.",
+          "title": "Shared-Memory Range-Tiled CDF Sort for Small-Range Integer Keys on GPUs",
+          "abstract": "We study unstable integer sorting on GPUs for arrays whose elements lie in a known integer range. Focusing on counting-sort-based methods that determine the output interval of each value from its frequency and the prefix sums of the frequencies, we propose and evaluate Range-Tiled CDF sort (RT-CDF), which partitions the possible value range into small intervals, called tiles, that fit in shared memory. For each tile, RT-CDF constructs a histogram, computes its prefix sum as a local CDF, and directly generates the output array from the local CDF. We compare RT-CDF against three baselines: CUB DeviceRadixSort, whose processed bit range is restricted to $[0,\\lceil\\log_2 R\\rceil)$ to exploit the known range size $R$; Ref-H-P sort; and an implementation based on the algorithm of Kolonias et al. Experiments on an NVIDIA GeForce RTX 4090 with range sizes from $R=2^7$ to $2^{18}$, input sizes from $n=10^6$ to $10^9$, and uniformly distributed, normally distributed, and all-equal inputs show that RT-CDF outperforms the baselines over a broad set of conditions for small to medium ranges, achieving a maximum speedup of 4.39 over the fastest baseline. For $R=2^{18}$, however, at least one baseline outperforms RT-CDF for every evaluated input size and input distribution, showing that the cost of histogram construction limits the applicability of RT-CDF to larger ranges.",
           "authors": [
-            "Zihan Liu",
-            "Jingwen Leng",
-            "Yangjie Zhou",
-            "Yitong Ding",
-            "Guanlin Zhu",
-            "Yilu Huang",
-            "Chiheng Jin",
-            "Chen Zhang",
-            "Shixuan Sun",
-            "Yu Feng",
-            "Anbang Wu",
-            "Minyi Guo",
-            "Jian Weng",
-            "Jiajin Tu",
-            "Junsong Wang"
-          ],
-          "primary_category": "cs.AR",
-          "categories": [
-            "cs.AR"
-          ],
-          "published": "2026-08-20T04:35:13+00:00",
-          "link": "https://arxiv.org/pdf/2608.19628v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Proposes a thread-register decoupled GPU execution model that improves scheduling and tensor-core pipeline efficiency for mixed AI workloads.",
-          "llm_evidence_cn": "提出线程与寄存器解耦的GPU执行模型，以提升混合AI负载的内核执行性能。",
-          "llm_evidence": "提出线程与寄存器解耦的GPU执行模型，以提升混合AI负载的内核执行性能。",
-          "canonical_evidence": "提出线程与寄存器解耦的GPU执行模型，以提升混合AI负载的内核执行性能。",
-          "llm_tldr_en": "FIBER introduces a thread-register decoupled GPU execution model to overcome fixed parallelism and coarse-grained scheduling, enabling efficient pipelining of interleaved GEMM and non-GEMM operations on modern tensor-core GPUs.",
-          "llm_tldr_cn": "现代AI工作负载中GEMM与非GEMM操作交错，GPU张量执行管线的固定并行度和粗粒度调度成为瓶颈。FIBER提出线程与寄存器解耦的GPU执行模型，以新型基本执行指令结合细粒度调度，消除冗余并更高效地编排复杂AI负载。实验表明该架构能缓解固定并行度问题。这为GPU面向混合张量任务的执行模型提供了新的硬件与调度协同方案。",
-          "llm_tldr": "现代AI工作负载中GEMM与非GEMM操作交错，GPU张量执行管线的固定并行度和粗粒度调度成为瓶颈。FIBER提出线程与寄存器解耦的GPU执行模型，以新型基本执行指令结合细粒度调度，消除冗余并更高效地编排复杂AI负载。实验表明该架构能缓解固定并行度问题。这为GPU面向混合张量任务的执行模型提供了新的硬件与调度协同方案。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.19628v1",
-          "carry_days": 1
-        },
-        {
-          "id": "biorxiv-10-64898-2026-08-16-745117-v1",
-          "source": "biorxiv",
-          "title": "An AI System for Autonomous Algorithm Evolution in Drug Development",
-          "abstract": "Artificial intelligence (AI) is increasingly permeating the drug development pipeline. Numerous algorithms for accelerating this multi-stage and multi-task process have been constructed, which depends heavily on expert design and labor-intensive task-specific optimization. Given that AI-driven acceleration of drug development is recognized as a cumulative, often synergistic, effect across multiple stages, the autonomous evolution of existing algorithms across the entire pipeline is demanded to achieve a holistic advancement. Here, we present DrugEvolve, a multi-role large language model system for systematic and autonomous algorithm evolution in drug development. DrugEvolve realizes a closed-loop evolution process by incorporating Researcher, Engineer, and Analyst domains, and enables an iterative design, implementation, evaluation, and refinement of algorithm by leveraging scientific knowledge and accumulated evolutionary experience. Across eleven representative tasks spanning target identification, drug discovery, preclinical study, and clinical trial, DrugEvolve autonomously evolved the corresponding task-specific algorithms and achieved substantial performance enhancement on 120 benchmark test sets. Moreover, it showed robust generalizabilities across heterogeneous data modalities (ranging from biological sequence and graph to molecular topology and textual language), and realized gains in both predictive and generative tasks. Collectively, this AI system can serve not only as an algorithmic infrastructure for drug development, but also as a transferable paradigm for broader scientific domains.",
-          "authors": [
-            "Zhou, Z.",
-            "Nan, Y.",
-            "Mou, M.",
-            "Qian, Y.",
-            "Liu, Y.",
-            "Zuo, Z.",
-            "Yang, H.",
-            "Xu, W.",
-            "Li, B.",
-            "Jiang, W.",
-            "Ren, Y.",
-            "Liao, Y.",
-            "Wang, Y.",
-            "Li, Y.",
-            "Yang, Q.",
-            "Xi, Z.",
-            "Mi, T.",
-            "Sun, H.",
-            "Liu, P.",
-            "Zhu, F."
-          ],
-          "primary_category": "pharmacology and toxicology",
-          "categories": [
-            "pharmacology and toxicology"
-          ],
-          "published": "2026-08-20T00:00:00+00:00",
-          "link": "https://www.biorxiv.org/content/10.64898/2026.08.16.745117v1.full.pdf",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "A multi-role LLM system autonomously evolves drug-development algorithms through a closed loop with researcher and engineer roles.",
-          "llm_evidence_cn": "多角色大语言模型系统通过研究者与工程师角色的闭环迭代自主演化算法。",
-          "llm_evidence": "多角色大语言模型系统通过研究者与工程师角色的闭环迭代自主演化算法。",
-          "canonical_evidence": "多角色大语言模型系统通过研究者与工程师角色的闭环迭代自主演化算法。",
-          "llm_tldr_en": "DrugEvolve uses a multi-role LLM system to autonomously evolve algorithms across drug development in a closed loop, reducing reliance on expert, task-specific optimization and enabling synergistic progress across the pipeline.",
-          "llm_tldr_cn": "药物研发各阶段算法依赖专家经验和自定义优化，难以实现全流程协同提升。DrugEvolve构建多角色大语言模型系统，将Researcher和Engineer等角色组合成闭环演化流程，使现有算法可以在药物研发流水线上被系统化地自主改进。该方法将跨阶段累积的协同效应引入算法进化，减少人工调优。相关工作展示了LLM驱动自主算法研发的潜力。",
-          "llm_tldr": "药物研发各阶段算法依赖专家经验和自定义优化，难以实现全流程协同提升。DrugEvolve构建多角色大语言模型系统，将Researcher和Engineer等角色组合成闭环演化流程，使现有算法可以在药物研发流水线上被系统化地自主改进。该方法将跨阶段累积的协同效应引入算法进化，减少人工调优。相关工作展示了LLM驱动自主算法研发的潜力。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "How do self evolving agents improve their performance over time?",
-          "matched_requirement_id": "req-9",
-          "selection_source": "carryover_cache",
-          "paper_id": "biorxiv-10-64898-2026-08-16-745117-v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.21227v1",
-          "source": "arxiv",
-          "title": "Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia",
-          "abstract": "Traditionally, GPU kernels have been developed and optimized within vendor-specific programming models to achieve high performance, resulting in software that is difficult to optimize and adapt across increasingly heterogeneous computing systems. Hardware-agnostic programming models offer a more sustainable approach to GPU software development by improving portability and maintainability, but achieving efficient execution across diverse architectures remains challenging. We address this challenge by integrating auto-tuning into hardware-agnostic GPU kernels written in Julia. We rebuild the established Kernel Tuner auto-tuning framework with Julia support, enabling systematic exploration of kernel configurations for hardware-agnostic GPU kernels targeting NVIDIA, AMD, Intel, and Apple GPUs. We demonstrate this approach on hardware-agnostic singular value decomposition (SVD) as implemented in the NextLA.jl linear algebra library. The results show that auto-tuning is essential for creating resource-efficient hardware-agnostic GPU kernels across a variety of hardware. Optimal configurations improve kernel performance by a factor of 3x to 7x compared to median parameter configurations, demonstrating the substantial impact of tuning on efficient hardware utilization.",
-          "authors": [
-            "Floris-Jan Willemsen",
-            "Evelyne Ringoot",
-            "Alan Edelman"
-          ],
-          "primary_category": "cs.PF",
-          "categories": [
-            "cs.PF"
-          ],
-          "published": "2026-08-21T15:36:16+00:00",
-          "link": "https://arxiv.org/pdf/2608.21227v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Integrates auto-tuning into hardware-agnostic GPU kernels in Julia to optimize performance across heterogeneous GPUs",
-          "llm_evidence_cn": "在Julia的硬件无关GPU内核中集成自动调优，以便在异构GPU上获得高效执行",
-          "llm_evidence": "在Julia的硬件无关GPU内核中集成自动调优，以便在异构GPU上获得高效执行",
-          "canonical_evidence": "在Julia的硬件无关GPU内核中集成自动调优，以便在异构GPU上获得高效执行",
-          "llm_tldr_en": "This work integrates the Kernel Tuner auto-tuning framework into hardware-agnostic GPU kernels written in Julia, enabling systematic exploration of kernel configurations so portable GPU code can achieve high performance across increasingly heterogeneous architectures.",
-          "llm_tldr_cn": "硬件无关GPU内核虽然提升了跨平台可移植性和可维护性，但在异构架构上高效执行仍是难题。论文将成熟的Kernel Tuner自动调优框架扩展到Julia，使其能对Julia编写的硬件无关GPU内核进行系统化配置搜索与优化。该方法在保持代码可移植性的同时，可根据不同GPU架构自动寻找合适配置，为可持续的跨平台GPU软件提供了自动调优路径。",
-          "llm_tldr": "硬件无关GPU内核虽然提升了跨平台可移植性和可维护性，但在异构架构上高效执行仍是难题。论文将成熟的Kernel Tuner自动调优框架扩展到Julia，使其能对Julia编写的硬件无关GPU内核进行系统化配置搜索与优化。该方法在保持代码可移植性的同时，可根据不同GPU架构自动寻找合适配置，为可持续的跨平台GPU软件提供了自动调优路径。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.21227v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.16308v1",
-          "source": "arxiv",
-          "title": "DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads",
-          "abstract": "Sparse Matrix-Sparse Vector Multiplication (SpMSpV) is a core primitive in graph traversal, sparse linear algebra, and sparse model inference. Its input vector is often dynamically sparse, so the best GPU execution path depends on both global sparsity and the local vector-block distribution. Existing GPU SpMSpV methods often bind storage layouts, push/pull traversal, and kernels together, making fine-grained adaptation difficult without extra storage or scheduling overhead.   This paper presents DB-SpMSpV, a dual-view blocked SpMSpV framework for dynamic GPU workloads. DB-SpMSpV partitions the matrix into fixed-size 2D blocks, maintains block-level CSR/CSC views at the high level, and reuses a single low-level block payload to support both row-driven pull and column-driven push. At runtime, it selects the global traversal path based on input block sparsity, chooses block microkernels from the local matrix/vector block structure, and uses load balancing, asynchronous prefetching, and hierarchical writeback to reduce irregular memory accesses, writeback conflicts, and load imbalance. We further integrate the framework into DB-BFS and DB-Decoding.   We evaluate DB-SpMSpV on NVIDIA A100 and RTX 4090 using SuiteSparse matrices, symmetric graphs, and three open-source LLMs. Across input sparsities, DB-SpMSpV achieves average speedups of 5.48$\\times$--64.34$\\times$ over cuSPARSE and 2.36$\\times$--14.01$\\times$ over TileSpMSpV on A100, with similar gains on RTX 4090. DB-BFS further improves end-to-end graph traversal by 2.66$\\times$ over TileBFS on A100 and 3.60$\\times$ on RTX 4090 on average, while DB-Decoding accelerates single-token linear layers by up to 4.50$\\times$.",
-          "authors": [
-            "Xing Cong",
-            "Chenhao Xie",
-            "Rui Wang",
-            "Zhongzhi Luan",
-            "Yi Liu",
-            "Depei Qian"
+            "Kento Ando",
+            "Kaito Takase",
+            "Noriyuki Fujimoto",
+            "Koichi Wada"
           ],
           "primary_category": "cs.DC",
           "categories": [
             "cs.DC"
           ],
-          "published": "2026-08-17T09:18:19+00:00",
-          "link": "https://arxiv.org/pdf/2608.16308v1",
+          "published": "2026-09-01T07:42:07+00:00",
+          "link": "https://arxiv.org/pdf/2609.00843v1",
           "tags": [
             "keyword:gkg",
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "dual-view blocked GPU SpMSpV framework that adapts execution path and kernel behavior to dynamic sparse workloads",
-          "llm_evidence_cn": "面向动态稀疏GPU负载的双视图分块SpMSpV内核框架，通过更细粒度适配优化GPU执行性能",
-          "llm_evidence": "面向动态稀疏GPU负载的双视图分块SpMSpV内核框架，通过更细粒度适配优化GPU执行性能",
-          "canonical_evidence": "面向动态稀疏GPU负载的双视图分块SpMSpV内核框架，通过更细粒度适配优化GPU执行性能",
-          "llm_tldr_en": "DB-SpMSpV partitions sparse matrices into 2D blocks, maintains block-level CSR/CSC views, and reuses low-level block payloads to enable fine-grained GPU execution-path adaptation for dynamic sparse workloads.",
-          "llm_tldr_cn": "稀疏矩阵-稀疏向量乘是图遍历和稀疏模型推断的核心原语，最优GPU执行路径取决于全局稀疏度和局部向量块分布。DB-SpMSpV将矩阵划分为二维块，高层同时维护CSR和CSC双视图，底层复用同一分块数据，从而在不同动态稀疏度下灵活选择内核与拉/推遍历路径。该设计在降低额外存储和调度开销的同时支持细粒度内核适配，为动态GPU稀疏工作负载提供了更高效的SpMSpV实现。",
-          "llm_tldr": "稀疏矩阵-稀疏向量乘是图遍历和稀疏模型推断的核心原语，最优GPU执行路径取决于全局稀疏度和局部向量块分布。DB-SpMSpV将矩阵划分为二维块，高层同时维护CSR和CSC双视图，底层复用同一分块数据，从而在不同动态稀疏度下灵活选择内核与拉/推遍历路径。该设计在降低额外存储和调度开销的同时支持细粒度内核适配，为动态GPU稀疏工作负载提供了更高效的SpMSpV实现。",
+          "llm_evidence_en": "Presents shared-memory tiled CDF sort kernel for GPUs, directly optimizing GPU kernel execution performance",
+          "llm_evidence_cn": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
+          "llm_evidence": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
+          "canonical_evidence": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
+          "llm_tldr_en": "Proposes RT-CDF, an unstable GPU integer sort that partitions the value range into shared-memory-sized tiles, computes local histograms and CDFs, and writes output directly, beating radix-sort baselines.",
+          "llm_tldr_cn": "针对GPU上已知小范围整数键的不稳定排序，论文提出RT-CDF：将值域划分为适合共享内存的小块，每个块独立建立直方图并计算前缀和得到局部CDF，直接生成输出数组。与CUB DeviceRadixSort等基线相比，该方法在性能上具有竞争力，验证了共享内存分块策略对计数排序的有效性。研究为GPU上的数据并行排序提供了一种高效内核设计思路，但没有涉及LLM与代码生成。",
+          "llm_tldr": "针对GPU上已知小范围整数键的不稳定排序，论文提出RT-CDF：将值域划分为适合共享内存的小块，每个块独立建立直方图并计算前缀和得到局部CDF，直接生成输出数组。与CUB DeviceRadixSort等基线相比，该方法在性能上具有竞争力，验证了共享内存分块策略对计数排序的有效性。研究为GPU上的数据并行排序提供了一种高效内核设计思路，但没有涉及LLM与代码生成。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -525,7 +365,45 @@
           "matched_query_text": "techniques for optimizing GPU kernel execution performance",
           "matched_requirement_id": "req-2",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.16308v1",
+          "paper_id": "2609.00843v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2608.27266v1",
+          "source": "arxiv",
+          "title": "Naive Prompt Optimization: Rethinking the Need for Complex Prompt Search",
+          "abstract": "Efficiently improving autonomous agents across diverse tasks is central to accelerating recursive self-improvement (RSI) in agentic AI, with prompt optimization emerging as a promising approach capable of delivering performance gains comparable to those achieved by fine-tuning model weights, while reducing computational costs in both optimization and serving. However, recent developments increasingly favor unnecessarily complex prompt optimizers. We introduce Naive Prompt Optimization (NPO), a lightweight single-lineage method that iteratively revises prompts using a teacher model with rollout feedback. NPO achieves comparable or better performance than GEPA with fewer rollouts, and its advantage increases with stronger teacher models, suggesting that stronger teacher reasoning can partially substitute for optimizer-side search complexity. In interactive games, NPO remains broadly competitive with GEPA, while GRPO performs better on some tasks less amenable to prompt optimization. We also show that NPO-optimized prompts elicit similar performance improvements when applied verbatim to other student models, especially across models within the same family. Overall, our preliminary results show that simple, linear prompt optimization can rival substantially more sophisticated and complex search procedures.",
+          "authors": [
+            "Yuan Chang",
+            "Xiaoqi Chen"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI",
+            "cs.CL"
+          ],
+          "published": "2026-08-27T15:47:58+00:00",
+          "link": "https://arxiv.org/pdf/2608.27266v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "NPO iteratively revises agent prompts with a teacher model and rollout feedback, giving a lightweight route to improving autonomous agents without human intervention.",
+          "llm_evidence_cn": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
+          "llm_evidence": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
+          "canonical_evidence": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
+          "llm_tldr_en": "The paper shows that a simple iteratively revised prompt lineage, using teacher-model feedback, outperforms or matches complex prompt optimizers with fewer rollouts, offering a low-cost route to recursive self-improvement.",
+          "llm_tldr_cn": "现有提示优化方法越来越复杂，却未必带来相应收益，而提示优化正是以较低代价让自主智能体递归自我改进的重要途径。论文提出NPO朴素提示优化：仅沿单条提示谱系维护候选，用教师模型生成修订并用回滚反馈筛选，无需搜索复杂的提示组合。实验显示，相比GEPA等较复杂优化器，NPO在更少回滚下即可取得相当或更好性能，且教师模型越强优势越明显。该结果表明简单迭代提示修订即可支撑智能体持续自主进化，为递归自我改进提供了低成本且易实现的方案。",
+          "llm_tldr": "现有提示优化方法越来越复杂，却未必带来相应收益，而提示优化正是以较低代价让自主智能体递归自我改进的重要途径。论文提出NPO朴素提示优化：仅沿单条提示谱系维护候选，用教师模型生成修订并用回滚反馈筛选，无需搜索复杂的提示组合。实验显示，相比GEPA等较复杂优化器，NPO在更少回滚下即可取得相当或更好性能，且教师模型越强优势越明显。该结果表明简单迭代提示修订即可支撑智能体持续自主进化，为递归自我改进提供了低成本且易实现的方案。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2608.27266v1",
           "carry_days": 1
         }
       ]

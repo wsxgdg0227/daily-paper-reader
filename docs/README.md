@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-08-04 ~ 2026-09-02</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-02</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 43 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 21 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
-    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>2 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>32</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>10</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-02 17:38:24 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-02 23:06:26 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读聚焦编译器与LLM智能体协同进化，两篇满分论文直指硬件内核优化前沿；速读覆盖GPU内存融合、智能体记忆形式化及25万行天气代码迁移验证。若追求效率，可优先看“自进化智能体+经验图谱”驱动内核调优的路径，或“CAKE”的编译智能体协同设计；下一步建议从两篇满分工作的可复现实验入手，逐步理解智能体如何逼近专家级优化决策。</p>
+<p>今日共读21篇论文，精读10篇，重点聚焦“自进化智能体”方向。</p>
+<p>最值得关注：满分10分论文提出经验驱动工作流与经验图记忆，用于硬件内核优化；9分论文则用递归经验工作记忆突破长时程任务瓶颈。</p>
+<p>建议普通读者先从“自进化智能体”的记忆机制入手，可结合经验复用与迭代反馈两条主线理解。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">32 篇</strong>
+    <strong class="dpr-home-dashboard-count">10 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution">CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution</span></li><li><span class="dpr-home-dashboard-paper-title" title="Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory">Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System">SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory">Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="Recursive Experiential-Working Memory Evolution for Long-Horizon Agent Harnesses">Recursive Experiential-Working Memory Evolution for Long-Horizon Agent Harnesses</span></li><li><span class="dpr-home-dashboard-paper-title" title="Learning What to Share and What to Personalize: Hierarchical Strategy Co-Evolution for Agent Memory">Learning What to Share and What to Personalize: Hierarchical Strategy Co-Evolution for Agent Memory</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>32</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>10</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">12 篇</strong>
+    <strong class="dpr-home-dashboard-count">11 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures">ComFuse: Fusing Complex Memory-Intensive Subgraphs with Compute-Intensive Kernels For Modern GPU Architectures</span></li><li><span class="dpr-home-dashboard-paper-title" title="Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem">Towards a Formal Definition of Agent Memory: Basis, Span, Optimality, and the Sequential Memory Problem</span></li><li><span class="dpr-home-dashboard-paper-title" title="Validation-Centric AI-Assisted GPU Porting of a 250,000+ Line Legacy Weather Simulation Code">Validation-Centric AI-Assisted GPU Porting of a 250,000+ Line Legacy Weather Simulation Code</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Coalition-Aware Skill Reliability for Self-Evolving Agents">Coalition-Aware Skill Reliability for Self-Evolving Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="An HPC Approach to Accelerate Tensor Decompositions">An HPC Approach to Accelerate Tensor Decompositions</span></li><li><span class="dpr-home-dashboard-paper-title" title="CAFE: Self-Improving Search Agents Need Co-Evolving Feedback">CAFE: Self-Improving Search Agents Need Co-Evolving Feedback</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>12</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
 </section>
 </div>
 
