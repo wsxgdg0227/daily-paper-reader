@@ -19,6 +19,15 @@ conclusion: DrugEvolve可充当药物开发算法基础设施，其多角色闭�
 ## 摘要
 人工智能（AI）正日益渗透到药物研发流程中。为了加速这一多阶段、多任务的过程，人们构建了大量算法，这些算法高度依赖于专家设计和劳动密集型的特定任务优化。鉴于AI驱动的药物研发加速被认为是跨多个阶段的累积性、通常是协同性的效应，因此需要对整个流程中的现有算法进行自主演化，以实现整体推进。在此，我们提出了DrugEvolve，一个用于药物研发中系统性和自主算法演化的多角色大语言模型系统。DrugEvolve通过整合研究员、工程师和分析师领域，实现了闭环演化过程，并利用科学知识和积累的演化经验，实现了算法的迭代设计、实现、评估和改进。在跨越靶点识别、药物发现、临床前研究和临床试验的十一个代表性任务中，DrugEvolve自主演化出相应的任务特定算法，并在120个基准测试集上实现了显著的性能提升。此外，它在异构数据模态（从生物序列和图到分子拓扑和文本语言）中显示出强大的泛化能力，并在预测和生成任务中都取得了收益。总的来说，这个AI系统不仅可以作为药物研发的算法基础设施，还可以作为更广泛科学领域的可迁移范式。
 
+## 速览
+**TLDR**：药物开发中的AI算法多依赖专家设计与任务特定优化，但整个流程需要跨阶段协同进化。为此提出DrugEvolve，一个多角色大语言模型系统，通过集成研究员、工程师和分析师角色，实现算法设计、实现、评估与优化的闭环自主演化。在覆盖靶点识别、药物发现、临床前和临床试验的11项任务、120个基准测试集上，DrugEvolve显著提升性能，并展现了对多模态数据及预测与生成任务的强大泛化能力。该系统不仅是药物开发的算法基础设施，也为更广泛的科学领域提供了可迁移的自主进化范式。 \
+**Motivation**：现有药物开发算法高度依赖专家设计与任务特定优化，难以实现跨全流程的自主协同进化。 \
+**Method**：DrugEvolve融合研究员、工程师与分析官多角色，利用科学知识和累积经验闭环迭代地设计、实现、评估与优化算法。 \
+**Result**：在11个药物开发任务及120个基准测试集上显著提升性能，并稳健泛化于多模态数据和预测/生成任务。 \
+**Conclusion**：该AI系统可作为药物开发算法基础设施，并为更广泛科学领域提供可迁移的自主演进范式。
+
+---
+
 ## Abstract
 Artificial intelligence (AI) is increasingly permeating the drug development pipeline. Numerous algorithms for accelerating this multi-stage and multi-task process have been constructed, which depends heavily on expert design and labor-intensive task-specific optimization. Given that AI-driven acceleration of drug development is recognized as a cumulative, often synergistic, effect across multiple stages, the autonomous evolution of existing algorithms across the entire pipeline is demanded to achieve a holistic advancement. Here, we present DrugEvolve, a multi-role large language model system for systematic and autonomous algorithm evolution in drug development. DrugEvolve realizes a closed-loop evolution process by incorporating Researcher, Engineer, and Analyst domains, and enables an iterative design, implementation, evaluation, and refinement of algorithm by leveraging scientific knowledge and accumulated evolutionary experience. Across eleven representative tasks spanning target identification, drug discovery, preclinical study, and clinical trial, DrugEvolve autonomously evolved the corresponding task-specific algorithms and achieved substantial performance enhancement on 120 benchmark test sets. Moreover, it showed robust generalizabilities across heterogeneous data modalities (ranging from biological sequence and graph to molecular topology and textual language), and realized gains in both predictive and generative tasks. Collectively, this AI system can serve not only as an algorithmic infrastructure for drug development, but also as a transferable paradigm for broader scientific domains.
 

@@ -1,49 +1,56 @@
 {
   "mode": "standard",
-  "generated_at": "2026-09-02T17:08:28.145765+00:00",
+  "generated_at": "2026-09-02T17:30:04.909343+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
-    "deep_divecandidates": 35,
+    "deep_divecandidates": 34,
     "deep_cap": 6,
-    "deep_selected": 19,
-    "quick_candidates": 22,
+    "deep_selected": 24,
+    "quick_candidates": 15,
     "quick_skim_target": 11,
     "quick_selected": 11
   },
   "deep_dive": [
     {
-      "id": "2608.17071v1",
+      "id": "2608.12629v1",
       "source": "arxiv",
-      "title": "KernelArc: A Multi-Agent Framework for GPU Kernel Optimization",
-      "abstract": "We present KernelArc, a multi-agent framework for autonomous GPU kernel optimization across heterogeneous workloads. Strategy-specialized agents run in parallel and coordinate through conclusions-only shared memory, a deterministic benchmark guard, and read-only cross-agent state with plateau-triggered drafting. We evaluate \\kernelarc{} on NVIDIA H100 and B200 GPUs using category-representative SOL-ExecBench workloads. The resulting implementations span custom BF16 GEMM, static cuBLASLt Expert-API configuration tables, fused mixture-of-experts backward, shape-gated decoder-layer fusion, native NVFP4 grouped-query attention, and paged prefill attention. At the public SOL-ExecBench leaderboard snapshot recorded on July~30, 2026, these submissions ranked first on representative L1, L2, Quantization, and FlashInfer tasks. The trajectories support the paper's central motivation: shared multi-agent search can broaden exploration and reach stronger incumbents within a fixed candidate budget, while the value of individual coordination features depends on the kernel and optimization stage.",
+      "title": "CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution",
+      "abstract": "GPU kernel agents and GPU programming languages have advanced separately, leaving expert kernels difficult to reproduce. Agents usually treat the compiler as a fixed black box and receive only errors, correctness outcomes, and timing, while existing DSLs either hide critical scheduling decisions or expose them through difficult layout abstractions. We present CAKE, a compiler-agent co-design in which agents author CAKE IR, a typed, hardware-explicit schedule representation. CAKE exposes warp roles, memory movement, synchronization, and pipelines while supporting verification, cost modeling, and localized diagnostics. The harness itself evolves: recurring failures become verifier rules, IR primitives, model calibrations, and reusable optimization tactics. In matched implementation-hidden Flash-KMeans clean starts on B200, the best CAKE IR candidate at an 80-million-token budget runs at 1.144x the tuned FlashML baseline, compared with 0.928x for direct CUDA/PTX. Beyond this benchmark, agent-generated Kimi Delta Attention achieves a 2.05x geometric-mean speedup over official FlashKDA and passes end-to-end serving validation. Dispatcher-backed KNN and KMeans improve performance by 1.42x to 2.12x across more than 400 shapes, and four kernel changes are available as upstream PRs. CAKE targets NVIDIA GPUs from Ampere through Blackwell and separates single-shape evolution from library generalization and dispatch.",
       "authors": [
-        "Joyjit Kundu",
-        "Ben Stoffelen",
-        "Kaili Wang",
-        "Peter Vrancx",
-        "Ludovic Denoyer"
+        "Zihao Ye",
+        "Yingyi Huang",
+        "Hongyi Jin",
+        "Bohan Hou",
+        "Junru Shao",
+        "Zhongming Yu",
+        "Jinqi Chen",
+        "Meghan Cowan",
+        "Shiyi Cao",
+        "Shanli Xing",
+        "Hanfeng Chen",
+        "Vinod Grover",
+        "Tianqi Chen",
+        "Luis Ceze"
       ],
-      "primary_category": "cs.AI",
+      "primary_category": "cs.LG",
       "categories": [
-        "cs.AI",
-        "cs.MA",
-        "cs.PF"
+        "cs.LG"
       ],
-      "published": "2026-08-17T19:21:23+00:00",
-      "link": "https://arxiv.org/pdf/2608.17071v1",
+      "published": "2026-08-12T22:31:32+00:00",
+      "link": "https://arxiv.org/pdf/2608.12629v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 10.0,
-      "llm_evidence_en": "Autonomous multi-agent framework for GPU kernel optimization; shared memory coordination generates high-performance kernels across heterogeneous workloads",
-      "llm_evidence_cn": "多智能体自主GPU内核优化框架，通过共享内存协作生成跨异构工作负载的高性能内核",
-      "llm_evidence": "多智能体自主GPU内核优化框架，通过共享内存协作生成跨异构工作负载的高性能内核",
-      "canonical_evidence": "多智能体自主GPU内核优化框架，通过共享内存协作生成跨异构工作负载的高性能内核",
-      "llm_tldr_en": "KernelArc is a multi-agent framework that parallelizes strategy-specialized agents for autonomous GPU kernel optimization, coordinated via conclusions-only shared memory and deterministic benchmark guards. On H100/B200 SOL-ExecBench workloads it ranks first, covering kernels like fused MoE backward and group-query attention.",
-      "llm_tldr_cn": "GPU内核优化是高算力场景的重要难题。作者提出KernelArc多智能体框架，让策略专业化的智能体并行搜索改进并通过仅结论共享内存、确定性评测守卫等机制协同。在NVIDIA H100/B200的SOL-ExecBench工作量上，其生成的GEMM、融合MoE反向、GQA注意力等实现登上公开榜第一，展示了多智能体自治优化GPU核函数的能力。",
-      "llm_tldr": "GPU内核优化是高算力场景的重要难题。作者提出KernelArc多智能体框架，让策略专业化的智能体并行搜索改进并通过仅结论共享内存、确定性评测守卫等机制协同。在NVIDIA H100/B200的SOL-ExecBench工作量上，其生成的GEMM、融合MoE反向、GQA注意力等实现登上公开榜第一，展示了多智能体自治优化GPU核函数的能力。",
+      "llm_evidence_en": "LLM kernel agents author hardware-explicit CAKE IR to produce optimized GPU kernels while the compiler harness evolves failures into reusable strategies",
+      "llm_evidence_cn": "智能体用硬件显式IR生成GPU内核，编译器框架随失败经验演化，直接回应LLM生成优化GPU内核的方法问题",
+      "llm_evidence": "智能体用硬件显式IR生成GPU内核，编译器框架随失败经验演化，直接回应LLM生成优化GPU内核的方法问题",
+      "canonical_evidence": "智能体用硬件显式IR生成GPU内核，编译器框架随失败经验演化，直接回应LLM生成优化GPU内核的方法问题",
+      "llm_tldr_en": "CAKE co-designs LLM kernel agents with compiler infrastructure: agents author typed, hardware-explicit CAKE IR exposing warp, memory, sync, and pipeline decisions, while the harness evolves failures into verifier rules, IR primitives, and reusable optimization tactics.",
+      "llm_tldr_cn": "GPU内核智能体与GPU编程语言发展脱节，智能体只能把编译器当黑盒，DSL又难以表达调度决策，导致顶尖内核难以复现。CAKE提出编译器与智能体协同设计，让智能体编写暴露线程角色、访存、同步与流水线的类型化CAKE IR，并配以验证、成本建模和局部诊断。该框架会随使用不断演化，把反复失败转成验证器规则、IR原语、模型校准与可复用优化策略。这样智能体在与编译器共同进化中生成高质量GPU内核，为LLM内核优化提供了新范式。",
+      "llm_tldr": "GPU内核智能体与GPU编程语言发展脱节，智能体只能把编译器当黑盒，DSL又难以表达调度决策，导致顶尖内核难以复现。CAKE提出编译器与智能体协同设计，让智能体编写暴露线程角色、访存、同步与流水线的类型化CAKE IR，并配以验证、成本建模和局部诊断。该框架会随使用不断演化，把反复失败转成验证器规则、IR原语、模型校准与可复用优化策略。这样智能体在与编译器共同进化中生成高质量GPU内核，为LLM内核优化提供了新范式。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -53,44 +60,89 @@
       "selection_source": "fresh_fetch"
     },
     {
-      "id": "2608.17379v1",
+      "id": "2608.25570v1",
       "source": "arxiv",
-      "title": "PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX",
-      "abstract": "We introduce PTXBench, a benchmark for evaluating and adapting large language models (LLMs) to use architecture-specific PTX for GPU kernel optimization. PTXBench measures functional correctness, whether selected target instructions execute at runtime, and speedup over frontier libraries across GEMM and attention workloads on H100 and B200 GPUs. Our evaluation shows that architecture-specific PTX capability remains uneven: success rates fall substantially on complex attention backward workloads, and executing the target instructions does not necessarily translate into competitive performance. No evaluated model consistently matches frontier libraries across the suite. We further adapt Qwen3.6-27B using supervised fine-tuning. Repair-conditioned training improves several tasks, but generalization remains uneven; data coverage, balance, and the quality of the reasoning teacher matter in addition to dataset size. PTXBench provides an auditable testbed for measuring and improving LLMs' ability to exploit evolving GPU architectures.",
+      "title": "Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory",
+      "abstract": "Hardware kernel optimization requires repeated compilation, correctness testing, profiling, and revision. LLM agents can automate parts of this process, and stronger foundation models, longer context windows, and longer execution horizons have improved optimization within individual tasks. These advances alone do not enable an agent to learn from completed optimization runs. Existing kernel-optimization agents seldom preserve a decision, its observed execution feedback, and the later decisions that use that evidence. Retaining every prior trajectory is also impractical because an expanding history competes with the current task for context. We present KOPE, an experience-driven framework for hardware kernel optimization. KOPE records optimization trajectories with correctness and performance feedback in Experience Graph Memory, then uses Active Context Management and Injection to retrieve relevant experience under a fixed token budget. The graph retains decision order, observed outcomes, and alternative branches, allowing evidence collected on the target hardware to inform later optimization steps and tasks. Under the same GLM-5.2 setting, the geometric mean of KOPE's per-operator speedups is $1.54\\times$ that of CANNBot, the strongest competing baseline. In a complete 53-operator ablation, Active Context Management and Injection raises pass rate from 60.0\\% to 84.6\\%, increases the evaluator-reported positive-field geometric mean from 0.0382 to 0.0661, and reduces optimization token consumption from 15.9B to 1.113B tokens relative to passive agent-led context construction. Enabling Experience Graph Memory raises full-suite pass rate from 55.2\\% to 84.6\\% and yields a $1.43\\times$ geometric-mean speedup on valid timing comparisons. These results support continual optimization through external experience while the foundation model remains fixed.",
       "authors": [
-        "Genghan Zhang",
-        "Yixin Dong",
-        "Chengze Fan",
-        "Zhichen Zeng",
-        "Yueming Yuan",
-        "Shaowei Zhu",
-        "Kunle Olukotun"
+        "Siyuan Chen",
+        "Runlin Hou",
+        "Shenxiu Wu",
+        "Yansong Sun",
+        "Junming Cao",
+        "Yiyu Zhang",
+        "Shudi Shao",
+        "Junhao Qiu",
+        "Zhichao Lu",
+        "Qingfu Zhang"
       ],
-      "primary_category": "cs.CL",
+      "primary_category": "cs.LG",
       "categories": [
-        "cs.CL",
-        "cs.AI"
+        "cs.LG",
+        "cs.MA"
       ],
-      "published": "2026-08-18T05:14:41+00:00",
-      "link": "https://arxiv.org/pdf/2608.17379v1",
+      "published": "2026-08-26T09:27:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.25570v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 10.0,
-      "llm_evidence_en": "Evaluates and adapts LLMs to optimize GPU kernels with architecture-specific PTX, measuring correctness, target instruction execution, and speedup on H100/B200.",
-      "llm_evidence_cn": "评测并微调大语言模型，以架构特定PTX优化GPU内核并提升性能。",
-      "llm_evidence": "评测并微调大语言模型，以架构特定PTX优化GPU内核并提升性能。",
-      "canonical_evidence": "评测并微调大语言模型，以架构特定PTX优化GPU内核并提升性能。",
-      "llm_tldr_en": "PTXBench benchmarks and adapts LLMs for GPU kernel optimization using architecture-specific PTX, checking functional correctness, runtime instruction execution, and speedup over frontier libraries on GEMM and attention workloads across H100 and B200 GPUs.",
-      "llm_tldr_cn": "大语言模型对架构特定PTX指令的使用能力尚未被系统评测，实际优化效果在复杂负载中不均衡。PTXBench在H100和B200上对GEMM与注意力负载同时检验功能正确性、目标指令是否执行及相对前沿库的加速，显示没有模型能稳定匹配前沿库。为提升该能力，作者对Qwen3.6-27B进行监督微调适配。该基准为LLM驱动的GPU内核优化提供了系统评估与训练基础。",
-      "llm_tldr": "大语言模型对架构特定PTX指令的使用能力尚未被系统评测，实际优化效果在复杂负载中不均衡。PTXBench在H100和B200上对GEMM与注意力负载同时检验功能正确性、目标指令是否执行及相对前沿库的加速，显示没有模型能稳定匹配前沿库。为提升该能力，作者对Qwen3.6-27B进行监督微调适配。该基准为LLM驱动的GPU内核优化提供了系统评估与训练基础。",
+      "llm_evidence_en": "Self-evolving LLM agents for hardware kernel optimization using an experience-driven workflow and experience graph memory that preserves decisions, execution feedback, and later uses of evidence",
+      "llm_evidence_cn": "提出自进化LLM智能体，用经验驱动工作流和经验图记忆持续优化硬件内核，把决策与执行反馈保存并复用于后续优化",
+      "llm_evidence": "提出自进化LLM智能体，用经验驱动工作流和经验图记忆持续优化硬件内核，把决策与执行反馈保存并复用于后续优化",
+      "canonical_evidence": "提出自进化LLM智能体，用经验驱动工作流和经验图记忆持续优化硬件内核，把决策与执行反馈保存并复用于后续优化",
+      "llm_tldr_en": "LLM agents can automate hardware kernel optimization, but stronger models and longer contexts do not let an agent learn across completed runs, and storing every trajectory overwhelms context. KOPE introduces an experience graph memory that stores each decision, its observed execution feedback, and later decisions reusing that evidence, enabling self-evolving kernel optimization across tasks.",
+      "llm_tldr_cn": "硬件内核优化需要反复编译、正确性测试、画像和修改，LLM智能体能自动化其中很多环节；但更强的模型、更长的上下文和执行时长仍不能让智能体从已完成的优化任务中学到经验，而完整保留历史轨迹又会使上下文膨胀。论文提出KOPE经验驱动框架，把优化过程中的决策、执行反馈以及后续依赖该证据的决策保存为经验图记忆，使智能体能够在不同任务间复用历史证据。该机制突破了仅靠规模化模型能力的局限，为内核优化智能体提供跨任务、可持续的自进化学习路径。",
+      "llm_tldr": "硬件内核优化需要反复编译、正确性测试、画像和修改，LLM智能体能自动化其中很多环节；但更强的模型、更长的上下文和执行时长仍不能让智能体从已完成的优化任务中学到经验，而完整保留历史轨迹又会使上下文膨胀。论文提出KOPE经验驱动框架，把优化过程中的决策、执行反馈以及后续依赖该证据的决策保存为经验图记忆，使智能体能够在不同任务间复用历史证据。该机制突破了仅靠规模化模型能力的局限，为内核优化智能体提供跨任务、可持续的自进化学习路径。",
+      "llm_tags": [
+        "query:gkg:composite"
+      ],
+      "matched_query_tag": "query:gkg:composite",
+      "matched_query_text": "Papers central to 大模型生成GPU算子代码优化，结合智能体记忆、检索与自进化机制, especially work that connects or combines: using large language models to produce source code; techniques for optimizing GPU kernel execution performance; memory structures and processes that allow agents to store and retrieve information; how agents retrieve relevant knowledge and experiences when making decisions; agents that iteratively improve their policies and knowledge without human intervention; Automated kernel optimization and code generation for GPUs; Large model based generation of compute kernels with performance tuning; How to generate optimized GPU kernels using large language models?; How do self evolving agents improve their performance over time?.",
+      "matched_requirement_id": "req-composite-gkg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.04003v1",
+      "source": "arxiv",
+      "title": "PAST-Bench: Benchmarking the Foundations of Recursive Self-Improvement in Personal Agents",
+      "abstract": "Recursive self-improvement requires agents to turn accumulated experience into better future behavior. Personal AI agents offer a concrete setting for studying this capability because they retain preferences, task histories, tool routines, and learned skills across sessions. Yet whether retained experience actually improves them over time has not been systematically tested. We introduce PAST-Bench, a benchmark designed to isolate this question. Each agent runs through ordered sequences of fresh-session tasks under matched conditions that turn retained experience on and off. It spans 26 scenarios and 204 episodes across memory, procedural reuse, information gathering, and update. We report both later-task gains and whether those gains follow the intended save, retrieve, and update pathway. Across seven base models and four agent frameworks, improvement is real but uneven across capabilities. Agents with the same headline gain can differ markedly in whether that gain is supported by evidence of the intended pathway. Guided by these findings, we develop Hermes+, which extends Hermes with five targeted interventions across stages of the agent loop. Hermes+ raises the average gain from retained experience and provides clearer pathway evidence, with its strongest improvement on tasks requiring outdated state to be replaced, although the effect remains capability- and model-dependent. Together, PAST-Bench and Hermes+ provide an evaluation and diagnostic foundation for studying how persistent agents can progress from retaining experience to systematically improving through it. Code: https://github.com/Gen-Verse/PAST-Bench",
+      "authors": [
+        "Shuhan Xue",
+        "Zixin Ding",
+        "Yichen Shen",
+        "Yinjie Wang",
+        "Zhenfei Yin",
+        "Yingcheng Wu",
+        "Yuxin Chen",
+        "Mengdi Wang",
+        "Ling Yang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-04T17:58:05+00:00",
+      "link": "https://arxiv.org/pdf/2608.04003v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark isolates whether retained experience improves agents over time, directly probing recursive self-improvement",
+      "llm_evidence_cn": "通过受控基准测试经验留存是否带来跨会话增益，直接度量递归式自我改进",
+      "llm_evidence": "通过受控基准测试经验留存是否带来跨会话增益，直接度量递归式自我改进",
+      "canonical_evidence": "通过受控基准测试经验留存是否带来跨会话增益，直接度量递归式自我改进",
+      "llm_tldr_en": "PAST-Bench tests whether personal AI agents improve future behavior from retained experience across repeated fresh-session tasks, isolating recursive self-improvement across memory, procedural reuse, and updating.",
+      "llm_tldr_cn": "递归式自我改进要求智能体把累积经验转化为更好的未来行为，但个人智能体是否能随经验提升缺少系统检验。该文设计PAST-Bench，通过保留经验开/关的受控条件，让同一智能体执行有序任务序列，从记忆、步骤复用、信息搜索和更新四个维度考察后续任务增益。基准覆盖26个场景和204个回合，为评估智能体长期成长机制提供了可复现的实验基础。",
+      "llm_tldr": "递归式自我改进要求智能体把累积经验转化为更好的未来行为，但个人智能体是否能随经验提升缺少系统检验。该文设计PAST-Bench，通过保留经验开/关的受控条件，让同一智能体执行有序任务序列，从记忆、步骤复用、信息搜索和更新四个维度考察后续任务增益。基准覆盖26个场景和204个回合，为评估智能体长期成长机制提供了可复现的实验基础。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
-      "matched_query_text": "How to generate optimized GPU kernels using large language models?",
-      "matched_requirement_id": "req-8",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
       "selection_source": "fresh_fetch"
     },
     {
@@ -242,13 +294,13 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Learns progress-oriented embeddings so agents retrieve accumulated insights that resolve their current decision bottleneck, not merely semantic-similarity matches.",
-      "llm_evidence_cn": "学习面向决策进展的洞察嵌入，帮助智能体检索能越过当前决策瓶颈的经验。",
-      "llm_evidence": "学习面向决策进展的洞察嵌入，帮助智能体检索能越过当前决策瓶颈的经验。",
-      "canonical_evidence": "学习面向决策进展的洞察嵌入，帮助智能体检索能越过当前决策瓶颈的经验。",
-      "llm_tldr_en": "InsightEmb learns transferable progress-oriented retrieval embeddings from math reasoning data, aligning concrete situations with abstract heuristic rules so self-improving agents retrieve insights that resolve decision bottlenecks.",
-      "llm_tldr_cn": "自我改进智能体从历史轨迹中积累可复用的洞察，但仅按语义相似度检索往往找不对当下决策瓶颈所需的经验。论文提出InsightEmb对比嵌入框架，仅用数学推理数据训练面向进展的检索几何，使具体情境与抽象启发规则对齐并按动作意图聚类。该表示可迁移到不同任务，帮助智能体在决策时检索到真正有用的历史洞察。这为智能体经验复用提供了一种以决策意图为中心的检索学习思路。",
-      "llm_tldr": "自我改进智能体从历史轨迹中积累可复用的洞察，但仅按语义相似度检索往往找不对当下决策瓶颈所需的经验。论文提出InsightEmb对比嵌入框架，仅用数学推理数据训练面向进展的检索几何，使具体情境与抽象启发规则对齐并按动作意图聚类。该表示可迁移到不同任务，帮助智能体在决策时检索到真正有用的历史洞察。这为智能体经验复用提供了一种以决策意图为中心的检索学习思路。",
+      "llm_evidence_en": "Learns progress-oriented embeddings for agentic retrieval so agents retrieve reusable past insights that resolve current decision bottlenecks, not just semantically similar text",
+      "llm_evidence_cn": "学习面向决策进展的对比嵌入，使智能体在决策时检索到能解决当前瓶颈的可复用历史洞见",
+      "llm_evidence": "学习面向决策进展的对比嵌入，使智能体在决策时检索到能解决当前瓶颈的可复用历史洞见",
+      "canonical_evidence": "学习面向决策进展的对比嵌入，使智能体在决策时检索到能解决当前瓶颈的可复用历史洞见",
+      "llm_tldr_en": "Self-improving agents accumulate reusable insights from past trajectories, but existing retrieval ranks by semantic similarity and ignores whether an insight actually resolves the agent's current bottleneck. InsightEmb learns a contrastive, progress-oriented embedding geometry from mathematical reasoning data, aligning concrete situations with abstract heuristics and improving actionability of retrieved knowledge.",
+      "llm_tldr_cn": "自改进智能体需要从既往轨迹中检索可复用的洞见，而常规检索只建模语义相似度，没有考虑被检索经验能否解除当前决策瓶颈。InsightEmb提出一种对比嵌入框架，仅使用数学推理数据来学习可迁移的进展导向检索几何。它联合将具体情境与抽象启发式规则对齐，并把同类推理思路聚在一起，使每个决策步骤都能检索到有助于往前推进目标的有效经验，弥补了代理程序性经验检索的空白。",
+      "llm_tldr": "自改进智能体需要从既往轨迹中检索可复用的洞见，而常规检索只建模语义相似度，没有考虑被检索经验能否解除当前决策瓶颈。InsightEmb提出一种对比嵌入框架，仅使用数学推理数据来学习可迁移的进展导向检索几何。它联合将具体情境与抽象启发式规则对齐，并把同类推理思路聚在一起，使每个决策步骤都能检索到有助于往前推进目标的有效经验，弥补了代理程序性经验检索的空白。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -282,13 +334,53 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "LLM-based agentic system that generates customized GPU kernels for each sparsity pattern, operator, and target GPU with performance-tuning choices",
-      "llm_evidence_cn": "基于LLM的智能体系统按稀疏模式和目标GPU自动构造并调优GPU内核",
-      "llm_evidence": "基于LLM的智能体系统按稀疏模式和目标GPU自动构造并调优GPU内核",
-      "canonical_evidence": "基于LLM的智能体系统按稀疏模式和目标GPU自动构造并调优GPU内核",
-      "llm_tldr_en": "SparseDitto is an LLM-based agentic system that customizes GPU kernels for each sparsity pattern, operator, and target GPU; it observes that no single SpMM implementation dominates and adapts representation, execution strategy, and hardware mapping to close huge performance gaps.",
-      "llm_tldr_cn": "稀疏矩阵内核的GPU性能高度依赖输入稀疏模式与执行策略，同一SpMM在不同格式下的性能差距可达350倍。SparseDitto是基于LLM的智能体系统，针对每个矩阵、算子和目标GPU自动构造定制GPU内核。它动态调整数据表示、执行策略与硬件映射，以适配不同稀疏模式和工作负载。这种按需内核生成避免了固定格式和手工编译器难以通吃所有稀疏场景的问题，为LLM驱动的高性能内核定制提供了系统化途径。",
-      "llm_tldr": "稀疏矩阵内核的GPU性能高度依赖输入稀疏模式与执行策略，同一SpMM在不同格式下的性能差距可达350倍。SparseDitto是基于LLM的智能体系统，针对每个矩阵、算子和目标GPU自动构造定制GPU内核。它动态调整数据表示、执行策略与硬件映射，以适配不同稀疏模式和工作负载。这种按需内核生成避免了固定格式和手工编译器难以通吃所有稀疏场景的问题，为LLM驱动的高性能内核定制提供了系统化途径。",
+      "llm_evidence_en": "LLM-based agentic system that constructs GPU kernels adapted to each sparse matrix, operator, and target GPU",
+      "llm_evidence_cn": "基于大语言模型的智能体系统面向不同稀疏模式为每个矩阵和算例自动构造定制GPU内核",
+      "llm_evidence": "基于大语言模型的智能体系统面向不同稀疏模式为每个矩阵和算例自动构造定制GPU内核",
+      "canonical_evidence": "基于大语言模型的智能体系统面向不同稀疏模式为每个矩阵和算例自动构造定制GPU内核",
+      "llm_tldr_en": "SparseDitto uses an LLM agentic system to construct GPU kernels tailored to each sparse matrix, operator, and target GPU, tackling fixed-format performance gaps in sparse computation.",
+      "llm_tldr_cn": "GPU稀疏矩阵内核性能与输入稀疏模式和执行策略密切相关，固定数据格式或专用系统难以在所有场景占优。SparseDitto提出基于LLM的智能体系统，为每个矩阵、算子和目标GPU自动构造定制化的GPU内核，自适应数据结构、执行策略与硬件映射。实验显示稀疏格式间性能差距可达数百倍，而SparseDitto能按工作负载定制内核以逼近更优性能。该工作表明大模型驱动的稀疏计算内核自动化生成是可行且有效的优化方向。",
+      "llm_tldr": "GPU稀疏矩阵内核性能与输入稀疏模式和执行策略密切相关，固定数据格式或专用系统难以在所有场景占优。SparseDitto提出基于LLM的智能体系统，为每个矩阵、算子和目标GPU自动构造定制化的GPU内核，自适应数据结构、执行策略与硬件映射。实验显示稀疏格式间性能差距可达数百倍，而SparseDitto能按工作负载定制内核以逼近更优性能。该工作表明大模型驱动的稀疏计算内核自动化生成是可行且有效的优化方向。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.06128v3",
+      "source": "arxiv",
+      "title": "SparseDitto: Customizing GPU Kernels for Different Sparsity Patterns with LLM-Based Agentic System",
+      "abstract": "Sparse matrix kernels are fundamental to scientific computing, graph analytics, and machine learning. Their GPU performance depends strongly on the input sparsity pattern and execution strategy. For the same SpMM on the same matrix, cuSPARSE exhibits a 350x performance gap between CSR and Blocked-ELL. Our study of multiple data formats, specialized systems, and sparse compilers shows that no single implementation consistently dominates across sparsity patterns and operators. This motivates a system that can adapt its representation, execution strategy, and hardware mapping to each workload and target GPU.   We present SparseDitto, an LLM-based system that constructs a GPU kernel for each matrix, operator, and target GPU. SparseDitto supports SpMV, SpMM, and SpGEMM within a unified design framework. A lightweight additive model ranks established strategies using structural features of the input matrix. An architecture-aware planner then proposes several candidate designs. Coding and verification agents implement and refine them using measurements from the target GPU. Across three sparse operators and a diverse set of matrices, SparseDitto achieves a geometric-mean speedup of 2.68x over cuSPARSE on an NVIDIA RTX PRO 6000 GPU, with a maximum of 146.61x. On an NVIDIA H200 GPU, it achieves 2.79x, with a maximum of 78.5x. Its generated SpMM kernels also accelerate full-batch GCN training by up to 3.39x.",
+      "authors": [
+        "Shiyang Li",
+        "Guangyan Sun",
+        "Jinwei Tang",
+        "Yanzhi Wang",
+        "Mingyi Hong",
+        "Caiwen Ding"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.LG"
+      ],
+      "published": "2026-08-05T16:41:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.05033v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "optimizes search agents to retrieve and properly use external evidence during multi-step reasoning",
+      "llm_evidence_cn": "优化搜索智能体在推理时对检索证据的获取与运用",
+      "llm_evidence": "优化搜索智能体在推理时对检索证据的获取与运用",
+      "canonical_evidence": "优化搜索智能体在推理时对检索证据的获取与运用",
+      "llm_tldr_en": "Proposes contextual information policy optimization for search agents, rewarding post-retrieval actions grounded in retrieved evidence to overcome confirmation bias and improve evidence use for knowledge-intensive reasoning.",
+      "llm_tldr_cn": "搜索智能体依赖外部证据进行多步推理，但现有奖励只关注最终答案正确性，导致其偏向先验知识、将检索仅用于自我确认。该文提出上下文信息策略优化，直接评估检索后动作是否基于所获证据并按此引导推理，使智能体更忠实于外部信息。实验预示该方法可减少确认偏差、提高长程知识密集任务的可靠性。",
+      "llm_tldr": "搜索智能体依赖外部证据进行多步推理，但现有奖励只关注最终答案正确性，导致其偏向先验知识、将检索仅用于自我确认。该文提出上下文信息策略优化，直接评估检索后动作是否基于所获证据并按此引导推理，使智能体更忠实于外部信息。实验预示该方法可减少确认偏差、提高长程知识密集任务的可靠性。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -326,13 +418,13 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Task-conditioned relational memory views let long-horizon agents retrieve and organize historical evidence for current decisions",
-      "llm_evidence_cn": "按任务上下文动态构造关系记忆视图，使长时程智能体在决策时检索并重组历史经验",
-      "llm_evidence": "按任务上下文动态构造关系记忆视图，使长时程智能体在决策时检索并重组历史经验",
-      "canonical_evidence": "按任务上下文动态构造关系记忆视图，使长时程智能体在决策时检索并重组历史经验",
-      "llm_tldr_en": "MemPrism separates persistent experience storage from decision-time working memory and dynamically composes task-conditioned relational views, addressing representation mismatch so agents retrieve the right evidence in the right format.",
-      "llm_tldr_cn": "长时程智能体依赖记忆复用经验，但固定表示的记忆往往无法为当前决策组织相关信息，造成表征失配。MemPrism将持久经验存储与决策时刻的工作记忆分离，按任务上下文动态构建关系视图，并由轻量视图策略选择关系结构、证据范围和粒度，把历史事件转换成利于当前决策的组织形式，从而改善证据检索与利用。",
-      "llm_tldr": "长时程智能体依赖记忆复用经验，但固定表示的记忆往往无法为当前决策组织相关信息，造成表征失配。MemPrism将持久经验存储与决策时刻的工作记忆分离，按任务上下文动态构建关系视图，并由轻量视图策略选择关系结构、证据范围和粒度，把历史事件转换成利于当前决策的组织形式，从而改善证据检索与利用。",
+      "llm_evidence_en": "Presents task-conditioned relational memory views that separate persistent experience storage from decision-time working memory and dynamically construct views for retrieval.",
+      "llm_evidence_cn": "提出任务条件化关系记忆视图，将持久经验存储与决策时工作记忆分离并按当前任务动态构建检索视图。",
+      "llm_evidence": "提出任务条件化关系记忆视图，将持久经验存储与决策时工作记忆分离并按当前任务动态构建检索视图。",
+      "canonical_evidence": "提出任务条件化关系记忆视图，将持久经验存储与决策时工作记忆分离并按当前任务动态构建检索视图。",
+      "llm_tldr_en": "MemPrism addresses representation mismatch in long-horizon agent memory by separating persistent experience storage from decision-time working memory. It records interactions as an event stream and dynamically constructs relational views according to the current task context, while a lightweight view policy selects relation structure, evidence range, outcome condition, and granularity.",
+      "llm_tldr_cn": "长时程智能体通常把经验以固定表示存入记忆，造成信息虽然可得但未按当前决策组织的表示错位。MemPrism提出任务条件化的关系记忆框架：把交互历史作为事件流持久保存，在决策时刻依据任务上下文动态构建关系视图。轻量视图策略会选取关系结构、证据范围、结果条件与粒度，由确定性组件将历史渲染为适合当前决策的工作记忆，从而提升长时程任务中对相关经验的组织与利用效果。",
+      "llm_tldr": "长时程智能体通常把经验以固定表示存入记忆，造成信息虽然可得但未按当前决策组织的表示错位。MemPrism提出任务条件化的关系记忆框架：把交互历史作为事件流持久保存，在决策时刻依据任务上下文动态构建关系视图。轻量视图策略会选取关系结构、证据范围、结果条件与粒度，由确定性组件将历史渲染为适合当前决策的工作记忆，从而提升长时程任务中对相关经验的组织与利用效果。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -368,19 +460,56 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "hierarchical experience management that enables continual self-evolution of LLM agents through organized experience storage, update and retrieval",
-      "llm_evidence_cn": "面向自进化智能体的分层经验管理，提升经验更新与检索以持续改进性能",
-      "llm_evidence": "面向自进化智能体的分层经验管理，提升经验更新与检索以持续改进性能",
-      "canonical_evidence": "面向自进化智能体的分层经验管理，提升经验更新与检索以持续改进性能",
-      "llm_tldr_en": "Introduces Tree-of-Experience, aligning stored experience with hierarchical LLM reasoning to improve feedback attribution, cross-task transfer, and update/retrieval efficiency for self-evolving agents.",
-      "llm_tldr_cn": "持续自进化要求LLM智能体把环境交互转化为可靠可复用的经验。现有方法常把经验表示与底层推理过程割裂，限制反馈归因、跨任务迁移以及更新和检索效率。该文提出经验之树ToE，按分层推理过程组织经验，以支持结构化的存储、更新与检索。实验表明该框架可提升反馈归因与检索效率，帮助自进化智能体在复杂推理任务上持续改善表现。",
-      "llm_tldr": "持续自进化要求LLM智能体把环境交互转化为可靠可复用的经验。现有方法常把经验表示与底层推理过程割裂，限制反馈归因、跨任务迁移以及更新和检索效率。该文提出经验之树ToE，按分层推理过程组织经验，以支持结构化的存储、更新与检索。实验表明该框架可提升反馈归因与检索效率，帮助自进化智能体在复杂推理任务上持续改善表现。",
+      "llm_evidence_en": "Proposes Tree-of-Experience, a hierarchical experience-management framework aligning experience organization with the reasoning process to improve update/retrieval efficiency for self-evolving agents.",
+      "llm_evidence_cn": "提出树状经验ToE，将经验组织与智能体分层推理对齐，提升自进化过程中的更新与检索效率。",
+      "llm_evidence": "提出树状经验ToE，将经验组织与智能体分层推理对齐，提升自进化过程中的更新与检索效率。",
+      "canonical_evidence": "提出树状经验ToE，将经验组织与智能体分层推理对齐，提升自进化过程中的更新与检索效率。",
+      "llm_tldr_en": "Tree-of-Experience (ToE) addresses continual self-evolution of LLM agents by organizing experience in alignment with the hierarchical reasoning process. This improves feedback attribution, cross-task transfer, and update and retrieval efficiency, especially in complex reasoning tasks where feedback is outcome-level, enabling more reliable and reusable experience management.",
+      "llm_tldr_cn": "LLM智能体的持续自进化需要把环境交互转化为可靠可复用经验，但现有方法把经验表示与推理过程相分离，导致反馈归因、跨任务迁移与更新检索效率受限。为克服该局限，作者提出树状经验框架ToE，将经验组织与智能体分层推理过程对齐。实验表明ToE能显著提升复杂推理任务中的反馈归因、跨任务迁移以及经验的更新和检索效率，为长期自进化提供了结构化经验管理方案。",
+      "llm_tldr": "LLM智能体的持续自进化需要把环境交互转化为可靠可复用经验，但现有方法把经验表示与推理过程相分离，导致反馈归因、跨任务迁移与更新检索效率受限。为克服该局限，作者提出树状经验框架ToE，将经验组织与智能体分层推理过程对齐。实验表明ToE能显著提升复杂推理任务中的反馈归因、跨任务迁移以及经验的更新和检索效率，为长期自进化提供了结构化经验管理方案。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
       "matched_query_text": "How do self evolving agents improve their performance over time?",
       "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.09160v1",
+      "source": "arxiv",
+      "title": "SwiftQK: Fast and Communication-Efficient Tensor Parallelism for Query-Key Normalization",
+      "abstract": "Query-Key Normalization (QK-Norm) improves the training stability and quality of modern Large Language Models (LLMs). However, under Tensor Parallelism (TP), layerwise QK-Norm introduces additional cross-GPU communication because the normalization factor depends on the full hidden vector. We present SwiftQK, a multi-GPU RMSNorm kernel that exchanges only scalar normalization statistics and overlaps the remaining Peer-to-Peer reduction with independent element-wise computation in a deadlock-safe persistent kernel. Evaluations on recent LLMs show that SwiftQK reduces QK-Norm latency by 81.4--93.9% relative to the standard TP QK-Norm using full-vector All-Gather. In end-to-end serving, SwiftQK reduces TPOT on average by 29.5% over the All-Gather-based baseline and by 14.3% over an optimized scalar-aggregation implementation.",
+      "authors": [
+        "Gyudong Kim",
+        "Wonjun Han",
+        "Young Geun Kim"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.DC"
+      ],
+      "published": "2026-08-10T06:16:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.09160v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Novel multi-GPU RMSNorm kernel that cuts QK-Norm latency via scalar communication and overlap",
+      "llm_evidence_cn": "提出多GPU RMSNorm内核，通过标量通信和计算重叠显著降低延迟",
+      "llm_evidence": "提出多GPU RMSNorm内核，通过标量通信和计算重叠显著降低延迟",
+      "canonical_evidence": "提出多GPU RMSNorm内核，通过标量通信和计算重叠显著降低延迟",
+      "llm_tldr_en": "SwiftQK is a deadlock-safe persistent multi-GPU RMSNorm kernel that communicates only scalar normalization statistics and overlaps P2P reduction with element-wise computation, cutting QK-Norm latency by 81.4-93.9% and end-to-end TPOT by 29.5%.",
+      "llm_tldr_cn": "QK归一化能改善大模型训练稳定性与质量，但在张量并行下归一化因子依赖完整隐向量，额外引入跨GPU通信开销。SwiftQK给出一种多GPU RMSNorm内核：只交换标量归一化统计量，并把剩余点对点归约与独立逐元素计算重叠加在无死锁持久内核中。在近期多种LLM上的评测显示，相比传统全向量All-Gather版本，QK-Norm延迟降低81.4%至93.9%，端到端服务平均TPOT减少29.5%。该内核为并行归一化操作提供了低通信且可扩展的优化方案。",
+      "llm_tldr": "QK归一化能改善大模型训练稳定性与质量，但在张量并行下归一化因子依赖完整隐向量，额外引入跨GPU通信开销。SwiftQK给出一种多GPU RMSNorm内核：只交换标量归一化统计量，并把剩余点对点归约与独立逐元素计算重叠加在无死锁持久内核中。在近期多种LLM上的评测显示，相比传统全向量All-Gather版本，QK-Norm延迟降低81.4%至93.9%，端到端服务平均TPOT减少29.5%。该内核为并行归一化操作提供了低通信且可扩展的优化方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
       "selection_source": "fresh_fetch"
     },
     {
@@ -406,19 +535,19 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Self-improvement method that lets planning agents self-supervised optimize their harness grounded in verifier signals without human intervention",
-      "llm_evidence_cn": "提出自监督、验证器锚定的框架优化方法，使规划智能体无需人工干预即可自我改进",
-      "llm_evidence": "提出自监督、验证器锚定的框架优化方法，使规划智能体无需人工干预即可自我改进",
-      "canonical_evidence": "提出自监督、验证器锚定的框架优化方法，使规划智能体无需人工干预即可自我改进",
-      "llm_tldr_en": "Self-improving agents aim to cut human engineering. SBCO adapts self-referential Goedel-machine ideas to planning: optimize the agent harness with self-supervised phases grounded by verifiers, enabling iterative self-improvement where direct code self-edit is infeasible.",
-      "llm_tldr_cn": "自我改进智能体旨在减少AI系统的人工工程成本，但直接自参照改写代码要求任务能力与自我修改能力对齐，并不总成立。SBCO面向规划智能体，采用自监督阶段配合验证器信号来优化智能体框架，使不满足直接自改条件的领域也能形成持续自我改进。该方法以更低的工程依赖推动智能体随时间提升策略，扩展了自进化机制的适用边界。",
-      "llm_tldr": "自我改进智能体旨在减少AI系统的人工工程成本，但直接自参照改写代码要求任务能力与自我修改能力对齐，并不总成立。SBCO面向规划智能体，采用自监督阶段配合验证器信号来优化智能体框架，使不满足直接自改条件的领域也能形成持续自我改进。该方法以更低的工程依赖推动智能体随时间提升策略，扩展了自进化机制的适用边界。",
+      "llm_evidence_en": "Proposes self-supervised, verifier-grounded harness optimization so planning agents improve their own performance in a self-evolving way",
+      "llm_evidence_cn": "通过自监督和验证器引导优化外部支撑框架，让规划智能体持续自我改进",
+      "llm_evidence": "通过自监督和验证器引导优化外部支撑框架，让规划智能体持续自我改进",
+      "canonical_evidence": "通过自监督和验证器引导优化外部支撑框架，让规划智能体持续自我改进",
+      "llm_tldr_en": "Self-improving agents normally rely on recursive self-modification that aligns with coding tasks. SBCO adapts this idea to planning agents by self-supervised, verifier-grounded harness optimization, letting agents evolve with less human engineering.",
+      "llm_tldr_cn": "递归自改进智能体能减少人工开销，但它要求任务能力与自我修改代码的能力对齐，规划类任务往往不满足此条件。本文延续Darwin Gödel Machine等自参照改进思路，面向规划智能体提出自监督、验证器引导的Harness优化方法，把需要改写的对象转移到可独立优化的外部框架上。验证器信号为迭代过程提供约束，避免智能体因直接修改自身而偏离任务目标。该工作扩大了不依赖人工干预即可持续自我改进的智能体任务范围。",
+      "llm_tldr": "递归自改进智能体能减少人工开销，但它要求任务能力与自我修改代码的能力对齐，规划类任务往往不满足此条件。本文延续Darwin Gödel Machine等自参照改进思路，面向规划智能体提出自监督、验证器引导的Harness优化方法，把需要改写的对象转移到可独立优化的外部框架上。验证器信号为迭代过程提供约束，避免智能体因直接修改自身而偏离任务目标。该工作扩大了不依赖人工干预即可持续自我改进的智能体任务范围。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
-      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
-      "matched_requirement_id": "req-5",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
       "selection_source": "fresh_fetch"
     },
     {
@@ -442,13 +571,13 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Self-evolving agent optimization infrastructure that accumulates transferable knowledge and refines it through operational evidence, directly covering agents that iteratively improve without human intervention.",
-      "llm_evidence_cn": "面向编码智能体的自进化基础设施，通过智慧图积累可迁移知识并依据运行证据持续改进，命中智能体无需人工干预即可迭代提升。",
-      "llm_evidence": "面向编码智能体的自进化基础设施，通过智慧图积累可迁移知识并依据运行证据持续改进，命中智能体无需人工干预即可迭代提升。",
-      "canonical_evidence": "面向编码智能体的自进化基础设施，通过智慧图积累可迁移知识并依据运行证据持续改进，命中智能体无需人工干预即可迭代提升。",
-      "llm_tldr_en": "MEGA is a self-evolving infrastructure for coding agents that distills reusable assets, performs compositional reasoning over them, and refines accumulated wisdom through operational evidence, improving agents without human intervention.",
-      "llm_tldr_cn": "现有编码智能体系统优化时难以积累可迁移知识，即使积累也缺少组合推理，且知识不能依据运行证据自进化。MEGA提出元评测驱动的自进化基础设施，每个优化周期产生持久资产，用组合推理指导后续优化，并依据运行证据不断修正累积知识与治理推理机制。该方法通过智慧图分层组织经验，形成持续改进闭环，使编码智能体在人工干预极少的情况下逐步提升系统能力，回应了自进化智能体需求。",
-      "llm_tldr": "现有编码智能体系统优化时难以积累可迁移知识，即使积累也缺少组合推理，且知识不能依据运行证据自进化。MEGA提出元评测驱动的自进化基础设施，每个优化周期产生持久资产，用组合推理指导后续优化，并依据运行证据不断修正累积知识与治理推理机制。该方法通过智慧图分层组织经验，形成持续改进闭环，使编码智能体在人工干预极少的情况下逐步提升系统能力，回应了自进化智能体需求。",
+      "llm_evidence_en": "Self-evolving agent infrastructure that accumulates knowledge assets and evolves reasoning via operational evidence",
+      "llm_evidence_cn": "通过积累知识资产并依据运行证据自我进化，持续改进智能体",
+      "llm_evidence": "通过积累知识资产并依据运行证据自我进化，持续改进智能体",
+      "canonical_evidence": "通过积累知识资产并依据运行证据自我进化，持续改进智能体",
+      "llm_tldr_en": "MEGA is a self-evolving infrastructure for optimizing coding-agent systems: each optimization cycle yields durable knowledge assets, compositional reasoning guides later cycles, and operational evidence evolves both the knowledge and its governing logic.",
+      "llm_tldr_cn": "当前面向编码智能体的优化系统往往只改进单个组件而不积累可迁移知识，即使积累也缺乏组合推理与自我进化机制。MEGA提出元评估驱动的自进化基础设施，让每个优化周期都产生持久资产，并通过智慧图对这些资产做组合推理来指导下一轮优化；实际运行证据会同时精炼累积的智慧与治理推理的规则。这使编码智能体的性能提升不再是孤立的一次性优化，而是可迭代积累的基础设施能力。",
+      "llm_tldr": "当前面向编码智能体的优化系统往往只改进单个组件而不积累可迁移知识，即使积累也缺乏组合推理与自我进化机制。MEGA提出元评估驱动的自进化基础设施，让每个优化周期都产生持久资产，并通过智慧图对这些资产做组合推理来指导下一轮优化；实际运行证据会同时精炼累积的智慧与治理推理的规则。这使编码智能体的性能提升不再是孤立的一次性优化，而是可迭代积累的基础设施能力。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -489,19 +618,61 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "compiler-agent co-design with typed hardware-explicit IR for frontier GPU kernel evolution",
-      "llm_evidence_cn": "编译器与智能体协同设计，以硬件显式IR支持前沿GPU内核演化",
-      "llm_evidence": "编译器与智能体协同设计，以硬件显式IR支持前沿GPU内核演化",
-      "canonical_evidence": "编译器与智能体协同设计，以硬件显式IR支持前沿GPU内核演化",
-      "llm_tldr_en": "CAKE is a compiler-agent co-design where agents author a typed hardware-explicit IR exposing warp roles, memory movement, and pipelines; verification, diagnostics, and reusable optimization tactics co-evolve to help generate frontier GPU kernels.",
-      "llm_tldr_cn": "GPU内核智能体与编程语言各自发展，导致专家内核难以复现，现有智能体只能接收编译器的黑盒反馈。论文提出CAKE编译器-智能体协同设计，让智能体编写类型化且硬件显式的CAKE IR，可表达线程角色、访存、同步与流水线，并提供验证、代价建模和局部诊断。同时，反复出现的失败会被转化为验证规则、IR原语与可复用优化策略，使编译检查随内核演化而扩展。该机制将编译器从固定黑盒改为协同演化工具链，增强了GPU内核的自动生成与复现能力。",
-      "llm_tldr": "GPU内核智能体与编程语言各自发展，导致专家内核难以复现，现有智能体只能接收编译器的黑盒反馈。论文提出CAKE编译器-智能体协同设计，让智能体编写类型化且硬件显式的CAKE IR，可表达线程角色、访存、同步与流水线，并提供验证、代价建模和局部诊断。同时，反复出现的失败会被转化为验证规则、IR原语与可复用优化策略，使编译检查随内核演化而扩展。该机制将编译器从固定黑盒改为协同演化工具链，增强了GPU内核的自动生成与复现能力。",
+      "llm_evidence_en": "tree-structured memory stores and retrieves source-linked evidence for long-horizon search agents",
+      "llm_evidence_cn": "为长程搜索智能体提供树结构记忆，存储并检索带来源关联的证据",
+      "llm_evidence": "为长程搜索智能体提供树结构记忆，存储并检索带来源关联的证据",
+      "canonical_evidence": "为长程搜索智能体提供树结构记忆，存储并检索带来源关联的证据",
+      "llm_tldr_en": "ReTree gives LLM search agents bounded tree-structured memory with source-linked evidence and revision history, compressing context and self-correcting downstream reasoning when evidence contradicts prior conclusions.",
+      "llm_tldr_cn": "长程搜索智能体处理完整执行轨迹会造成上下文无限增长并引入噪声，现有压缩方法又常丢失关键细节。该文提出ReTree，用证据树组织搜索过程，节点保存受限摘要、证据与修正历史；当新证据与旧结论冲突时，能自校正由错误事实衍生的下游推理。实验显示该方法在控制上下文开销的同时保留重要证据，提升了长期搜索与问答性能。",
+      "llm_tldr": "长程搜索智能体处理完整执行轨迹会造成上下文无限增长并引入噪声，现有压缩方法又常丢失关键细节。该文提出ReTree，用证据树组织搜索过程，节点保存受限摘要、证据与修正历史；当新证据与旧结论冲突时，能自校正由错误事实衍生的下游推理。实验显示该方法在控制上下文开销的同时保留重要证据，提升了长期搜索与问答性能。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
       "matched_query_text": "Automated kernel optimization and code generation for GPUs",
       "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11350v1",
+      "source": "arxiv",
+      "title": "Self-Evolving Embodied Agents via Skill-Harness Evolution",
+      "abstract": "Embodied agents are increasingly built as systems around foundation models, where performance depends not only on model weights but also on the skills, context, action interfaces, and execution harness surrounding the model. While supervised fine-tuning and reinforcement learning can adapt agents to new environments, they require additional data, rewards, and training runs; meanwhile, many train-free code-centric approaches rely on programmable robot APIs that may be unavailable in fixed-interface settings. We propose SHAPER, a self-evolving framework for train-free embodied adaptation that keeps model parameters frozen and improves the non-parametric agent system by evolving reusable skills and a context-code harness through target-environment rollouts. In SHAPER, the same frozen model can serve as both planner and optimizer, refining its external skills and context-code harness without parameter updates. We evaluate SHAPER on VLABench and ESI-Bench, covering embodied agents with different low-level action interfaces, and compare against pure execution, supervised fine-tuning, and test-time-scaling baselines such as verifier-free selection and voting. Our results suggest that skill-and-harness optimization is a practical route to self-evolving embodied agents when model training is expensive, unavailable, or undesirable.",
+      "authors": [
+        "Peidong Wang",
+        "Zhiming Ma",
+        "Ying Chang",
+        "Xufang Luo",
+        "Xiaocui Yang",
+        "Shi Feng",
+        "Yuqing Yang",
+        "Dongsheng Li"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.RO"
+      ],
+      "published": "2026-08-11T18:55:58+00:00",
+      "link": "https://arxiv.org/pdf/2608.11350v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes SHAPER, a train-free self-evolving framework that freezes model parameters and evolves reusable skills and a context-code harness via target-environment rollouts.",
+      "llm_evidence_cn": "提出无训练自进化框架SHAPER，冻结模型参数，通过目标环境回滚演化可复用技能与上下文-代码执行框架。",
+      "llm_evidence": "提出无训练自进化框架SHAPER，冻结模型参数，通过目标环境回滚演化可复用技能与上下文-代码执行框架。",
+      "canonical_evidence": "提出无训练自进化框架SHAPER，冻结模型参数，通过目标环境回滚演化可复用技能与上下文-代码执行框架。",
+      "llm_tldr_en": "For train-free self-evolution of embodied agents, SHAPER keeps model parameters frozen and evolves reusable skills plus a context-code harness through target-environment rollouts, enabling non-parametric agent adaptation in fixed-interface settings without supervised fine-tuning or reinforcement learning.",
+      "llm_tldr_cn": "具身智能体在固定交互接口和缺少额外训练数据时难以自我适应环境，而监督微调或强化学习需要额外数据与奖励。SHAPER提出一种无训练自进化框架：保持基础模型参数冻结，把可复用技能与上下文-代码执行框架看作可演化的非参数系统，通过在目标环境中的回滚不断改进它们。实验表明SHAPER能在不用外部可编程机器人API的情况下持续自我进化并适应新环境，为固定接口具身智能体提供了可行的自进化路径。",
+      "llm_tldr": "具身智能体在固定交互接口和缺少额外训练数据时难以自我适应环境，而监督微调或强化学习需要额外数据与奖励。SHAPER提出一种无训练自进化框架：保持基础模型参数冻结，把可复用技能与上下文-代码执行框架看作可演化的非参数系统，通过在目标环境中的回滚不断改进它们。实验表明SHAPER能在不用外部可编程机器人API的情况下持续自我进化并适应新环境，为固定接口具身智能体提供了可行的自进化路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
       "selection_source": "fresh_fetch"
     },
     {
@@ -528,19 +699,19 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Self-evolves skill-guided retrieval over a structured memory store for LLM agents, treating retrieval as executable evolvable skills.",
-      "llm_evidence_cn": "将交互历史编译为结构化记忆库，以可演化技能驱动按需检索。",
-      "llm_evidence": "将交互历史编译为结构化记忆库，以可演化技能驱动按需检索。",
-      "canonical_evidence": "将交互历史编译为结构化记忆库，以可演化技能驱动按需检索。",
-      "llm_tldr_en": "ERSkill makes LLM-agent memory retrieval evolvable by compiling histories into a structured memory store and representing retrieval behaviors as executable skills selected by a trained router, improving evidence construction for heterogeneous queries.",
-      "llm_tldr_cn": "大语言模型智能体的长期记忆维护常依赖静态检索机制，面对异构查询时难以自适应构造证据。ERSkill将交互历史编译为结构化记忆库，并把检索行为表示为由基础原语组成的可执行技能，同时让技能持续进化。训练后的路由器在推断时动态匹配最优技能以构造证据，提升答案生成质量。该研究把记忆检索从固定组件变为可演化能力。",
-      "llm_tldr": "大语言模型智能体的长期记忆维护常依赖静态检索机制，面对异构查询时难以自适应构造证据。ERSkill将交互历史编译为结构化记忆库，并把检索行为表示为由基础原语组成的可执行技能，同时让技能持续进化。训练后的路由器在推断时动态匹配最优技能以构造证据，提升答案生成质量。该研究把记忆检索从固定组件变为可演化能力。",
+      "llm_evidence_en": "Self-evolving retrieval skills let agents adaptively retrieve memory evidence per query during decision making",
+      "llm_evidence_cn": "利用自进化的检索技能，在决策时按查询自适应地取用记忆证据",
+      "llm_evidence": "利用自进化的检索技能，在决策时按查询自适应地取用记忆证据",
+      "canonical_evidence": "利用自进化的检索技能，在决策时按查询自适应地取用记忆证据",
+      "llm_tldr_en": "ERSkill makes agent memory retrieval evolvable: histories are compiled into structured memory, retrieval behaviors become executable skills, and a trained router picks the best skill for each query to construct tailored evidence.",
+      "llm_tldr_cn": "LLM智能体越来越依赖长期记忆，但记忆检索机制很少被视为可进化组件，面对异构查询时静态策略效果不佳。ERSkill提出以检索为中心的框架，将交互历史整理为结构化记忆库，并把检索行为表示成由基础原语组成的可执行技能。推理时，一个训练好的路由器为每条查询动态选择最优技能，从而构造针对性的证据以支持回答生成。训练过程中检索技能会随着经验不断进化，在异构记忆查询上带来更好的检索自适应性。",
+      "llm_tldr": "LLM智能体越来越依赖长期记忆，但记忆检索机制很少被视为可进化组件，面对异构查询时静态策略效果不佳。ERSkill提出以检索为中心的框架，将交互历史整理为结构化记忆库，并把检索行为表示成由基础原语组成的可执行技能。推理时，一个训练好的路由器为每条查询动态选择最优技能，从而构造针对性的证据以支持回答生成。训练过程中检索技能会随着经验不断进化，在异构记忆查询上带来更好的检索自适应性。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
-      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-      "matched_requirement_id": "req-3",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
       "selection_source": "fresh_fetch"
     },
     {
@@ -576,19 +747,138 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "Evaluates storage and retrieval memory substrates for memory-augmented agents with controlled comparisons",
-      "llm_evidence_cn": "对记忆增强智能体的各类记忆基板的存储与检索能力进行系统受控评测",
-      "llm_evidence": "对记忆增强智能体的各类记忆基板的存储与检索能力进行系统受控评测",
-      "canonical_evidence": "对记忆增强智能体的各类记忆基板的存储与检索能力进行系统受控评测",
-      "llm_tldr_en": "This paper presents a controlled harness evaluation of memory substrates for memory-augmented LLM agents, including dense and sparse indices, text records, structural and hierarchical stores, refinement memories, parametric updates, and context mechanisms. Across three backbones and four benchmark suites, it measures 26 performance and efficiency metrics, guiding substrate selection for different agent operating regimes.",
-      "llm_tldr_cn": "长期任务的LLM智能体越来越依赖记忆系统，但不同记忆基板在何种运行场景下更优缺乏系统验证。该文在统一受控测试平台上评测了稠密/稀疏索引、文本记录、结构化与层次化存储、精化记忆、参数更新以及上下文兼容机制等记忆基板。借助三个骨干模型和四类基准套件，采集26项性能与效率指标，给出了按任务类型选择记忆基板的实证依据，为记忆增强型智能体的系统设计提供指导。",
-      "llm_tldr": "长期任务的LLM智能体越来越依赖记忆系统，但不同记忆基板在何种运行场景下更优缺乏系统验证。该文在统一受控测试平台上评测了稠密/稀疏索引、文本记录、结构化与层次化存储、精化记忆、参数更新以及上下文兼容机制等记忆基板。借助三个骨干模型和四类基准套件，采集26项性能与效率指标，给出了按任务类型选择记忆基板的实证依据，为记忆增强型智能体的系统设计提供指导。",
+      "llm_evidence_en": "evaluates memory substrates for LLM agents, covering storage, retrieval, and decision-making",
+      "llm_evidence_cn": "评测大模型记忆智能体的各类记忆介质，覆盖存储、检索与决策",
+      "llm_evidence": "评测大模型记忆智能体的各类记忆介质，覆盖存储、检索与决策",
+      "canonical_evidence": "评测大模型记忆智能体的各类记忆介质，覆盖存储、检索与决策",
+      "llm_tldr_en": "Controlled harness evaluation of memory substrates for LLM agents, comparing dense/sparse indices, text records, structured/hierarchical stores, refinement-based and parametric memories across three backbones and four benchmarks with 26 metrics.",
+      "llm_tldr_cn": "现有研究对长期大模型记忆智能体应采用何种底层记忆介质缺乏系统性指导。该文构建一个受控基准平台，覆盖稠密索引、稀疏索引、文本记录、结构化/层次化存储、精炼记忆及参数更新等记忆底座，在三个骨干模型和四个涉及用户问答与智能体决策的基准套件上统一度量26项性能与效率指标。实验结果为不同运行场景下选择记忆底座提供了依据，弥补了记忆智能体评测的系统性空白。",
+      "llm_tldr": "现有研究对长期大模型记忆智能体应采用何种底层记忆介质缺乏系统性指导。该文构建一个受控基准平台，覆盖稠密索引、稀疏索引、文本记录、结构化/层次化存储、精炼记忆及参数更新等记忆底座，在三个骨干模型和四个涉及用户问答与智能体决策的基准套件上统一度量26项性能与效率指标。实验结果为不同运行场景下选择记忆底座提供了依据，弥补了记忆智能体评测的系统性空白。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
       "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
       "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.16303v1",
+      "source": "arxiv",
+      "title": "FTA-Mem: Fact-Time-Affect Anchored Memory for Low-Density Long-Term Dialogue",
+      "abstract": "Long-term emotional-support agents require memory mechanisms for personalized understanding across sessions. However, emotional-support dialogue is often low-density: turns are incomplete, evidence is scattered, and user states evolve over time. Existing memory methods usually rely on fixed units, such as turn-level notes or session summaries, which may lose details or introduce redundant noise. We propose FTA-Mem, a structured memory framework for low-density long-term dialogue. FTA-Mem uses Boundary-preserving Window Segmentation (BWS) to form coherent situation fragments, and constructs Fact-Time-Affect Memory Units (FTA Units) that jointly encode factual content, temporal grounding, and affective context. Retrieved units are then synthesized into structured context for answer generation. Experiments on ES-MemEval and LoCoMo show that FTA-Mem improves overall long-term memory question answering across benchmarks with different information-density characteristics. On ES-MemEval, FTA-Mem achieves 0.3871 F1 and 0.6668 BERTScore. Further analysis shows that situation-level FTA construction better balances evidence preservation and construction cost than coarse session-level or overly fine-grained turn-pair construction, providing an effective granularity trade-off for long-term dialogue memory.",
+      "authors": [
+        "Chang Liu",
+        "Shuyi Zhang",
+        "Changsheng Ma",
+        "Yongfeng Tao",
+        "Minqiang Yang",
+        "Bin Hu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-08-17T09:14:31+00:00",
+      "link": "https://arxiv.org/pdf/2608.16303v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Structured memory framework for long-term dialogue agents using Fact-Time-Affect memory units to store and retrieve coherent situation fragments",
+      "llm_evidence_cn": "面向长期对话智能体提出结构化记忆框架，用事实-时间-情感记忆单元保存并检索连贯情景片段",
+      "llm_evidence": "面向长期对话智能体提出结构化记忆框架，用事实-时间-情感记忆单元保存并检索连贯情景片段",
+      "canonical_evidence": "面向长期对话智能体提出结构化记忆框架，用事实-时间-情感记忆单元保存并检索连贯情景片段",
+      "llm_tldr_en": "Long-term emotional-support agents need memory across sessions, but low-density dialogue makes fixed turn-level or session summaries too lossy or noisy. FTA-Mem segments situations with boundary-preserving windows and stores Fact-Time-Affect units encoding factual, temporal, and affective context, improving retrieval and synthesis of scattered evidence.",
+      "llm_tldr_cn": "长期情感支持智能体需要利用跨会话记忆进行个性化理解，而低密度对话中轮次不完整、证据分散、用户状态不断变化，固定按轮记录或会话摘要容易丢失细节或混入冗余。FTA-Mem提出保边界的窗口切分来形成连贯情景片段，并构造事实-时间-情感记忆单元，将事实内容、时间锚定与情感背景联合编码。检索后的单元再被综合，从而对碎片化低密度证据形成更稳定的情境表示，为长期对话的记忆保持与检索提供新思路。",
+      "llm_tldr": "长期情感支持智能体需要利用跨会话记忆进行个性化理解，而低密度对话中轮次不完整、证据分散、用户状态不断变化，固定按轮记录或会话摘要容易丢失细节或混入冗余。FTA-Mem提出保边界的窗口切分来形成连贯情景片段，并构造事实-时间-情感记忆单元，将事实内容、时间锚定与情感背景联合编码。检索后的单元再被综合，从而对碎片化低密度证据形成更稳定的情境表示，为长期对话的记忆保持与检索提供新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.17071v2",
+      "source": "arxiv",
+      "title": "KernelArc: A Multi-Agent Framework for GPU Kernel Optimization",
+      "abstract": "We present KernelArc, a multi-agent framework for autonomous GPU kernel optimization across heterogeneous workloads. Strategy-specialized agents run in parallel and coordinate through conclusions-only shared memory, a deterministic benchmark guard, and read-only cross-agent state with plateau-triggered drafting. We evaluate KernelArc on NVIDIA H100 and B200 GPUs using category-representative SOL-ExecBench workloads. The resulting implementations span custom BF16 GEMM, static cuBLASLt Expert-API configuration tables, fused mixture-of-experts backward, shape-gated decoder-layer fusion, native NVFP4 grouped-query attention, and paged prefill attention. In the public SOL-ExecBench leaderboard snapshot recorded on August~20, 2026, KernelArc ranked first on every representative L1, L2, Quantization, and FlashInfer task evaluated. The trajectories support the paper's central motivation: shared multi-agent search can broaden exploration and reach stronger incumbents within a fixed candidate budget, while the value of individual coordination features depends on the kernel and optimization stage.",
+      "authors": [
+        "Joyjit Kundu",
+        "Ben Stoffelen",
+        "Kaili Wang",
+        "Peter Vrancx",
+        "Ludovic Denoyer"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA",
+        "cs.PF"
+      ],
+      "published": "2026-08-17T19:21:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.17071v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes a multi-agent LLM framework for autonomous GPU kernel optimization and code generation across heterogeneous workloads.",
+      "llm_evidence_cn": "提出多智能体框架KernelArc，通过多个策略特化智能体协调实现自主GPU内核优化与代码生成。",
+      "llm_evidence": "提出多智能体框架KernelArc，通过多个策略特化智能体协调实现自主GPU内核优化与代码生成。",
+      "canonical_evidence": "提出多智能体框架KernelArc，通过多个策略特化智能体协调实现自主GPU内核优化与代码生成。",
+      "llm_tldr_en": "KernelArc is a multi-agent framework for autonomous GPU kernel optimization, in which strategy-specialized agents coordinate via conclusions-only shared memory, deterministic benchmark guard, and plateau-triggered drafting. Evaluated on NVIDIA H100/B200 with SOL-ExecBench workloads, it produces implementations ranging from custom BF16 GEMM to paged prefill attention and ranks first on the public leaderboard snapshot.",
+      "llm_tldr_cn": "GPU算子的自动化优化需要覆盖异构负载且结果可复现，现有方法往往依赖人工或单一策略。KernelArc提出多智能体框架：策略特化智能体并行运行，通过只写结论的共享内存、确定性基准守卫与平台触发式草稿机制协调，实现跨负载的自主GPU内核优化。在NVIDIA H100/B200的SOL-ExecBench上，KernelArc生成的自定义实现涵盖BF16 GEMM、MoE反向、分组查询注意力等负载，并在公开榜单快照中位列第一。",
+      "llm_tldr": "GPU算子的自动化优化需要覆盖异构负载且结果可复现，现有方法往往依赖人工或单一策略。KernelArc提出多智能体框架：策略特化智能体并行运行，通过只写结论的共享内存、确定性基准守卫与平台触发式草稿机制协调，实现跨负载的自主GPU内核优化。在NVIDIA H100/B200的SOL-ExecBench上，KernelArc生成的自定义实现涵盖BF16 GEMM、MoE反向、分组查询注意力等负载，并在公开榜单快照中位列第一。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.17379v2",
+      "source": "arxiv",
+      "title": "PTXBench: Benchmark and Adapt LLMs for GPU Kernel Optimization with Architecture-specific PTX",
+      "abstract": "We introduce PTXBench, a benchmark for evaluating and adapting large language models (LLMs) to use architecture-specific PTX for GPU kernel optimization. PTXBench measures functional correctness, whether selected target instructions execute at runtime, and speedup over frontier libraries across GEMM and attention workloads on H100 and B200 GPUs. Our evaluation shows that architecture-specific PTX capability remains uneven: success rates fall substantially on complex attention backward workloads, and executing the target instructions does not necessarily translate into competitive performance. No evaluated model consistently matches frontier libraries across the suite. We further adapt Qwen3.6-27B using supervised fine-tuning. Repair-conditioned training improves several tasks, but generalization remains uneven; data coverage, balance, and the quality of the reasoning teacher matter in addition to dataset size. PTXBench provides an auditable testbed for measuring and improving LLMs' ability to exploit evolving GPU architectures.",
+      "authors": [
+        "Genghan Zhang",
+        "Yixin Dong",
+        "Chengze Fan",
+        "Zhichen Zeng",
+        "Yueming Yuan",
+        "Shaowei Zhu",
+        "Kunle Olukotun"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-08-18T05:14:41+00:00",
+      "link": "https://arxiv.org/pdf/2608.17379v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Introduces a benchmark and supervised fine-tuning to adapt LLMs to generate architecture-specific PTX for GPU kernel optimization with speedup measurements.",
+      "llm_evidence_cn": "构建PTXBench基准并微调LLM，使其能生成架构相关的PTX代码以优化GPU内核并追求相对前沿库的加速。",
+      "llm_evidence": "构建PTXBench基准并微调LLM，使其能生成架构相关的PTX代码以优化GPU内核并追求相对前沿库的加速。",
+      "canonical_evidence": "构建PTXBench基准并微调LLM，使其能生成架构相关的PTX代码以优化GPU内核并追求相对前沿库的加速。",
+      "llm_tldr_en": "PTXBench evaluates and adapts LLMs to use architecture-specific PTX for GPU kernel optimization on H100/B200, measuring functional correctness, execution of target instructions, and speedup over frontier libraries. Evaluation shows uneven capability and that executing target instructions does not guarantee competitive performance; SFT adaptation improves results.",
+      "llm_tldr_cn": "大语言模型在直接生成可供GPU内核使用的架构相关PTX指令方面能力不均衡，执行了目标指令也不代表性能具备竞争力。为此作者提出PTXBench基准，在H100和B200上针对GEMM与注意力负载评测功能正确性、指令运行情况与相对前沿库的加速比，并用监督微调适配Qwen3.6-27B。结果表明该方向仍有差距，但基准与微调为后续架构级GPU内核自动优化研究提供了可复现的评测基础。",
+      "llm_tldr": "大语言模型在直接生成可供GPU内核使用的架构相关PTX指令方面能力不均衡，执行了目标指令也不代表性能具备竞争力。为此作者提出PTXBench基准，在H100和B200上针对GEMM与注意力负载评测功能正确性、指令运行情况与相对前沿库的加速比，并用监督微调适配Qwen3.6-27B。结果表明该方向仍有差距，但基准与微调为后续架构级GPU内核自动优化研究提供了可复现的评测基础。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
       "selection_source": "fresh_fetch"
     },
     {
@@ -630,13 +920,13 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "LLM-driven agentic assembly-level optimization of compiled AMD GPU kernels with functional equivalence verification",
-      "llm_evidence_cn": "用LLM智能体在已编译AMD GPU内核上进行低层编辑与功能等价验证，直接回应如何用大模型生成优化的GPU内核",
-      "llm_evidence": "用LLM智能体在已编译AMD GPU内核上进行低层编辑与功能等价验证，直接回应如何用大模型生成优化的GPU内核",
-      "canonical_evidence": "用LLM智能体在已编译AMD GPU内核上进行低层编辑与功能等价验证，直接回应如何用大模型生成优化的GPU内核",
-      "llm_tldr_en": "AsmEvo is an agentic assembly-level optimizer that edits already-compiled AMDGPU code objects by reconstructing a reassemblable representation, proposing low-level edits, rebuilding ABI-preserving kernels, and verifying functional equivalence.",
-      "llm_tldr_cn": "高性能机器学习系统常依赖没有可编辑源码或源码离最终机器码太远的GPU内核，而现有LLM内核优化器主要作用于源码层。该文研究更严格的设定：直接优化已编译的AMDGPU代码对象，并仅以部署二进制为行为真值。由此提出AsmEvo，一个汇编级智能体优化器，重构可重汇编表示、提出底层改动并重建保持ABI的产物，同时进行功能等价验证。它展示了在无法获得源码时仍可自动优化和验证GPU内核的能力，拓展了LLM内核调优的边界。",
-      "llm_tldr": "高性能机器学习系统常依赖没有可编辑源码或源码离最终机器码太远的GPU内核，而现有LLM内核优化器主要作用于源码层。该文研究更严格的设定：直接优化已编译的AMDGPU代码对象，并仅以部署二进制为行为真值。由此提出AsmEvo，一个汇编级智能体优化器，重构可重汇编表示、提出底层改动并重建保持ABI的产物，同时进行功能等价验证。它展示了在无法获得源码时仍可自动优化和验证GPU内核的能力，拓展了LLM内核调优的边界。",
+      "llm_evidence_en": "agentic LLM optimization of compiled AMD GPU kernels at assembly level",
+      "llm_evidence_cn": "以智能体方式对已编译AMD GPU内核做汇编级LLM优化",
+      "llm_evidence": "以智能体方式对已编译AMD GPU内核做汇编级LLM优化",
+      "canonical_evidence": "以智能体方式对已编译AMD GPU内核做汇编级LLM优化",
+      "llm_tldr_en": "AsmEvo handles the strictly harder setting of optimizing an already compiled AMDGPU binary: a long-horizon agent proposes low-level edits on a reassemblable representation and rebuilds an ABI-preserving kernel under functional equivalence verification.",
+      "llm_tldr_cn": "现有LLM内核优化器主要处理CUDA或类源级代码，而真实部署中很多GPU内核只有已编译的AMDGPU目标文件。AsmEvo针对这一更严格场景，重建可重汇编表示，让长时程智能体提出汇编级低级修改，并以功能等价验证与ABI兼容约束保障正确性。实验表明该方法能在源码缺失时优化已编译内核。它把LLM驱动优化的边界推进到最终机器码层。",
+      "llm_tldr": "现有LLM内核优化器主要处理CUDA或类源级代码，而真实部署中很多GPU内核只有已编译的AMDGPU目标文件。AsmEvo针对这一更严格场景，重建可重汇编表示，让长时程智能体提出汇编级低级修改，并以功能等价验证与ABI兼容约束保障正确性。实验表明该方法能在源码缺失时优化已编译内核。它把LLM驱动优化的边界推进到最终机器码层。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -646,7 +936,47 @@
       "selection_source": "fresh_fetch"
     },
     {
-      "id": "2608.20920v2",
+      "id": "2608.20725v1",
+      "source": "arxiv",
+      "title": "Enabling Memory-efficient Im2win Convolution with Multi-precision Support on GPU CUDA and Tensor Cores",
+      "abstract": "Convolution is a principal computational bottleneck in deep neural networks, and its efficiency depends on tight integration between algorithms and GPU hardware. Existing GPU convolution methods suffer from large memory overhead, poor cache utilization, limited effectiveness across kernel sizes, or numerical instability. This work extends the im2win paradigm -- a universal, memory-efficient convolution method with contiguous memory access for all kernel sizes -- to run efficiently in full precision on CUDA cores and half precision on tensor cores. By introducing new kernel designs and optimizations such as zig-zag memory access and asynchronous data movement, im2win efficiently exploits hardware-accelerated half-precision matrix multiply-accumulate operations. Across twelve CNN benchmarks, im2win achieves up to 2.8x higher TFLOPS than its CUDA core implementation, 1.4x higher than cuDNN, and 6.4x higher than GEMM-based convolution with cuBLAS, while using as little as 53% and 35% of their memory, respectively. These results establish im2win as a unified, high-performance convolution framework for modern GPU architectures.",
+      "authors": [
+        "Xiang Fu",
+        "Jixiang Ma",
+        "Xinpeng Zhang",
+        "Peng Zhao",
+        "Shuai Lu",
+        "Xu Tony Liu"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.CV"
+      ],
+      "published": "2026-08-21T04:09:32+00:00",
+      "link": "https://arxiv.org/pdf/2608.20725v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Presents new GPU kernel designs and optimizations for memory-efficient im2win convolution on CUDA cores and tensor cores with full and half precision.",
+      "llm_evidence_cn": "提出内存高效im2win卷积的GPU内核优化，包括锯齿访存与异步数据移动，在CUDA核与张量核上支持多精度。",
+      "llm_evidence": "提出内存高效im2win卷积的GPU内核优化，包括锯齿访存与异步数据移动，在CUDA核与张量核上支持多精度。",
+      "canonical_evidence": "提出内存高效im2win卷积的GPU内核优化，包括锯齿访存与异步数据移动，在CUDA核与张量核上支持多精度。",
+      "llm_tldr_en": "This work extends the im2win convolution paradigm to run efficiently in full precision on CUDA cores and half precision on tensor cores. Through new kernel designs such as zig-zag memory access and asynchronous data movement, it reduces memory overhead and improves cache utilization across convolution kernel sizes while maintaining numerical stability.",
+      "llm_tldr_cn": "卷积是深度学习的主要计算瓶颈，其GPU实现常受内存开销大、缓存利用率低与数值不稳定等限制。作者扩展im2win这一普适且内存高效的卷积范式，通过锯齿形访存和异步数据移动等新内核设计，使卷积在CUDA核上以全精度、在Tensor核上以半精度高效执行。优化后的实现降低了内存压力、提升了缓存利用与跨卷积核尺寸的稳定性，充分挖掘了硬件加速半精度能力。",
+      "llm_tldr": "卷积是深度学习的主要计算瓶颈，其GPU实现常受内存开销大、缓存利用率低与数值不稳定等限制。作者扩展im2win这一普适且内存高效的卷积范式，通过锯齿形访存和异步数据移动等新内核设计，使卷积在CUDA核上以全精度、在Tensor核上以半精度高效执行。优化后的实现降低了内存压力、提升了缓存利用与跨卷积核尺寸的稳定性，充分挖掘了硬件加速半精度能力。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.20920v1",
       "source": "arxiv",
       "title": "ForeDreamer: A Self-Evolving Dual-Agent Memory Architecture for Future Event Prediction",
       "abstract": "Open-web future event prediction requires agents to distill reliable signals from noisy, redundant, and incomplete evidence. Existing retrieval/memory mechanisms directly feed retrieved information to agents or rely on simple memory functions such as storing and reusing prior information for prediction, leaving them insufficient for open-web forecasting. We propose to transform raw web evidence into structured memory before prediction, enabling agents to reason over distilled, question-specific evidence rather than noisy retrieval results. This paper presents ForeDreamer, a self-evolving dual-agent framework for managing memory over open-web evidence. ForeDreamer separates factual memory, a question-specific evidence state for the current forecast, from experiential memory, persistent agent experience accumulated across forecasting episodes. It uses a main agent for search and prediction, and a memory-processing subagent to convert search results into factual memory with dedicated tools. ForeDreamer further evolves experiential memory through two tracks, improving both forecasting decisions and factual-memory construction. Experiments on Prophet Arena and FutureX demonstrate the effectiveness of ForeDreamer. Project page: https://zhongzero.github.io/ForeDreamer",
@@ -666,19 +996,19 @@
         "cs.CL"
       ],
       "published": "2026-08-21T09:38:27+00:00",
-      "link": "https://arxiv.org/pdf/2608.20920v2",
+      "link": "https://arxiv.org/pdf/2608.20920v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "self-evolving dual-agent memory architecture transforming noisy web evidence into structured factual memory for storage, retrieval and reasoning",
-      "llm_evidence_cn": "通过自进化双智能体记忆架构将嘈杂网络证据转为结构化事实记忆，支撑智能体的存储、检索与推理",
-      "llm_evidence": "通过自进化双智能体记忆架构将嘈杂网络证据转为结构化事实记忆，支撑智能体的存储、检索与推理",
-      "canonical_evidence": "通过自进化双智能体记忆架构将嘈杂网络证据转为结构化事实记忆，支撑智能体的存储、检索与推理",
-      "llm_tldr_en": "ForeDreamer is a self-evolving dual-agent memory framework for open-web forecasting that distills noisy evidence into structured factual memory, enabling effective retrieval and reasoning over question-specific evidence for future event prediction.",
-      "llm_tldr_cn": "开放网络未来事件预测面临证据嘈杂、冗余与不完整的问题，现有检索与记忆机制直接投喂原始信息，效果不足。为此提出ForeDreamer自进化双智能体框架，将原始网络证据转化为结构化事实记忆，并分离当前问题证据状态，让智能体基于蒸馏后证据进行检索与推理。实验表明该方法能有效提升未来事件预测性能，说明预测前构建结构化记忆对智能体很有价值。",
-      "llm_tldr": "开放网络未来事件预测面临证据嘈杂、冗余与不完整的问题，现有检索与记忆机制直接投喂原始信息，效果不足。为此提出ForeDreamer自进化双智能体框架，将原始网络证据转化为结构化事实记忆，并分离当前问题证据状态，让智能体基于蒸馏后证据进行检索与推理。实验表明该方法能有效提升未来事件预测性能，说明预测前构建结构化记忆对智能体很有价值。",
+      "llm_evidence_en": "self-evolving dual-agent memory architecture that structures raw open-web evidence before agent prediction",
+      "llm_evidence_cn": "自进化双智能体记忆架构，先将嘈杂网络证据结构化存入记忆再供智能体使用",
+      "llm_evidence": "自进化双智能体记忆架构，先将嘈杂网络证据结构化存入记忆再供智能体使用",
+      "canonical_evidence": "自进化双智能体记忆架构，先将嘈杂网络证据结构化存入记忆再供智能体使用",
+      "llm_tldr_en": "ForeDreamer introduces a self-evolving dual-agent memory architecture that turns noisy open-web evidence into structured, question-specific memory before prediction, enabling agents to reason with distilled evidence rather than raw retrieval.",
+      "llm_tldr_cn": "开放网络未来事件预测需要智能体从嘈杂、冗余和不完整的证据中提取可靠信号，现有检索与记忆机制通常直接投喂检索结果或简单复用旧信息，难以胜任。ForeDreamer提出自进化双智能体记忆架构，先将原始网络证据转换为面向问题、结构化的证据记忆，让智能体基于蒸馏后的信息而非噪声检索结果进行推理。系统将事实记忆与当前问题证据状态分离，并让双智能体协作完成记忆管理和预测。该工作为面向开放域任务的智能体记忆、检索与自我进化提供了新设计思路。",
+      "llm_tldr": "开放网络未来事件预测需要智能体从嘈杂、冗余和不完整的证据中提取可靠信号，现有检索与记忆机制通常直接投喂检索结果或简单复用旧信息，难以胜任。ForeDreamer提出自进化双智能体记忆架构，先将原始网络证据转换为面向问题、结构化的证据记忆，让智能体基于蒸馏后的信息而非噪声检索结果进行推理。系统将事实记忆与当前问题证据状态分离，并让双智能体协作完成记忆管理和预测。该工作为面向开放域任务的智能体记忆、检索与自我进化提供了新设计思路。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -712,13 +1042,13 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "LLM-based hierarchical search-space planning for automated GPU kernel generation and optimization across implementation spaces",
-      "llm_evidence_cn": "面向自动GPU内核生成与优化的LLM分层搜索空间规划，根据工作负载跨实现空间选择并调优",
-      "llm_evidence": "面向自动GPU内核生成与优化的LLM分层搜索空间规划，根据工作负载跨实现空间选择并调优",
-      "canonical_evidence": "面向自动GPU内核生成与优化的LLM分层搜索空间规划，根据工作负载跨实现空间选择并调优",
-      "llm_tldr_en": "HIERA performs workload-aware hierarchical search-space planning, selecting among PyTorch operators, CUDA libraries, and custom CUDA kernels and using profiling feedback and expert knowledge for automated GPU kernel optimization.",
-      "llm_tldr_cn": "GPU内核驱动现代深度学习与科学计算，负载多样化且硬件快速更迭使自动内核生成和优化愈发重要。现有基于LLM的方法通常在固定实现空间内优化，限制了灵活性或搜索效率。该文提出HIERA，一种分层搜索空间规划框架：构建合约增强的任务规格，在PyTorch算子、CUDA库与自定义CUDA内核间选择实现空间，并利用profiling反馈和专家知识引导搜索。这种负载感知的跨层方案为自动化GPU算子级优化提供了更广而高效的路径。",
-      "llm_tldr": "GPU内核驱动现代深度学习与科学计算，负载多样化且硬件快速更迭使自动内核生成和优化愈发重要。现有基于LLM的方法通常在固定实现空间内优化，限制了灵活性或搜索效率。该文提出HIERA，一种分层搜索空间规划框架：构建合约增强的任务规格，在PyTorch算子、CUDA库与自定义CUDA内核间选择实现空间，并利用profiling反馈和专家知识引导搜索。这种负载感知的跨层方案为自动化GPU算子级优化提供了更广而高效的路径。",
+      "llm_evidence_en": "automated framework for GPU kernel generation and optimization spanning multiple implementation spaces",
+      "llm_evidence_cn": "跨PyTorch算子、CUDA库和自定义CUDA内核等多种实现空间的GPU内核自动生成与优化框架",
+      "llm_evidence": "跨PyTorch算子、CUDA库和自定义CUDA内核等多种实现空间的GPU内核自动生成与优化框架",
+      "canonical_evidence": "跨PyTorch算子、CUDA库和自定义CUDA内核等多种实现空间的GPU内核自动生成与优化框架",
+      "llm_tldr_en": "HIERA automatically plans across implementation spaces for GPU kernel optimization, choosing among PyTorch operators, CUDA libraries, and custom CUDA kernels with profiling feedback, thereby extending beyond fixed LLM optimization spaces.",
+      "llm_tldr_cn": "GPU工作负载多样化且硬件演进快，现有基于LLM的GPU内核优化常被限制在固定实现空间内，难兼顾灵活性与搜索效率。HIERA构造契约增强的任务规格，跨PyTorch算子、CUDA库与自定义CUDA内核等实现空间进行层次化规划与选择，并用性能剖析反馈和专家知识指导优化。实验表明该方法能在更广的搜索空间中高效找到适配工作负载的GPU内核实现。该框架为自动化GPU内核生成与优化提供了更灵活高效的通用方案。",
+      "llm_tldr": "GPU工作负载多样化且硬件演进快，现有基于LLM的GPU内核优化常被限制在固定实现空间内，难兼顾灵活性与搜索效率。HIERA构造契约增强的任务规格，跨PyTorch算子、CUDA库与自定义CUDA内核等实现空间进行层次化规划与选择，并用性能剖析反馈和专家知识指导优化。实验表明该方法能在更广的搜索空间中高效找到适配工作负载的GPU内核实现。该框架为自动化GPU内核生成与优化提供了更灵活高效的通用方案。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -754,59 +1084,59 @@
         "query:gkg"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "LLM-generated CUDA/Triton kernels for SQL database operators under execution-guided repair to improve GPU query performance",
-      "llm_evidence_cn": "用LLM生成并修复CUDA/Triton内核以优化GPU上的数据库查询",
-      "llm_evidence": "用LLM生成并修复CUDA/Triton内核以优化GPU上的数据库查询",
-      "canonical_evidence": "用LLM生成并修复CUDA/Triton内核以优化GPU上的数据库查询",
-      "llm_tldr_en": "DataKernelBench tests LLMs on optimizing GPU database kernels by translating SQL into TorchPlan and applying execution-guided repair over CUDA or Triton; full-query CUDA achieves 2.11x speedup on TPC-H.",
-      "llm_tldr_cn": "GPU数据库系统的高性能查询仍常依赖手写内核，而现有LLM内核基准只聚焦机器学习算子。论文提出DataKernelBench，将SQL转换为PyTorch TorchPlan程序，并让LLM通过执行引导修复来优化其中的CUDA或Triton内核。在TPC-H SF10与H100上的实验显示，最强配置的完整查询CUDA实现相比基线取得2.11倍加速且全部通过验证。该基准揭示了LLM面向不规则数据库类算子生成与调优GPU内核的能力及其局限。",
-      "llm_tldr": "GPU数据库系统的高性能查询仍常依赖手写内核，而现有LLM内核基准只聚焦机器学习算子。论文提出DataKernelBench，将SQL转换为PyTorch TorchPlan程序，并让LLM通过执行引导修复来优化其中的CUDA或Triton内核。在TPC-H SF10与H100上的实验显示，最强配置的完整查询CUDA实现相比基线取得2.11倍加速且全部通过验证。该基准揭示了LLM面向不规则数据库类算子生成与调优GPU内核的能力及其局限。",
+      "llm_evidence_en": "Benchmarks LLMs on optimizing database SQL to CUDA/Triton GPU kernels with execution-guided repair and speedups",
+      "llm_evidence_cn": "构建基准评测LLM将数据库查询优化为CUDA/Triton GPU内核并通过执行反馈调优",
+      "llm_evidence": "构建基准评测LLM将数据库查询优化为CUDA/Triton GPU内核并通过执行反馈调优",
+      "canonical_evidence": "构建基准评测LLM将数据库查询优化为CUDA/Triton GPU内核并通过执行反馈调优",
+      "llm_tldr_en": "DataKernelBench translates SQL into PyTorch TorchPlan programs and asks LLMs to optimize full queries or snippets into CUDA/Triton kernels via execution-guided repair; on TPC-H SF10 with H100, the best CUDA config achieves 2.11x speedup with full pass rate.",
+      "llm_tldr_cn": "GPU数据库系统常依赖手工编写的查询内核来达到峰值性能，但现有LLM内核基准只覆盖机器学习算子，未覆盖不规则、异构且数据移动密集的数据库风格算子。DataKernelBench将SQL转化为可验证的PyTorch TorchPlan程序，让LLM针对核心张量片段或完整查询用CUDA/Triton生成并优化内核，由执行反馈引导修复。在TPC-H SF10和H100上用十个模型评测，最强完整查询CUDA配置相对TorchPlan基线获得2.11倍加速且全部测试通过。这项工作把LLM内核优化能力拓展到数据库查询加速领域。",
+      "llm_tldr": "GPU数据库系统常依赖手工编写的查询内核来达到峰值性能，但现有LLM内核基准只覆盖机器学习算子，未覆盖不规则、异构且数据移动密集的数据库风格算子。DataKernelBench将SQL转化为可验证的PyTorch TorchPlan程序，让LLM针对核心张量片段或完整查询用CUDA/Triton生成并优化内核，由执行反馈引导修复。在TPC-H SF10和H100上用十个模型评测，最强完整查询CUDA配置相对TorchPlan基线获得2.11倍加速且全部测试通过。这项工作把LLM内核优化能力拓展到数据库查询加速领域。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.00058v1",
+      "source": "arxiv",
+      "title": "CUDA-Harness: Harnessing Agentic CUDA Kernel Generation and Optimization from Natural Language",
+      "abstract": "Developing high-performance CUDA kernels demands specialized knowledge in algorithm implementation, correctness validation, and hardware-aware parallel optimization, creating a substantial expertise barrier and making generating CUDA kernels directly from natural language (Text2CUDA) essential. Meanwhile, the general-purpose code generation capability of Large Language Models (LLMs) prompts a series of works exploring LLM-based CUDA kernel generation. They mainly focus on transpilation from high-level frameworks such as PyTorch to CUDA (Torch2CUDA) rather than Text2CUDA, where models must understand the high-level input semantics and handle low-level kernel implementation and validation. Additionally, these methods are vulnerable to reward hacking due to reliance on predefined test inputs. In this paper, we propose CUDA-Harness, a framework for harnessing agentic CUDA kernel generation and optimization from natural language. Specifically, we introduce Intermediate-Structured Generation to connect high-level semantic understanding with low-level kernel generation. To dilute reward hacking in Text2CUDA, we construct Synthesis-Based Verification to provide isolated test data and progressive validation. Furthermore, we propose Feedback-Adaptive Evolution, a kernel evolution strategy that prioritizes correctness while optimizing performance. Finally, through extensive experiments, we demonstrate the effectiveness of CUDA-Harness, with further evaluations illustrating generalization across LLMs, hardware platforms, and to C-to-CUDA transpilation.",
+      "authors": [
+        "Qi Fan",
+        "An Zou",
+        "Yehan Ma"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.MA",
+        "cs.PL",
+        "cs.SE"
+      ],
+      "published": "2026-08-30T13:51:43+00:00",
+      "link": "https://arxiv.org/pdf/2609.00058v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "natural-language to CUDA kernel generation and optimization using an agentic harness",
+      "llm_evidence_cn": "提出agentic CUDA-Harness实现从自然语言到CUDA内核的生成与优化",
+      "llm_evidence": "提出agentic CUDA-Harness实现从自然语言到CUDA内核的生成与优化",
+      "canonical_evidence": "提出agentic CUDA-Harness实现从自然语言到CUDA内核的生成与优化",
+      "llm_tldr_en": "CUDA-Harness directly targets Text2CUDA, using an agentic workflow to generate CUDA kernels from natural language, then integrate correctness validation and hardware-aware parallel optimization to overcome the expertise barrier in low-level kernel development.",
+      "llm_tldr_cn": "从自然语言直接生成CUDA内核仍要求较高算法与硬件知识，现有方法又多聚焦PyTorch到CUDA转写而非真正的Text2CUDA。作者提出CUDA-Harness智能体框架，把高层语义理解、低层内核实现与正确性验证串联起来。它不只生成代码，还基于编译反馈或测试进行硬件感知优化，降低开发门槛。此类端到端方案为LLM生成可用高性能CUDA内核提供了新路径。",
+      "llm_tldr": "从自然语言直接生成CUDA内核仍要求较高算法与硬件知识，现有方法又多聚焦PyTorch到CUDA转写而非真正的Text2CUDA。作者提出CUDA-Harness智能体框架，把高层语义理解、低层内核实现与正确性验证串联起来。它不只生成代码，还基于编译反馈或测试进行硬件感知优化，降低开发门槛。此类端到端方案为LLM生成可用高性能CUDA内核提供了新路径。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
       "matched_query_text": "How to generate optimized GPU kernels using large language models?",
       "matched_requirement_id": "req-8",
-      "selection_source": "fresh_fetch"
-    },
-    {
-      "id": "2608.27454v1",
-      "source": "arxiv",
-      "title": "WikiSkill: Compiling Agent Experience into Persistent Knowledge for Skill Evolution",
-      "abstract": "Agent skills package specialized knowledge and workflows into reusable resources that extend AI agent capabilities. Recent work automatically discovers such skills from agent experience, which enables agents to progressively adapt through interaction. However, the insights that guide skill development typically remain scattered across optimization histories, limiting their systematic reuse across iterations. We introduce WikiSkill, a framework that co-evolves agent skills with a persistent knowledge base (wiki). At a high level, WikiSkill separates raw execution experience, accumulated knowledge, and executable skills, while continuously consolidating experience into the wiki, which subsequent skill updates can build on. Across diverse benchmarks and models, WikiSkill consistently outperforms state-of-the-art skill-evolution methods and improves over no-skill baselines in most model-benchmark settings. We find that skill evolution complements model scaling: larger models generally benefit more from evolved skills, while smaller models with skills can outperform substantially larger models without them. We also find that evolved skills transfer effectively across models and model families, and skills evolved by other models can outperform self-evolved skills. Finally, our ablation studies confirm that persistent knowledge accumulation in the wiki is critical for effective skill evolution. These results demonstrate the benefits of systematically accumulating and refining agent experience for developing reusable and transferable skills.",
-      "authors": [
-        "Liyan Tang",
-        "Cyrus Rashtchian",
-        "Chun-Sung Ferng",
-        "Andrew Tomkins",
-        "Da-Cheng Juan",
-        "Tu Vu"
-      ],
-      "primary_category": "cs.AI",
-      "categories": [
-        "cs.AI",
-        "cs.CL"
-      ],
-      "published": "2026-08-27T17:59:11+00:00",
-      "link": "https://arxiv.org/pdf/2608.27454v1",
-      "tags": [
-        "keyword:gkg",
-        "query:gkg"
-      ],
-      "llm_score": 9.0,
-      "llm_evidence_en": "agents co-evolve skills with a persistent knowledge wiki compiled from execution experience",
-      "llm_evidence_cn": "智能体将执行经验整合为持久知识库并共同演化技能",
-      "llm_evidence": "智能体将执行经验整合为持久知识库并共同演化技能",
-      "canonical_evidence": "智能体将执行经验整合为持久知识库并共同演化技能",
-      "llm_tldr_en": "WikiSkill lets agents co-evolve executable skills with a persistent wiki, consolidating execution experience into reusable knowledge that later skill updates build on, improving adaptation over multiple iterations across benchmarks.",
-      "llm_tldr_cn": "经验驱动的技能发现常忽略可复用的优化洞见，限制了跨迭代的技能演化。论文提出WikiSkill，将原始执行经验、累积知识与可执行技能分离，并持续把经验整合到持久知识库中，供后续技能更新复用。该框架使智能体能够根据累积知识迭代优化技能。综合实验表明，这种知识库与技能共同演化机制可有效提升智能体在多轮任务中的持续适应能力。",
-      "llm_tldr": "经验驱动的技能发现常忽略可复用的优化洞见，限制了跨迭代的技能演化。论文提出WikiSkill，将原始执行经验、累积知识与可执行技能分离，并持续把经验整合到持久知识库中，供后续技能更新复用。该框架使智能体能够根据累积知识迭代优化技能。综合实验表明，这种知识库与技能共同演化机制可有效提升智能体在多轮任务中的持续适应能力。",
-      "llm_tags": [
-        "query:gkg"
-      ],
-      "matched_query_tag": "query:gkg",
-      "matched_query_text": "How do self evolving agents improve their performance over time?",
-      "matched_requirement_id": "req-9",
       "selection_source": "fresh_fetch"
     }
   ],
@@ -838,19 +1168,19 @@
         "query:gkg"
       ],
       "llm_score": 8.0,
-      "llm_evidence_en": "Automated GPU compiler fuses memory-intensive subgraphs with compute-intensive kernels",
-      "llm_evidence_cn": "自动化GPU编译系统将内存密集子图与计算密集内核融合优化",
-      "llm_evidence": "自动化GPU编译系统将内存密集子图与计算密集内核融合优化",
-      "canonical_evidence": "自动化GPU编译系统将内存密集子图与计算密集内核融合优化",
-      "llm_tldr_en": "ComFuse is an automated GPU compilation system that fuses memory-intensive subgraphs with compute-intensive kernels so memory-bound operations can overlap with computation, attacking rigid fusion boundaries in DL compilers and improving on-chip data reuse.",
-      "llm_tldr_cn": "针对深度学习编译器中计算密集算子与内存密集算子通常被分开优化、融合边界僵硬而限制片上数据复用的问题，ComFuse提出了一种面向现代GPU架构的自动化融合策略。它识别出下游内存密集子图可与计算密集内核并行执行，从而将访存开销隐藏在计算之下，并通过自动编译系统实现该融合优化，提升跨算子优化能力与整体执行效率。",
-      "llm_tldr": "针对深度学习编译器中计算密集算子与内存密集算子通常被分开优化、融合边界僵硬而限制片上数据复用的问题，ComFuse提出了一种面向现代GPU架构的自动化融合策略。它识别出下游内存密集子图可与计算密集内核并行执行，从而将访存开销隐藏在计算之下，并通过自动编译系统实现该融合优化，提升跨算子优化能力与整体执行效率。",
+      "llm_evidence_en": "Automated GPU compiler fusing memory-intensive subgraphs with compute-intensive kernels to optimize execution",
+      "llm_evidence_cn": "自动化GPU编译融合策略，将内存密集子图与计算密集内核融合以优化执行",
+      "llm_evidence": "自动化GPU编译融合策略，将内存密集子图与计算密集内核融合以优化执行",
+      "canonical_evidence": "自动化GPU编译融合策略，将内存密集子图与计算密集内核融合以优化执行",
+      "llm_tldr_en": "ComFuse is an automated GPU compilation system that fuses complex memory-intensive subgraphs with compute-intensive kernels so memory operations run concurrently with computation, improving on-chip data reuse on modern GPUs.",
+      "llm_tldr_cn": "现代深度学习计算图同时包含计算密集算子与内存密集子图，传统编译器单独优化两类算子，融合边界僵硬且利用不到片上复用。ComFuse观察到下游内存密集操作可与计算密集算子并发执行，从而让访存成本隐藏在计算背后。该系统以新融合策略自动生成GPU执行计划，打破只针对单一算子类别的优化屏障。这种方法能在异构计算图上挖掘隐藏的并发与数据复用，提高GPU编译器的整体性能。",
+      "llm_tldr": "现代深度学习计算图同时包含计算密集算子与内存密集子图，传统编译器单独优化两类算子，融合边界僵硬且利用不到片上复用。ComFuse观察到下游内存密集操作可与计算密集算子并发执行，从而让访存成本隐藏在计算背后。该系统以新融合策略自动生成GPU执行计划，打破只针对单一算子类别的优化屏障。这种方法能在异构计算图上挖掘隐藏的并发与数据复用，提高GPU编译器的整体性能。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
-      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-      "matched_requirement_id": "req-2",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
       "selection_source": "fresh_fetch",
       "quick_tier": "8plus"
     },
@@ -879,13 +1209,13 @@
         "query:gkg"
       ],
       "llm_score": 7.0,
-      "llm_evidence_en": "Explores self-evolving agents' experience-to-skill pipeline, showing persistent skill backdoors inserted through their own learning process",
-      "llm_evidence_cn": "研究自进化智能体的经验到技能转化管线，揭示其自身学习过程可被植入持久技能后门",
-      "llm_evidence": "研究自进化智能体的经验到技能转化管线，揭示其自身学习过程可被植入持久技能后门",
-      "canonical_evidence": "研究自进化智能体的经验到技能转化管线，揭示其自身学习过程可被植入持久技能后门",
-      "llm_tldr_en": "SkillJack reveals that self-evolving agents that convert interaction histories into reusable skills are exposed to persistent backdoors: poisoned experiences can be transformed by the agent itself into durable skill artifacts independent of retrieval time. It establishes the first attack exploiting the experience-to-skill pipeline.",
-      "llm_tldr_cn": "自进化智能体逐步将交互历史转化为可复用技能并在任务间持久保留，但现有记忆与检索投毒攻击仅在污染记录被召回时才生效。SkillJack提出首个针对经验到技能转化管线的攻击，通过操纵智能体自身的学习过程将恶意行为植入其技能库，从而获得不受检索时机影响的持久后门。这项工作揭示自进化机制在技能固化阶段存在新的安全风险，对如何安全设计自进化智能体提出重要警示。",
-      "llm_tldr": "自进化智能体逐步将交互历史转化为可复用技能并在任务间持久保留，但现有记忆与检索投毒攻击仅在污染记录被召回时才生效。SkillJack提出首个针对经验到技能转化管线的攻击，通过操纵智能体自身的学习过程将恶意行为植入其技能库，从而获得不受检索时机影响的持久后门。这项工作揭示自进化机制在技能固化阶段存在新的安全风险，对如何安全设计自进化智能体提出重要警示。",
+      "llm_evidence_en": "First attack on skill persistence in self-evolving agents via poisoned experience-to-skill conversion",
+      "llm_evidence_cn": "针对自进化智能体经验-技能转化管线的持久技能后门攻击",
+      "llm_evidence": "针对自进化智能体经验-技能转化管线的持久技能后门攻击",
+      "canonical_evidence": "针对自进化智能体经验-技能转化管线的持久技能后门攻击",
+      "llm_tldr_en": "SkillJack is the first attack that targets self-evolving agents' experience-to-skill pipeline, converting poisoned interaction histories into persistent skill backdoors rather than just poisoning retrieved context. It identifies three transformation properties including sanitization whitewashing, revealing a durable risk in agent skill learning systems.",
+      "llm_tldr_cn": "自进化智能体常把交互历史转换成可复用的持久技能，给安全带来新隐患。现有记忆与检索投毒只有当恶意记录被取用时才生效，而SkillJack直接劫持经验到技能的转化过程，让恶意行为固化进技能库，形成即使不被检索也长期存在的后门。该工作刻画了包括净化抹白在内的三类转换性质，说明自进化智能体的技能固化管线需要新的防御设计。",
+      "llm_tldr": "自进化智能体常把交互历史转换成可复用的持久技能，给安全带来新隐患。现有记忆与检索投毒只有当恶意记录被取用时才生效，而SkillJack直接劫持经验到技能的转化过程，让恶意行为固化进技能库，形成即使不被检索也长期存在的后门。该工作刻画了包括净化抹白在内的三类转换性质，说明自进化智能体的技能固化管线需要新的防御设计。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -896,83 +1226,43 @@
       "quick_tier": "7"
     },
     {
-      "id": "2608.24275v2",
+      "id": "2608.13759v1",
       "source": "arxiv",
-      "title": "RePolicy: Reinforcement Learning for Safety-Policy Invocation in Agent Safeguards",
-      "abstract": "Safeguarding language model agents requires assessing complete execution trajectories under context-dependent safety policies. Existing policy-aware safeguards mainly rely on prompting or supervised fine-tuning, limiting their ability to adapt to unseen trajectories and changing policy contexts. We propose RePolicy, an agent safeguard that learns safety-policy invocation through reinforcement learning. Given an agent trajectory and a dynamic policy library, RePolicy invokes the applicable policy and uses its content to produce a policy-grounded rationale and safety judgment. We construct PolicyTraj-20K to support supervised initialization, followed by GRPO with verifiable rewards and policy-context perturbation. Experiments across six agent safety benchmarks show that RePolicy achieves strong overall safety-detection performance and robust policy invocation under varying policy contexts.",
+      "title": "GPU Offload in Rust: Portable, Safe, and Fast",
+      "abstract": "High-performance GPU programming has traditionally forced a compromise between execution efficiency and memory safety. While Rust guarantees compile-time memory safety for host CPUs via its strict ownership model, applying these constraints to massively parallel GPU execution environments has previously mandated either vendor-locked Domain-Specific Languages (DSLs) or escaping to explicit unsafe raw pointers. This paper presents a zero-overhead, multi-vendor GPU compilation framework built natively into the Rust compiler (rustc) and LLVM backends.   We leverage Rust's rich type system, ownership system, and strict aliasing guarantees (noalias) to efficiently manage and optimize data transfers through LLVM's Offload infrastructure. We expose the technical challenges of cross-vendor ABI lowering mismatches between Host and Device targets and introduce a two-pass compilation pipeline capable of safely handling both manual and compiler-generated memory movements. Evaluating our framework on RAJAPerf demonstrates that our rustc-based solution can generate competitive LLVM IR for GPU kernels, achieving a solid kernel performance against native, hand-optimized CUDA and HIP C++ baselines.",
       "authors": [
-        "Houcheng Jiang",
-        "Boxuan Zhang",
-        "Qiyong Zhong",
-        "Junfeng Fang",
-        "Xiang Wang",
-        "Xiangnan He"
+        "Manuel S. Drehwald",
+        "Marcelo Domínguez",
+        "Kevin Sala",
+        "Alán Aspuru-Guzik",
+        "Johannes Doerfert"
       ],
-      "primary_category": "cs.AI",
+      "primary_category": "cs.PL",
       "categories": [
-        "cs.AI",
-        "cs.CL"
+        "cs.PL"
       ],
-      "published": "2026-08-25T09:01:33+00:00",
-      "link": "https://arxiv.org/pdf/2608.24275v2",
+      "published": "2026-08-13T20:37:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.13759v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 6.0,
-      "llm_evidence_en": "Learns via reinforcement learning to retrieve and invoke applicable safety policy from a dynamic library when judging agent trajectories, relevant to agent knowledge/policy retrieval for decisions.",
-      "llm_evidence_cn": "用强化学习学习在评估智能体轨迹时从动态策略库中检索并调用合适的策略，属于智能体决策中的外部知识检索与使用过程。",
-      "llm_evidence": "用强化学习学习在评估智能体轨迹时从动态策略库中检索并调用合适的策略，属于智能体决策中的外部知识检索与使用过程。",
-      "canonical_evidence": "用强化学习学习在评估智能体轨迹时从动态策略库中检索并调用合适的策略，属于智能体决策中的外部知识检索与使用过程。",
-      "llm_tldr_en": "RePolicy learns safety-policy invocation via RL for LLM agents; given trajectory and policy library it selects applicable policy to produce grounded safety judgments, improving adaptation to unseen trajectories and dynamic policies.",
-      "llm_tldr_cn": "现有策略感知的智能体安全防护主要靠提示或普通监督微调，无法很好适应未见过的轨迹和动态策略语境。RePolicy将安全策略的调用建模为强化学习任务，在给出一条智能体轨迹和策略库时学习应调用哪一条策略，并用该策略内容产出有依据的安全判定。作者构建PolicyTraj-20K数据集做监督初始化，再用带可验证奖励的GRPO和策略语境扰动强化训练。六个智能体基准上的实验表明，学习式策略调用能提升安全判定对动态场景和未见轨迹的适应性。",
-      "llm_tldr": "现有策略感知的智能体安全防护主要靠提示或普通监督微调，无法很好适应未见过的轨迹和动态策略语境。RePolicy将安全策略的调用建模为强化学习任务，在给出一条智能体轨迹和策略库时学习应调用哪一条策略，并用该策略内容产出有依据的安全判定。作者构建PolicyTraj-20K数据集做监督初始化，再用带可验证奖励的GRPO和策略语境扰动强化训练。六个智能体基准上的实验表明，学习式策略调用能提升安全判定对动态场景和未见轨迹的适应性。",
+      "llm_evidence_en": "Presents a compiler-native GPU offload/code-generation framework in Rust/LLVM aiming at fast, safe, cross-vendor GPU code generation and optimized data transfers",
+      "llm_evidence_cn": "在Rust/LLVM中构建GPU卸载/代码生成框架，以零开销、多厂商代码生成和优化数据传输为目标",
+      "llm_evidence": "在Rust/LLVM中构建GPU卸载/代码生成框架，以零开销、多厂商代码生成和优化数据传输为目标",
+      "canonical_evidence": "在Rust/LLVM中构建GPU卸载/代码生成框架，以零开销、多厂商代码生成和优化数据传输为目标",
+      "llm_tldr_en": "High-performance GPU programming often forces a trade-off between speed and memory safety. This work builds a zero-overhead multi-vendor GPU offload framework inside rustc/LLVM, leveraging Rust ownership and noalias to optimize data transfers while generating safe, portable GPU code without unsafe pointers or vendor DSLs.",
+      "llm_tldr_cn": "传统GPU编程往往在性能与内存安全之间取舍，常被迫使用厂商绑定的DSL或显式不安全指针。该文提出原生嵌入rustc与LLVM后端的零开销GPU卸载编译框架，借助Rust所有权系统和noalias严格别名保证来优化LLVM Offload的数据传输与GPU代码生成。该方法可跨厂商生成安全、快速、可移植的GPU代码，为高性能且安全的GPU卸载提供通用编译支持。",
+      "llm_tldr": "传统GPU编程往往在性能与内存安全之间取舍，常被迫使用厂商绑定的DSL或显式不安全指针。该文提出原生嵌入rustc与LLVM后端的零开销GPU卸载编译框架，借助Rust所有权系统和noalias严格别名保证来优化LLVM Offload的数据传输与GPU代码生成。该方法可跨厂商生成安全、快速、可移植的GPU代码，为高性能且安全的GPU卸载提供通用编译支持。",
       "llm_tags": [
         "query:gkg"
       ],
       "matched_query_tag": "query:gkg",
-      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
-      "matched_requirement_id": "req-4",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
       "selection_source": "fresh_fetch",
       "quick_tier": "6"
-    },
-    {
-      "id": "2608.06128v3",
-      "source": "arxiv",
-      "title": "Contextual Information Policy Optimization for Search Agents",
-      "abstract": "Search agents extend large language models beyond static parametric memory by enabling them to acquire and use external evidence during multi-step reasoning. For knowledge-intensive tasks involving complex or evolving information, their reliability depends not only on retrieving relevant evidence but also on using it to guide subsequent reasoning. However, existing methods primarily reward final-answer correctness or intermediate progress, without directly assessing whether post-retrieval actions are grounded in the retrieved evidence. This misalignment encourages prior-driven reasoning: agents form conclusions based on internal knowledge and use retrieval mainly to confirm them, resulting in confirmation bias and inefficient evidence use. To address this issue, we propose Contextual Information Policy Optimization (CIPO), an evidence-oriented reinforcement learning framework that explicitly aligns policy optimization with external evidence use. CIPO assigns dense, turn-level credit to reasoning actions influenced by retrieved information, while combining this evidence-use signal with a global outcome reward to preserve answer correctness. With this manner, CIPO discourages evidence-detached guesses and promotes reasoning trajectories in which retrieved facts can guide or revise subsequent reasoning. Importantly, CIPO requires neither human process annotations nor an additional reward model. Extensive experiments on seven in-domain and out-of-domain benchmarks show that CIPO reduces the prevalence of prior-driven reasoning and achieves excellent performance on most tasks.",
-      "authors": [
-        "Xingyu Guo",
-        "Wei Chen",
-        "Linlin Yang",
-        "Baochang Zhang"
-      ],
-      "primary_category": "cs.AI",
-      "categories": [
-        "cs.AI"
-      ],
-      "published": "2026-08-06T15:01:29+00:00",
-      "link": "https://arxiv.org/pdf/2608.06128v3",
-      "tags": [
-        "keyword:gkg",
-        "query:gkg"
-      ],
-      "llm_score": 8.0,
-      "llm_evidence_en": "retrieval-grounded policy optimization ensures evidence guides multi-step decisions",
-      "llm_evidence_cn": "直接评估检索后动作是否受证据支撑，以减少先验驱动决策",
-      "llm_evidence": "直接评估检索后动作是否受证据支撑，以减少先验驱动决策",
-      "canonical_evidence": "直接评估检索后动作是否受证据支撑，以减少先验驱动决策",
-      "llm_tldr_en": "Contextual Information Policy Optimization trains search agents so post-retrieval decisions are grounded in retrieved evidence rather than confirming prior knowledge, reducing confirmation bias and improving evidence use in multi-step reasoning.",
-      "llm_tldr_cn": "搜索智能体虽能检索外部证据，但现有奖励常只关心最终答案，导致智能体用检索结果确认既有判断、出现确认偏差。论文提出上下文信息策略优化，直接评估检索后动作是否被检索证据所支撑，使推理真正基于外部证据。该方法缓解先验驱动推理，提高多步检索与推理任务中的证据利用效率。它为知识密集型智能体的可靠决策提供了更合适的训练目标。",
-      "llm_tldr": "搜索智能体虽能检索外部证据，但现有奖励常只关心最终答案，导致智能体用检索结果确认既有判断、出现确认偏差。论文提出上下文信息策略优化，直接评估检索后动作是否被检索证据所支撑，使推理真正基于外部证据。该方法缓解先验驱动推理，提高多步检索与推理任务中的证据利用效率。它为知识密集型智能体的可靠决策提供了更合适的训练目标。",
-      "llm_tags": [
-        "query:gkg"
-      ],
-      "matched_query_tag": "query:gkg",
-      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
-      "matched_requirement_id": "req-4",
-      "selection_source": "fresh_fetch",
-      "quick_tier": "8plus"
     },
     {
       "id": "2608.11654v1",
@@ -992,14 +1282,14 @@
         "keyword:gkg",
         "query:gkg"
       ],
-      "llm_score": 7.0,
-      "llm_evidence_en": "formal account of agent memory as a basis with span, answerability, and optimality",
-      "llm_evidence_cn": "将智能体记忆形式化为基、张成与覆盖，刻画最优记忆",
-      "llm_evidence": "将智能体记忆形式化为基、张成与覆盖，刻画最优记忆",
-      "canonical_evidence": "将智能体记忆形式化为基、张成与覆盖，刻画最优记忆",
-      "llm_tldr_en": "Proposes a formal view of agent memory as a basis whose span produces knowledge, with query answerability as coverage; optimal memory maximizes expected coverage under capacity constraints, yielding a utility-capacity frontier and a sequential memory problem.",
-      "llm_tldr_cn": "大模型智能体虽广泛使用记忆，却缺乏关于记忆由什么构成以及何时最优的统一形式化描述。论文提出把记忆看作基、知识看作基的张成、可回答性看作覆盖问题，以容量约束下期望覆盖最大化定义最优记忆，并用效用-容量前沿比较系统。随后讨论噪声记忆的影响及顺序记忆问题。该框架为智能体记忆的设计、比较和优化提供了统一的理论标尺，有助于后续记忆机制研究。",
-      "llm_tldr": "大模型智能体虽广泛使用记忆，却缺乏关于记忆由什么构成以及何时最优的统一形式化描述。论文提出把记忆看作基、知识看作基的张成、可回答性看作覆盖问题，以容量约束下期望覆盖最大化定义最优记忆，并用效用-容量前沿比较系统。随后讨论噪声记忆的影响及顺序记忆问题。该框架为智能体记忆的设计、比较和优化提供了统一的理论标尺，有助于后续记忆机制研究。",
+      "llm_score": 8.0,
+      "llm_evidence_en": "Defines agent memory as a basis whose span gives knowledge and answerability, aiming at optimal memory systems",
+      "llm_evidence_cn": "从数学上形式化智能体记忆的定义、知识跨度与最优存储",
+      "llm_evidence": "从数学上形式化智能体记忆的定义、知识跨度与最优存储",
+      "canonical_evidence": "从数学上形式化智能体记忆的定义、知识跨度与最优存储",
+      "llm_tldr_en": "This paper formalizes agent memory as a basis, knowledge as its span, and answerability as a coverage problem; optimal memory maximizes expected answer coverage under capacity constraints, yielding a utility-capacity frontier for comparing systems.",
+      "llm_tldr_cn": "尽管大模型智能体普遍部署了记忆，人们仍缺少统一的形式化语言解释记忆是什么以及何时最优。该文提出把记忆看作基，知识看作基所张成的空间，可回答性看作覆盖问题：智能体存储从素材中抽取的事件，生成算子把事件集转化为知识，当某个跨度项覆盖查询时才可回答。最优记忆被定义为容量受限下期望覆盖最大者，并在效用-容量前沿上获得可比较的标尺。该理论框架为智能体记忆的表示与容量优化奠定了公共基础。",
+      "llm_tldr": "尽管大模型智能体普遍部署了记忆，人们仍缺少统一的形式化语言解释记忆是什么以及何时最优。该文提出把记忆看作基，知识看作基所张成的空间，可回答性看作覆盖问题：智能体存储从素材中抽取的事件，生成算子把事件集转化为知识，当某个跨度项覆盖查询时才可回答。最优记忆被定义为容量受限下期望覆盖最大者，并在效用-容量前沿上获得可比较的标尺。该理论框架为智能体记忆的表示与容量优化奠定了公共基础。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -1007,37 +1297,48 @@
       "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
       "matched_requirement_id": "req-3",
       "selection_source": "fresh_fetch",
-      "quick_tier": "7"
+      "quick_tier": "8plus"
     },
     {
-      "id": "2608.09160v1",
+      "id": "2608.19628v1",
       "source": "arxiv",
-      "title": "SwiftQK: Fast and Communication-Efficient Tensor Parallelism for Query-Key Normalization",
-      "abstract": "Query-Key Normalization (QK-Norm) improves the training stability and quality of modern Large Language Models (LLMs). However, under Tensor Parallelism (TP), layerwise QK-Norm introduces additional cross-GPU communication because the normalization factor depends on the full hidden vector. We present SwiftQK, a multi-GPU RMSNorm kernel that exchanges only scalar normalization statistics and overlaps the remaining Peer-to-Peer reduction with independent element-wise computation in a deadlock-safe persistent kernel. Evaluations on recent LLMs show that SwiftQK reduces QK-Norm latency by 81.4--93.9% relative to the standard TP QK-Norm using full-vector All-Gather. In end-to-end serving, SwiftQK reduces TPOT on average by 29.5% over the All-Gather-based baseline and by 14.3% over an optimized scalar-aggregation implementation.",
+      "title": "A Thread-Register Decoupled GPU Execution Model for Efficient Tensor Computation",
+      "abstract": "Modern GPUs increasingly integrate Tensor Cores into the execution pipeline. Although aggregate tensor throughput continues to grow, aided by an operand supply that has evolved from register-based in Ampere to redundancy-free, memory-based in Hopper and Blackwell, efficiently orchestrating the complete tensor compute pipeline for the modern AI workloads remains challenging. We identify the fundamental bottlenecks as fixed parallelism and coarse-grained scheduling, both of which are exposed by modern AI workloads that interleave diverse non-GEMM operations with GEMM. To orchestrate tensor computation efficiently, we propose FIBER, a new architecture that extends the GPU SIMT (single instruction, multiple thread) model. Its basic execution instance, the \\emph{fiber}, is decoupled from private register ownership, carrying only minimal control state while accessing an SM's registers through a shared view. This enables dynamic parallelism scaling, fine-grained register-level dataflow scheduling, and offers a redundancy-free alternative for matrix operand supply. We extend the ISA, microarchitecture, and compiler to realize shared-register addressing, conflict-free operand delivery, and fiber-based program mapping. Under a typical mixed-precision LLM serving scenario, FIBER achieves a 2.25x end-to-end speedup on Ampere (1.15x for the original FP16 computation), with 1.8x and 2.09x on Hopper and Blackwell respectively, and kernel-level gains up to 2.49x.",
       "authors": [
-        "Gyudong Kim",
-        "Wonjun Han",
-        "Young Geun Kim"
+        "Zihan Liu",
+        "Jingwen Leng",
+        "Yangjie Zhou",
+        "Yitong Ding",
+        "Guanlin Zhu",
+        "Yilu Huang",
+        "Chiheng Jin",
+        "Chen Zhang",
+        "Shixuan Sun",
+        "Yu Feng",
+        "Anbang Wu",
+        "Minyi Guo",
+        "Jian Weng",
+        "Jiajin Tu",
+        "Junsong Wang"
       ],
-      "primary_category": "cs.LG",
+      "primary_category": "cs.AR",
       "categories": [
-        "cs.LG",
-        "cs.DC"
+        "cs.AR"
       ],
-      "published": "2026-08-10T06:16:24+00:00",
-      "link": "https://arxiv.org/pdf/2608.09160v1",
+      "published": "2026-08-20T04:35:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.19628v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
-      "llm_score": 8.0,
-      "llm_evidence_en": "Presents a multi-GPU RMSNorm kernel that reduces QK-Norm communication, directly targeting GPU kernel execution performance optimization.",
-      "llm_evidence_cn": "提出多GPU RMSNorm内核，减少QK-Norm跨GPU通信，直接指向GPU内核执行性能优化。",
-      "llm_evidence": "提出多GPU RMSNorm内核，减少QK-Norm跨GPU通信，直接指向GPU内核执行性能优化。",
-      "canonical_evidence": "提出多GPU RMSNorm内核，减少QK-Norm跨GPU通信，直接指向GPU内核执行性能优化。",
-      "llm_tldr_en": "Presents SwiftQK, a multi-GPU RMSNorm kernel that exchanges only scalar normalization statistics and overlaps peer-to-peer reduction with compute, cutting QK-Norm latency by 81.4-93.9%.",
-      "llm_tldr_cn": "现有张量并行模式下查询-键归一化因为归一化因子依赖完整隐藏向量而引入额外跨GPU通信，降低大模型训练和推理效率。作者提出多GPU RMSNorm内核SwiftQK，仅交换标量归一化统计量，并将剩余的点对点归约与逐元素计算重叠，使用无死锁持久内核。相比标准全向量All-Gather方案，SwiftQK在大模型上使QK-Norm延迟降低81.4%到93.9%，端到端服务平均TPOT降低29.5%。该工作展示了一种面向GPU算子的通信优化内核设计方法。",
-      "llm_tldr": "现有张量并行模式下查询-键归一化因为归一化因子依赖完整隐藏向量而引入额外跨GPU通信，降低大模型训练和推理效率。作者提出多GPU RMSNorm内核SwiftQK，仅交换标量归一化统计量，并将剩余的点对点归约与逐元素计算重叠，使用无死锁持久内核。相比标准全向量All-Gather方案，SwiftQK在大模型上使QK-Norm延迟降低81.4%到93.9%，端到端服务平均TPOT降低29.5%。该工作展示了一种面向GPU算子的通信优化内核设计方法。",
+      "llm_score": 7.0,
+      "llm_evidence_en": "GPU architectural scheme to improve tensor compute pipeline scheduling and execution efficiency",
+      "llm_evidence_cn": "面向GPU张量计算流水线的执行模型优化，解决固定并行与粗粒度调度瓶颈",
+      "llm_evidence": "面向GPU张量计算流水线的执行模型优化，解决固定并行与粗粒度调度瓶颈",
+      "canonical_evidence": "面向GPU张量计算流水线的执行模型优化，解决固定并行与粗粒度调度瓶颈",
+      "llm_tldr_en": "FIBER addresses bottlenecks in modern GPU Tensor pipelines caused by fixed parallelism and coarse-grained scheduling, extending the SIMT model with thread-register decoupled execution instances to efficiently orchestrate workloads that interleave GEMM with non-GEMM operations.",
+      "llm_tldr_cn": "现代AI负载常把GEMM与多种非GEMM算子交织执行，而GPU张量流水线受固定并行度和粗粒度调度限制难以高效组织。FIBER提出一种线程-寄存器解耦的GPU执行模型，引入更细粒度的基本执行实例来扩展SIMT。这样能够让调度灵活适应不同计算形态，提升张量核和通用计算资源的整体利用。它为面向张量计算的GPU体系结构改善提供了新方向。",
+      "llm_tldr": "现代AI负载常把GEMM与多种非GEMM算子交织执行，而GPU张量流水线受固定并行度和粗粒度调度限制难以高效组织。FIBER提出一种线程-寄存器解耦的GPU执行模型，引入更细粒度的基本执行实例来扩展SIMT。这样能够让调度灵活适应不同计算形态，提升张量核和通用计算资源的整体利用。它为面向张量计算的GPU体系结构改善提供了新方向。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -1045,7 +1346,7 @@
       "matched_query_text": "techniques for optimizing GPU kernel execution performance",
       "matched_requirement_id": "req-2",
       "selection_source": "fresh_fetch",
-      "quick_tier": "8plus"
+      "quick_tier": "7"
     },
     {
       "id": "2608.13122v1",
@@ -1070,14 +1371,14 @@
         "keyword:gkg",
         "query:gkg"
       ],
-      "llm_score": 7.0,
-      "llm_evidence_en": "validation-centric AI-assisted GPU porting that uses LLM-based agents to generate code for a 250k-line legacy application",
-      "llm_evidence_cn": "以LLM驱动的AI智能体生成并改造大段遗留Fortran代码以完成GPU移植，属于LLM用于生成源代码的场景",
-      "llm_evidence": "以LLM驱动的AI智能体生成并改造大段遗留Fortran代码以完成GPU移植，属于LLM用于生成源代码的场景",
-      "canonical_evidence": "以LLM驱动的AI智能体生成并改造大段遗留Fortran代码以完成GPU移植，属于LLM用于生成源代码的场景",
-      "llm_tldr_en": "A validation-centric workflow where LLM-based CLI agents assist GPU porting of a 250k-line Fortran weather simulation while preserving scientific validity; validated on the CReSS code.",
-      "llm_tldr_cn": "大型遗留科学应用的GPU移植可借助LLM CLI智能体加速，但必须保持科学计算的可靠性。该文提出以验证为中心的AI辅助GPU移植工作流，并在超过25万行的Fortran天气模拟代码CReSS上实践。工作流让AI智能体提取OpenMP区域、生成转储代码并自动调整实现，通过持续对比验证保证科学结果不被破坏。案例表明该方法能加速大型遗留代码的GPU化，为兼顾正确性的AI辅助代码迁移提供了范式。",
-      "llm_tldr": "大型遗留科学应用的GPU移植可借助LLM CLI智能体加速，但必须保持科学计算的可靠性。该文提出以验证为中心的AI辅助GPU移植工作流，并在超过25万行的Fortran天气模拟代码CReSS上实践。工作流让AI智能体提取OpenMP区域、生成转储代码并自动调整实现，通过持续对比验证保证科学结果不被破坏。案例表明该方法能加速大型遗留代码的GPU化，为兼顾正确性的AI辅助代码迁移提供了范式。",
+      "llm_score": 8.0,
+      "llm_evidence_en": "Uses an LLM-based CLI agent to automate GPU porting of a large legacy Fortran weather code, generating GPU source code while preserving scientific validity.",
+      "llm_evidence_cn": "使用基于大语言模型的CLI智能体辅助将超25万行Fortran天气模拟代码移植到GPU并生成对应源码。",
+      "llm_evidence": "使用基于大语言模型的CLI智能体辅助将超25万行Fortran天气模拟代码移植到GPU并生成对应源码。",
+      "canonical_evidence": "使用基于大语言模型的CLI智能体辅助将超25万行Fortran天气模拟代码移植到GPU并生成对应源码。",
+      "llm_tldr_en": "This paper presents a validation-centric AI-assisted GPU porting workflow for CReSS, a 250k+ line Fortran weather code. An LLM-based agent extracts OpenMP regions and generates GPU-targeted source code, while the process emphasizes preserving the scientific credibility of the legacy simulation when adapting it to GPU-centric HPC systems.",
+      "llm_tldr_cn": "大规模遗留科学代码在GPU移植过程中既要适配新型HPC架构，又不能破坏长期积累的科学可信度。针对超过25万行的Fortran天气模拟代码CReSS，作者提出以验证为中心的AI辅助GPU移植工作流，由基于大语言模型的智能体抽取OpenMP区域并生成GPU源码，同时用严格验证保护算法语义。该工作表明LLM智能体可以加速传统科学代码的GPU化，但必须将正确性与科学有效性置于首位。",
+      "llm_tldr": "大规模遗留科学代码在GPU移植过程中既要适配新型HPC架构，又不能破坏长期积累的科学可信度。针对超过25万行的Fortran天气模拟代码CReSS，作者提出以验证为中心的AI辅助GPU移植工作流，由基于大语言模型的智能体抽取OpenMP区域并生成GPU源码，同时用严格验证保护算法语义。该工作表明LLM智能体可以加速传统科学代码的GPU化，但必须将正确性与科学有效性置于首位。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -1085,125 +1386,53 @@
       "matched_query_text": "using large language models to produce source code",
       "matched_requirement_id": "req-1",
       "selection_source": "fresh_fetch",
-      "quick_tier": "7"
-    },
-    {
-      "id": "2608.10676v1",
-      "source": "arxiv",
-      "title": "Self-Correcting Long-Horizon Search Agents via Tree-Structured Memory",
-      "abstract": "Large language model (LLM)-based search agents answer questions through multi-step interactions with external environments. However, providing complete execution trajectories to the LLM causes unbounded context growth and introduces noise. Existing compression methods reduce context at the cost of important details and often replace erroneous facts without repairing downstream reasoning derived from them. To address this problem, we propose ReTree, a self-correcting tree-structured memory mechanism for search agents. ReTree constructs a bounded per-step reasoning context while preserving source-linked evidence. It models search as an evidence tree whose nodes store bounded summaries, evidence, and revision histories. When newly retrieved evidence contradicts an earlier claim, ReTree traces back to the node where the claim was introduced, replaces outdated evidence, regenerates summaries, prunes affected branches, and resumes search. Source-grounded evidence provenance supports reliable conflict localization and keeps final claims traceable to retrieved passages. Experiments on four public question-answering and search benchmarks show that ReTree consistently outperforms Full-Trajectory ReAct, improving answer accuracy by up to 25.6 percentage points (pp); the average maximum per-step reasoning context of Full-Trajectory ReAct is $1.27$--$1.51\\times$ that of ReTree. These results establish ReTree as an effective self-correcting memory abstraction for long-horizon search.",
-      "authors": [
-        "Aijun Yang",
-        "Qianxue Guo",
-        "Ziyi Huang",
-        "Yuxuan Chen",
-        "Shiyou Qian",
-        "Jian Cao"
-      ],
-      "primary_category": "cs.AI",
-      "categories": [
-        "cs.AI"
-      ],
-      "published": "2026-08-11T08:56:42+00:00",
-      "link": "https://arxiv.org/pdf/2608.10676v1",
-      "tags": [
-        "keyword:gkg",
-        "query:gkg"
-      ],
-      "llm_score": 8.0,
-      "llm_evidence_en": "Tree-structured memory for LLM search agents enables storing source-linked evidence and bounded summaries, retrieving them while supporting revision.",
-      "llm_evidence_cn": "为智能体设计树状结构化记忆，存储来源证据和有界摘要，支持检索、更新与自我纠正",
-      "llm_evidence": "为智能体设计树状结构化记忆，存储来源证据和有界摘要，支持检索、更新与自我纠正",
-      "canonical_evidence": "为智能体设计树状结构化记忆，存储来源证据和有界摘要，支持检索、更新与自我纠正",
-      "llm_tldr_en": "Proposes ReTree, a self-correcting tree-structured memory for large language model search agents that stores bounded summaries, source-linked evidence, and revision histories, enabling controlled context and repair of downstream reasoning.",
-      "llm_tldr_cn": "长程搜索中，完整执行轨迹会造成上下文无限增长与噪声，简单压缩又会丢失证据细节且难以修复错误推理。为此本文提出ReTree自纠正树状记忆机制：把搜索历程组织为证据树，节点内含受限摘要、来源证据和修订记录，新证据出现时仅更新相关推理链。实验表明ReTree能减少上下文开销并在证据矛盾时修正下游判断，证明这种结构对提升智能体记忆可靠性和自主决策能力有重要作用。",
-      "llm_tldr": "长程搜索中，完整执行轨迹会造成上下文无限增长与噪声，简单压缩又会丢失证据细节且难以修复错误推理。为此本文提出ReTree自纠正树状记忆机制：把搜索历程组织为证据树，节点内含受限摘要、来源证据和修订记录，新证据出现时仅更新相关推理链。实验表明ReTree能减少上下文开销并在证据矛盾时修正下游判断，证明这种结构对提升智能体记忆可靠性和自主决策能力有重要作用。",
-      "llm_tags": [
-        "query:gkg"
-      ],
-      "matched_query_tag": "query:gkg",
-      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-      "matched_requirement_id": "req-3",
-      "selection_source": "fresh_fetch",
       "quick_tier": "8plus"
     },
     {
-      "id": "2608.31057v1",
-      "source": "arxiv",
-      "title": "Measure Before You Manage: Evaluating Agent Working Memory in Coding Agents",
-      "abstract": "Agent working memory is heterogeneous. Objects such as instructions, artifacts, tool outputs, and agent-generated state play different semantic roles and exhibit different size, retention, and representation profiles. Recent work has begun to explore memory-management mechanisms that account for such heterogeneity. This work focuses on semantic heterogeneity and studies how it should shape the management and evaluation of working memory in coding agents. Across 55 archived coding-agent trajectories, we find that semantically different working-memory objects exhibit distinct retention and compression behavior. This heterogeneity motivates semantically informed memory management. We study two semantically informed strategies: an object-aware compression policy and a retrieval-based policy. Their evaluation shows that calibration gains may not transfer to held-out tasks, and that equal token budgets do not imply equal delivered context or management cost. A real-system replay further exposes serving limits that nominal budgets alone do not capture. Together, these results show why semantic structure matters for agent working memory and why evaluating memory-management strategies requires more than a nominal token budget. We organize these lessons into four levels: stored state, delivered context, management work, and task or process outcome.",
+      "id": "biorxiv-10-64898-2026-08-16-745117-v1",
+      "source": "biorxiv",
+      "title": "An AI System for Autonomous Algorithm Evolution in Drug Development",
+      "abstract": "Artificial intelligence (AI) is increasingly permeating the drug development pipeline. Numerous algorithms for accelerating this multi-stage and multi-task process have been constructed, which depends heavily on expert design and labor-intensive task-specific optimization. Given that AI-driven acceleration of drug development is recognized as a cumulative, often synergistic, effect across multiple stages, the autonomous evolution of existing algorithms across the entire pipeline is demanded to achieve a holistic advancement. Here, we present DrugEvolve, a multi-role large language model system for systematic and autonomous algorithm evolution in drug development. DrugEvolve realizes a closed-loop evolution process by incorporating Researcher, Engineer, and Analyst domains, and enables an iterative design, implementation, evaluation, and refinement of algorithm by leveraging scientific knowledge and accumulated evolutionary experience. Across eleven representative tasks spanning target identification, drug discovery, preclinical study, and clinical trial, DrugEvolve autonomously evolved the corresponding task-specific algorithms and achieved substantial performance enhancement on 120 benchmark test sets. Moreover, it showed robust generalizabilities across heterogeneous data modalities (ranging from biological sequence and graph to molecular topology and textual language), and realized gains in both predictive and generative tasks. Collectively, this AI system can serve not only as an algorithmic infrastructure for drug development, but also as a transferable paradigm for broader scientific domains.",
       "authors": [
-        "Le Chen",
-        "Zishen Wan",
-        "Baixi Sun",
-        "Xiaolong Ma",
-        "Chih-Hsuan Yang",
-        "Feng Yan",
-        "Sheng Di",
-        "Franck Cappello",
-        "Rajeev Thakur"
+        "Zhou, Z.",
+        "Nan, Y.",
+        "Mou, M.",
+        "Qian, Y.",
+        "Liu, Y.",
+        "Zuo, Z.",
+        "Yang, H.",
+        "Xu, W.",
+        "Li, B.",
+        "Jiang, W.",
+        "Ren, Y.",
+        "Liao, Y.",
+        "Wang, Y.",
+        "Li, Y.",
+        "Yang, Q.",
+        "Xi, Z.",
+        "Mi, T.",
+        "Sun, H.",
+        "Liu, P.",
+        "Zhu, F."
       ],
-      "primary_category": "cs.AI",
+      "primary_category": "pharmacology and toxicology",
       "categories": [
-        "cs.AI"
+        "pharmacology and toxicology"
       ],
-      "published": "2026-08-31T16:34:51+00:00",
-      "link": "https://arxiv.org/pdf/2608.31057v1",
+      "published": "2026-08-20T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.08.16.745117v1.full.pdf",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 7.0,
-      "llm_evidence_en": "Analyzes and manages agent working memory objects for coding agents, addressing storage, retention, and compression heterogeneity",
-      "llm_evidence_cn": "面向编码智能体分析并管理工作记忆对象，处理保留与压缩的语义异质性",
-      "llm_evidence": "面向编码智能体分析并管理工作记忆对象，处理保留与压缩的语义异质性",
-      "canonical_evidence": "面向编码智能体分析并管理工作记忆对象，处理保留与压缩的语义异质性",
-      "llm_tldr_en": "Analyzing 55 archived coding-agent trajectories, this paper shows that semantically distinct working-memory objects differ in retention and compression behavior, motivating object-aware compression and semantic memory management for coding agents.",
-      "llm_tldr_cn": "编码智能体工作记忆里的指令、产物、工具输出与智能体生成状态等对象具有不同的语义角色与保留特征。该文分析55条存档的编码智能体轨迹，发现语义不同的工作记忆对象在保留和压缩行为上呈现明显差异。对此提出对象感知压缩等语义感知记忆管理策略，依据对象类别决定压缩与保留方式。结果表明按语义角色差异化管理工作记忆比统一处理更适合编码智能体。",
-      "llm_tldr": "编码智能体工作记忆里的指令、产物、工具输出与智能体生成状态等对象具有不同的语义角色与保留特征。该文分析55条存档的编码智能体轨迹，发现语义不同的工作记忆对象在保留和压缩行为上呈现明显差异。对此提出对象感知压缩等语义感知记忆管理策略，依据对象类别决定压缩与保留方式。结果表明按语义角色差异化管理工作记忆比统一处理更适合编码智能体。",
-      "llm_tags": [
-        "query:gkg"
-      ],
-      "matched_query_tag": "query:gkg",
-      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-      "matched_requirement_id": "req-3",
-      "selection_source": "fresh_fetch",
-      "quick_tier": "7"
-    },
-    {
-      "id": "2608.11350v1",
-      "source": "arxiv",
-      "title": "Self-Evolving Embodied Agents via Skill-Harness Evolution",
-      "abstract": "Embodied agents are increasingly built as systems around foundation models, where performance depends not only on model weights but also on the skills, context, action interfaces, and execution harness surrounding the model. While supervised fine-tuning and reinforcement learning can adapt agents to new environments, they require additional data, rewards, and training runs; meanwhile, many train-free code-centric approaches rely on programmable robot APIs that may be unavailable in fixed-interface settings. We propose SHAPER, a self-evolving framework for train-free embodied adaptation that keeps model parameters frozen and improves the non-parametric agent system by evolving reusable skills and a context-code harness through target-environment rollouts. In SHAPER, the same frozen model can serve as both planner and optimizer, refining its external skills and context-code harness without parameter updates. We evaluate SHAPER on VLABench and ESI-Bench, covering embodied agents with different low-level action interfaces, and compare against pure execution, supervised fine-tuning, and test-time-scaling baselines such as verifier-free selection and voting. Our results suggest that skill-and-harness optimization is a practical route to self-evolving embodied agents when model training is expensive, unavailable, or undesirable.",
-      "authors": [
-        "Peidong Wang",
-        "Zhiming Ma",
-        "Ying Chang",
-        "Xufang Luo",
-        "Xiaocui Yang",
-        "Shi Feng",
-        "Yuqing Yang",
-        "Dongsheng Li"
-      ],
-      "primary_category": "cs.CL",
-      "categories": [
-        "cs.CL",
-        "cs.RO"
-      ],
-      "published": "2026-08-11T18:55:58+00:00",
-      "link": "https://arxiv.org/pdf/2608.11350v1",
-      "tags": [
-        "keyword:gkg",
-        "query:gkg"
-      ],
-      "llm_score": 8.0,
-      "llm_evidence_en": "Self-evolving embodied agent framework improves a frozen-parameter agent system through environment rollouts without human intervention.",
-      "llm_evidence_cn": "通过环境试错演化技能与上下文代码执行框架，实现免人类干预的智能体自进化。",
-      "llm_evidence": "通过环境试错演化技能与上下文代码执行框架，实现免人类干预的智能体自进化。",
-      "canonical_evidence": "通过环境试错演化技能与上下文代码执行框架，实现免人类干预的智能体自进化。",
-      "llm_tldr_en": "SHAPER evolves reusable skills and a context-code harness in a frozen-parameter embodied agent through target-environment rollouts, enabling train-free adaptation in fixed-interface settings without additional data, rewards, or fine-tuning.",
-      "llm_tldr_cn": "具身智能体适应环境时通常依赖额外训练数据、奖励或可编程接口，在固定接口场景下难以无训练部署。SHAPER提出免训练的自进化框架，冻结模型权重，通过目标环境试错不断演化可复用技能与上下文代码执行环节，从而改进非参数化智能体系统。结果表明该方法无需人类干预即可适应新环境。这为不更新权重的智能体提供了一条代码中心的持续自演进路径。",
-      "llm_tldr": "具身智能体适应环境时通常依赖额外训练数据、奖励或可编程接口，在固定接口场景下难以无训练部署。SHAPER提出免训练的自进化框架，冻结模型权重，通过目标环境试错不断演化可复用技能与上下文代码执行环节，从而改进非参数化智能体系统。结果表明该方法无需人类干预即可适应新环境。这为不更新权重的智能体提供了一条代码中心的持续自演进路径。",
+      "llm_evidence_en": "multi-role LLM system for autonomous closed-loop algorithm evolution without human intervention",
+      "llm_evidence_cn": "面向药物算法的多角色大模型自主闭环进化系统，无需人工干预",
+      "llm_evidence": "面向药物算法的多角色大模型自主闭环进化系统，无需人工干预",
+      "canonical_evidence": "面向药物算法的多角色大模型自主闭环进化系统，无需人工干预",
+      "llm_tldr_en": "DrugEvolve is a multi-role LLM system for autonomous closed-loop evolution of algorithms across the drug development pipeline, organizing researcher and engineer roles to iteratively improve algorithms without manual task-specific optimization.",
+      "llm_tldr_cn": "药物开发中大量算法仍依赖专家设计与繁重的人工调优，难以实现全流程的整体演进。作者提出DrugEvolve，一个多角色大语言模型系统，通过组织研究员、工程师等角色形成闭环进化过程，自动迭代优化药物开发各阶段的算法。该系统有潜力降低任务定制成本，并推动多阶段算法协同演进，为自主算法进化提供新范式。",
+      "llm_tldr": "药物开发中大量算法仍依赖专家设计与繁重的人工调优，难以实现全流程的整体演进。作者提出DrugEvolve，一个多角色大语言模型系统，通过组织研究员、工程师等角色形成闭环进化过程，自动迭代优化药物开发各阶段的算法。该系统有潜力降低任务定制成本，并推动多阶段算法协同演进，为自主算法进化提供新范式。",
       "llm_tags": [
         "query:gkg"
       ],
@@ -1211,38 +1440,154 @@
       "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
       "matched_requirement_id": "req-5",
       "selection_source": "fresh_fetch",
-      "quick_tier": "8plus"
+      "quick_tier": "7"
     },
     {
-      "id": "2608.13759v1",
+      "id": "2608.15191v1",
       "source": "arxiv",
-      "title": "GPU Offload in Rust: Portable, Safe, and Fast",
-      "abstract": "High-performance GPU programming has traditionally forced a compromise between execution efficiency and memory safety. While Rust guarantees compile-time memory safety for host CPUs via its strict ownership model, applying these constraints to massively parallel GPU execution environments has previously mandated either vendor-locked Domain-Specific Languages (DSLs) or escaping to explicit unsafe raw pointers. This paper presents a zero-overhead, multi-vendor GPU compilation framework built natively into the Rust compiler (rustc) and LLVM backends.   We leverage Rust's rich type system, ownership system, and strict aliasing guarantees (noalias) to efficiently manage and optimize data transfers through LLVM's Offload infrastructure. We expose the technical challenges of cross-vendor ABI lowering mismatches between Host and Device targets and introduce a two-pass compilation pipeline capable of safely handling both manual and compiler-generated memory movements. Evaluating our framework on RAJAPerf demonstrates that our rustc-based solution can generate competitive LLVM IR for GPU kernels, achieving a solid kernel performance against native, hand-optimized CUDA and HIP C++ baselines.",
+      "title": "When Deep Research Agents Stagnate: Enhancing Reasoning with Retrieval-Aware Agent Control",
+      "abstract": "In this paper, we analyze the reasoning trajectories of a variety of DRAs and show that existing agents often suffer from reasoning stagnation: the majority of iterations contribute little or no improvement to final performance, while agents lack awareness of their trajectories and are therefore ineffective at adapting their search strategies or determining when to terminate. To address this issue, we introduce a set of unsupervised signals and a Retrieval-Aware Agent Controller (RAAC), which assists the agent in selecting optimal actions at each stage of the research process. RAAC incorporates key information retrieval principles, namely search novelty and information coverage, resulting in more effective reasoning trajectories that improve overall performance while reducing unnecessary iterations, and consequently cost and latency. Specifically on BrowseComp-Plus and across a large set of DRAs, adding RAAC reduces the number of search calls by an average of 14, significantly improves the best-performing DRA on recall and accuracy, and achieves an accuracy gain of up to 10% (3% on average).",
       "authors": [
-        "Manuel S. Drehwald",
-        "Marcelo Domínguez",
-        "Kevin Sala",
-        "Alán Aspuru-Guzik",
-        "Johannes Doerfert"
+        "Heydar Soudani",
+        "Elizabeth Lingg",
+        "Faegheh Hasibi",
+        "Navid Rekabsaz"
       ],
-      "primary_category": "cs.PL",
+      "primary_category": "cs.IR",
       "categories": [
-        "cs.PL"
+        "cs.IR"
       ],
-      "published": "2026-08-13T20:37:48+00:00",
-      "link": "https://arxiv.org/pdf/2608.13759v1",
+      "published": "2026-08-15T12:14:38+00:00",
+      "link": "https://arxiv.org/pdf/2608.15191v1",
       "tags": [
         "keyword:gkg",
         "query:gkg"
       ],
       "llm_score": 8.0,
-      "llm_evidence_en": "Native rustc/LLVM framework for high-performance GPU offload with ownership-based data transfer optimization",
-      "llm_evidence_cn": "基于rustc与LLVM的原生GPU卸载编译框架，利用所有权模型优化执行与数据传输",
-      "llm_evidence": "基于rustc与LLVM的原生GPU卸载编译框架，利用所有权模型优化执行与数据传输",
-      "canonical_evidence": "基于rustc与LLVM的原生GPU卸载编译框架，利用所有权模型优化执行与数据传输",
-      "llm_tldr_en": "Presents a zero-overhead multi-vendor GPU compilation framework built into rustc and LLVM, leveraging Rust ownership and strict aliasing guarantees to generate efficient GPU code and optimize offload data transfers safely and portably.",
-      "llm_tldr_cn": "高性能GPU编程长期需要在效率与内存安全之间取舍。作者将零开销多厂商GPU编译框架直接构建到Rust编译器与LLVM后端，利用Rust所有权模型与严格别名保证优化数据传输并生成GPU代码。该方案以安全、可移植方式实现高效GPU执行，展示了在系统语言中原生进行GPU卸载优化的可行路径，对追求安全与性能的GPU算子开发很有参考价值。",
-      "llm_tldr": "高性能GPU编程长期需要在效率与内存安全之间取舍。作者将零开销多厂商GPU编译框架直接构建到Rust编译器与LLVM后端，利用Rust所有权模型与严格别名保证优化数据传输并生成GPU代码。该方案以安全、可移植方式实现高效GPU执行，展示了在系统语言中原生进行GPU卸载优化的可行路径，对追求安全与性能的GPU算子开发很有参考价值。",
+      "llm_evidence_en": "Retrieval-aware agent controller selects actions using search novelty and information coverage to avoid reasoning stagnation",
+      "llm_evidence_cn": "用检索新颖性和覆盖度辅助智能体检索决策并避免推理停滞",
+      "llm_evidence": "用检索新颖性和覆盖度辅助智能体检索决策并避免推理停滞",
+      "canonical_evidence": "用检索新颖性和覆盖度辅助智能体检索决策并避免推理停滞",
+      "llm_tldr_en": "Deep research agents stagnate due to poor trajectory awareness. RAAC is an agent controller using search novelty and information coverage to pick actions and termination, leading to more effective reasoning trajectories and stronger final performance.",
+      "llm_tldr_cn": "深度研究智能体常陷入推理停滞：大量迭代对最终结果没有提升，而智能体又缺少对自身轨迹的感知。论文提出无监督信号和检索感知控制器RAAC，将搜索新颖性与信息覆盖度融入智能体每个阶段的动作选择与停止判断。在多种深度研究智能体上进行试验后，RAAC能减少低效推理迭代，改善研究轨迹质量与最终表现，表明信息检索原则可显著提升智能体的自适应决策。",
+      "llm_tldr": "深度研究智能体常陷入推理停滞：大量迭代对最终结果没有提升，而智能体又缺少对自身轨迹的感知。论文提出无监督信号和检索感知控制器RAAC，将搜索新颖性与信息覆盖度融入智能体每个阶段的动作选择与停止判断。在多种深度研究智能体上进行试验后，RAAC能减少低效推理迭代，改善研究轨迹质量与最终表现，表明信息检索原则可显著提升智能体的自适应决策。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-08-18-745260-v1",
+      "source": "biorxiv",
+      "title": "PerturbTrace: Evaluating Feedback Use by AI Co-Scientist Agents in Perturbation Discovery",
+      "abstract": "Recent advances in AI co-scientists have brought LLM agents into closed-loop experimental design. However, whether these agents use feedback from earlier rounds to revise subsequent experimental decisions remains unclear. We address this question with PerturbTrace, which evaluates each round-to-round transition through Feedback-to-State, State-to-Action, and Action-to-Outcome. These stages assess whether feedback is reflected in the agent's rationale and perturbation-selection strategy, whether the stated strategy guides the next perturbation batch, and whether that batch yields more hits than expected under random sampling. We evaluate four LLM agents on 17 screen-derived tasks and compare them with random selection, active learning, and LLM-guided Bayesian optimization baselines. Each agent outperforms the strongest non-agent method on at least 15 of the 17 tasks, yet controlled evaluations across six tasks show no consistent advantage from true feedback over random or no feedback. Among 576 transitions under true or random feedback, only 43 (7.5%) complete the full Feedback-State-Action-Outcome sequence, including 25 under random feedback. These findings show that high final recall does not necessarily indicate effective feedback use. They also highlight the need to evaluate closed-loop scientific agents by both their discovery performance and whether feedback changes their subsequent decisions.",
+      "authors": [
+        "Yu, C.",
+        "Liu, S.",
+        "Qiao, G.",
+        "Luo, M.",
+        "Xiang, Y.",
+        "Xu, Z."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-08-20T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.08.18.745260v1.full.pdf",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Trace evaluation linking prior feedback to state, action, and outcome in iterative AI co-scientist agents",
+      "llm_evidence_cn": "通过反馈-状态-动作-结果追踪，评估迭代AI智能体是否真实使用历史反馈",
+      "llm_evidence": "通过反馈-状态-动作-结果追踪，评估迭代AI智能体是否真实使用历史反馈",
+      "canonical_evidence": "通过反馈-状态-动作-结果追踪，评估迭代AI智能体是否真实使用历史反馈",
+      "llm_tldr_en": "PerturbTrace evaluates whether AI co-scientist agents use feedback from earlier rounds to revise subsequent perturbation experiments. It traces Feedback-to-State, State-to-Action, and Action-to-Outcome transitions and compares four LLM agents on 17 batched perturbation-discovery tasks.",
+      "llm_tldr_cn": "AI联合科学家智能体是否把上一轮反馈真正转化为下一轮的更好实验决策仍存疑问。PerturbTrace提出三段式追踪评估：反馈是否进入智能体状态与选择策略，策略是否落到下一批扰动，该批结果是否优于随机基线。作者在17个筛选任务上对四种LLM智能体做了对比，能够定位反馈在理由、行动或产出环节的丢失，为检查和改进闭环AI智能体的迭代学习提供可量化方法。",
+      "llm_tldr": "AI联合科学家智能体是否把上一轮反馈真正转化为下一轮的更好实验决策仍存疑问。PerturbTrace提出三段式追踪评估：反馈是否进入智能体状态与选择策略，策略是否落到下一批扰动，该批结果是否优于随机基线。作者在17个筛选任务上对四种LLM智能体做了对比，能够定位反馈在理由、行动或产出环节的丢失，为检查和改进闭环AI智能体的迭代学习提供可量化方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.16308v1",
+      "source": "arxiv",
+      "title": "DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads",
+      "abstract": "Sparse Matrix-Sparse Vector Multiplication (SpMSpV) is a core primitive in graph traversal, sparse linear algebra, and sparse model inference. Its input vector is often dynamically sparse, so the best GPU execution path depends on both global sparsity and the local vector-block distribution. Existing GPU SpMSpV methods often bind storage layouts, push/pull traversal, and kernels together, making fine-grained adaptation difficult without extra storage or scheduling overhead.   This paper presents DB-SpMSpV, a dual-view blocked SpMSpV framework for dynamic GPU workloads. DB-SpMSpV partitions the matrix into fixed-size 2D blocks, maintains block-level CSR/CSC views at the high level, and reuses a single low-level block payload to support both row-driven pull and column-driven push. At runtime, it selects the global traversal path based on input block sparsity, chooses block microkernels from the local matrix/vector block structure, and uses load balancing, asynchronous prefetching, and hierarchical writeback to reduce irregular memory accesses, writeback conflicts, and load imbalance. We further integrate the framework into DB-BFS and DB-Decoding.   We evaluate DB-SpMSpV on NVIDIA A100 and RTX 4090 using SuiteSparse matrices, symmetric graphs, and three open-source LLMs. Across input sparsities, DB-SpMSpV achieves average speedups of 5.48$\\times$--64.34$\\times$ over cuSPARSE and 2.36$\\times$--14.01$\\times$ over TileSpMSpV on A100, with similar gains on RTX 4090. DB-BFS further improves end-to-end graph traversal by 2.66$\\times$ over TileBFS on A100 and 3.60$\\times$ on RTX 4090 on average, while DB-Decoding accelerates single-token linear layers by up to 4.50$\\times$.",
+      "authors": [
+        "Xing Cong",
+        "Chenhao Xie",
+        "Rui Wang",
+        "Zhongzhi Luan",
+        "Yi Liu",
+        "Depei Qian"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-08-17T09:18:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.16308v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Dual-view blocked SpMSpV framework optimizing GPU kernel execution for dynamic sparse workloads",
+      "llm_evidence_cn": "面向动态GPU负载的双视图分块稀疏矩阵-稀疏向量乘内核优化",
+      "llm_evidence": "面向动态GPU负载的双视图分块稀疏矩阵-稀疏向量乘内核优化",
+      "canonical_evidence": "面向动态GPU负载的双视图分块稀疏矩阵-稀疏向量乘内核优化",
+      "llm_tldr_en": "DB-SpMSpV presents a dual-view blocked SpMSpV framework for dynamic GPU workloads using fixed 2D blocks, high-level CSR/CSC views and one reusable payload, enabling fine-grained adaptive kernels without extra storage or scheduling overhead.",
+      "llm_tldr_cn": "稀疏矩阵-稀疏向量乘是图遍历与稀疏模型推理的基础算子，其GPU执行路径会随输入稀疏结构动态变化。现有方法把存储布局、推式/拉式遍历和内核绑定，难以低成本适应。DB-SpMSpV将矩阵划分为固定二维块，在高层维护块级CSR/CSC双视图并复用单一底层载荷，在避免额外存储与调度开销的同时实现细粒度执行适配，为动态GPU负载的高效稀疏计算提供了统一低开销方案。",
+      "llm_tldr": "稀疏矩阵-稀疏向量乘是图遍历与稀疏模型推理的基础算子，其GPU执行路径会随输入稀疏结构动态变化。现有方法把存储布局、推式/拉式遍历和内核绑定，难以低成本适应。DB-SpMSpV将矩阵划分为固定二维块，在高层维护块级CSR/CSC双视图并复用单一底层载荷，在避免额外存储与调度开销的同时实现细粒度执行适配，为动态GPU负载的高效稀疏计算提供了统一低开销方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.21227v1",
+      "source": "arxiv",
+      "title": "Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia",
+      "abstract": "Traditionally, GPU kernels have been developed and optimized within vendor-specific programming models to achieve high performance, resulting in software that is difficult to optimize and adapt across increasingly heterogeneous computing systems. Hardware-agnostic programming models offer a more sustainable approach to GPU software development by improving portability and maintainability, but achieving efficient execution across diverse architectures remains challenging. We address this challenge by integrating auto-tuning into hardware-agnostic GPU kernels written in Julia. We rebuild the established Kernel Tuner auto-tuning framework with Julia support, enabling systematic exploration of kernel configurations for hardware-agnostic GPU kernels targeting NVIDIA, AMD, Intel, and Apple GPUs. We demonstrate this approach on hardware-agnostic singular value decomposition (SVD) as implemented in the NextLA.jl linear algebra library. The results show that auto-tuning is essential for creating resource-efficient hardware-agnostic GPU kernels across a variety of hardware. Optimal configurations improve kernel performance by a factor of 3x to 7x compared to median parameter configurations, demonstrating the substantial impact of tuning on efficient hardware utilization.",
+      "authors": [
+        "Floris-Jan Willemsen",
+        "Evelyne Ringoot",
+        "Alan Edelman"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF"
+      ],
+      "published": "2026-08-21T15:36:16+00:00",
+      "link": "https://arxiv.org/pdf/2608.21227v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Adds auto-tuning to hardware-agnostic GPU kernels in Julia, systematically exploring configurations to improve execution efficiency on heterogeneous GPUs",
+      "llm_evidence_cn": "在Julia硬件无关GPU内核中加入自动调优，系统搜索配置以提升不同GPU上的执行性能",
+      "llm_evidence": "在Julia硬件无关GPU内核中加入自动调优，系统搜索配置以提升不同GPU上的执行性能",
+      "canonical_evidence": "在Julia硬件无关GPU内核中加入自动调优，系统搜索配置以提升不同GPU上的执行性能",
+      "llm_tldr_en": "Rebuilds Kernel Tuner with Julia support to auto-tune hardware-agnostic GPU kernels, enabling portable kernels to run efficiently across heterogeneous GPUs without manual per-architecture optimization.",
+      "llm_tldr_cn": "硬件无关GPU编程模型便于跨平台维护，但在不同GPU架构上往往难以获得高效执行。本文把自动调优引入Julia编写的硬件无关GPU内核，并重建支持Julia的Kernel Tuner框架，通过系统地探索内核配置来寻找高性能实现。这种方法使开发者无需为每种GPU手工优化细节，就能在保持可移植性的同时获得接近专用实现的效率。该工具拓展了自动调优在高级可移植GPU编程生态中的应用。",
+      "llm_tldr": "硬件无关GPU编程模型便于跨平台维护，但在不同GPU架构上往往难以获得高效执行。本文把自动调优引入Julia编写的硬件无关GPU内核，并重建支持Julia的Kernel Tuner框架，通过系统地探索内核配置来寻找高性能实现。这种方法使开发者无需为每种GPU手工优化细节，就能在保持可移植性的同时获得接近专用实现的效率。该工具拓展了自动调优在高级可移植GPU编程生态中的应用。",
       "llm_tags": [
         "query:gkg"
       ],
