@@ -1,0 +1,290 @@
+Title: Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia
+
+URL Source: https://arxiv.org/pdf/2608.21227v1
+
+Published Time: Mon, 24 Aug 2026 01:09:58 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia 
+
+# Floris-Jan Willemsen 
+
+f.q.willemsen@liacs.leidenuniv.nl LIACS, Leiden University Leiden, the Netherlands 
+
+# Evelyne Ringoot 
+
+eringoot@mit.edu Massachusetts Institute of Technology Cambridge, Massachusetts, USA 
+
+# Alan Edelman 
+
+edelman@mit.edu Massachusetts Institute of Technology Cambridge, Massachusetts, USA 
+
+## Abstract 
+
+Traditionally, GPU kernels have been developed and optimized within vendor-specific programming models to achieve high perfor-mance, resulting in software that is difficult to optimize and adapt across increasingly heterogeneous computing systems. Hardware-agnostic programming models offer a more sustainable approach to GPU software development by improving portability and maintain-ability, but achieving efficient execution across diverse architectures remains challenging. We address this challenge by integrating auto-tuning into hardware-agnostic GPU kernels written in Julia. We rebuild the established Kernel Tuner auto-tuning framework with Julia support, enabling systematic exploration of kernel con-figurations for hardware-agnostic GPU kernels targeting NVIDIA, AMD, Intel, and Apple GPUs. We demonstrate this approach on hardware-agnostic singular value decomposition (SVD) as imple-mented in the NextLA.jl linear algebra library. The results show that auto-tuning is essential for creating resource-efficient hardware-agnostic GPU kernels across a vari-ety of hardware. Optimal configurations improve kernel perfor-mance by a factor of 3 × to 7 × compared to median parameter configurations, demonstrating the substantial impact of tuning on efficient hardware utilization. Moreover, auto-tuning enables hardware-agnostic kernels to surpass manually optimized imple-mentations in efficiency while reducing developer effort. This is made widely accessible through the first auto-tuning framework for Julia, KernelTuner.jl , bringing portable yet resource-efficient GPU kernels within reach for a wide range of applications and devices. 
+
+## CCS Concepts 
+
+• General and reference → Performance ; • Software and its engineering → Software performance ; • Computing methodolo-gies → Parallel programming languages. 
+
+## Keywords 
+
+Auto-tuning, Julia Language, GPU, HPC, Performance Optimization, Resource Efficiency, Dense Linear Algebra, Portability 
+
+ACM Reference Format: 
+
+Floris-Jan Willemsen, Evelyne Ringoot, and Alan Edelman. 2026. Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia. In Work-shop Proceedings of the 55th International Conference on Parallel Processing 
+
+> This work is licensed under a Creative Commons Attribution 4.0 International License.
+> ICPP Workshops ’26, Singapore, Singapore
+> © 2026 Copyright held by the owner/author(s). ACM ISBN 979-8-4007-2763-4/2026/09 https://doi.org/10.1145/3816891.3834891
+
+(ICPP Workshops ’26), September 28-October 01, 2026, Singapore, Singapore. 
+
+ACM, New York, NY, USA, 8 pages. https://doi.org/10.1145/3816891.3834891 
+
+## 1 Introduction 
+
+Modern HPC systems employ accelerators from multiple vendors and generations, requiring software to be efficient across diverse hardware platforms. Producing highly specific, optimized imple-mentations for different architectures and vendors is costly and difficult to sustain, both in terms of development effort and long-term software maintenance. As HPC and workloads continue to evolve, improving the portability and efficiency of GPU software has become an important aspect of sustainable computing. Automatic performance tuning, or auto-tuning [6], has become a key technique in high-performance computing (HPC), enabling applications to achieve high efficiency across diverse hardware architectures without requiring manual, architecture-specific opti-mization. By systematically exploring large design spaces of func-tionally equivalent program variants, spanning thread configura-tions, tiling strategies, memory usage, and other parameters, auto-tuning adapts software to the characteristics of a target device and workload [28, 51]. This approach is particularly important for GPU programming, where performance is highly sensitive to hardware-specific details and small changes in a configuration can result in large performance differences. Traditionally, achieving high performance on GPUs has relied heavily on vendor-specific programming models such as CUDA, and vendor-specific libraries such as CUBLAS/CUSOLVER for NVIDIA devices and ROCBLAS/ROCSOLVER for AMD devices in the case of linear algebra. Applications and libraries are then built based on these low-level kernels, limiting their expansion to novel hard-ware types. In various cases, this results in complete redevelop-ment to achieve optimal performance, such as for linear algebra libraries [21]. The increasing diversity in hardware and heterogene-ity of computing clusters have inspired a range of innovations in programming abstractions to address these challenges [22, 27, 31] by providing hardware-agnostic interfaces to program GPU ker-nels. In particular, the Julia ecosystem has emerged as a promising platform for sustainable portable computing, offering high-level abstractions while retaining low-level control over execution. The 
+
+NextLA.jl library [2] builds on this vision by providing hardware-agnostic linear algebra kernels that target multiple GPU backends, including NVIDIA, AMD, Intel, and Apple Metal [14, 39, 41, 57]. However, achieving high performance across such diverse ar-chitectures is only possible by abstracting hardware-dependent variables in the low-level GPU kernels for each device and data type to exploit the characteristics of each hardware type maximally. This has traditionally been done by selection by expert knowledge arXiv:2608.21227v1 [cs.PF] 21 Aug 2026 ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore Willemsen et al. 
+
+or through a manually implemented brute-force search of selected parameters [39, 41], limiting the scale of optimizations as well as requiring additional development effort. Automating the tuning of GPU kernel parameters and making it widely accessible for users is, therefore, a critical component for realizing true sustainability, both in resource efficiency and development effort. Existing auto-tuning frameworks provide powerful mechanisms for exploring tunable parameter spaces and optimizing performance [34, 36, 37, 50]. How-ever, these frameworks have primarily been designed for CUDA and similar vendor-specific programming models and have, to the ex-tent of our knowledge, not been applied to fully hardware-agnostic frameworks, limiting their applicability in modern high-level, wide-target environments like Julia. Bridging this gap is essential to achieve true portability, where a single implementation of, e.g., linear algebra can achieve optimal performance across a range of consumer and High-Performance Computing GPU hardware, bringing full resource-efficient performance to hardware-agnostic programming models. In this work, we extend the established Kernel Tuner frame-work [50] to support auto-tuning of Julia GPU kernels and provide it as the Julia package KernelTuner.jl 1, enabling seamless integration with hardware-agnostic kernel definitions. We apply this to a ker-nel of a singular value decomposition (SVD) library implemented in Julia, demonstrating how auto-tuning can efficiently optimize performance across multiple GPU architectures. We show that auto-tuning achieves superior performance while reducing development effort. In summary, this work demonstrates that combining hardware-agnostic kernel design with automated tuning is a practical and effective step toward democratizing high-performance GPU com-puting across vendors. Our contributions are as follows: (1) Julia auto-tuning support. We introduce the first auto-tuning framework for Julia GPU kernels as an accessible Julia package, KernelTuner.jl 1. This enables systematic auto-tuning of hardware-agnostic kernels to target a wide variety of platforms, such as NVIDIA, AMD, Intel, and Apple. (2) Cross-language integration. We present a seamless inte-gration of the Python-based Kernel Tuner auto-tuning frame-work with a Julia-based hardware-agnostic GPU program-ming model that avoids duplicate codebases while providing mature optimization tooling. This design enables flexible mixed-language workflows, allowing Julia-based scripts to tune kernels written in any language supported by Kernel Tuner, while also enabling Python-based tuning scripts to operate directly on Julia kernels. (3) Unlocking performance gains. As auto-tuning allows searching a wider range of tunable parameters in a user-friendly and time-efficient manner, search spaces can be substantially expanded. We demonstrate the effectiveness of this approach on a GPU kernel in the NextLA linear algebra library, achieving performance improvements of 3 × to 7 ×
+
+over median parameter configurations. This novel approach bridges the performance gap between highly optimized vendor-specific implementations and hardware-agnostic kernels, enabling portable code to achieve optimal efficiency. By 
+
+> 1https://github.com/KernelTuner/KernelTuner.jl
+
+reducing the reliance on vendor-specific implementations, it not only improves application portability but also promotes fairer eval-uation, ensuring that performance comparisons are not exclusive or biased by unequal levels of manual optimization across hardware platforms. 
+
+## 2 Related Work 
+
+Achieving high performance across diverse GPU architectures re-mains a longstanding challenge in high-performance computing. Motivated by the emergence of heterogeneous computing clus-ters [22, 27, 31] and the resulting development and optimization burden, exemplified by multiple low-level linear algebra libraries in application libraries [1, 21], several programming frameworks have been proposed to enable hardware-agnostic GPU development. Examples of such efforts include MOJO [26], Kokkos [23], SYCL, RAJA [7], HIP [58], Triton [47], and Julia KernelAbstractions [15]. Of these, the Julia GPU framework is of particular interest as it provides various levels of control of GPUs and targets not only the traditional GPU vendors NVIDIA and AMD, but also the more novel Intel and Apple GPUs [9]. Traditionally, achieving high GPU performance across platforms has consisted of writing and optimizing GPU kernels on one sin-gle type of hardware, then translating them to other platforms and going through the same process again, which requires exten-sive architecture-specific rewrites [21, 35]. Instead, recent work has demonstrated that by writing GPU kernels in a tunable fash-ion [19, 38, 39], true performance portability in line with vendor-optimized solutions is possible, but only through careful tuning of the parameters. In Julia, the AcceleratedKernels [33] and 
+
+NextLA [57] libraries provide such portable libraries for GPUs. In addition, research in automatic conversion of vendor-specific ker-nels to Julia’s Kernel Abstractions facilitates accessible porting of kernels [20]. In practice, such tunable parameter selection is executed through expert knowledge or brute-force searches, introducing several limi-tations: excessive use of computing resources, artificial restrictions of the search space, and additional development time for the inclu-sion of novel hardware. Auto-tuning has emerged as a key technique to address the challenge of adapting software configurations to the underlying hardware, efficiently exploring parameter spaces that commonly control aspects such as thread mapping, tiling, loop transformations, and memory usage [6]. A wide range of auto-tuning frameworks have been proposed, including ATLAS [52], CLTune [34], OpenTuner [4], Kernel Tuner [50], and KTT [36]. These systems enable systematic exploration of kernel configura-tions and can yield substantial performance improvements. Impor-tantly, prior work has shown that tuning is not merely beneficial but often necessary [44], increasingly so on modern GPU archi-tectures [30] where efficiency depends on complex interactions between parameters and hardware characteristics, reinforcing the need for automated tuning approaches. Despite advances in both areas, the integration of auto-tuning with hardware-agnostic GPU programming models remains lim-ited. Many existing auto-tuning frameworks focus on low-level languages and vendor-specific toolchains, while portable methods often rely on static heuristics or manual adjustment if at all possible. Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+This gap suggests an opportunity to combine the strengths of both approaches and make true hardware-optimal resource efficiency for portable implementations possible: using auto-tuning to system-atically optimize hardware-agnostic kernels across architectures, from consumer hardware to HPC GPUs. 
+
+## 3 Background 
+
+This section provides a general introduction to the auto-tuning framework Kernel Tuner (Section 3.1) and the Julia GPU ecosystem (Section 3.2). 
+
+## 3.1 Kernel Tuner 
+
+Kernel Tuner is a Python-based, open-source auto-tuning frame-work designed for optimizing computational kernels [50]. It sup-ports multiple programming backends, including CUDA, HIP, OpenCL, and OpenACC, C++ and Fortran, and is widely adopted for tuning applications across different architectures and objectives, such as performance, accuracy and energy efficiency [46]. Tuning Script  
+
+> GPU kernel tuning parameters
+> input data
+> tunes writes executes
+
+Figure 1: Basic overview of Kernel Tuner usage. 
+
+Figure 1 shows how Kernel Tuner can be used. Users provide Kernel Tuner with a kernel implementation and a script that spec-ifies the input data, a description of the tunable parameters, and possibly any constraints. At the start of the tuning process, Kernel Tuner constructs a search space X consisting of all valid configura-tions. The optimization algorithm, called an optimization strategy in Kernel Tuner, iteratively selects candidate solutions 𝑥 ∈ X to be compiled, executed, and measured. The evaluation metric de-termines the quality of the configuration. Kernel Tuner internally abstracts the different backends into a unified interface, allowing most of the tool to operate independently of the programming language and target hardware platform. More formally, auto-tuning involves optimizing an application or kernel 𝐾 𝑖 on a target system 𝐺 𝑗 for input data 𝐼 𝑘 on objective function 𝑓 𝐺 𝑗 ,𝐼 𝑘 (𝐾 𝑖 ). The auto-tuner constructs a search space X by considering all tunable parameters and their valid values, subject to user-defined constraints [54]. The objective is to determine the optimal configuration as follows (assuming minimization): 
+
+𝑥 ★ = arg min  
+
+> 𝑥 ∈ X
+
+𝑓 𝐺 𝑗 ,𝐼 𝑘 (𝐾 𝑖,𝑥 ). (1) As the search space X can be very large, Kernel Tuner has a wide range of optimization algorithms which have been designed and tuned specifically for efficiently finding near-optimal configura-tions in auto-tuning problems [53, 55, 56]. In addition, it provides a variety of additional features such as verification checks, observers, accuracy tooling, and energy tuning [46, 49]. 
+
+## 3.2 Julia GPU ecosystem 
+
+The Julia GPU ecosystem provides a high-level abstraction that is well-suited to portability: modularity and extensibility are inte-grated through multiple-dispatch, which allows overloading new methods to existing functions in a direct manner [12]. The LLVM Just-In-Time compiler directly translates abstract code bases across data precisions and hardware to machine code through type in-ference [11], optimized for the specific data precision and hard-ware. The integration of advanced optimization features such as specialization, interoperability, loop unrolling, and vectorization enables achieving performance close to vendor-specific code [25]. The GPU ecosystem includes hardware integrations of the main GPU vendors, NVIDIA ( CUDA.jl [9]) and AMD ( AMDGPU.jl [45]), as well as Intel ( oneAPI.jl [8]) and Apple ( Metal.jl [10])). Julia’s 
+
+KernelAbstractions then provides an interface targeting all of these platforms (Section 3.2.1), which the NextLA library lever-ages to construct a fully hardware-agnostic yet performant GPU linear algebra library (Section 3.2.2). The integration of the Ker-nel Tuner framework is achieved through Julia-Python interfaces (Section 3.2.3). 
+
+3.2.1 KernelAbstractions. The GPUArrays abstraction [9, 18] pro-vides an interface for high-performance computing on GPUs that targets a wide range of hardware backends. KernelAbstractions 
+
+is a specialized interface providing access to kernel functionality across hardware vendors, compiling the generic kernel interface written for GPUArrays to hardware-specific Intermediate Repre-sentations at compile time. It provides direct access to all GPU memory levels, similar to a CUDA kernel. Earlier work leverag-ing KernelAbstractions.jl demonstrated the viability of the ap-proach for scientific machine learning [48]. KernelAbstraction al-lows passing certain compile-time constants as function variables, a feature allowing compiling the same kernel for multiple such con-stants inside a single Julia module, which substantially facilitates auto-tuning. 
+
+3.2.2 NextLA. NextLA [57] is an abstraction-based linear algebra library implementing generic Julia functions for dense numerical linear algebra. It provides three types of abstraction layers: (1) Abstraction across data precision and CPU-GPU hardware, through abstract high-level implementations calling into libraries for low-level functions such as matrix multiplica-tion [57]. (2) Low-level GPU function implementations for specific ker-nels that are not available in all low-level libraries or that underperform, such as for the singular value decomposi-tion, written in KernelAbstractions, designed for portability through careful selection of tunable parameters [39, 41]. (3) Abstraction across hardware size, from single GPU, to out-of-core, to multi-GPU, through a single algorithmic interface where communication is included where needed [40]. The library provides future-proof, efficient, and generic alternatives to legacy libraries. The second type of abstractions provided by the NextLA library is where the inclusion of auto-tuning is crucial to achieve true sustainability: optimizing resource efficiency on any type of GPU hardware. 
+
+3.2.3 Python-Julia integration. In the HPC and scientific commu-nity, the debate on whether to use Python or Julia has been long-standing [16, 17, 24, 27, 29], with both communities having devel-oped strong ecosystems of libraries and users, and some packages only available in one language. Application developers frequently ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore Willemsen et al. 
+
+do not desire rewriting their existing library in a whole new lan-guage, and are limited by their initial choice. In this work, we achieve a symbiosis between the two programming languages, ap-plying the Python-based Kernel Tuner framework to Julia with min-imal development and user impact. We utilize the PythonCall [43] and CondaPkg [42] packages to achieve this integration, benefit-ing from the existing Kernel Tuner in Python and the existing hardware-agnosticism in Julia for a symbiotic solution for a com-plete hardware-portability solution. 
+
+## 4 Integration of Julia into Kernel Tuner 
+
+To enable auto-tuning of hardware-agnostic Julia GPU kernels, we extend the Kernel Tuner framework with a dedicated Julia back-end and interface, as shown in Figure 2. This design bridges the gap between Python-based auto-tuning infrastructure and Julia’s GPU ecosystem, while preserving the flexibility and characteristics of both environments without duplication. Our implementation consists of two main components: (i) a Julia backend for Kernel Tuner described in Sections 4.1 to 4.3, and (ii) a Julia-facing interface (Section 4.4), allowing Kernel Tuner to be used natively from Julia. Kernel Tuner         
+
+> User interface Search space constructor Observers Core
+> Optimization Strategies
+> Basinhopping . . . Bayesian Optimization Differential Evolution Particle Swarm Simulated Annealing
+> Multi-start local search
+> Genetic Algorithms
+> Runners
+> Sequential Simulation
+> Backends
+> CUDA functions HIP functions OpenCL functions Compiler functions
+> GCC GFortran NVCC++ NVFortran
+> PyOpenCL PyHIP Julia functions
+> CUDA.jl AMDGPU.jl oneAPI.jl Metal.jl
+> Tuning Script
+> (Julia / Python)
+> User input Compilers &
+> Runtimes
+> Kernel code
+> CUDA OpenCL HIP CJulia KernelAbstractions
+> PyCUDA cuda-python CuPy
+
+Figure 2: Overview of the Kernel Tuner software architecture. 
+
+## 4.1 The Julia Backend 
+
+The core of our implementation is a new backend that enables Kernel Tuner to compile, launch, and measure Julia GPU kernels. This backend leverages JuliaCall [43] to embed a Julia runtime within Python, allowing direct invocation of Julia code and seamless interoperability between the two languages. The backend extends the existing GPUBackend abstraction in Kernel Tuner and follows the standard workflow of compilation, memory management, kernel execution, and performance measure-ment. During initialization, the backend automatically determines available Julia GPU backends (i.e., CUDA, AMDGPU, oneAPI, and Metal) using system-level queries. Kernel compilation is performed by dynamically constructing a Julia module that wraps the user-provided kernel code. This ap-proach isolates kernel definitions and avoids naming conflicts across tuning runs. Once compiled, the kernel is retrieved as a callable Julia function and stored for subsequent execution. Memory management is handled by converting Python host arrays into backend-specific Julia GPU arrays. This conversion is performed transparently through helper functions defined in a lightweight Julia module. Each argument is deep-copied before transfer to avoid unintended side effects during tuning. Device-to-host and host-to-device memory transfers are implemented using direct array copying. Kernel execution is implemented using Julia’s KernelAbstrac-tions.jl (Section 3.2.1), which provides a unified interface for launch-ing GPU kernels across backends. For each configuration, Kernel Tuner passes the parameter values, grid size, and workgroup size to a Julia-native layer (Section 4.3) that constructs and launches the configured kernel. Tunable parameter values are converted to Julia Val types to enable compile-time specialization, ensuring that tuning parameters are fully exposed to the Julia compiler. Each evaluated configuration includes an initial warm-up execution that is excluded from the reported metrics, ensuring that Julia’s just-in-time (JIT) compilation is triggered and does not affect the measured kernel performance. 
+
+## 4.2 Cross-Backend Timing and Observability 
+
+Accurate performance measurement across heterogeneous back-ends is a key challenge. To address this, we introduce a custom 
+
+JuliaRuntimeObserver that integrates with Kernel Tuner’s Ob-server framework seen in Figure 2. This observer provides backend-specific timing and event mechanisms while maintaining a uniform interface. For CUDA and AMD backends, we use GPU stream event timing (CuEvent and HIPEvent, respectively), enabling precise mea-surement of kernel execution time. For Metal, where event-based timing is less directly accessible, we measure execution time by inserting command buffers before and after kernel execution and computing the elapsed GPU time. For oneAPI backends, where event timing is currently unavailable, we fall back to host-side timing, with appropriate warnings about reduced accuracy. To ensure robustness, the implementation includes safeguards against timing inconsistencies. Additionally, kernel execution is wrapped to capture and propagate output and exceptions, allow-ing Kernel Tuner to gracefully skip invalid configurations without interrupting the tuning process. 
+
+## 4.3 Julia Helper Layer 
+
+A thin Julia helper layer provides the interaction between Kernel Tuner and KernelAbstractions. This layer mainly implements a generic kernel launcher that handles parameter passing, execu-tion, synchronization, and timing. The launcher abstracts backend-specific details, including event recording and synchronization, and ensures that all kernels are executed within a consistent interface. Importantly, this design allows Kernel Tuner to treat Julia kernels similarly to CUDA or OpenCL kernels, minimizing changes to the core tuning logic and extensive supporting tooling while enabling support for multiple GPU backends through Julia. Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+## 4.4 The Julia Interface & Package 
+
+To make Kernel Tuner accessible to Julia users, we provide a Ju-lia interface using PythonCall [43], which enables calling Python code from Julia with minimal overhead. This allows users to define kernels and tuning problems entirely in Julia, while transparently leveraging the extensive Kernel Tuner optimization, verification, and data collection capabilities. In this workflow, users write KernelAbstractions kernels in Julia and define tunable parameters and arguments using a combination of native Julia constructs, while also being able to use Kernel Tuner structures like Tunable and OptAlgWrapper [56]. Kernel Tuner is invoked through PythonCall, passing the kernel source, parameter space, and execution configuration. The Julia backend ensures that all kernel compilation and execution occur within the Julia runtime, while Python handles the orchestration of the tuning process. This design enables a seamless user experience: developers can remain within the Julia ecosystem while benefiting from the mature auto-tuning infrastructure of Kernel Tuner, easily accessible as a package. At the same time, it avoids duplicate code bases for Kernel Tuner and preserves interoperability, and in addition allows mixed-language workflows where Julia-based scripts can tune kernels in any of the other languages and programming models compatible with Kernel Tuner, as well as having Python-based tuning scripts operate directly on Julia kernels. 
+
+## 5 Evaluation 
+
+In this section, we evaluate the advancements presented in Section 4 to determine their impact. First, we discuss the application used for evaluation in Section 5.1. The experimental setup is described in Section 5.2. Finally, we discuss the evaluation results in Section 5.3. 
+
+## 5.1 Performance evaluation in NextLA.jl 
+
+We examine the benefits of Kernel Tuner on one of the most chal-lenging GPU kernels: the calculation of singular values [39, 41]. In particular, we focus on the first stage of the algorithm: the reduc-tion to banded form and the GPU kernel for the compute-bound trailing matrix update. We summarize the algorithm in Section 5.1.1 and the GPU kernels with their parameters in Section 5.1.2 for completeness; further details can be found in prior work [39, 41]. 
+
+5.1.1 Algorithm. The classic QR-based singular value algorithm consists of reducing the matrix to banded form and finally to bidi-agonal and diagonal form, through the selection of appropriate or-thogonal matrices that ’annihilate’ or zero out a number of columns below the diagonal or rows above the diagonal. On GPUs, this is executed in tiles to improve data locality: for every diagonal tile of the matrix, the tiles below are annihilated, and the tiles to its right are as well, as shown in Figure 3, until a banded matrix is achieved. 
+
+Figure 3: The classic two-stage QR-based SVD, from [39]. Algorithm 1 Singular value calculation stage 1: reduction to band form, adapted from [39]  
+
+> 1:
+
+for Diagonal tile 𝑘 : 1 → N do  
+
+> 2:
+
+RQ sweep:  
+
+> 3:
+
+Fused GEQRT/TSQRT(TileColumn 𝑘 :𝑒𝑛𝑑,𝑘 ) 
+
+> 4:
+
+Fused TSQRT/TSMQR(Trailing matrix 𝑘 :𝑒𝑛𝑑,𝑘 :𝑒𝑛𝑑 ) 
+
+> 5:
+
+LQ sweep:  
+
+> 6:
+
+Fused GEQRT/TSQRT(TileRow 𝑘,𝑘 +1: 𝑒𝑛𝑑 ) 
+
+> 7:
+
+Fused TSQRT/TSMQR(Trailing matrix 𝑘 :𝑒𝑛𝑑,𝑘 +1: 𝑒𝑛𝑑 ) 
+
+> 8:
+
+end for 
+
+Algorithm 1 details the first stage of the SVD: the reduction from dense to banded form. The GEQRT/TSQRT functions (the panel factorization) calculate such an orthogonal matrix, and are memory-throughput-bound functions with lower parallelism. The UNMQR/TSMQR functions (the trailing matrix update) then apply this orthogonal matrix to the remainder of the matrix to keep the singular values intact, and are compute-bound kernels with high degrees of parallelism. 
+
+5.1.2 GPU kernel description. We demonstrate the impact of the kernel tuning on the trailing matrix update kernel Fused TSQRT/TSMQR that applies the panel factorization of a tile col-umn or tile row to the trailing matrix, respectively, right or below it. Auto-tuning allows us to expand the parameters for the kernels further than was previously practical for a larger search space. The conceptual execution of the kernels is described in Algorithm 2. 
+
+Algorithm 2 GPU kernel fused UNMQR/TSMQR: N thread blocks with COLPERBLOCK (CPB) threads                                                                                                         
+
+> INPUT parameters Tilesize TS, Tileheight TH, Split-k K
+> INPUT parameters Columns per block CPB
+> Number of threads: (CPB, K)
+> Number of threadblocks: N/CPB
+> INPUT / OUTPUT: A (N ×TS), X (N ×N), ˆ 𝜏 (TS)
+> 1: Thread memory :𝑋 𝑖,𝑗 (TH/K), 𝑋 0𝑖,𝑗 (TH/K)
+> 2: Block memory :𝐴 𝑘 (TH), ˆ 𝜏 ′(TS), Cache (𝐾, 𝐶𝑃𝐵 )
+> 3: for Tile 𝑡 :1 → ( 𝑁 /𝑇 𝐻 )do
+> 4: ∀Thread 𝑖, 𝑗 :𝑋 𝑖,𝑗 ←𝑋 [tile t ,:](or if 𝑡 =1, load into 𝑋 0𝑖,𝑗 )
+> 5: ∀Threads 𝑖, 𝑗 : ˆ 𝜏 ′←ˆ𝜏
+> 6: for 𝑘 : 1 →TS-1 do
+> 7: ∀Threads 𝑖, 𝑗 :𝐴 𝑘 ←𝐴 [:,k]
+> 8: synchronize threads
+> 9: ∀Thread 𝑖 ≥𝑘 : cache [𝑖, 𝑗 ] ← 𝐴 𝑖,𝑗 ·𝑋 𝑖,𝑗 (vector product)
+> 10: synchronize threads
+> 11: ∀Thread 𝑖, 𝑗 :|𝐴 𝑖 |2←sum(cache[:,i])
+> 12: ∀Thread 𝑖, 𝑗 : calculate 𝑋 𝑖,𝑗 ,𝑋 0𝑖,𝑗
+> 13: synchronize threads
+> 14: end for
+> 15: ∀Thread 𝑖 in block 𝑛 :𝑋 [tile t, :] ←𝑋 𝑖,𝑗
+> 16: end for
+> 17: ∀Thread 𝑖 in block 𝑛 :𝑋 [tile 1, :] ←𝑋 0𝑖,𝑗
+
+## 5.2 Experimental setup 
+
+To obtain a diverse set of real-world auto-tuning cases for evalua-tion, we use a diverse set of seven GPUs from four different vendors. ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore Willemsen et al. 
+
+Table 1: Hardware and Software Specifications of the Systems used in Evaluation                                                      
+
+> System Name GPU VRAM CPU RAM OS / Kernel Software Stack
+> AMD University Program [3] AMD MI300X 192 GB HBM3 EPYC 9684X 16-core 256 GB Rocky Linux 9.4 (Ker-nel 5.14) ROCM 7.1.0, Julia 1.12.5 AMD University Program [3] AMD MI210 64GB HBM2e EPYC 7V13 16-core 64 GB Rocky Linux 9.4 (Ker-nel 5.14) ROCM 7.1.0, Julia 1.12.5 MIT Engaging [32] Nvidia H200 141 GB HBM3e Intel Xeon Platinum 8580 120-core 2011 GB Rocky Linux 8.10 (Kernel 5.14) CUDA 13.1, Julia 1.12.3 MIT Engaging [32] Nvidia L40s 48 GB GDDR6 Intel Xeon Platinum 8562Y+ 64-core 1005 GB Rocky Linux 8.10 (Kernel 5.14) CUDA 13.1, Julia 1.12.3 DAS-6 [5] Nvidia A4000 16 GB GDDR6 AMD EPYC-2 7402P 24-core 128 GB Rocky Linux 8 (Ker-nel 4.18) CUDA 12.6, Julia 1.12.5 Stampede 3 Intel Data Center GPU Max 1550s 128 GB HBM2e Intel Xeon Platinum 8480 96-core 1 TB Rocky Linux 9.7 (ker-nel 5.14) oneAPI Level Zero 1.3, Julia 1.12.6 Apple MacBook Pro 14" 2021 M1 Pro 16-core 32GB LPDDR5 (Uni-fied) M1 Pro 10-core 32GB LPDDR5 (Uni-fied) macOS 26.4.1 Metal 4, Julia 1.12.6
+
+The hardware and software specifications of each platform are de-tailed in Table 1. 
+
+Table 2: Summary of optimal and median kernel runtimes across GPUs by kernel for tilesize 64. 
+
+Runtime AMD NVIDIA INTEL APPLE 
+
+(ms) MI210 MI300X A4000 H200 L40S PVC M1 Pro Optimal 5.7 1.8 10.5 2.9 4.5 9.1 80 Median 32 12 36 11 12 32 244 Ratio 5.6 6.7 3.4 3.8 2.7 3.5 3.1 
+
+Measurements on the MacBook Pro were performed under the following controlled conditions: a dedicated clean user profile with no background processes, sleep transitions deactivated, and the hardware restricted to AC power and the internal display to ensure performance stability. The runtime of each kernel is measured using stream event recording, where available (NVIDIA and AMD), and using command buffers and host-side timing if unavailable (in the case of Metal and Intel, respectively) as described in Section 4.2. To demonstrate the impact of auto-tuning, we focus on a specific matrix size and data precision, 16384x16384 single-precision dense matrix, and evaluate the impact on its runtime of the tunable parameters across the search space. We distinguish between two types of tunable parameters: pipeline parameters, which change the number of kernels launched across the entire algorithm, and kernel parameters, which might change calculations inside the kernels, but do not influence how many consecutive kernels are launched until algorithm completion. In the first stage of the singular value decomposition, the tile size, which determines the number of diagonal tiles (Algorithm 1), is the only pipeline parameter. The runtime of the kernel can be directly compared across kernel parameters, but will naturally differ over pipeline parameters. The optimal combination of parameters across the entire SVD will then depend on the combination of several kernels. In this experimental setup, we optimize the remaining in-dividual GPU kernels across the search space of kernel parameters for each pipeline parameter value. Future work involves the exten-sion to full pipeline optimization. The search space for the tunable parameters is as follows: 
+
+Tilesize (TS) 8, 16, 32, 64, 128 Tile height (TH) 8, 16, 32, 64, 128 Split-K (K) 1, 2, 4, 8, 16, 32, 64, 128 Columns per block (CPB) 1, 2, 4, 8, 16, 32, 64, 128 
+
+## 5.3 Impact of auto-tuning 
+
+Figure 4 demonstrates the impact on the runtime of individual kernels across their entire search space of parameters, for tile size 64. The mean and optimal values and their ratio are also shown in Table 2. Tile size 64 is the parameter that was chosen during the initial SVD algorithm design through brute-force parameter search. Across all architectures, significant variation can be ob-served between the best-performing and median configurations, ranging from a factor of 2 to 7. The black diamond marker rep-resents the configuration previously chosen when designing the SVD algorithm. We observe in almost all cases the optimal parame-ter combination outperforms the expert-selected value, except for the A4000 GPU. This is expected when a library has been highly optimized for one architecture, and optimization for other archi-tectures is more limited. This finding highlights the importance of auto-tuning for performant, sustainable portability. Previously, manual tuning resulted in the artificial restriction of the search space based on expert opinion. Extending this to include a wider range of search parameters and values has enabled improving the kernel performance, as better-performing configurations are found in all but one case. No black diamond is shown for the Apple Metal GPU, as tile size 16 was originally selected for that hardware. We find that, for this particular experiment, NVIDIA and AMD hardware outperform the Apple Metal M1 GPU. This is expected as the Apple M1 GPU is a consumer-grade laptop GPU, while the other hardware is designed for HPC settings. Additionally, Apple Metal GPUs feature unified memory, which changes the memory band-width and latency. However, the goal is not equal performance on all hardware, but rather optimal resource efficiency for the hardware at hand, irrespective of which hardware it is. With the integration of Kernel Tuner and Julia, GPU code developed and targeted on local hardware, such as a MacBook, can readily be scaled up to large-scale computing clusters, and vice versa. Portable to Efficient: Auto-Tuning Hardware-Agnostic GPU Kernels in Julia ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+Figure 4: Runtime distribution of the GPU kernels over all kernel parameters for tilesize 64, by hardware type (left to right, AMD 210X, AMD MI300X, NVIDIA A4000, NVIDIA H200, NVIDIA L40S, Intel PVC Max, Metal M1). Black diamond markers indicate the originally selected kernel parameters in a reduced search space. 
+
+## 6 Conclusions 
+
+In this work, we addressed the longstanding sustainability challenge of achieving both portability and high resource efficiency across diverse architectures by integrating Julia’s hardware-agnostic GPU programming model into the established auto-tuning framework Kernel Tuner. By supporting Julia GPU kernels and providing the first Julia auto-tuning framework package, we enable system-atic optimization of hardware-agnostic kernels without requiring architecture-specific rewrites. Moreover, we have demonstrated the value of a symbiotic approach between the Julia and Python ecosystems, where, through joining forces, novel approaches can be formulated with limited duplication. Through evaluation on singular value decomposition (SVD), we demonstrated that auto-tuning can effectively bridge the perfor-mance gap between portable implementations and vendor-specific optimizations. Our results show that automatically tuned configu-rations achieve superior performance compared to manually opti-mized approaches, while significantly reducing the developer effort and expertise required, enabling high efficiency on both established and emerging platforms. The resulting speedups of 3 × to 7 × rel-ative to median parameter configurations highlight the necessity of combining high-level, hardware-agnostic programming models with automated performance optimization to obtain resource effi-ciency. Future work includes extension towards full pipeline tuning capability and Julia-specific energy efficiency observers. Overall, our work demonstrates that auto-tuning is a crucial enabler for sustainability in modern heterogeneous systems. By integrating auto-tuning into the Julia ecosystem, we take an im-portant step toward democratizing high-performance computing, making near-optimal performance accessible across vendors with-out sacrificing programmability or maintainability. The auto-tuner presented in this work is available as the user-friendly open-source Julia package KernelTuner.jl 2.
+
+## Acknowledgments 
+
+We would like to extend our gratitude for the work and support of members of the Julia Lab, in particular Valentin Churavy and 
+
+> 2https://github.com/KernelTuner/KernelTuner.jl
+
+Rabab Alomairy. The authors acknowledge the MIT Office of Re-search Computing and Data, Texas Advanced Computing Center (TACC) at the University of Texas at Austin (TG-CIS250776 through Advanced Cyberinfrastructure Coordination Ecosystem (ACCESS) program [13], supported by U.S. NSF 2138259, 2138286, 2138307, 2137603, and 2138296), Advanced Micro Devices, Inc. under the AMD University Program’s AI & HPC Cluster. This material is based upon work supported by the US NSF (CNS-2346520, PHY-2028125, RISE-2425761, DMS-2325184, OAC-2103804, OSI-2029670), DARPA (HR00112490488), DoE (DE-NA0003965), NNSA (DE-NA0004266), USAFR (FA8750-19-2-1000). The U.S. Government, its agencies and employees do not make any warranty, do not assume any liability or responsibility, do not make any endorsement for anything in this report, and do not represent that its use would not infringe privately owned rights. The views and opinions of authors expressed herein are those of the authors alone. E.R. was supported by a Fellowship from the MIT Office of Research Computing and Data. This work is the result of a collaboration between the authors and Ben van Werkhoven, supported by the MIT General Seed Fund. 
+
+## References             
+
+> [1] P. D. Akre and U. Pacharaney. 2025. A Comprehensive Review of Mojo: A High-Performance Programming Language. In 2025 6th Int. Conf. Mob. Comput. Sustain. Inform. ICMCSI .[2] R. Alomairy, E. Ringoot, S. Xuan, V. Carrica, M. Onyango, and J. Samaroo. 2025. NextLA.Jl: Next-gen Linear Algebra. Zenodo / NextLinearAlgebra. https://doi. org/10.5281/zenodo.15049222 [3] AMD Research. 2026. AMD HPC Fund Documentation. https://amdresearch. github.io/hpcfund/introduction.html [4] J. Ansel, S. Kamil, K. Veeramachaneni, J. Ragan-Kelley, J. Bosboom, U.-M. O’Reilly, and S. Amarasinghe. 2014. Opentuner: An Extensible Framework for Program Autotuning. In Proc. 23rd Int. Conf. Parallel Archit. Compil.
+> [5] H. Bal, D. Epema, C. de Laat, R. van Nieuwpoort, J. Romein, F. Seinstra, C. Snoek, and H. Wijshoff. 2016. A Medium-Scale Distributed System for Computer Science Research: Infrastructure for the Long Term. Computer (2016). [6] P. Balaprakash, J. Dongarra, T. Gamblin, M. Hall, J. K. Hollingsworth, B. Norris, and R. Vuduc. 2018. Autotuning in High-Performance Computing Applications.
+> Proc. IEEE (2018). https://ieeexplore.ieee.org/document/8423171/ [7] D. A. Beckingsale, J. Burmark, R. Hornung, H. Jones, W. Killian, A. J. Kunen, O. Pearce, P. Robinson, B. S. Ryujin, and T. R. Scogland. 2019. RAJA: Portable Performance for Large-Scale Scientific Applications. In 2019 Ieeeacm Int. Workshop Perform. Portability Product. Hpc P3hpc .[8] T. Besard. 2025. oneAPI.Jl. Zenodo / JuliaGPU. https://doi.org/10.5281/zenodo. 14615352 [9] T. Besard, C. Foket, and B. De Sutter. 2019. Effective Extensible Programming: Unleashing Julia on GPUs. IEEE Trans. Parallel Distrib. Syst. (2019).
+
+ICPP Workshops ’26, September 28-October 01, 2026, Singapore, Singapore Willemsen et al. 
+
+[10] T. Besard and M. Hawkins. 2025. Metal.Jl. Zenodo / JuliaGPU. https://doi.org/10. 5281/zenodo.14615291 [11] J. Bezanson, J. Chen, B. Chung, S. Karpinski, V. B. Shah, J. Vitek, and L. Zoubritzky. 2018. Julia: Dynamism and Performance Reconciled by Design. Proc. ACM Program. Lang. , Article 120 (2018). https://doi.org/10.1145/3276490 [12] J. Bezanson, A. Edelman, S. Karpinski, and V. B. Shah. 2017. Julia: A Fresh Approach to Numerical Computing. SIAM Rev. (2017). [13] T. J. Boerner, S. Deems, T. R. Furlani, S. L. Knuth, and J. Towns. 2023. AC-CESS: Advancing Innovation: NSF’s Advanced Cyberinfrastructure Coordination Ecosystem: Services & Support. In Pract. Exp. Adv. Res. Comput. 2023 Comput. Common Good . https://doi.org/10.1145/3569951.3597559 [14] V. Carrica, M. Onyango, R. Alomairy, E. Ringoot, J. Schloss, and A. Edelman. 2025. Toward Portable GPU Performance: Julia Recursive Implementation of TRMM and TRSM. ArXiv Prepr. ArXiv250413821 (2025). [15] V. Churavy. 2023. KernelAbstractions.Jl. GitHub. https://github.com/JuliaGPU/ KernelAbstractions.jl [16] V. Churavy, W. F. Godoy, C. Bauer, H. Ranocha, M. Schlottke-Lakemper, L. Räss, J. Blaschke, M. Giordano, E. Schnetter, S. Omlin, J. S. Vetter, and A. Edelman. 2022. Bridging HPC Communities through the Julia Programming Language. [17] C. Coleman, S. Lyon, L. Maliar, and S. Maliar. 2021. Matlab, Python, Julia: What to Choose in Economics? Comput. Econ. (2021). https://doi.org/10.1007/s10614-020-09983-3 [18] S. Danisch and T. Besard. 2023. GPUArrays.Jl. GitHub. https://github.com/ JuliaGPU/GPUArrays.jl [19] J. H. Davis, P. Sivaraman, I. Minn, K. Parasyris, H. Menon, G. Georgakoudis, and A. Bhatele. 2024. An Evaluative Comparison of Performance Portability across GPU Programming Models. [20] E. de la Calle and C. Garcia. 2024. Juliana: Automated Julia CUDA. Jl Code Translation across Multiple GPU Platforms. In Int. Conf. Parallel Process. Appl. Math. 
+
+[21] T. Deakin, S. McIntosh-Smith, J. Price, A. Poenaru, P. Atkinson, C. Popa, and J. Salmon. 2019. Performance Portability across Diverse Computer Architectures. In 2019 IEEEACM Int. Workshop Perform. Portability Product. HPC P3HPC .[22] A. S. Dufek, R. Gayatri, N. Mehta, D. Doerfler, B. Cook, Y. Ghadar, and C. DeTar. 2021. Case Study of Using Kokkos and SYCL as Performance-Portable Frame-works for Milc-Dslash Benchmark on NVIDIA, AMD and Intel Gpus. In 2021 Int. Workshop Perform. Portability Product. HPC P3HPC .[23] H. C. Edwards and C. R. Trott. 2013. Kokkos: Enabling Performance Portability across Manycore Architectures. In 2013 Extreme Scaling Workshop Xsw 2013 .[24] J. Eschle, T. Gál, M. Giordano, P. Gras, B. Hegner, L. Heinrich, U. H. Acosta, S. Kluth, J. Ling, P. Mato, M. Mikhasenko, A. M. Briceño, J. Pivarski, K. Samaras-Tsakiris, O. Schulz, G. A. Stewart, J. Strube, and V. Vassilev. 2023. Potential of the Julia Programming Language for High Energy Physics Computing. Comput. Softw. Big Sci. (2023). https://doi.org/10.1007/s41781-023-00104-x [25] M. Giordano, M. Klöwer, and V. Churavy. 2022. Productivity Meets Performance: Julia on A64FX. In 2022 IEEE Int. Conf. Clust. Comput. Clust. 
+
+[26] W. Godoy, T. Melnichenko, P. Valero-Lara, W. Elwasif, P. Fackler, R. Ferreira Da Silva, K. Teranishi, and J. Vetter. 2025. Mojo: MLIR-based Performance-Portable HPC Science Kernels on Gpus for the Python Ecosystem. In Proc. SC 25 Workshop Int. Conf. High Perform. Comput. Netw. Storage Anal. https://doi.org/ 10.1145/3731599.3767573 [27] W. F. Godoy, P. Valero-Lara, T. E. Dettling, C. Trefftz, I. Jorquera, T. Sheehy, R. G. Miller, M. Gonzalez-Tallada, J. S. Vetter, and V. Churavy. 2023. Evaluating Perfor-mance and Portability of High-Level Programming Models: Julia, Python/Numba, and Kokkos on Exascale Nodes. In 2023 IEEE Int. Parallel Distrib. Process. Symp. Workshop IPDPSW .[28] P. Hijma, S. Heldens, A. Sclocco, B. Van Werkhoven, and H. E. Bal. 2023. Op-timization Techniques for GPU Programming. ACM Comput. Surv. (2023). https://dl.acm.org/doi/10.1145/3570638 [29] S. V. Krishna, O. Jadhav, P. Ardhapurkar, M. Valmiki, S. Agrawal, R. Bulusu, P. Dinde, and S. Wandhekar. 2025. Performance Comparison of Julia with C and Python for Solving Computational Problems. In Adv. Comput. Data Sci. 
+
+[30] M. Lurati, S. Heldens, A. Sclocco, and B. van Werkhoven. 2024. Bringing Auto-Tuning to HIP: Analysis of Tuning Impact and Difficulty on AMD and Nvidia Gpus. In Euro-Par 2024 Parallel Process. 
+
+[31] G. Malenza, V. Cesare, M. E. Santimaria, R. Birke, A. Vecchiato, U. Becciani, and M. Aldinucci. 2024. Performance Portability via C++ PSTL, SYCL, OpenMP, and HIP: The Gaia AVU-GSR Case Study. In SC24-W Workshop Int. Conf. High Perform. Comput. Netw. Storage Anal. 
+
+[32] MIT Office of Research Computing and Data. 2026. ORCD Systems Documenta-tion. https://orcd-docs.mit.edu/orcd-systems/ [33] A.-L. Nicusan, D. Werner, S. Branford, S. Hartley, A. J. Morris, and K. Windows-Yule. 2025. Acceleratedkernels.Jl: Cross-architecture Parallel Algorithms from a Unified, Transpiled Codebase. https://arxiv.org/abs/2507.16710 [34] C. Nugteren and V. Codreanu. 2015. CLTune: A Generic Auto-Tuner for OpenCL Kernels. In 2015 IEEE 9th Int. Symp. Embed. Multicoremany-Core Syst.–Chip MC-SoC .[35] S. J. Pennycook, J. D. Sewall, and V. W. Lee. 2016. A Metric for Performance Portability. ArXiv Prepr. ArXiv161107409 (2016). [36] F. Petrovič and J. Filipovič. 2023. Kernel Tuning Toolkit. SoftwareX (2023). https://www.sciencedirect.com/science/article/pii/S235271102300081X [37] A. Rasch, M. Haidl, and S. Gorlatch. 2017. ATF: A Generic Auto-Tuning Frame-work. In Proc. 19th Int. Conf. High Perform. Comput. Commun. 
+
+[38] I. Z. Reguly. 2023. Evaluating the Performance Portability of SYCL across CPUs and GPUs on Bandwidth-Bound Applications. In Proc. SC23 Workshop Int. Conf. High Perform. Comput. Netw. Storage Anal. 
+
+[39] E. Ringoot, R. Alomairy, V. Churavy, and A. Edelman. 2025. Performant Unified GPU Kernels for Portable Singular Value Computation across Hardware and Precision. ArXiv Prepr. ArXiv250806339 (2025). [40] E. Ringoot, R. Alomairy, V. Churavy, and A. Edelman. 2025. Scaling Singular Values beyond GPU Memory Limits: Out-of-core, GPU-accelerated, and Unified across Data Precision and Hardware. (2025). [41] E. Ringoot, R. Alomairy, and A. Edelman. 2026. Accelerating Bidiagonalization of Banded Matrices through Memory-Aware Bulge-Chasing on Gpus. https: //arxiv.org/abs/2510.12705 [42] C. Rowley and contributors. 2026. CondaPkg.Jl: Conda Dependencies for Julia Projects. https://github.com/JuliaPy/CondaPkg.jl [43] C. Rowley and contributors. 2026. PythonCall.Jl: Python and Julia in Harmony. https://github.com/JuliaPy/PythonCall.jl [44] S. Ryoo, C.I. Rodrigues, S.S. Stone, S.S. Baghsorkhi, S.Z. Ueng, J.A. Stratton, and W.W. Hwu. 2008. Program Optimization Space Pruning for a Multithreaded Gpu. In Code Gener. Optim. Int. Symp. On .[45] J. Samaroo, A. Smirnov, V. Churavy, L. Räss, T. Hodgson, A. Montoison, W. Phillips, A. Ramadhan, J. Barmparesos, T. Besard, J. TagBot, M. Schanen, C. Bauer, M. Giordano, T. Arakaki, S. Antholzer, Alessandro, C. Elrod, G. Baraldi, H. Ranocha, M. Kunz, M. Raayai, T. Gymnich, and T. Hu. 2023. JuliaGPU/AMDGPU.Jl: V0.7.3. Zenodo / JuliaGPU. https://doi.org/10.5281/zenodo.10040461 [46] R. Schoonhoven, B. Veenboer, B. Van Werkhoven, and K. J. Batenburg. 2022. Going Green: Optimizing GPUs for Energy Efficiency through Model-Steered Auto-Tuning. 2022 IEEEACM Int. Workshop Perform. Model. Benchmarking Simul. High Perform. Comput. Syst. PMBS (2022). https://ieeexplore.ieee.org/document/ 10024022/ [47] P. Tillet, H. T. Kung, and D. Cox. 2019. Triton: An Intermediate Language and Compiler for Tiled Neural Network Computations. In Proc. 3rd ACM SIGPLAN Int. Workshop Mach. Learn. Program. Lang. https://doi.org/10.1145/3315508.3329973 [48] U. Utkarsh, V. Churavy, Y. Ma, T. Besard, P. Srisuma, T. Gymnich, A. R. Gerlach, A. Edelman, G. Barbastathis, R. D. Braatz, and C. Rackauckas. 2024. Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms. Comput. Methods Appl. Mech. Eng. (2024). https://www.sciencedirect. com/science/article/pii/S0045782523007156 [49] S. van der Vlugt, L. Oostrum, G. Schoonderbeek, B. van Werkhoven, B. Veenboer, K. Doekemeijer, and J. W. Romein. 2025. PowerSensor3: A Fast and Accurate Open Source Power Measurement Tool. In 2025 IEEE Int. Symp. Perform. Anal. Syst. Softw. ISPASS . https://doi.ieeecomputersociety.org/10.1109/ISPASS64960.2025.00028 [50] B. van Werkhoven. 2019. Kernel Tuner: A Search-Optimizing GPU Code Auto-Tuner. Future Gener. Comput. Syst. (2019). https://www.sciencedirect.com/ science/article/pii/S0167739X18313359 [51] B. van Werkhoven, W. J. Palenstijn, and A. Sclocco. 2020. Lessons Learned in a Decade of Research Software Engineering GPU Applications. In Comput. Sci. – ICCS 2020 .[52] R. C. Whaley, A. Petitet, and J. J. Dongarra. 2001. Automated Empirical Optimiza-tions of Software and the ATLAS Project. Parallel Comput. (2001). [53] F.-J. Willemsen, R. van Nieuwpoort, and B. van Werkhoven. 2021. Bayesian Optimization for Auto-Tuning GPU Kernels. In 2021 Int. Workshop Perform. Model. Benchmarking Simul. High Perform. Comput. Syst. PMBS Supercomput. 2021 .[54] F.-J. Willemsen, R. V. van Nieuwpoort, and B. van Werkhoven. 2025. Efficient Construction of Large Search Spaces for Auto-Tuning. In Proc. 54th Int. Conf. Parallel Process. ICPP 25 . https://doi.org/10.1145/3754598.3754601 [55] F.-J. Willemsen, R. V. van Nieuwpoort, and B. van Werkhoven. 2025. Tuning the Tuner: Introducing Hyperparameter Optimization for Auto-Tuning. In Proc. 2025 IEEE EScience Conf. 
+
+[56] F.-J. Willemsen, N. van Stein, and B. van Werkhoven. 2026. Automated Algorithm Design for Auto-Tuning Optimizers. In Proc. Mach. Learn. Syst. 
+
+[57] S. Xuan, E. Ringoot, R. Alomairy, F. Tome, J. Samaroo, and A. Edelman. 2024. Synthesizing Numerical Linear Algebra Using Julia. In 2024 IEEE High Perform. Extreme Comput. Conf. HPEC .[58] J. Zhao, C. Bertoni, J. Young, K. Harms, V. Sarkar, and B. Videau. 2023. HIPLZ: Enabling Performance Portability for Exascale Systems. Concurr. Comput. Pract. Exp. (2023). https://onlinelibrary.wiley.com/doi/abs/10.1002/cpe.7866

@@ -1,0 +1,837 @@
+Title: DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads
+
+URL Source: https://arxiv.org/pdf/2608.16308v1
+
+Published Time: Tue, 18 Aug 2026 02:21:19 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads 
+
+# Xing Cong 
+
+Beihang University Beijing, China congxing@buaa.edu.cn 
+
+# Chenhao Xie ∗
+
+Beihang University Beijing, China xiechenhao@buaa.edu.cn 
+
+# Rui Wang 
+
+Beihang University Beijing, China wangrui@buaa.edu.cn 
+
+# Zhongzhi Luan 
+
+Beihang University Beijing, China 07680@buaa.edu.cn 
+
+# Yi Liu 
+
+Beihang University Beijing, China yi.liu@buaa.edu.cn 
+
+# Depei Qian 
+
+Beihang University Beijing, China depeiq@buaa.edu.cn 
+
+## Abstract 
+
+Sparse Matrix-Sparse Vector Multiplication (SpMSpV) is a core prim-itive in graph traversal, sparse linear algebra, and sparse model inference. Its input vector is often dynamically sparse, so the best GPU execution path depends on both global sparsity and the lo-cal vector-block distribution. Existing GPU SpMSpV methods of-ten bind storage layouts, push/pull traversal, and kernels together, making fine-grained adaptation difficult without extra storage or scheduling overhead. This paper presents DB-SpMSpV, a dual-view blocked SpMSpV framework for dynamic GPU workloads. DB-SpMSpV partitions the matrix into fixed-size 2D blocks, maintains block-level CSR/CSC views at the high level, and reuses a single low-level block pay-load to support both row-driven pull and column-driven push. At runtime, it selects the global traversal path based on input block sparsity, chooses block microkernels from the local matrix/vector block structure, and uses load balancing, asynchronous prefetching, and hierarchical writeback to reduce irregular memory accesses, writeback conflicts, and load imbalance. We further integrate the framework into DB-BFS and DB-Decoding. We evaluate DB-SpMSpV on NVIDIA A100 and RTX 4090 using SuiteSparse matrices, symmetric graphs, and three open-source LLMs. Across input sparsities, DB-SpMSpV achieves average speedups of 5.48 ×–64.34 × over cuSPARSE and 2.36 ×–14.01 × over TileSpMSpV on A100, with similar gains on RTX 4090. DB-BFS further improves end-to-end graph traversal by 2.66 × over TileBFS on A100 and 3.60 × on RTX 4090 on average, while DB-Decoding accelerates single-token linear layers by up to 4.50 ×.
+
+## CCS Concepts 
+
+• Computer systems organization → Single instruction, mul-tiple data ; • General and reference → Performance ; • Com-puting methodologies → Parallel programming languages .
+
+> ∗Corresponding author Please use nonacm option or ACM Engage class to enable CC licenses
+> This work is licensed under a Creative Commons Attribution 4.0 International License.
+> ICPP ’26, September 28-October 01, 2026, Singapore, Singapore
+> © 2026 Copyright held by the owner/author(s). ACM ISBN 979-8-4007-2657-6/2026/09 https://doi.org/10.1145/3832810.3832821
+
+## Keywords 
+
+Blocked Sparse Matrix, SpMSpV on GPUs, BFS 
+
+ACM Reference Format: 
+
+Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian. 2026. DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads. In Proceedings of the 55th International Conference on Parallel Processing (ICPP ’26), September 28-October 01, 2026, Singapore, Singapore. ACM, New York, NY, USA, 11 pages. https://doi.org/10.1145/3832810.3832821 
+
+## 1 Introduction 
+
+Sparse matrix computation is a fundamental technique in computa-tional science [2], graph analytics[1, 10, 19, 35, 41], and machine learning systems[13, 45]. On GPUs, however, sparse workloads are difficult to accelerate because compact storage and irregular spar-sity often lead to scattered memory accesses, load imbalance, and parallel writeback conflicts [16, 27, 28]. These challenges become more pronounced when the sparsity pattern changes at runtime. Sparse Matrix-Sparse Vector Multiplication (SpMSpV) captures this dynamic setting. It is a core primitive in Breadth-First Search (BFS)[3, 30, 46], graph traversal[32], sparse linear algebra[3], and GraphBLAS-like systems[1, 41]. It also appears in sparse large language model inference, where sparse weight matrices[14] and sparse activations[9, 26] turn some single-token linear transforma-tions into SpMSpV-like operations. Thus, SpMSpV is not only a graph primitive, but also a useful abstraction for workloads that repeatedly multiply a reusable sparse matrix by a changing sparse vector. In real workloads, the sparse vector is not fixed. As shown in Fig.1, BFS repeatedly applies SpMSpV on a fixed adjacency matrix while its frontier expands, shrinks, and shifts across traversal levels. Sparse LLM decoding similarly reuses weight matrices while acti-vation vectors vary across layers, tokens, and contexts. Although these workloads have different semantics, they require the same systems support: a matrix representation that can be reused across many dynamic vectors, low-overhead vector metadata generation, and execution that adapts as the sparse vector changes. This requirement makes SpMSpV fundamentally different from SpMV[8, 31]. SpMV assumes a dense input vector and usually traverses all matrix nonzeros, whereas SpMSpV[18, 22, 23, 33] should exploit only the active input positions. As a result, the pre-ferred SpMSpV path is input-dependent: push and pull trade off arXiv:2608.16308v1 [cs.DC] 17 Aug 2026 ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian S(W up )       
+
+> x0y0x1y1x2y2x3y3 End A
+> 0
+
+## ×              
+
+> softmax WqWkWv
+> Wo
+> Wup
+> Act Wdown
+> Xi0Xi0Xi0
+> Xi3
+> A's graph form
+> (a) BFS iteration via SpMSpV (b) Decoding in LLMs: Both weights and vectors sparse → SpMSpV.
+> 012345012345678678
+> 42315867
+
+= = = =     
+
+> iter0 iter1 iter2 iter3 S(x i0)
+> Xi1
+> Xi4
+> Layer-(i) S(x i3)
+> Embedding Attention MLP ×N Xi0
+> Xi2
+> S(W q)S(x i+1 0)Layer-(i+1) S(W up )S(x i+1 3)S(W q)
+> Logits
+
+Figure 1: Dynamic SpMSpV in BFS and sparse LLM decoding. 
+
+invalid scans, memory regularity, and writeback conflicts as sparsity changes. In addition, as Fig.3 shows, a globally sparse BFS frontier contains distinct local regions, making purely global decisions too coarse for efficient computation. Existing optimizations only partially address this tension. Storage formats such as CSR/CSC[3, 27], TileSpMSpV[18], and B2SR/bitmap[30] improve either row access, column access, or locality, but are usually aligned with one computation paradigm. Keeping both CSR and CSC supports both push and pull, but nearly doubles storage and complicates switching. GPU kernels such as k-way merge[20], fgSpMSpV[7], VDHA[23], HAM-SpMSpV[39], and Tensor Core-based designs[30] reduce specific bottlenecks, yet they are often tied to a particular layout, sparsity range, or appli-cation pipeline[12, 18, 38]. What is still missing is a coordinated SpMSpV design that supports both push and pull over a shared representation while adapting to global vector sparsity and local block structure. To this end, we propose DB-SpMSpV, a GPU-based workload that coordinates dual-view blocked storage with two-level runtime adaptation for dynamic SpMSpV. DB-SpMSpV is built on the obser-vation that 2D blocking decouples inter-block traversal order from intra-block data organization . At the high level, it main-tains block-level CSR and CSC views so that row-block-driven pull and column-block-driven push can share one matrix representation. At the low level, it stores only one copy of the block data and se-lects the COO, Dense, ForceCSR, ForceCSC, or patched-CSR format based on the intra-block structure. At runtime, DB-SpMSpV selects the traversal path using global nonzero-vector-block ratio, chooses block microkernels using local vector-block masks, and applies load balancing, asynchronous prefetching, warp-level reduction, and hierarchical writeback to improve GPU efficiency. We further extend DB-SpMSpV to DB-BFS and DB-Decoding. In DB-BFS, dynamic frontiers act as sparse vectors over a fixed graph matrix, enabling push–pull switching without rebuilding the representation. In DB-Decoding, sparse weights are converted once at model loading, while token-dependent activation masks drive adaptive SpMSpV for single-token decoding. Experiments on A100 and RTX 4090 show that DB-SpMSpV outperforms cuSPARSE, CB-SpMV, and TileSpMSpV across input sparsities, and that the same yx      
+
+> 00012345012345
+
+# × =
+
+A    
+
+> A0x0A1x1
+> A3x1
+
+# ×=+  
+
+> A2x0
+
+y
+
+# × +××
+
+(a) General SpMSpV (b) Blocked SpMSpV  
+
+> ⊙⊙
+
+# + =×⊙
+
+# =
+
+> Col-major (push) Col-major (push) Row-major (pull)
+
+(c)  Comparison of Two SpMSpV Computation Paradigms 
+
+Figure 2: Overview of General and Blocked SpMSpV with Push/Pull Computation Paradigms. 
+
+design improves end-to-end BFS and single-token sparse linear layers. The main contributions of this coordinated design are as follows: 
+
+• We propose a dual-view blocked matrix representation that uni-fies push and pull with low storage overhead. 
+
+• We design an adaptive DB-SpMSpV framework that selects execu-tion paths using both global block sparsity and local vector-block distribution. 
+
+• We develop an optimized GPU kernel with path-aware load bal-ancing, asynchronous prefetching, warp-level reduction, and hierarchical writeback. 
+
+• We extend DB-SpMSpV to DB-BFS and DB-Decoding, showing its effectiveness for graph traversal and sparse LLM decoding. 
+
+• We perform a comprehensive evaluation on two GPUs across SpMSpV, BFS, and sparse LLM decoding workloads. 
+
+## 2 Background and Motivation 2.1 SpMSpV 
+
+Sparse Matrix-Sparse Vector Multiplication (SpMSpV) computes the product of a sparse matrix 𝐴 and a sparse vector 𝑥 , i.e., 𝑦 = 𝐴𝑥 ,as illustrated in Fig.2. Since only part of 𝑥 is active, the computa-tion can be organized in two opposite directions. Push starts from active input entries and propagates their contributions to output rows, while pull starts from output rows and gathers contributions from the corresponding input entries. These two paradigms expose different memory access patterns, task granularities, and writeback behaviors, making the structure of 𝑥 central to performance. 
+
+Push paradigm : Push is a column-driven approach (Alg.1 Top). For each active entry 𝑗 in 𝑥 , it traverses column 𝑗 of 𝐴 and ac-cumulates 𝐴 𝑖,𝑗 × 𝑥 𝑗 into 𝑦 𝑖 . By skipping inactive columns, push can greatly reduce unnecessary memory accesses when 𝑥 is highly sparse, and it naturally matches CSC-like layouts. Its weakness be-comes apparent when many columns are active: different columns may update the same output entries, increasing the number of atomic operations and writeback conflicts. Existing methods such as fgSpMSpV[7], FastSpMSpV[43], and VDHA[23] mitigate these conflicts through hash tables, local aggregation, or decomposition, DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads ICPP ’26, September 28-October 01, 2026, Singapore, Singapore x_sparsity x_sparsity x_sparsity (a) consph.mtx (b) halfb.mtx x_sparsity (c) m_t1.mtx (d) pwtk.mtx    
+
+> Traversal Level (Iter) Prop. Prop. Prop. Prop. 51.93%
+
+Figure 3: Block-level nonzero distribution of BFS frontiers across iterations. Each frontier is partitioned into 16-element vector blocks. The heatmap shows the proportion of blocks with different numbers of nonzeros (e.g., (3, 13, 0.5193) denotes that vector blocks with 3 nonzeros account for 51.93% of all nonzero vector blocks), and the red curve shows frontier sparsity 
+
+𝑠 𝑓 = nnz (𝑓 )/| 𝑓 | ∈ [ 0, 1].
+
+but writeback pressure remains a major bottleneck as the input becomes denser. 
+
+Pull paradigm : Pull is a row-driven approach (Alg.1 Bottom). It traverses each output row 𝑖 and checks whether the corresponding input entry 𝑥 𝑗 is active. This direction fits CSR-like layouts, provides more contiguous matrix access, and largely avoids write conflicts because output rows are handled independently. When 𝑥 is rela-tively dense, most row scans are useful and pull can provide stable throughput. When 𝑥 is highly sparse, however, pull still visits many nonzeros whose input entries are zero. Methods such as CSR5[27], TileSpMV[31], CB-SpMV[8], and TileSpMSpV[18] improve locality and load balance, but a fixed pull or SpMV-style execution path cannot fully exploit strong input sparsity. 
+
+Algorithm 1 Pseudocode of push- and pull-based SpMSpV  
+
+> 1:
+
+// Push-based SpMSpV (CSC format)  
+
+> 2:
+
+for 𝑗 ∈ nnz (𝑥 ) in parallel do do  
+
+> 3:
+
+for 𝑘 = 𝑐𝑜𝑙 _𝑝𝑡𝑟 [ 𝑗 ] to 𝑐𝑜𝑙 _𝑝𝑡𝑟 [ 𝑗 + 1] do do  
+
+> 4:
+
+𝑟𝑜𝑤 ← 𝑟𝑜𝑤 _𝑖𝑑𝑥 [𝑘 ] // nonzeros in column 𝑗  
+
+> 5:
+
+// Writeback violation occurred, reducing performance  
+
+> 6:
+
+𝑦 [𝑟𝑜𝑤 ] ← 𝑦 [𝑟𝑜𝑤 ] + 𝑥 [ 𝑗 ] × 𝑐𝑠𝑐 _𝑣𝑎𝑙 [𝑘 ] 
+
+> 7:
+
+end for  
+
+> 8:
+
+end for  
+
+> 9:
+
+// Pull-based SpMSpV (CSR format)  
+
+> 10:
+
+for 𝑖 = 0 to 𝑚 in parallel do do  
+
+> 11:
+
+𝑠𝑢𝑚 ← 0 
+
+> 12:
+
+for 𝑗 = 𝑟𝑜𝑤 _𝑝𝑡𝑟 [𝑖 ] to 𝑟𝑜𝑤 _𝑝𝑡𝑟 [𝑖 + 1] do do  
+
+> 13:
+
+// Invalid calculation caused by 𝑥 being zero  
+
+> 14:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + 𝑥 [𝑐𝑜𝑙 _𝑖𝑑𝑥 [ 𝑗 ]] × 𝑐𝑠𝑟 _𝑣𝑎𝑙 [ 𝑗 ] 
+
+> 15:
+
+end for  
+
+> 16:
+
+𝑦 [𝑖 ] ← 𝑠𝑢𝑚  
+
+> 17:
+
+end for 
+
+## 2.2 Motivation: Need for Two-Level Adaptivity 
+
+To demonstrate this complementarity, we selected eight SuiteSparse matrices and measured the performance of basic CSR-pull and CSC-push implementations across different input vector sparsities, as shown in Fig.4. The preferred paradigm shifts as 𝑥 becomes sparser. At sparsity 0.1, CSR-pull is faster on all eight matrices; for example, Matirx Sparsity Time(us) Push ✅
+
+> Pull ✅
+
+Figure 4: Execution time of CSR-pull and CSC-push SpMSpV on eight matrices under different input sparsities. 
+
+on matrix-1 , pull takes 9.61us while push takes 16.59us. At spar-sity 0.001, push becomes faster on most matrices; for example, on 
+
+matrix-4 , push takes 5.40us, outperforming pull at 6.74us. The switching behavior, however, is not determined solely by global sparsity. Different matrices have different crossover points: at sparsity 0.01, matrix-1 favors push (8.72us vs. 10.85us), while matrix-2 , matrix-3 , and matrix-6 favor pull by contrast. Push performance is also not always monotonic with sparsity; on 
+
+matrix-1 , push time increases from 5.33us at sparsity 0.001 to 8.01us at sparsity 0.0001. These results indicate that the optimal path depends not only on the number of active inputs, but also on how those inputs interact with the matrix structure. Meanwhile, we observe that matrices in real applications exhibit strong local heterogeneity. We select four matrices(in Tab.3) with distinct structural properties— pwtk and consph are moderately dense finite-element matrices, m_t1 has a strongly banded structure with locally dense blocks, and halfb exhibits irregular sparsity—to cover the spectrum of frontier evolution patterns encountered in practice. Using vertex 0 as the BFS source, we split each frontier into 16-element vector blocks and profile the number of nonzeros inside each block, as shown in Fig.3. The frontiers are highly nonuniform across both matrices and iterations. For example, in iteration 13 ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian COO: row_col_idx+val              
+
+> ⊙⊙012345678910 11 0123456789 10 11
+> 124769310 525 27 33 29 32 820 19 17 16 15 23 24 22 26 21 35 37 12
+
+(a) An example matrix A and x 
+
+A                          
+
+> blk_type :
+> blk_nnz :
+> blk_col_idx :blk_row_ptr : blk_vp :
+> blk_row_idx : blk_col_ptr : blk_csc2csr: 02367 10 4 11 4 12467890 21 81 3 5 10 12 13 14 15 16 17 18 19 20 22 23 24 001331High-Level-CSR-PULL
+> 4213
+> 1011 xx_mask
+> 124769833 29 25 27 32 20 19 17 16 15 23 24 22 26 21 35 37 11423423
+
+××
+
+> y
+> adbcfe
+
+# += dbcfea
+
+(b) The DB-SpMSpV format of matrix A and vector x (c) High-Level-Push Computation                                                                             
+
+> 11 13 14 18 28 31 34 36 30
+> 02470112012735 12 2 531002000p0p1p2p3p4p5p5
+> 024702012120412536
+> Index to
+> High-Level-CSC-PUSH 024670 35 18 54 1 36 37 00231236012425
+> CSR: row_ptr + row_mask + val + col_ptr + row_idx_csc2csr Index to Dense: val
+> Multiple Sub-Block Storage Formats Skip ForceCSR: row_ptr+row_mask+val
+> 04511 12 13 55 15 2 0014 18 1111
+> ForceCSC:col_ptr+col_mask+val
+> 00130 28 31 5504 15 2 34 36 0100blk_x
+
+Figure 5: Storage format and execution flow of DB-SpMSpV. (a) A 12 × 12 example matrix with different block formats and vector-block metadata, with block size 4; (b) high-level dual-view indices and low-level block data. Here, xxx_mask denotes a bit mask indicating nonzero positions; for example, the first row_mask value of 10 in CSR corresponds to 0b1010 , indicating nonzeros in columns 1 and 3; (c) block-level computation flow under the high-level push path for a sparse input vector. Start YY
+
+> N
+
+Y Yxb_sparsity<th 3
+
+High-Level Push-CSC High-Level Pull-CSR Y NLoad Balance for High-Level Push and Pull Pull Kernel (CSR,COO,Dense) Push Kernel(CSC,COO,Dense) blk_x_type?   
+
+> Pull Push
+> Efficient Memory Access and Hierarchical Writebacks for Low-Level Kernel
+
+End COO Dense blk_nnz<th 0
+
+blk_nnz>th 1
+
+c_s/r_s>th 2
+
+r_s/c_s>th 2NNN
+
+Force-CSR Force-CSC CSR 
+
+Figure 6: Overview of DB-SpMSpV. 
+
+of consph , blocks with 3 nonzeros account for 51.93%, while full blocks still account for 16.05%. In pwtk , full blocks exceed 80% in most iterations, meaning that a globally sparse frontier can still contain locally dense regions. Similar patterns appear in halfb and 
+
+m_t1 .These observations lead to the main challenge addressed in this paper: SpMSpV needs adaptivity at two levels . At the global level, it should choose whether to traverse active input or output. At the local level, it should determine how the matrix is processed based on its structure and the sparse vector. A single push or pull path is therefore insufficient, while maintaining fully duplicated row- and column-oriented formats is too expensive. This motivates a unified blocked representation that supports block-level push/pull collaboration with low overhead. As Fig.2(b) shows, 2D blocking provides a middle ground by exposing coarse-grained matrix blocks traversal and individual intra-blocks computing model selection, transferring the key challenges to optimal intra-block designing and inter-block scheduling. 
+
+## 3 DB-SpMSpV 3.1 Overview 
+
+To achieve our goal, we propose DB-SpMSpV, a dual-view blocked SpMSpV framework for dynamic GPU workloads, tailored to the characteristics of both matrices 𝐴 and 𝑥 . DB-SpMSpV uses fixed-size 2D blocks as the common unit for storage, scheduling, and local computation. As shown in Fig.6, it first converts the matrix into 16 ×16 blocks with high-level row/column traversal views and density/skew-aware low-level formats. At runtime, the input vector is partitioned into aligned 16-element blocks to generate masks and global statistics that drive two-level adaptivity: selecting the high-level push/pull traversal path and choosing block microker-nels based on the local matrix/vector structure. The same adaptive SpMSpV engine is then reused by DB-BFS and DB-Decoding. 
+
+## 3.2 Dual-view sparse storage format 
+
+3.2.1 Sparse matrix storage format . DB-SpMSpV partitions the input matrix into uniform 16 ×16 blocks. This granularity matches warp-level execution and provides enough local structure for ef-ficient block microkernels, while avoiding excessive scheduling overhead from very small blocks or insufficient parallelism from very large blocks. The representation is organized in two layers. The high-level layer locates nonzero blocks and provides traversal views, whereas the low-level layer stores the internal structure and values of each block. The high-level layer maintains both block-level CSR and block-level CSC views, as shown in Fig.5(b). The block-level CSR view, represented by global_block_csr_row_ptr and 
+
+global_block_csr_col_idx , enumerates nonzero blocks from output row blocks and serves as the entry point of the pull path. The block-level CSC view, represented by global_block_csc_col_ptr 
+
+and global_block_csc_row_idx , enumerates nonzero blocks DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads ICPP ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+from active input column blocks and serves as the entry point of the push path. The block payload is stored only once in a primary order. A mapping array, global_block_csc2csr , translates each CSC-view position to the corresponding primary block ID, allowing both views to reuse the same blocks_row , blocks_col , blocks_nnz ,
+
+blocks_type , and blocks_vp metadata. This design preserves both traversal directions without storing a duplicate CSR+CSC. At the low level, DB-SpMSpV selects compact block formats by density and directional skew. Blocks with fewer than 𝑡ℎ 0 nonzeros use packed COO, blocks with more than 𝑡ℎ 1 nonzeros use Dense storage, and the remaining blocks are classified by row/column imbalance. For axis 𝑎 ∈ { 𝑟, 𝑐 }, let 𝐵 𝑎 be the number of rows or columns and 𝑛 (𝑎 ) 
+
+> 𝑙
+
+be the nonzero count of the 𝑙 -th row or column. We define the axis skew as: skew 𝑎 (𝐴 𝑏 ) = max 𝑙 𝑛 (𝑎 )
+
+> 𝑙
+
+nnz (𝐴 𝑏 )/ 𝐵 𝑎 + 𝜖 ,
+
+where 𝜖 avoids division by zero. Here, skew 𝑟 and skew 𝑐 correspond to row and column skew, respectively. If skew 𝑐  
+
+> skew 𝑟
+
+> 𝑡ℎ 2, the block is marked as ForceCSC; if skew 𝑟  
+
+> skew 𝑐
+
+> 𝑡ℎ 2, it is marked as ForceCSR. Moderately sparse blocks without strong skew use patched CSR, which adds col_ptr and packs 4-bit row_idx with 4-bit csc2csr 
+
+into row_idx_csc2csr , allowing push to reuse the same value array without a separate CSC payload. Following CB-SpMV[8], we set 
+
+𝑡ℎ 0 = 32, 𝑡ℎ 1 = 128, and 𝑡ℎ 2 = 2.0, and store block metadata contiguously for cache locality. 
+
+Algorithm 2 Pseudocode of warp-level DB-SpMSpV for a ForceCSR block in the pull paradigm  
+
+> 1:
+
+for 𝑡 𝑖 = 0 to 31 in parallel do  
+
+> 2:
+
+𝑠𝑢𝑚 ← 0, 𝑛𝑧 _𝑖𝑑𝑥 ← 0 
+
+> 3:
+
+// Two threads interleave to process one row  
+
+> 4:
+
+𝑟𝑜𝑤 _𝑖𝑑𝑥 ← 𝑡 𝑖 ≫ 1 
+
+> 5:
+
+𝑠𝑢𝑏 _𝑙𝑎𝑛𝑒 _𝑖𝑑𝑥 ← 𝑡 𝑖 & 1  
+
+> 6:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑟𝑜𝑤 _𝑚𝑎𝑠𝑘 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] & 𝑏𝑙𝑘 _𝑥 _𝑚𝑎𝑠𝑘  
+
+> 7:
+
+while 𝑎𝑐𝑡𝑖𝑣𝑒 ≠ 0 do  
+
+> 8:
+
+𝑐𝑜𝑙 _𝑖𝑑𝑥 ← __ffs (𝑎𝑐𝑡𝑖𝑣𝑒 ) − 1 
+
+> 9:
+
+if (𝑛𝑧 _𝑖𝑑𝑥 & 1 ) = 𝑠𝑢𝑏 _𝑙𝑎𝑛𝑒 _𝑖𝑑𝑥 then  
+
+> 10:
+
+𝑝𝑟𝑒 𝑓 𝑖𝑥 _𝑚𝑎𝑠𝑘 ← mask of columns before 𝑐𝑜𝑙 _𝑖𝑑𝑥  
+
+> 11:
+
+𝑜 𝑓 𝑓 𝑠𝑒𝑡 ← __popc (𝑟𝑜𝑤 _𝑚𝑎𝑠𝑘 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] & 𝑝𝑟𝑒 𝑓 𝑖𝑥 _𝑚𝑎𝑠𝑘 ) 
+
+> 12:
+
+𝑝 ← 𝑟𝑜𝑤 _𝑝𝑡𝑟 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] + 𝑜 𝑓 𝑓 𝑠𝑒𝑡  
+
+> 13:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + 𝑣𝑎𝑙 [𝑝 ] × 𝑏𝑙𝑘 _𝑥 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] 
+
+> 14:
+
+end if  
+
+> 15:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑎𝑐𝑡𝑖𝑣𝑒 & (𝑎𝑐𝑡𝑖𝑣𝑒 − 1) 
+
+> 16:
+
+𝑛𝑧 _𝑖𝑑𝑥 ← 𝑛𝑧 _𝑖𝑑𝑥 + 1 
+
+> 17:
+
+end while  
+
+> 18:
+
+// Consolidated results  
+
+> 19:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + __shfl_xor_sync (0xffffffff , 𝑠𝑢𝑚, 1) 
+
+> 20:
+
+if 𝑠𝑢𝑏 _𝑙𝑎𝑛𝑒 _𝑖𝑑𝑥 = 0 then  
+
+> 21:
+
+𝑠 _𝑦 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] ← 𝑠𝑢𝑚  
+
+> 22:
+
+end if  
+
+> 23:
+
+end for 
+
+3.2.2 Sparse vector storage format . As shown in Fig.5(a), the in-put vector is also partitioned into 16-element vector blocks, aligned with the column dimension of matrix blocks. Besides the origi-nal vector 𝑥 , each vector block stores blk_x_mask , a 16-bit mask that records intra-block nonzero positions. All-zero blocks have a zero mask and can be skipped immediately. During computa-tion, __popc() counts the number of active entries in a vector block: fewer active entries favor push, while denser vector blocks favor pull. This vector representation supplies the local informa-tion needed for block-level microkernel selection, while the global nonzero-block statistics guide high-level traversal selection. 
+
+## 3.3 DB-SpMSpV Algorithm 
+
+The dual-view format provides the structural basis for both traver-sal directions, but performance depends on how the runtime uses it. DB-SpMSpV performs two-level adaptive execution. First, it selects a high-level traversal path according to the ratio of nonzero vector blocks. Second, for each visited matrix block, it selects a low-level microkernel according to the matrix block type and blk_x_mask .This separates global traversal efficiency from local computation and writeback efficiency. To sustain GPU throughput under irreg-ular sparsity, DB-SpMSpV further incorporates path-aware load balancing, asynchronous data loading, and hierarchical writeback. 
+
+3.3.1 Dual-Path Adaptive Execution . DB-SpMSpV first scans vector blocks to count active entries and nonempty vector blocks, then computes the nonempty-block sparsity 𝑠 𝑏 = 𝑁 nzblk /𝑁 blk ∈[0, 1] (xb_sparsity ). If xb_sparsity is below 𝑡ℎ 3 = 0.01, the high-level path uses push and enumerates only matrix blocks associated with active input column blocks. Otherwise, the high-level path uses pull and organizes work by output row blocks, reducing writeback conflicts when many vector blocks are active. After the high-level path is fixed, DB-SpMSpV still selects a push or pull microkernel for each block based on blk_x_mask and blocks_type . High-level decisions, therefore, control which matrix blocks are visited, while low-level decisions control how each visited block is computed. 
+
+Algorithm 3 Pseudocode of warp-level DB-SpMSpV for a ForceCSC block in the push paradigm  
+
+> 1:
+
+for 𝑡 𝑖 = 0 to 31 in parallel do  
+
+> 2:
+
+// Two half-warps process different column ranges for the rows  
+
+> 3:
+
+𝑟𝑜𝑤 _𝑖𝑑𝑥 ← 𝑡 𝑖 & 15, 𝑝𝑎𝑟𝑡 ← 𝑡 𝑖 ≫ 4 
+
+> 4:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑏𝑙𝑘 _𝑥 _𝑚𝑎𝑠𝑘 , 𝑠𝑢𝑚 ← 0 
+
+> 5:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑎𝑐𝑡𝑖𝑣𝑒 & (0x00ff if 𝑝𝑎𝑟𝑡 = 0 else 0xff00 ) 
+
+> 6:
+
+while 𝑎𝑐𝑡𝑖𝑣𝑒 ≠ 0 do  
+
+> 7:
+
+𝑐𝑜𝑙 _𝑖𝑑𝑥 ← __ffs (𝑎𝑐𝑡𝑖𝑣𝑒 ) − 1 
+
+> 8:
+
+𝑚𝑎𝑠𝑘 ← 𝑐𝑜𝑙 _𝑚𝑎𝑠𝑘 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] 
+
+> 9:
+
+if ( ( 𝑚𝑎𝑠𝑘 ≫ 𝑟𝑜𝑤 _𝑖𝑑𝑥 ) & 1 ) ≠ 0 then  
+
+> 10:
+
+𝑜 𝑓 𝑓 𝑠𝑒𝑡 ← __popc (𝑚𝑎𝑠𝑘 & ( ( 1 ≪ 𝑟𝑜𝑤 _𝑖𝑑𝑥 ) − 1) )  
+
+> 11:
+
+𝑝 ← 𝑐𝑜𝑙 _𝑝𝑡𝑟 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] + 𝑜 𝑓 𝑓 𝑠𝑒𝑡  
+
+> 12:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + 𝑣𝑎𝑙 [𝑝 ] × 𝑏𝑙𝑘 _𝑥 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] 
+
+> 13:
+
+end if  
+
+> 14:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑎𝑐𝑡𝑖𝑣𝑒 & (𝑎𝑐𝑡𝑖𝑣𝑒 − 1) 
+
+> 15:
+
+end while  
+
+> 16:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + __shfl_xor_sync (0xffffffff , 𝑠𝑢𝑚, 16 ) 
+
+> 17:
+
+if 𝑡 𝑖 < 16 then  
+
+> 18:
+
+𝑠 _𝑦 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] ← 𝑠𝑢𝑚  
+
+> 19:
+
+end if  
+
+> 20:
+
+end for 
+
+3.3.2 Path-Aware Load Balancing . Push and pull require dif-ferent load-balancing strategies. Push may expose too few active ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian ⊙012345678910 11 0 1 2 3 4 5 6 7 8 9 10 11                     
+
+> 1111
+> A
+> 1211 0357910 41111111111111111186111
+> x0
+> 111111111Warp
+> 156x_mask 11111111111
+> 1
+> x2
+> 1
+> x2
+> 11111
+> ⊙111111111111111111
+> 111
+> x1
+> 111
+
+× ⊙11111111111111111111111    
+
+> 11111
+
+× ×      
+
+> x2Inner Loop Outer Loop ITER 0 ITER 1 ITER 2 Push ：Only for x_blk!=0 Pull: For all x_blk 0101blk_x_mask BFS Tree
+
+(a) An example matrix A  for BFS and the process of obtaining x_mask (b)  Example of an iterative execution procedure for DB-BFS 
+
+Figure 7: DB-BFS execution with frontier mask generation and adaptive push/pull traversal. (a) An example BFS tree, its adjacency matrix, and the generation of x_mask from the current frontier. (b) Iterative DB-BFS execution, where push is applied only to active vector blocks and pull scans all relevant vector blocks, enabling path switching across frontier evolution. 
+
+column blocks or highly uneven column-block degrees, so DB-SpMSpV flattens work into matrix-block-level tasks: each warp pro-cesses one matrix block and fetches tasks in a grid-stride manner, distributing long column blocks across SMs. Pull may create long row-block tasks with uneven format complexity, so DB-SpMSpV splits row blocks into load-weighted segments while preserving local writeback aggregation. Each pull thread block contains four warps and processes a row-block segment rather than a full row block. Segment weights follow the estimated format cost: Dense is 4, ForceCSR/ForceCSC/CSR is 2, and COO is 1; a new segment is created once the accumulated weight reaches 16. 
+
+3.3.3 Memory-Latency Hiding and Hierarchical Writeback .
+
+On GPUs, SpMSpV is usually limited by irregular memory access and writeback synchronization rather than floating-point through-put. DB-SpMSpV therefore uses the fixed block granularity to coor-dinate data loading, local reduction, and writeback. 
+
+Algorithm 4 Pseudocode of warp-level DB-SpMSpV for a Dense block in the pull paradigm  
+
+> 1:
+
+for 𝑡 𝑖 = 0 to 31 in parallel do  
+
+> 2:
+
+ℎ𝑎𝑙 𝑓 ← 𝑡 𝑖 ≫ 4 
+
+> 3:
+
+𝑐𝑜𝑙 _𝑖𝑑𝑥 ← 𝑡 𝑖 & 15  
+
+> 4:
+
+𝑟𝑒𝑑𝑢𝑐𝑒 _𝑚𝑎𝑠𝑘 ← ( 0x0000ffff if ℎ𝑎𝑙 𝑓 = 0 else 0xffff0000 ) 
+
+> 5:
+
+for 𝑟𝑜𝑤 _𝑏𝑎𝑠𝑒 = 0 to 14 step 2 do  
+
+> 6:
+
+𝑟𝑜𝑤 _𝑖𝑑𝑥 ← 𝑟𝑜𝑤 _𝑏𝑎𝑠𝑒 + ℎ𝑎𝑙 𝑓  
+
+> 7:
+
+// Coalesced global-memory load  
+
+> 8:
+
+𝑠𝑢𝑚 ← 𝑣𝑎𝑙 [𝑟𝑜𝑤 _𝑖𝑑𝑥 × 16 + 𝑐𝑜𝑙 _𝑖𝑑𝑥 ] × 𝑏𝑙𝑘 _𝑥 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] 
+
+> 9:
+
+for 𝑂𝐹𝑆 ∈ { 8, 4, 2, 1} do  
+
+> 10:
+
+𝑠𝑢𝑚 ← 𝑠𝑢𝑚 + __shfl_down_sync (𝑟𝑒𝑑𝑢𝑐𝑒 _𝑚𝑎𝑠𝑘, 𝑠𝑢𝑚, 𝑂𝐹𝑆 ) 
+
+> 11:
+
+if 𝑐𝑜𝑙 _𝑖𝑑𝑥 = 0 then  
+
+> 12:
+
+𝑠 _𝑦 [𝑟𝑜𝑤 _𝑖𝑑𝑥 ] ← 𝑠𝑢𝑚  
+
+> 13:
+
+end if  
+
+> 14:
+
+end for  
+
+> 15:
+
+end for 
+
+For data loading, push caches the active vector block in shared memory so consecutive tasks from the same column block can reuse it. Pull uses double-buffered shared memory and overlaps prefetch-ing with current computation through __pipeline_memcpy_async 
+
+and __pipeline_wait_prior .During microkernel execution, DB-SpMSpV performs local re-duction before global writeback. COO blocks scan packed coordi-nates and accumulate in shared memory. ForceCSR uses pull with two interleaved threads per row and register-level reduction, as shown in Alg.2. ForceCSC uses push by splitting a warp into two half-warps over different column ranges, as shown in Alg.3; row partial sums are merged within the warp before shared-memory writeback. For regular CSR blocks, DB-SpMSpV chooses the local exe-cution paradigm according to the number of active elements in blk_x_mask . If the vector block is relatively dense, it uses a ForceCSR-like pull path to reduce by rows and lower write conflicts. If the vector block is sparse, it uses push: for each active column 𝑗 ,the microkernel starts from col_ptr[ 𝑗 ], reads packed bytes from 
+
+row_idx_csc2csr —where the upper 4 bits encode the local row index and the lower 4 bits encode the offset into val[] —to recover the row and value positions without scanning irrelevant CSR rows. Dense blocks are naturally efficient under pull because values are stored in row-major order, as shown in Alg.4. Under push, column-wise access to this row-major layout becomes strided; thus, all 32 warp threads cooperatively load the 16 × 16 block row-by-row into shared memory (each thread loading one element per step), reorga-nizing it into a column-accessible layout so that values along each active column can be read contiguously during accumulation. 
+
+## 4 Application-Level Integration 4.1 Efficient Construction of Vector Metadata 
+
+End-to-end performance also depends on how quickly the dynamic input vector is converted into DB-SpMSpV metadata. In BFS, the frontier can be represented directly as a set of masks. In sparse de-coding, activation sparsity must be encoded at runtime. DB-SpMSpV fuses blk_x_mask generation and nonzero-block counting on the GPU, and connects this metadata construction to SpMSpV through 
+
+Cooperative Groups grid-level synchronization. Each warp reads 32 elements, uses __ballot_sync to obtain a 32-bit nonzero pat-tern, and splits it into two 16-bit masks. Nonzero blocks are counted hierarchically: each warp checks its assigned vector blocks, thread blocks aggregate locally, and only one global atomicAdd is issued per block. This avoids CPU involvement and host-device transfers, allowing dynamic inputs to be generated and consumed in place DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Performance (Gflops, log 10 scale) SpeedUp (log 10 scale) Performance (Gflops, log 10 scale) Sparsity=0.1 Sparsity=0.01 Sparsity=0.001 Sparsity=0.0001 A100  RTX 4090 Size in log 10 (nnz) Size in log 10 (nnz) Size in log 10 (nnz) Size in log 10 (nnz) SpeedUp (log 10 scale) 
+
+Figure 8: Performance and Speedup of SpMSpV across input sparsities on A100 and RTX 4090. 
+
+on the GPU. The grid-level barrier introduces no additional kernel launch, and its synchronization cost is amortized over the full SpM-SpV execution, keeping the online metadata overhead negligible. 
+
+## 4.2 DB-BFS 
+
+As shown in Fig.7, DB-BFS offline converts the graph adjacency ma-trix into the DB format and treats each frontier as the sparse input vector of SpMSpV. Because push and pull share the same DB matrix representation, DB-BFS can switch traversal paths across BFS levels without rebuilding the graph; it only updates the frontier masks and vector-block statistics. Sparse frontiers favor push, which skips invalid edge accesses, while expanded frontiers favor pull, which reduces writeback conflicts and improves contiguous memory ac-cess. DB-BFS also specializes in microkernels for Boolean propa-gation. As shown in Alg.5, the kernel only checks reachability and generates the next-frontier mask, thereby avoiding full-precision multiply-adds. 
+
+## 4.3 DB-Decoding 
+
+In DB-Decoding, sparse weight matrices are converted to the DB format during model loading, while runtime activations serve as dynamic sparse input vectors. After each token’s activation mask is generated on the GPU, DB-SpMSpV selects execution paths based on the nonzero-block ratio and the intra-block activation distribu-tion. This avoids maintaining multiple weight layouts for different activation sparsities and provides stable sparse-decoding perfor-mance across tokens and layers. 
+
+Algorithm 5 Pseudocode of warp-level DB-BFS for a ForceCSC block in the Boolean push paradigm  
+
+> 1:
+
+for 𝑡 𝑖 = 0 to 31 in parallel do  
+
+> 2:
+
+𝑓 𝑜𝑢𝑛𝑑 ← 0 
+
+> 3:
+
+𝑟𝑜𝑤 _𝑖𝑑𝑥 ← 𝑡 𝑖 & 15, 𝑝𝑎𝑟𝑡 ← 𝑡 𝑖 ≫ 4 
+
+> 4:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑓 𝑟𝑜𝑛𝑡𝑖𝑒𝑟 _𝑚𝑎𝑠𝑘 & (0x00ff if 𝑝𝑎𝑟𝑡 = 0 else 0xff00 ) 
+
+> 5:
+
+while 𝑎𝑐𝑡𝑖𝑣𝑒 ≠ 0 and 𝑓 𝑜𝑢𝑛𝑑 = 0 do  
+
+> 6:
+
+𝑐𝑜𝑙 _𝑖𝑑𝑥 ← __ffs (𝑎𝑐𝑡𝑖𝑣𝑒 ) − 1 
+
+> 7:
+
+𝑚𝑎𝑠𝑘 ← 𝑐𝑜𝑙 _𝑚𝑎𝑠𝑘 [𝑐𝑜𝑙 _𝑖𝑑𝑥 ] 
+
+> 8:
+
+if ( ( 𝑚𝑎𝑠𝑘 ≫ 𝑟𝑜𝑤 _𝑖𝑑𝑥 ) & 1 ) ≠ 0 then  
+
+> 9:
+
+𝑓 𝑜𝑢𝑛𝑑 ← 1 
+
+> 10:
+
+end if  
+
+> 11:
+
+𝑎𝑐𝑡𝑖𝑣𝑒 ← 𝑎𝑐𝑡𝑖𝑣𝑒 & (𝑎𝑐𝑡𝑖𝑣𝑒 − 1) 
+
+> 12:
+
+end while  
+
+> 13:
+
+// Merge results from two half-warps  
+
+> 14:
+
+𝑓 𝑙𝑎𝑔 ← 𝑓 𝑜𝑢𝑛𝑑 ∨ __shfl_xor_sync (0xffffffff , 𝑓 𝑜𝑢𝑛𝑑, 16 ) 
+
+> 15:
+
+// Remove visited nodes  
+
+> 16:
+
+𝑓 𝑙𝑎𝑔 ← 𝑓 𝑙𝑎𝑔 & ¬( ( 𝑣𝑖𝑠𝑖𝑡𝑒𝑑 _𝑚𝑎𝑠𝑘 ≫ 𝑟𝑜𝑤 _𝑖𝑑𝑥 ) & 1 ) 
+
+> 17:
+
+// Generate next frontier mask  
+
+> 18:
+
+𝑛𝑒𝑥𝑡 _𝑚𝑎𝑠𝑘 ← __ballot_sync (0x0000ffff , 𝑓 𝑙𝑎𝑔 ≠ 0) 
+
+> 19:
+
+end for  
+
+> 20:
+
+return 𝑛𝑒𝑥𝑡 _𝑚𝑎𝑠𝑘 
+
+## 5 Evaluation 5.1 Experimental Setup 
+
+We evaluate DB-SpMSpV at both the kernel and application levels on NVIDIA A100 and RTX 4090 GPUs, using driver version 550.135 and CUDA 12.4. Tab. 1 summarizes the platforms and baselines. All baselines are open-source state-of-the-art implementations. The SpMSpV kernel evaluation uses 2,738 SuiteSparse matrices from ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian Time-ms (log 10 scale) SpeedUp (log 10 scale) BFS (A100) BFS (RTX4090) Size in log 10 (nnz) Size in log 10 (nnz) 
+
+Figure 9: End-to-end BFS performance on A100 and RTX 4090. 
+
+a wide range of domains, including structured grids, social net-works, and finite-element problems. BFS evaluation uses over 1,000 symmetric unweighted graphs, and DB-Decoding uses three open-source LLMs under batch-size-1 single-token decoding. 
+
+Table 1: Algorithms and Machine Specifications.         
+
+> Algorithm GPU Specification SpMSpV
+> (1) cuSPARSE v12.4 BSR (1) NVIDIA A100 (Ampere), 6,912 CUDA cores @ 1,410 MHz, 40 GB, B/W 1.56 TB/s. (2) NVIDIA RTX 4090 (Ada Lovelace), 16,384 CUDA cores @ 2,520 MHz, 24 GB, B/W 1.01 TB/s. (2) CB-SpMV[8] (3) TileSpMSpV[18] (4) DB-SpMSpV (Ours)
+> BFS
+> (1) Gunrock[36] (2) Enterprise[24] (3) GSwitch[29] (4) TileBFS[18] (5) DB-BFS (Ours)
+> LLM-Decoding (1) PyTorch v2.11 (2) DB-Decoding (Ours)
+
+## 5.2 Performance of SpMSpV 
+
+For each matrix, we generate random input vectors at different sparsity levels with a fixed seed of 42. We compare DB-SpMSpV with general-purpose cuSPARSE and specialized CB-SpMV and TileSpMSpV; for fairness, cuSPARSE BSR uses the same block size as DB-SpMSpV. All kernels are warmed up and executed 100 times, and performance is reported in GFLOPS using the SpMV floating-point operation count. Fig.8 shows that DB-SpMSpV achieves the best performance on both GPUs for most matrices, with a larger advantage as input sparsity decreases from 0.1 to 0.0001. On A100, DB-SpMSpV obtains average speedups of 5.48 ×–64.34 ×,1.20 ×–8.29 ×, and 2.36 ×–14.01 × over cuSPARSE, CB-SpMV, and Tile-SpMSpV, respectively. On RTX 4090, the corresponding speedups are 8.86 ×–128.46 ×, 1.29 ×–6.98 ×, and 2.72 ×–12.04 ×. The increasing advantage at lower input sparsities is consistent with DB-SpMSpV’s vector-block masks and adaptive push/pull execution: inactive re-gions can be skipped when the vector is sparse, while denser vector blocks can use pull-style computation to improve memory regular-ity and reduce writeback conflicts. 
+
+## 5.3 Application Performance 
+
+We next evaluate whether the kernel-level advantages carry over to complete applications. 
+
+For BFS , we run single-source BFS from vertex 0 for all meth-ods to ensure a fair comparison. Although the source is fixed, the selected matrices cover diverse graph structures, including finite-element meshes, banded graphs, and irregular networks, leading to varied frontier evolution patterns that are representative of typical BFS workloads. This end-to-end measurement includes frontier generation, visited-state maintenance, path switching, and multi-iteration control overheads. On A100, DB-BFS achieves average speedups of 26.74 ×, 13.36 ×, 8.81 ×, and 2.66 × over Gunrock, Enter-prise, GSwitch, and TileBFS, respectively. On RTX 4090, the cor-responding speedups are 49.43 ×, 12.40 ×, 13.56 ×, and 3.60 ×. These gains come from representing frontiers directly at the block level, allowing sparse levels to avoid invalid edge scans through push and expanded levels to reduce writeback conflicts through pull. 
+
+For sparse decoding , we test Llama-3.2-1B[15], Qwen2.5-1.5B[44], and Qwen3-0.6B[40]. We apply Wanda[34] to prune 50% of the weights in each linear layer, while activation sparsity comes from magnitude-based thresholding[25], yielding about 10% activa-tion density during single-token decoding. Tab.2 reports the average per-token decoding time of the corresponding layers. DB-Decoding achieves consistent speedups across models and layers: Q/K/V/Out projections obtain about 2.35 ×–2.50 ×, while FFN projections show larger gains, up to 3.42 × for Up and 4.50 × for Down. Since weight matrices are reused after a single DB-format conversion and only activation masks change at runtime, DB-Decoding avoids repeat-edly processing zero activations and zero-weight entries without maintaining multiple sparse weight layouts. 
+
+## 5.4 Representative Analysis & Ablations 
+
+We use representative matrices to examine more closely when adaptive choices matter. For SpMSpV, we compare three low-level block storage strategies: DB-SpMSpV-COO, DB-SpMSpV-CSR, and DB-SpMSpV-Auto. Fig.10 DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads ICPP ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+Table 2: Performance comparison of different linear projections. Time is reported in us, with speedup shown in parentheses.                                                      
+
+> Model QKVOut Up Down PyTorch Ours PyTorch Ours PyTorch Ours PyTorch Ours PyTorch Ours PyTorch Ours Llama-3.2-1B 6.53 2.69 (2.43 ×)6.08 2.46 (2.47 ×)6.08 2.46 (2.47 ×)6.52 2.64 (2.47 ×)14.96 4.38 (3.42 ×)13.12 4.26 (3.08 ×)Qwen2.5-1.5B 6.02 2.56 (2.35 ×)6.00 2.44 (2.46 ×)6.00 2.44 (2.46 ×)6.03 2.54 (2.37 ×)13.34 4.08 (3.27 ×)19.24 4.27 (4.50 ×)Qwen3-0.6B 6.04 2.54 (2.38 ×)6.13 2.45 (2.50 ×)6.00 2.46 (2.44 ×)6.05 2.52 (2.40 ×)6.14 2.60 (2.36 ×)7.03 2.79 (2.52 ×)
+
+Table 3: Performance comparison of BFS on representative matrices. Time is reported in ms, and speedup is shown in parentheses. 
+
+Metric pwtk pkustk14 audikw_1 crankseg_2 halfb msdoor consph m_t1 Thumbnail 
+
+Row (Column) NNZs 217,918 11,524,432 151,926 14,836,504 943,695 77,651,847 22,283 24,669,643 224,617 12,387,821 415,863 19,173,163 83,334 6,010,480 97,578 9,753,570 Frontier Sparsity 
+
+Gunrock 10.87 (4.30 ×) 6.317 (5.31 ×) 12.49 (4.04 ×) 4.814 (9.47 ×) 6.577 (5.21 ×) 6.45 (4.01 ×) 3.094 (8.92 ×) 4.216 (8.58 ×)Enterprise 30.856 (12.22 ×) 6.292 (5.29 ×) 4.26 (1.38 ×) 1.574 (3.10 ×) 8.354 (6.62 ×) 8.527 (5.30 ×) 2.10 (6.05 ×) 3.013 (6.13 ×)GSwitch 10.299 (4.08 ×) 12.809 (10.76 ×) 66.33 (21.43 ×) 7.905 (15.56 ×) 5.849 (4.63 ×) 5.443 (3.38 ×) 1.453 (4.19 ×) 7.005 (14.25 ×)TileBFS 8.758 (3.47 ×) 3.119 (2.62 ×) 3.490 (1.13 ×) 0.642 (1.26 ×) 3.715 (2.94 ×) 4.261 (2.65 ×) 0.889 (2.56 ×) 1.563 (3.18 ×)DB-BFS-Pull 3.434 (1.36 ×) 1.908 (1.60 ×) 4.077 (1.32 ×) 1.027 (2.02 ×) 3.329 (2.64 ×) 3.617 (2.25 ×) 0.921 (2.65 ×) 1.133 (2.30 ×)DB-BFS-Push 2.802 (1.11 ×) 1.191 (1.00 ×) 4.066 (1.31 ×) 0.861 (1.69 ×) 2.201 (1.74 ×) 2.553 (1.59 ×) 0.684 (1.97 ×) 0.849 (1.73 ×)
+
+DB-BFS-Auto 2.526 (1.00 ×) 1.190 (1.00 ×) 3.095 (1.00 ×) 0.508 (1.00 ×) 1.262 (1.00 ×) 1.609 (1.00 ×) 0.347 (1.00 ×) 0.492 (1.00 ×)GFLOPS 
+
+Figure 10: Ablation of low-level block storage formats in DB-SpMSpV. The input vector sparsity is 0.1, and all variants use the high-level pull computation path. 
+
+shows that no fixed block format is consistently optimal across matrices. For example, pkustk14 benefits more from the COO-like format, achieving 157.538 GFLOPS compared with 115.855 GFLOPS for the CSR-like format, while crankseg_2 favors the CSR-like for-mat, reaching 163.85 GFLOPS compared with 86.75 GFLOPS for the COO-like format. DB-SpMSpV-Auto avoids this format-specific behavior and achieves the best performance on all representative matrices, reaching 201.353, 193.134, 182.02, and 338.129 GFLOPS on 
+
+pwtk , pkustk14 , crankseg_2 , and consph , respectively. In particu-lar, Auto improves over COO-like by more than 2.0 × on crankseg_2 
+
+and over CSR-like by about 1.67 × on pkustk14 . The contrast indi-cates that intra-block nonzero distribution and vector-block activity jointly shape the best local format, rather than either factor alone. For BFS, Tab.3 reports representative matrices together with frontier evolution and end-to-end execution time. DB-BFS-Auto achieves the best performance on all representative matrices. On 
+
+audikw_1 , where the frontier first expands and then shrinks, DB-BFS-Auto takes 3.095ms, outperforming Gunrock at 12.49ms, GSwitch at 66.33ms, and TileBFS at 3.49ms. On halfb , where the frontier is concentrated, and the matrix has a banded structure, DB-BFS-Auto reaches 1.262ms and still achieves a 2.94 × speedup over TileBFS. The single-path variants show the same pattern from the appli-cation side. On halfb , DB-BFS-Auto takes 1.262ms, outperforming DB-BFS-Push at 2.201ms and DB-BFS-Pull at 3.329ms. On msdoor 
+
+and consph , Auto also outperforms the better single-path variant. BFS frontiers move through different sparsity regimes across itera-tions, so a fixed direction either wastes scans in sparse stages or increases writeback pressure in denser stages. DB-BFS avoids this by changing direction with the frontier state. 
+
+## 5.5 Overhead 
+
+Supporting both push and pull with full CSR+CSC duplication nearly doubles storage. By keeping only high-level dual views and reusing one low-level block payload, DB-SpMSpV saves 60.64%– 61.68% storage over CSR+CSC in Tab.4, with an average saving of 61.26%. It also uses less memory than plain CSR on these matrices be-cause low-level block formats reduce local indexing overhead: COO blocks pack local coordinates, Dense blocks remove per-element indices, ForceCSR/ForceCSC encode local structure with masks, and patched CSR uses compact row/mapping fields. Together, these designs reduce the amortized index footprint below the 32-bit col-umn index used by standard CSR. The DB-format conversion is ICPP ’26, September 28-October 01, 2026, Singapore, Singapore Xing Cong, Chenhao Xie, Rui Wang, Zhongzhi Luan, Yi Liu, and Depei Qian 
+
+performed offline and reused across SpMSpV calls, BFS iterations, and decoding tokens; online overhead mainly comes from vector-mask generation, nonzero-block counting, path selection, and GPU kernel execution. 
+
+Table 4: Memory overhead comparison. 
+
+Method pwtk halfb consph m_t1 CSR (MB) 133.98 142.62 69.10 111.99 CSR+CSC (MB) 267.95 285.25 138.20 223.99 
+
+Ours (MB) 102.67 110.31 54.39 86.48 
+
+Memory Save (%) 61.68 61.33 60.64 61.39 
+
+## 6 Related Work 
+
+Prior work has improved sparse matrix computation from three closely related directions: storage formats, SpMSpV kernels, and graph applications. 
+
+Sparse blocked formats. CSR/CSC remain the basic row- and column-oriented sparse formats, and many SpMV systems improve their locality, load balance, or format selection. CSR5 uses seg-mented tile descriptors for balanced SpMV, SMAT selects formats through input-adaptive tuning, and recent tiled/block formats im-prove GPU locality and regularity for SpMV-like kernels[8, 11, 17, 21, 27, 31]. TileSpMSpV is more directly related to our work: it extends tiling to GPU SpMSpV and also enables TileBFS by organiz-ing matrices and vectors in tile form[18]. Bit-GraphBLAS targets binary graph workloads with B2SR, a two-level representation that compacts block contents as bits[6]. SpInfer uses bitmap encod-ing for GPU SpMM, while Sparse Register Tiling combines code transformation and data compression for CPU SpMM; both target static sparse weights with dense inputs rather than dynamic sparse vectors[13, 37]. These designs show the value of blocking and com-pact metadata. DB-SpMSpV differs in that it targets dynamic sparse vectors and general-valued SpMSpV: it keeps block-level CSR/CSC views only at the high level, reuses one low-level block payload, and still supports both push and pull without full CSR+CSC duplication. 
+
+SpMSpV kernels and adaptivity. Early SpMSpV work ad-dressed irregular accumulation through graph-driven execution, k-way merge, sorting, and work-efficient parallel algorithms[3, 20, 43]. More recent methods focus on adaptivity and platform-specific bot-tlenecks: Adaptive SpMV/SpMSpV selects among multiple kernels according to sparsity and workload properties, fgSpMSpV recollects useful nonzeros for fine-grained execution, HAM-SpMSpV incor-porates mask sparsity, and VDHA reduces GPU writeback conflicts with vector-driven hash aggregation and related optimizations[7, 22, 23, 39]. These methods establish that input sparsity, load balance, and write conflicts dominate SpMSpV performance. Their adaptiv-ity, however, is usually expressed as kernel selection or conflict handling on top of a given layout. DB-SpMSpV instead coordinates a shared-payload dual-view representation with global push/pull se-lection and local microkernel adaptation for dynamically changing sparse vectors. 
+
+GraphBLAS and BFS applications. GraphBLAS-style systems such as CombBLAS, GraphMat, GraphPad, and GraphBLAST for-mulate graph traversal through sparse linear algebra primitives[1, 5, 35, 41]. Direction-optimizing BFS and push-pull GraphBLAS show that traversal direction should change as the frontier evolves, while GPU graph systems such as Gunrock and GSwitch expose frontier-centric scheduling and runtime pattern selection[4, 29, 36, 42]. CGA extends adaptive selection to masked SpMV/SpMSpV across hetero-geneous platforms[38]. Specialized BFS accelerators further exploit tiled or binary structures: TileBFS builds on TileSpMSpV, BerryBees uses bit Tensor Cores, and BLEST improves TC-based BFS with a more balanced data structure and pipeline[12, 18, 30]. These sys-tems confirm that BFS frontiers are dynamic and that fixed push or pull policies are insufficient. DB-SpMSpV follows this direction but makes the adaptation both reusable and fine-grained: the same SpM-SpV abstraction supports DB-BFS and DB-Decoding, while path selection can occur across global traversal and local microkernels. 
+
+## 7 Conclusion 
+
+This paper presents DB-SpMSpV, a dual-view blocked SpMSpV framework for dynamic GPU workloads. By separating high-level CSR/CSC traversal views from a shared low-level block payload, DB-SpMSpV supports push and pull without full format duplica-tion. Its two-level adaptivity uses global nonzero-block statistics and local vector-block distribution to choose traversal paths and mi-crokernels, while load balancing, asynchronous prefetching, and hi-erarchical writeback address GPU sparse-computation bottlenecks. Experiments on A100 and RTX 4090 show that these methods im-prove kernel-level SpMSpV and accelerate end-to-end DB-BFS and single-token linear layers in DB-Decoding. 
+
+## Limitations 
+
+DB-SpMSpV is designed for sparse input vectors; extending it to SpMM would require different data reuse and accumulation strate-gies, while conventional SpMV may be preferable for dense inputs. DB-Decoding is evaluated only at the sparse linear-layer level, so its end-to-end impact depends on how much decoding time these layers account for. Our evaluation is limited to A100 and RTX 4090. The irregular execution pattern does not map directly to Tensor Cores or TMA, whose use would require specialized layouts and ker-nels. Full-model evaluation and these hardware-specific extensions remain future work. 
+
+## Acknowledgments 
+
+We sincerely thank the anonymous reviewers for their insightful suggestions. The work is supported by the Natural Key Research and Develop-ment Program of China (2023YFB3002902). 
+
+## References        
+
+> [1] Michael J Anderson, Narayanan Sundaram, Nadathur Satish, Md Mostofa Ali Patwary, Theodore L Willke, and Pradeep Dubey. 2016. Graphpad: Optimized graph primitives for parallel and distributed platforms. In 2016 IEEE International Parallel and Distributed Processing Symposium (IPDPS) . 313–322. [2] Hartwig Anzt, Stanimire Tomov, and Jack Dongarra. 2017. On the performance and energy efficiency of sparse linear algebra on GPUs. Int. J. High Perform. Comput. Appl. 31, 5 (2017), 375–390. https://doi.org/10.1177/1094342016672081 [3] Ariful Azad and Aydin Buluç. 2017. A work-efficient parallel sparse matrix-sparse vector multiplication algorithm. In 2017 IEEE International Parallel and Distributed Processing Symposium (IPDPS) . 688–697. [4] Scott Beamer, Krste Asanović, and David A. Patterson. 2012. Direction-optimizing Breadth-First Search. 2012 International Conference for High Performance Com-puting, Networking, Storage and Analysis (2012), 1–10.
+
+DB-SpMSpV: Dual-View Blocked Sparse Matrix-Sparse Vector Multiplication for Dynamic GPU Workloads ICPP ’26, September 28-October 01, 2026, Singapore, Singapore 
+
+[5] Aydın Buluç and John R. Gilbert. 2011. The Combinatorial BLAS: design, im-plementation, and applications. The International Journal of High Performance Computing Applications 25 (2011), 496 – 509. [6] Jou-An Chen, Hsin-Hsuan Sung, Nathan R. Tallent, Kevin J. Barker, Xipeng Shen, and Ang Li. 2022. Bit-GraphBLAS: Bit-Level Optimizations of Matrix-Centric Graph Processing on GPU. 2022 IEEE International Parallel and Distributed Processing Symposium (IPDPS) (2022), 515–525. [7] Yuedan Chen, Guoqing Xiao, Kenli Li, Francesco Piccialli, and Albert Y. Zomaya. 2022. fgSpMSpV: A Fine-grained Parallel SpMSpV Framework on HPC Platforms. 
+
+ACM Transactions on Parallel Computing 9 (2022), 1 – 29. [8] Xing Cong, FuKai Sun, Yifan Chen, Chenhao Xie, Yi Liu, and Depei Qian. 2025. CB-SpMV:A Data Aggregating and Balance Algorithm for for Cache-Friendly Block-Based SpMV on GPUs. Proceedings of the 39th ACM International Conference on Supercomputing (2025). [9] Xing Cong, Hanlin Tang, Kan Liu, Tao Lan, Lin Qu, and chenhao xie. 2026. RT-Lynx: Putting the GEMM Sparsity In a Right Way for Diffusion Models. In 
+
+Forty-third International Conference on Machine Learning .[10] Timothy A Davis. 2019. Algorithm 1000: SuiteSparse: GraphBLAS: Graph algo-rithms in the language of sparse linear algebra. ACM Transactions on Mathemati-cal Software (TOMS) 45, 4 (2019), 1–25. [11] Zhen Du, Jiajia Li, Yinshan Wang, Xueqi Li, Guangming Tan, and Ninghui Sun. 2022. Alphasparse: Generating high performance spmv codes directly from sparse matrices. In SC22: International Conference for High Performance Computing, Networking, Storage and Analysis . IEEE, 1–15. [12] Deniz Elbek and Kamer Kaya. 2025. BLEST: Blazingly Efficient BFS using Tensor Cores. ArXiv abs/2512.21967 (2025). [13] Ruibo Fan, Xiangrui Yu, Peijie Dong, Zeyu Li, Gu Gong, Qiang Wang, Wei Wang, and Xiaowen Chu. 2025. Spinfer: Leveraging low-level sparsity for efficient large language model inference on gpus. In Proceedings of the Twentieth European Conference on Computer Systems . 243–260. [14] Elias Frantar and Dan Alistarh. 2023. SparseGPT: Massive Language Models Can Be Accurately Pruned in One-Shot. ArXiv abs/2301.00774 (2023). [15] Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri, Abhinav Pandey, Ab-hishek Kadian ..., and Zhiyu Ma. 2024. The Llama 3 Herd of Models. arXiv:2407.21783 [cs.AI] https://arxiv.org/abs/2407.21783 [16] Joseph L Greathouse and Mayank Daga. 2014. Efficient sparse matrix-vector multiplication on GPUs using the CSR storage format. In SC’14: Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis . 769–780. [17] Joseph L. Greathouse and Mayank Daga. 2014. Efficient Sparse Matrix-Vector Multiplication on GPUs Using the CSR Storage Format. In SC ’14: Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis . 769–780. https://doi.org/10.1109/SC.2014.68 [18] Hao Ji, Huimin Song, Shibo Lu, Zhou Jin, Guangming Tan, and Weifeng Liu. 2022. TileSpMSpV: A Tiled Algorithm for Sparse Matrix-Sparse Vector Multiplication on GPUs. Proceedings of the 51st International Conference on Parallel Processing 
+
+(2022). [19] Jeremy Kepner, David Bader, Aydın Buluç, John Gilbert, Timothy Mattson, and Henning Meyerhenke. 2015. Graphs, matrices, and the GraphBLAS: Seven good reasons. Procedia Computer Science 51 (2015), 2453–2462. [20] Haoran Li, Harumichi Yokoyama, and Takuya Araki. 2018. Merge-Based Parallel Sparse Matrix-Sparse Vector Multiplication with a Vector Architecture. 2018 IEEE 20th International Conference on High Performance Computing and Commu-nications; IEEE 16th International Conference on Smart City; IEEE 4th International Conference on Data Science and Systems (HPCC/SmartCity/DSS) (2018), 43–50. [21] Jiajia Li, Guangming Tan, Mingyu Chen, and Ninghui Sun. 2013. SMAT: an input adaptive auto-tuner for sparse matrix-vector multiplication. Proceedings of the 34th ACM SIGPLAN Conference on Programming Language Design and Implementation (2013). [22] Min Li, Yulong Ao, and Chao Yang. 2020. Adaptive SpMV/SpMSpV on GPUs for Input Vectors of Varied Sparsity. IEEE Transactions on Parallel and Distributed Systems 32 (2020), 1842–1853. [23] Yuchen Li, Zhe Pan, Peng Qu, and Youhui Zhang. 2026. VDHA: Vector-Driven Hash Aggregation for Sparse Matrix-Sparse Vector Multiplication on GPUs. 
+
+Proceedings of the 31st ACM SIGPLAN Annual Symposium on Principles and Practice of Parallel Programming (2026). [24] Hang Liu and H. Howie Huang. 2015. Enterprise: breadth-first graph traver-sal on GPUs. SC15: International Conference for High Performance Computing, Networking, Storage and Analysis (2015), 1–12. [25] James Liu, Pragaash Ponnusamy, Tianle Cai, Han Guo, Yoon Kim, and Ben Athi-waratkun. 2025. Training-Free Activation Sparsity in Large Language Models. https://arxiv.org/abs/2408.14690 [26] James Y. Z. Liu, Pragaash Ponnusamy, Tianle Cai, Han Guo, Yoon Kim, and Ben Athiwaratkun. 2024. Training-Free Activation Sparsity in Large Language Models. ArXiv abs/2408.14690 (2024). [27] Weifeng Liu and Brian Vinter. 2015. CSR5: An efficient storage format for cross-platform sparse matrix-vector multiplication. In Proceedings of the 29th ACM on International Conference on Supercomputing . 339–350. [28] Marco Maggioni and Tanya Berger-Wolf. 2013. AdELL: An adaptive warp-balancing ELL format for efficient sparse matrix-vector multiplication on GPUs. In 2013 42nd international conference on parallel processing . 11–20. [29] Ke Meng, Jiajia Li, Guangming Tan, and Ninghui Sun. 2019. A pattern based algorithmic autotuner for graph processing on GPUs. Proceedings of the 24th Symposium on Principles and Practice of Parallel Programming (2019). [30] Yuyao Niu and Marc Casas. 2025. BerryBees: Breadth First Search by Bit-Tensor-Cores. Proceedings of the 30th ACM SIGPLAN Annual Symposium on Principles and Practice of Parallel Programming (2025). [31] Yuyao Niu, Zhengyang Lu, Meichen Dong, Zhou Jin, Weifeng Liu, and Guangming Tan. 2021. TileSpMV: A Tiled Algorithm for Sparse Matrix-Vector Multiplication on GPUs. 2021 IEEE International Parallel and Distributed Processing Symposium (IPDPS) (2021), 68–78. [32] Mo Sha, Yuchen Li, and Kian-Lee Tan. 2019. GPU-based Graph Traversal on Com-pressed Graphs. Proceedings of the 2019 International Conference on Management of Data (2019). [33] Monika Shah. 2015. Sparse Matrix Sparse Vector Multiplication - A Novel Ap-proach. 2015 44th International Conference on Parallel Processing Workshops (2015), 67–73. [34] Mingjie Sun, Zhuang Liu, Anna Bair, and J. Zico Kolter. 2024. A Simple and Effective Pruning Approach for Large Language Models. https://arxiv.org/abs/ 2306.11695 [35] Narayanan Sundaram, Nadathur Rajagopalan Satish, Md Mostofa Ali Patwary, Subramanya R Dulloor, Satya Gautam Vadlamudi, Dipankar Das, and Pradeep Dubey. 2015. Graphmat: High performance graph analytics made productive. 
+
+arXiv preprint arXiv:1503.07241 (2015). [36] Yangzihao Wang, Yuechao Pan, Andrew A. Davidson, Yuduo Wu, Carl Yang, Leyuan Wang, Muhammad Osama, Chenshan Yuan, Weitang Liu, Andy T. Rif-fel, and John Douglas Owens. 2017. Gunrock. ACM Transactions on Parallel Computing (TOPC) 4 (2017), 1 – 49. [37] Lucas Wilkinson, Kazem Cheshmi, and Maryam Mehri Dehnavi. 2023. Register tiling for unstructured sparsity in neural network inference. Proceedings of the ACM on Programming Languages 7, PLDI (2023), 1995–2020. [38] Lei Xu, Haipeng Jia, and Yunquan Zhang. 2026. CGA: Accelerating BFS Through an Sparsity-Aware Adaptive Framework on Heterogeneous Platforms. IEEE Transactions on Parallel and Distributed Systems 37 (2026), 45–59. [39] Lei Xu, Haipeng Jia, Yunquan Zhang, Luhan Wang, and Xianmeng Jiang. 2024. HAM-SpMSpV: an Optimized Parallel Algorithm for Masked Sparse Matrix-Sparse Vector Multiplications on multi-core CPUs. Proceedings of the 33rd In-ternational Symposium on High-Performance Parallel and Distributed Computing 
+
+(2024). [40] An Yang, Anfeng Li, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chang Gao, Chengen Huang, Chenxu Lv, Chujie Zheng, Dayiheng Liu, Fan Zhou, Fei Huang, Feng Hu, Hao Ge, Haoran Wei, Huan Lin, Jialong Tang, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jing Zhou, Jingren Zhou, Junyang Lin, Kai Dang, Keqin Bao, Kexin Yang, Le Yu, Lianghao Deng, Mei Li, Mingfeng Xue, Mingze Li, Pei Zhang, Peng Wang, Qin Zhu, Rui Men, Ruize Gao, Shixuan Liu, Shuang Luo, Tianhao Li, Tianyi Tang, Wenbiao Yin, Xingzhang Ren, Xinyu Wang, Xinyu Zhang, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yinger Zhang, Yu Wan, Yuqiong Liu, Zekun Wang, Zeyu Cui, Zhenru Zhang, Zhipeng Zhou, and Zihan Qiu. 2025. Qwen3 Technical Report. arXiv:2505.09388 [cs.CL] https://arxiv.org/abs/2505.09388 [41] Carl Yang, Aydın Buluç, and John D Owens. 2022. GraphBLAST: A high-performance linear algebra-based graph framework on the GPU. ACM Transac-tions on Mathematical Software (TOMS) 48, 1 (2022), 1–51. [42] Carl Yang, Aydın Buluç, and John Douglas Owens. 2018. Implementing Push-Pull Efficiently in GraphBLAS. Proceedings of the 47th International Conference on Parallel Processing (2018). [43] Carl Yang, Yangzihao Wang, and John Douglas Owens. 2015. Fast Sparse Matrix and Sparse Vector Multiplication Algorithm on the GPU. 2015 IEEE International Parallel and Distributed Processing Symposium Workshop (2015), 841–847. [44] Qwen : An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jianhong Tu, Jianwei Zhang, Jianxin Yang, Jiaxi Yang, Jingren Zhou, Junyang Lin, Kai Dang, Keming Lu, Keqin Bao, Kexin Yang, Le Yu, Mei Li, Mingfeng Xue, Pei Zhang, Qin Zhu, Rui Men, Runji Lin, Tianhao Li, Tianyi Tang, Tingyu Xia, Xingzhang Ren, Xuancheng Ren, Yang Fan, Yang Su, Yichang Zhang, Yu Wan, Yuqiong Liu, Zeyu Cui, Zhenru Zhang, and Zihan Qiu. 2025. Qwen2.5 Technical Report. arXiv:2412.15115 [cs.CL] https://arxiv.org/abs/2412.15115 [45] Zihao Ye, Lequn Chen, Ruihang Lai, Wuwei Lin, Yineng Zhang, Stephanie Wang, Tianqi Chen, Baris Kasikci, Vinod Grover, Arvind Krishnamurthy, et al. 2025. Flashinfer: Efficient and customizable attention engine for llm inference serving. 
+
+Proceedings of Machine Learning and Systems 7 (2025). [46] Filippo Ziche, Nicola Bombieri, Federico Busato, and Rosalba Giugno. 2024. GPU-Accelerated BFS for Dynamic Networks. In European Conference on Parallel Processing .

@@ -1,6 +1,151 @@
 {
-  "generated_at": "2026-03-06T19:11:18.471356+00:00",
-  "updated_date": "20260306",
+  "generated_at": "2026-09-02T16:31:29.737261+00:00",
+  "updated_date": "20260804-20260902",
   "carryover_days": 9,
-  "items": []
+  "tag_states": {
+    "gkg": {
+      "updated_date": "20260804-20260902",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2608.22610v1",
+          "source": "arxiv",
+          "title": "Coalition-Aware Skill Reliability for Self-Evolving Agents",
+          "abstract": "Agent skills, structured artifacts distilled from interaction trajectories and dynamically reused from skill banks, have become a central mechanism for enabling large language model (LLM)-based self-evolving agents to learn from past experience. Yet existing work has largely focused on the operational aspects of skills, such as acquisition, evolution, and retrieval, while leaving a more fundamental reliability question unresolved: Do accumulated skills in an agent's skill bank actually make positive mechanistic contributions? We investigate this question through systematic skill-bank audits across alternative bank compositions and deployment domains, measuring the resulting changes in agent behavior. These audits reveal two recurring reliability failures: coalition pollution, where bank-level gains conceal negative coalition-level skill contributions, and cross-domain utility reversal, where source-beneficial skills reverse their effects after transfer. These findings motivate two reliability interventions: coalition-aware skill selection during skill accumulation and label-free skill masking after transfer. Coalition-Aware Skill Selection (CASS) selects more reliable candidate skills for the current bank using sampled Shapley marginals. Unsupervised Skill-Masked Coalition Optimizer (u-SMCO) masks transferred skills whose exclusion improves retrieval quality on unlabeled target-domain data. Agentic experiments on LoCoMo, LongMemEval, HotpotQA, and ALFWorld show that CASS and u-SMCO consistently improve task performance and cross-domain generalization over strong skill-based self-evolving agent baselines. Beyond accuracy, coalition-conditioned reliability modeling reduces sensitivity to noisy outcome-reward fluctuations during reinforcement learning and exposes the limits of isolation-based skill evaluation.",
+          "authors": [
+            "Qiyan Zhao",
+            "Xiaofeng Zhang",
+            "Bo Liu",
+            "Minda Chen",
+            "Wei Xiong",
+            "Jingyang Chen",
+            "Guanting Ye",
+            "Wenhao Yu",
+            "Xiaosong Yuan",
+            "Shijie Han",
+            "Da-Han Wang",
+            "Jianmin Ji",
+            "Fei Huang",
+            "Xu-Yao Zhang"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-08-23T21:35:22+00:00",
+          "link": "https://arxiv.org/pdf/2608.22610v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "audits whether accumulated skills in LLM self-evolving agents contribute positively across skill-bank compositions and deployment domains",
+          "llm_evidence_cn": "检查自我进化智能体技能库中的累积技能是否在不同组合与部署域都有正面机制贡献",
+          "llm_evidence": "检查自我进化智能体技能库中的累积技能是否在不同组合与部署域都有正面机制贡献",
+          "canonical_evidence": "检查自我进化智能体技能库中的累积技能是否在不同组合与部署域都有正面机制贡献",
+          "llm_tldr_en": "Systematic skill-bank audits in LLM-based self-evolving agents reveal coalition-caused reliability failures where accumulated skills fail to provide positive mechanistic contributions.",
+          "llm_tldr_cn": "自我进化智能体从交互轨迹蒸馏技能并动态复用，但已有工作关注技能获取、演化与检索，忽略了累积技能是否真正产生正面的机制贡献。提出联盟感知的系统性技能库审计，通过改变技能库组成与部署域测量智能体行为变化，发现联盟失败等两类反复出现的可靠性问题。结果表明某些技能组合反而会削弱贡献。该工作为技能管理与可靠自我改进提供新视角。",
+          "llm_tldr": "自我进化智能体从交互轨迹蒸馏技能并动态复用，但已有工作关注技能获取、演化与检索，忽略了累积技能是否真正产生正面的机制贡献。提出联盟感知的系统性技能库审计，通过改变技能库组成与部署域测量智能体行为变化，发现联盟失败等两类反复出现的可靠性问题。结果表明某些技能组合反而会削弱贡献。该工作为技能管理与可靠自我改进提供新视角。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2608.22610v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2608.15008v1",
+          "source": "arxiv",
+          "title": "Harness the Memory: A Holistic Evaluation of Memory Substrates in Memory Agents",
+          "abstract": "Memory is becoming core infrastructure for long-horizon LLM agents, yet existing evaluations offer limited guidance on which memory substrate, namely the underlying medium in which memory is represented and stored, should be used under different operating regimes. We present a controlled harness evaluation of memory substrates for memory-augmented agents, covering dense and sparse indices, text records, structural stores, hierarchical stores, refinement-based memories, parametric updates, and activation-compatible context mechanisms. Across three backbone models and four benchmark suites spanning user-centric question answering and agent-centric decision-making, we instrument 26 performance and efficiency metrics under a unified harness. Our results show that no single substrate consistently dominates: broad retrieval benefits long-context factual QA, while excessive retrieval can harm sequential decision-making by shifting attention away from action-critical context. Scalability introduces a further routing axis, as substrates that perform well at moderate history lengths can become costly or brittle at longer horizons. These findings motivate substrate routing as a necessary component of adaptive agent memory systems and provide empirical guidance for designing efficient, reliable, and regime-aware long-term memory for LLM agents. Code will be made available upon acceptance.",
+          "authors": [
+            "Wei-Chieh Huang",
+            "Weizhi Zhang",
+            "Yuchen Wu",
+            "Yankai Chen",
+            "Eric Hanchen Jiang",
+            "Wooseong Yang",
+            "Yiwei Yang",
+            "Henry Peng Zou",
+            "Hanrong Zhang",
+            "Ying Nian Wu",
+            "Haolun Wu",
+            "Kai-Wei Chang",
+            "Philip S. Yu",
+            "Xue Liu",
+            "Aylin Caliskan"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-08-15T03:29:48+00:00",
+          "link": "https://arxiv.org/pdf/2608.15008v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Controlled evaluation of memory substrates for memory-augmented LLM agents",
+          "llm_evidence_cn": "对记忆增强型LLM智能体的记忆基底进行受控评估",
+          "llm_evidence": "对记忆增强型LLM智能体的记忆基底进行受控评估",
+          "canonical_evidence": "对记忆增强型LLM智能体的记忆基底进行受控评估",
+          "llm_tldr_en": "A holistic controlled evaluation compares dense/sparse indices, text records, structural and hierarchical stores, refinement-based memories, parametric updates, and context mechanisms across three backbones and four suites, yielding guidance on choosing memory substrates for long-horizon LLM agents.",
+          "llm_tldr_cn": "记忆已成为长周期LLM智能体的核心基础设施，但缺乏对不同记忆存储介质的系统选择指导。该论文在统一受控框架下对多种记忆基底展开全面评估，涵盖密集/稀疏索引、文本记录、结构/层次存储、精炼记忆、参数化更新等。基于三个骨干模型和四个基准套件，测量26项性能与效率指标，为不同运行场景下的记忆基底选择提供实证依据。",
+          "llm_tldr": "记忆已成为长周期LLM智能体的核心基础设施，但缺乏对不同记忆存储介质的系统选择指导。该论文在统一受控框架下对多种记忆基底展开全面评估，涵盖密集/稀疏索引、文本记录、结构/层次存储、精炼记忆、参数化更新等。基于三个骨干模型和四个基准套件，测量26项性能与效率指标，为不同运行场景下的记忆基底选择提供实证依据。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2608.15008v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2608.15191v1",
+          "source": "arxiv",
+          "title": "When Deep Research Agents Stagnate: Enhancing Reasoning with Retrieval-Aware Agent Control",
+          "abstract": "In this paper, we analyze the reasoning trajectories of a variety of DRAs and show that existing agents often suffer from reasoning stagnation: the majority of iterations contribute little or no improvement to final performance, while agents lack awareness of their trajectories and are therefore ineffective at adapting their search strategies or determining when to terminate. To address this issue, we introduce a set of unsupervised signals and a Retrieval-Aware Agent Controller (RAAC), which assists the agent in selecting optimal actions at each stage of the research process. RAAC incorporates key information retrieval principles, namely search novelty and information coverage, resulting in more effective reasoning trajectories that improve overall performance while reducing unnecessary iterations, and consequently cost and latency. Specifically on BrowseComp-Plus and across a large set of DRAs, adding RAAC reduces the number of search calls by an average of 14, significantly improves the best-performing DRA on recall and accuracy, and achieves an accuracy gain of up to 10% (3% on average).",
+          "authors": [
+            "Heydar Soudani",
+            "Elizabeth Lingg",
+            "Faegheh Hasibi",
+            "Navid Rekabsaz"
+          ],
+          "primary_category": "cs.IR",
+          "categories": [
+            "cs.IR"
+          ],
+          "published": "2026-08-15T12:14:38+00:00",
+          "link": "https://arxiv.org/pdf/2608.15191v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "retrieval-aware controller using novelty and coverage to improve agent decision making",
+          "llm_evidence_cn": "检索感知控制器以新颖度与覆盖度助力智能体决策和终止判断",
+          "llm_evidence": "检索感知控制器以新颖度与覆盖度助力智能体决策和终止判断",
+          "canonical_evidence": "检索感知控制器以新颖度与覆盖度助力智能体决策和终止判断",
+          "llm_tldr_en": "RAAC analyzes deep research agents and shows many iterations stagnate. It introduces a retrieval-aware agent controller using unsupervised signals based on search novelty and information coverage, helping the agent select optimal actions and decide termination, yielding more effective reasoning trajectories.",
+          "llm_tldr_cn": "深度研究智能体在推理过程中往往出现停滞，多数迭代对最终结果贡献微小，且缺乏对自身搜索轨迹的感知。RAAC为这类智能体加入检索感知控制器，把搜索新颖度和信息覆盖度等无监督信号作为决策依据，在每个研究阶段选取动作并判断何时终止。实验显示该方法产生更有效的推理轨迹，减少空转迭代。其本质是通过检索相关信号改进智能体的决策，与检索知识用于决策的需求高度一致。",
+          "llm_tldr": "深度研究智能体在推理过程中往往出现停滞，多数迭代对最终结果贡献微小，且缺乏对自身搜索轨迹的感知。RAAC为这类智能体加入检索感知控制器，把搜索新颖度和信息覆盖度等无监督信号作为决策依据，在每个研究阶段选取动作并判断何时终止。实验显示该方法产生更有效的推理轨迹，减少空转迭代。其本质是通过检索相关信号改进智能体的决策，与检索知识用于决策的需求高度一致。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+          "matched_requirement_id": "req-4",
+          "selection_source": "carryover_cache",
+          "paper_id": "2608.15191v1",
+          "carry_days": 1
+        }
+      ]
+    }
+  }
 }
