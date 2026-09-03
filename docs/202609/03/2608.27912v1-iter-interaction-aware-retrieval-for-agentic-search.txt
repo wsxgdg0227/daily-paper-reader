@@ -1,0 +1,522 @@
+Title: ITER: Interaction-Aware Retrieval for Agentic Search
+
+URL Source: https://arxiv.org/pdf/2608.27912v1
+
+Published Time: Mon, 31 Aug 2026 00:30:18 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+> Preprint. Under review.
+
+# ITER: Interaction-Aware Retrieval for Agentic Search 
+
+Haodong Chen ∗, Shuai Wang ∗, Yu Yin Shengyao Zhuang, Guido Zuccon, Teerapong Leelanupab 
+
+The University of Queensland, Brisbane, Australia 
+
+haodong.chen1@student.uq.edu.au {shuai.wang2, y.yin1, s.zhuang, g.zuccon, t.leelanupab}@uq.edu.au 
+
+Deep-research agents answer complex user questions through an iterative sequence of search steps, where the agent autonomously formulates sub-queries to retrieve the evidence needed at each stage. However, existing retriever training typically relies only on the sub-query and its corresponding search results at the current step as training signals, leaving the information accumulated from previous interactions largely underutilized. We introduce ITER, an agent interaction-aware dense retriever trained using agent trajectory learning signals. ITER represents each query by incorporating not only the current sub-query, but also the main question and preceding sub-queries, and is trained using trajectory-relative learning signals derived from the agent’s interactions. Across six agent backbones from three model families, ITER consistently outperforms the exist-ing agent-trajectory-trained dense retriever, LRAT, achieving an average improvement of 7.5% on InfoSeek-Eval and 13.5% on BrowseComp-Plus. ITER also demonstrates stronger cross-agent ro-bustness than AgentIR, a deep-research retriever that relies on external LLM-judge signals and the agent’s pre-search reasoning. Ablations further show that the main question and previous sub-queries provide the most robust query representation, while previously visited and useful documents, used as redundancy negatives in subsequent searches, provide the strongest trajectory-relative supervision. 
+
+https://github.com/ielab/ITER 
+
+https://huggingface.co/collections/ielabgroup/iter  
+
+> Figure 1: Overview of ITER. ITER constructs a history-conditioned query from the main question, current sub-query, and previous sub-queries, and derives trajectory-relative supervision from the agent’s document interactions. The resulting retriever promotes new relevant evidence while demoting previously visited redundant documents.
+> ∗Equal contribution.
+
+1arXiv:2608.27912v1 [cs.IR] 28 Aug 2026 Preprint. Under review.                                                      
+
+> Main Question: Which player from Kobe Bryant’s 1996 draft class returned to the team that originally drafted him and then won the NBA MVP award in consecutive seasons?
+> Search 1: ["Kobe Bryant" "1996 NBA draft" "MVP" "guard"]
+> Visit: Doc[4821] :Kobe Bryant entered the league in 1996 and won the 2008 MVP ...
+> Document Interpretation: Bryant belongs to the 1996 draft class but won only one regular-season MVP.
+> Search 2: ["1996 NBA draft" "MVP" "returned to original team"]
+> Visit: Doc[7316] :Allen Iverson won the 2001 MVP and returned to Philadelphia in 2009 ...
+> Document Interpretation: Iverson returned to the team that drafted him but did not win MVP in consecutive seasons.
+> Search 3 (current): ["1996 NBA draft" "point guard" "MVP" "returned to original team"]
+> (a) Query-only retrieval Retriever input: ["1996 NBA draft" "point guard" "MVP" "returned to original team"]
+> Top-5 results:
+> 1. Doc[7316] :Iverson rejoined the 76ers in 2009 ... [visited] 2. Doc[4821] :Bryant won the 2008 MVP ... [visited] 3. Doc[2604] :NBA MVP winners by year ... [off target] 4. Doc[9187] :Notable stars of the 1996 draft ... [off target] 5. Doc[6542] :Ten memorable NBA homecomings ... [off target]
+> The gold document is not in the list.
+> ✗The agent finds no new evidence, falls back on the candidate it already examined, and answers Allen Iverson —wrong .
+> (b) Interaction-aware retrieval (ITER, ours) Retriever input: Main Question +Current Sub-query +
+> Previous Sub-queries
+> Top-5 results:
+> 1. Doc[3089] :Nash won consecutive MVPs ... [new, gold] 2. Doc[5774] :Nash returned to the Suns in 2004 ... [new] 3. Doc[2604] :NBA MVP winners by year ... [off target] 4. Doc[9187] :Notable stars of the 1996 draft ... [off target] 5. Doc[7316] :Iverson rejoined the 76ers in 2009 ... [visited]
+> The unread gold document is promoted, while previously visited can-didates rank lower.
+> ✓The agent opens the Steve Nash document and answers Steve Nash
+> —correct .
+
+Figure 2: Query-only vs. interaction-aware retrieval in an illustrative search trajectory. Ranking by the current query alone (a) re-surfaces candidates the agent has already visited (red) and misses the gold document. Conditioning the same search on the interaction history (b) promotes the unread gold document (green) and other supporting evidence (blue), while retaining previously visited results at lower ranks. Results shared by both rankings are shown in gray. 
+
+# 1 Introduction 
+
+Search has long benefited from interaction signals. In web search, relevance feedback and click logs reveal which results users find helpful, providing supervision for improving retrieval through techniques such as query reformulation, query expansion, and learning to rank [1, 11, 12, 15, 29]. Agentic search produces a new, more structured form of interaction within the search loop. An agent repeatedly issues sub-queries, examines retrieved documents, and revises what to search for next as evidence accumulates and its understanding of the task evolves [18, 30, 34]. Each agent execution leaves a trajectory recording what the agent searched for, which documents it examined, and what it learned from them. Recent work has begun training retrievers for agentic search using signals derived from agent interactions, such as an agent’s decision to visit a full document or its reasoning before issuing a sub-query [3, 44]. However, these approaches largely treat each search step in isolation, without fully accounting for previous sub-queries or previously visited documents. This omission matters for two reasons. First, previous sub-queries reveal which search directions the agent has already explored, helping the retriever recognize sub-query reformulations and avoid resurfacing the same results. Second, previously visited documents indicate which parts of the information need may already have been satisfied, allowing the retriever to prioritize evidence that addresses what remains unresolved. Therefore, a document’s utility should depend not only on its relevance to the current sub-query, but also on the new information it contributes beyond the evidence already collected. We refer to this history-dependent utility as the marginal gain of the document. 2Preprint. Under review. 
+
+Figure 2 illustrates how a current-sub-query-only retriever can resurface previously visited candidates while overlooking an unvisited document that addresses the remaining information need. To model this interaction-dependent document utility, we formulate interaction-aware retrieval , in which document ranking is conditioned on the agent’s interaction history rather than on the current sub-query alone. We introduce the Interaction-aware Trajectory-conditioned Embedding Retriever (ITER), an agent-trajectory-trained dense retriever for this setting. At each search step, ITER constructs a history-conditioned query representation by combining the main question, current sub-query, and previous sub-queries. The main question preserves the overall task, the current sub-query specifies the immediate information need, and the previous sub-queries indicate the search directions already explored. ITER learns from agent trajectories collected in a de-duplicated search setting, using document interactions to construct step-specific positives and tiered negatives: documents visited after the current search and judged relevant are positives; previously visited relevant and irrelevant documents are redundancy and hard negatives, respectively; and current results never visited in the trajectory are weak negatives. Figure 1 provides an overview of ITER’s history-conditioned query representation, trajectory-relative training supervision, and resulting retrieval behaviour. We evaluate ITER on InfoSeek-Eval [35] and BrowseComp-Plus [4]. When evaluated with Tongyi-DeepResearch-30B, whose trajectories are used for training, the default ITER achieves a task success rate of 80.0 on InfoSeek-Eval, compared with 72.7 for LRAT and 76.7 for the variant using only the current sub-query. On BrowseComp-Plus, it achieves 46.6, compared with 43.4 and 43.7, respectively. Across six agent backbones from three model families, ITER outperforms LRAT in all 12 backbone–benchmark comparisons, with seven statistically significant gains. On the five unseen agent backbones, ITER also achieves higher task success than AgentIR on both benchmarks. Ablations show that the main question and previous sub-queries provide the most robust query representation, while pre-search reasoning transfers less consistently and adding visited documents or their interpretations reduces evidence search recall. Redundancy negatives provide the strongest trajectory-relative supervision signal. Our contributions are as follows: 
+
+• We formulate interaction-aware retrieval for deep-research agents, where a document’s utility reflects its marginal gain given the current sub-query and interaction history, rather than its relevance to the current sub-query alone. 
+
+• We introduce ITER, which combines a history-conditioned query with trajectory-relative supervision comprising step-specific positives and tiered negatives derived from agent trajectories. 
+
+• Through matched-agent and cross-agent evaluations, we show that ITER consistently outperforms LRAT and exhibits stronger cross-agent robustness than AgentIR; ablations further reveal how interaction signals and negative tiers contribute to these gains. 
+
+# 2 Related Work 
+
+2.1 Agentic and Deep-Research Search 
+
+Retrieval-augmented generation supplements language-model generation with evidence retrieved from exter-nal corpora [16], but early RAG pipelines typically retrieve once for the input question. Tool-using systems such as WebGPT, ReAct, and IRCoT turn search into an action within the problem-solving process: the model can retrieve evidence, examine what it finds, and search again [25, 31, 39]. Recent deep-research agents build on this iterative pattern to address questions that require extended exploration across multiple 3Preprint. Under review. 
+
+sources [9, 10, 17, 43]. They formulate a sequence of sub-queries, accumulate evidence across retrieval steps, and eventually synthesize the collected information into an answer or report. We study the retriever that supports these successive search requests. 
+
+2.2 Optimizing Retrieval for Agentic Search 
+
+Search agents often rely on retrievers optimized for stand-alone query–document matching [13, 36]. In a multi-step trajectory, however, each query arises from the agent’s evolving search process and serves an intermediate information need. Recent work adapts retrieval to this setting. NExT-Search emphasizes feedback at intermediate stages of generative search [5], while Agentic-R trains retrievers using local query-passage relevance and global answer correctness [20]. LRAT converts the agent’s search and browsing actions into supervision for the retriever [44]. Other studies examine how retrieval granularity, ranking models, query transformations, and lexical or dense matching affect deep-research agents [8, 23]. ITER belongs to this line of work, but defines document utility relative to the interaction state in which each search occurs. A second direction changes how the agent accesses retrieved evidence. Direct Corpus Interaction lets the agent operate on the collection with shell commands instead of receiving only a ranked candidate list [19]. RISE uses retrieval to form a bounded workspace that the agent can continue to inspect [45]. SIEVE changes corpus access by combining fielded Boolean queries with structure-aware result inspection and selective section fetching [32]. These systems optimize the retrieval workflow or corpus interface. ITER instead retains a ranked-retrieval interface and optimizes the retriever behind it. 
+
+2.3 Context-Conditioned Retrieval 
+
+Context-conditioned retrieval uses information beyond the current query to guide retrieval. The additional context may come from the task itself: task-aware retrievers condition on instructions that specify the desired evidence [2]. In conversational search, context accumulates through interaction. Systems either rewrite the latest utterance using earlier turns [40] or encode the utterance and dialogue history together [21, 24, 38, 41]. Context can also be generated: HyDE constructs hypothetical content and uses it as an intermediate retrieval representation [7]. In each case, additional context helps the retriever better identify what information is needed at the current step. Deep-research trajectories provide interaction context from the agent’s own search process. AgentIR augments the current sub-query with pre-search reasoning to provide additional context for retrieval [3]. In ITER, interaction context serves a different purpose: rather than expanding the current sub-query, it anchors retrieval to the agent’s current search state, reflecting what has already been explored. 
+
+# 3 Observations from Agent Search 
+
+To identify useful interaction signals for retrieval, we analyze the 26,482 agent trajectories released by LRAT [44], collected with Tongyi-DeepResearch across four retrieval backends in a standard top-10 retrieval setting. Figure 3 reports sub-query similarity, result novelty, and the recurrence of visited documents over successive searches. 
+
+> Finding 1: Query reformulation alone does not prevent repeated results.
+
+4Preprint. Under review. Adjacent Non-adjacent Cross-traj. 0.0 0.2 0.4 0.6                  
+
+> Mean cosine  0.657 0.575 0.237
+> (a) Sub-query Similarity
+> 1234567 8+
+> Search turn
+> 0510
+> Top-10 positions
+> (b) Result Composition
+> First-time Repeated BM25 0.6B 4B 8B
+> Retrieval backend
+> 020 40 60
+> % of visited docs
+> 52.4 54.2 57.6 54.8
+> (c) Visited Docs Resurface
+> 13579
+> Rank position
+> 020 40
+> % of re-appearances
+> 44.3% top-3: 70.1%
+> (d) Visited Docs Rank High
+
+Figure 3: Agent search behaviour on the 26,482 trajectories released by LRAT (Tongyi-DeepResearch, standard top-10 retrieval setting, four retrieval backends). (a) Adjacent sub-queries remain semantically close under a dense encoder that receives only the current sub-query. (b) Repeated documents occupy an increasing share of the ranking as the trajectory progresses. (c) Most visited documents are returned again by later searches. (d) When they reappear, they concentrate at the top of the ranking. 
+
+Agents typically refine an earlier sub-query to address a remaining information gap. As shown in Figure 3(a), adjacent sub-queries have a mean cosine similarity of .657. Non-adjacent sub-queries from the same trajectory also remain similar (.575), whereas random cross-trajectory pairs average only .237. This continuity extends to the rankings: from the second search onward, 52.1% of top-10 results have appeared at an earlier step, and from the eighth search onward, only 3.9 of the 10 results are first-time documents on average (Figure 3(b)). Previous sub-queries therefore reveal which search directions have already been explored and can help retrieval prioritize new evidence. 
+
+Finding 2: Previously visited documents frequently resurface at the top. 
+
+However, recurrence alone does not establish redundancy. A returned but unvisited document may have been overlooked or deferred and may still be useful. A visited document has already been examined and, if judged relevant, has contributed useful evidence. Across the four retrieval backends, on average 54.9% of visited documents appear again in a subsequent search (Figure 3(c)). Of these reappearances, 44.3% occur at rank 1 and 70.1% within the top three positions (Figure 3(d)). A retriever that sees only the current sub-query cannot make this distinction, making previously visited relevant documents a natural redundancy signal for subsequent searches. 
+
+3.1 Interaction-Aware Retrieval 
+
+Together, these observations reveal a mismatch between multi-step agent search and conventional retrievers that process each search query independently. As the agent examines documents, some information needs are resolved while others remain. Yet the retriever sees only the latest sub-query, not the agent’s earlier queries or document visits, and may therefore rank previously examined documents above documents containing new evidence. 
+
+Interaction-aware retrieval addresses this mismatch by ranking documents using both the current sub-query and the interaction history. Document utility is therefore interaction-dependent . At step 𝑡 , the utility of document 𝑑 is its marginal gain, 
+
+𝑔 𝑡 (𝑑 ) = gain (𝑑 | 𝑞 𝑡 , 𝐻 𝑡 ),
+
+rather than its relevance to 𝑞 𝑡 alone. Once a document has been visited, its utility may decrease even if it remains topically relevant. 5Preprint. Under review. 
+
+To define the interaction history, consider a trajectory at search step 𝑡 . The agent issues a sub-query 𝑞 𝑡 ,retrieves 𝑘 documents with short snippets, and may visit selected documents before searching again. Before issuing 𝑞 𝑡 , it has the history 
+
+𝐻 𝑡 = (𝑄, {𝑞 𝑖 }𝑖<𝑡 , 𝑅 <𝑡 , 𝑉 <𝑡 , 𝐼 <𝑡 ) ,
+
+where 𝑄 is the main question; {𝑞 𝑖 }𝑖<𝑡 contains the previous sub-queries; 𝑅 <𝑡 and 𝑉 <𝑡 denote the documents retrieved and visited before step 𝑡 , respectively; and 𝐼 <𝑡 contains document-specific interpretations extracted from post-visit reasoning, summarizing what the agent learned from each visited document. This formulation motivates two design choices for ITER. First, the retriever receives context from earlier searches. Second, document interactions provide training signals that reflect a document’s utility at each search step. 
+
+# 4 ITER: Query Representation and Training 
+
+ITER implements the two design choices motivated in Section 3: conditioning retrieval on the interaction history and deriving trajectory-relative supervision from document interactions. 
+
+4.1 History-Conditioned Query Representation 
+
+The interaction history contains several sources of information that may guide retrieval, including the main question, previous sub-queries, visited documents, and their associated interpretations. ITER incorporates this history by serializing selected components together with the current sub-query as input to the query encoder. The default query representation combines the main question 𝑄 , current sub-query 𝑞 𝑡 , and previous sub-queries 𝑞 <𝑡 = {𝑞 𝑖 }𝑖<𝑡 . The main question preserves the overall task, the current sub-query specifies the immediate information need, and the previous sub-queries indicate the search directions already explored. At the first search step, 𝑞 <𝑡 is empty. AgentIR augments the current sub-query with pre-search reasoning [3]. To examine whether pre-search reasoning provides additional context, we also consider a reasoning-augmented representation that adds 
+
+𝜏 𝑡 , the reasoning produced before issuing 𝑞 𝑡 , together with the corresponding instruction text. Figure 4 demonstrates the default and reasoning-augmented representations. The effects of visited documents, docu-ment interpretations, and other combinations of interaction history are examined in the query-representation ablation. 
+
+4.2 Constructing Training Signals from Agent Trajectories 
+
+Agent trajectories record when documents are returned, when they are visited, and whether they contribute useful information. The timing of these interactions is important: a document visited and judged relevant after search 𝑡 provides a positive signal for that search, but may indicate redundancy in later searches. Conversely, a document not visited when first returned may still prove useful later. We therefore collect trajectories in a de-duplicated search setting and use the resulting document interactions to construct positive pairs and tiered negatives. 6Preprint. Under review. 
+
+Instruction: Given the main question, the agent’s reasoning and the current sub-query it led to, and the sub-queries already tried in previous interactions, retrieve documents relevant to the current sub-query that provide new information not yet found. 
+
+Main Question: Which player from Kobe Bryant’s 1996 draft class returned to the team that originally drafted him and then won the NBA MVP award in consecutive seasons? 
+
+Current Reasoning: Kobe Bryant and Allen Iverson were both selected in 1996, but each won only one regular-season MVP. We need another point guard from that draft class who returned to his original team and won the award in consecutive seasons. 
+
+Current Sub-query: ["1996 NBA draft" "point guard" "MVP" "returned to original team"] 
+
+Previous Interactions: Previous Sub-query 1: ["Kobe Bryant" "1996 NBA draft" "MVP" "guard"] 
+
+Previous Sub-query 2: ["1996 NBA draft" "MVP" "returned to original team"]  
+
+> Figure 4:
+
+Default and reasoning-augmented query representations. Both use the content shown in black; the reasoning-augmented representation additionally includes the pre-search reasoning and instruction text shown in blue. The example is truncated for display. 
+
+𝑑 first-time result 𝑑 returned earlier 𝑑 promoted from below top-𝑘 
+
+(a) Standard search results 
+
+Step 1: [ 𝑑 1 𝑑 2 𝑑 3 𝑑 4 𝑑 5 . . . ] Step 2: [ 𝑑 2 𝑑 6 𝑑 1 𝑑 7 𝑑 3 . . . ] 
+
+Three of five positions repeat earlier results. 
+
+(b) De-duplicated search results 
+
+Step 2 top-𝑘 : [ 𝑑 6 𝑑 7 𝑑 8 𝑑 9 𝑑 10 . . . ] 
+
+returned earlier: 𝑑 1, 𝑑 2, 𝑑 3
+
+Every ranked position is new; earlier results remain openable via get_document . 
+
+> Figure 5:
+
+Standard and de-duplicated search settings. Under standard retrieval, previously returned documents occupy positions in the next result list. The de-duplicated interface fills those positions with unseen documents and moves the repeated documents to a returned earlier section, where they remain accessible through the 
+
+get_document tool. 
+
+4.2.1 De-duplicated Trajectory Collection 
+
+Successive sub-queries often return the same highly ranked documents, leaving fewer positions for unseen candidates. To increase candidate coverage without removing access to earlier results, we use a de-duplicated search setting that separates first-time results from previously returned documents. At each search step, the search tool retrieves 𝐾 =100 candidates, removes documents returned at earlier steps, and presents the top 𝑘 =10 unseen documents. If a previously returned document appears in the raw top-10 results for the current sub-query, its identifier and title are displayed separately under returned earlier . The agent can still open the document using get_document . Figure 5 contrasts the standard and de-duplicated settings. We run Tongyi-DeepResearch-30B [30] on 10,000 InfoSeek training questions [35] with four retrieval backends: BM25 [28] and the zero-shot Qwen3-Embedding models [42] at 0.6B, 4B, and 8B scales. This produces 40,000 trajectories with different candidate distributions. We retain the 20,893 trajectories whose final answers match the references. The de-duplicated setting presents more unseen candidates while preserving access to earlier results. 7Preprint. Under review. 
+
+Among the 67,934 positive pairs derived from the retained trajectories, 18,138 (26.7%) involve delayed visits, where the agent visits a document returned by an earlier search. These delayed visits show that not visiting a document when it first appears does not establish that it is unhelpful. 
+
+> 4.2.2 Positive Signals from Document Visits
+
+For each search step 𝑡 , we pair the history-conditioned query representation for 𝑞 𝑡 with documents visited after 𝑞 𝑡 and before the next search. A visited document may come from either the current results or returned earlier . If a document was returned at an earlier step but visited only after 𝑞 𝑡 , it is paired with 𝑞 𝑡 and the corresponding interaction history, rather than with the sub-query that first returned it. A visit alone does not establish relevance because the document may prove unhelpful after the agent examines its full content. Following LRAT [44], we provide the reasoning produced after each visit to Qwen3-30B-A3B-Thinking-2507 [37], which judges whether the document contributed useful information. The verifier outputs Relevant or Not Relevant, and only documents judged Relevant are retained as positives. 
+
+> 4.2.3 Negative Signals from Document Interactions
+
+For each positive pair at search step 𝑡 , ITER organizes negative documents into three tiers according to the agent’s interactions with them: 
+
+• Redundancy negatives: documents visited before step 𝑡 and judged relevant. They remain topically related but have already provided useful information to the agent. 
+
+• Hard negatives: documents visited before step 𝑡 and judged irrelevant. Their snippets appeared useful enough to prompt a visit, but their full content was judged unhelpful. 
+
+• Weak negatives: documents returned at step 𝑡 but never visited anywhere in the complete trajectory. Because the agent never examined them, their utility remains uncertain. Documents returned only at earlier steps and never visited remain unlabeled. As the delayed visits demonstrate, the absence of an immediate visit does not establish that a document is unhelpful. Each training group contains one positive and nine negatives. We sample up to three redundancy negatives, followed by up to three hard negatives, and fill the rest with weak negatives. 
+
+4.3 Trajectory-Relative Training 
+
+Given the constructed training groups, ITER is optimized with a weighted contrastive objective. The objective uses two forms of weighting: an instance-level weight derived from the reasoning associated with each positive document and a tier-specific weight for each sampled negative. 
+
+> 4.3.1 Positive-Instance Weighting
+
+Relevance filtering provides a binary label, but the reasoning associated with a positive document can provide a graded signal of its utility. LRAT observes that longer post-visit reasoning traces are associated with more useful documents [44]. Following LRAT, we apply the same length-to-weight mapping. 8Preprint. Under review. 
+
+Let ℓ𝑖 denote the token length of the post-visit reasoning associated with the positive document in training instance 𝑖 , and let 𝛽 be the median positive reasoning length in the training set. We compute the saturating raw score ˜𝑎 𝑖 = 1 − exp 
+
+
+
+− ln 2 
+
+𝛽 ℓ𝑖 
+
+
+
+, (1) and normalize it to have mean one: 
+
+𝑎 𝑖 = ˜𝑎 𝑖 
+
+E 𝑗 [ ˜𝑎 𝑗 ] . (2) The raw score reaches half of its asymptotic value at ℓ𝑖 = 𝛽 and gradually saturates for longer reasoning traces. The resulting 𝑎 𝑖 controls the contribution of training instance 𝑖 to the final objective. 
+
+4.3.2 Negative-Tier Weighting 
+
+The negative tiers defined in Section 4.2.3 provide different levels of evidence that a document should be ranked below the current positive. We therefore assign them different weights: (𝑤 red , 𝑤 hard , 𝑤 weak ) =
+
+(3.0, 1.0, 0.3).Redundancy negatives receive the largest weight because they were previously judged useful but have already provided information to the agent. Hard negatives receive the standard weight, while weak negatives are discounted because their utility was never directly observed. Table 4 evaluates the effects of the negative tiers and their weights. 
+
+4.3.3 Weighted Contrastive Loss 
+
+For a mini-batch of history-conditioned query representations 𝑞 𝑖 , positive documents 𝑑 + 
+
+> 𝑖
+
+, and sampled negative groups G𝑖 , documents from other training instances also serve as in-batch negatives. Let B contain all documents in the batch, let 𝑠 (· , ·) denote cosine similarity, and let 𝜏 = 0.02 be the softmax temperature. For each training instance 𝑖 , we define 
+
+L𝑖 = − log 𝑒 𝑠 (𝑞 𝑖 ,𝑑 + 
+
+> 𝑖 )/ 𝜏
+
+∑︁ 
+
+> 𝑑 ∈ B
+
+𝑤 𝑖 (𝑑 )𝑒 𝑠 (𝑞 𝑖 ,𝑑 )/ 𝜏 , (3) where 𝑤 𝑖 (𝑑 ) takes the corresponding tier weight when 𝑑 ∈ G 𝑖 and is one for the positive document and all other in-batch documents. Multiplying a negative term by 𝑤 𝑖 (𝑑 ) is equivalent to adding log 𝑤 𝑖 (𝑑 ) to its logit, thereby controlling how strongly the negative competes with the positive. The instance weights 𝑎 𝑖 
+
+from Eq. 2 are then used to aggregate the per-instance losses: 
+
+L =
+
+Í𝑖 𝑎 𝑖 L𝑖 
+
+Í𝑖 𝑎 𝑖 
+
+. (4) Thus, 𝑤 𝑖 (𝑑 ) controls how strongly each sampled negative competes with the positive within an instance, while 𝑎 𝑖 controls the contribution of the entire instance to the final objective. 
+
+4.3.4 Training Parameters 
+
+We implement retriever training with the FlagEmbedding framework [6]. We fully fine-tune Qwen3-Embedding-0.6B [42], the backbone used by LRAT, for two epochs using AdamW with a learning rate of 10 −6, a 0.1 warmup ratio, batch size 32, bf16 precision, last-token pooling, and normalized embeddings. Documents are truncated to 512 tokens, while query inputs are truncated to 8,192 tokens to accommodate the alternative interaction inputs. We use the same training procedure for the 4B scaling experiment. 9Preprint. Under review. 
+
+# 5 Experimental Setup 
+
+5.1 Evaluation Benchmarks 
+
+We evaluate ITER on two fixed-corpus deep-research benchmarks using the same in-domain and out-of-domain setup as LRAT [44]. 
+
+InfoSeek-Eval [35] contains 300 multi-hop information-seeking questions strictly disjoint from the InfoSeekQA questions used for trajectory collection. Retrieval uses Wiki-25-Dump 1, which contains 11.2 million documents of up to 512 tokens. Because training and evaluation share the task distribution and retrieval corpus, but not questions, we treat InfoSeek-Eval as the in-domain benchmark. 
+
+BrowseComp-Plus [4] is a reproducible benchmark derived from BrowseComp [33] and designed for deep-research agents. It contains 830 complex, human-authored questions requiring multi-step reasoning and evidence aggregation, often through long search trajectories. Following the official setup, retrieval uses a corpus of 100,195 documents. The benchmark provides document-level gold and evidence qrels for retrieval evaluation. Neither its questions nor its corpus is used during ITER training, making it our out-of-domain benchmark. 
+
+5.2 Evaluation Metrics 
+
+We report three groups of metrics. End-to-end effectiveness is measured by task success rate (SR) , the fraction of questions answered correctly. We use Qwen3-30B-A3B-Thinking-2507 [37] as the official judge for BrowseComp-Plus and exact string matching for InfoSeek-Eval. Retrieval quality on BrowseComp-Plus is measured using two metrics. Evidence search recall is the fraction of annotated evidence documents retrieved at any point in an agent trajectory. Evidence visit recall 
+
+is the fraction of those documents that the agent visits through the get_document tool. Both are macro-averaged over questions. Execution efficiency is measured by the average number of tool calls per question (Avg. Steps). For paired comparisons over the same question set, we report exact McNemar 𝑝 -values on per-question answer outcomes [22]. 
+
+5.3 Compared Retrievers 
+
+We compare ITER against sparse and dense retrievers. The dense retrievers use the Qwen3-Embedding family [42]. We use the 0.6B encoder for comparisons with LRAT and the 4B encoder to study retriever scaling and compare with AgentIR at the same scale: 
+
+• BM25 [28]: a sparse lexical baseline without training, queried with the current sub-query alone; 
+
+• Base : the pretrained Qwen3-Embedding model without trajectory fine-tuning, queried with the current sub-query alone; 
+
+• LRAT [44]: a trajectory-trained retriever queried with the current sub-query alone. We use its released Qwen3-Embedding-0.6B checkpoint; LRAT does not provide a 4B model; 
+
+• AgentIR [3]: the officially released AgentIR-4B model, evaluated with its reasoning-aware query repre-sentation consisting of the pre-search reasoning, current sub-query, and instruction prefix; 
+
+> 1https://huggingface.co/datasets/Lk123/wiki-25-512
+
+10 Preprint. Under review. 
+
+• ITER (ours): a retriever trained with the trajectory-relative supervision described in Section 4.2. We evaluate three query representations: the default representation combining the main question, current sub-query, and previous sub-queries; a diagnostic representation using only the current sub-query; and a reasoning-augmented representation that adds pre-search reasoning to the default. These representations are described in Section 4.1. During evaluation, all retrievers return unfiltered top-𝑘 rankings through the same search tool. 
+
+5.4 Agent Backbones 
+
+We use Tongyi-DeepResearch-30B [30], which was used for trajectory collection, in the matched-agent evaluation. To assess cross-agent transfer, we additionally evaluate five unseen backbones from two other model families, ranging from 4B to 120B parameters: Qwen3.5-4B/9B/27B, Qwen3.6-27B [27], and gpt-oss-120B [26]. 
+
+5.5 Implementation Details 
+
+All agent backbones are served locally with vLLM [14]. We use the recommended generation settings for each backbone and keep them fixed across retrievers. At each search step, every retriever returns the top-10 documents with 64-token snippets. Agents can access full documents through the get_document tool and are limited to 50 tool-calling turns per question. 
+
+Table 1: Matched-agent evaluation with Tongyi-DeepResearch-30B. SR = task success rate; Search/Visit Recall = BrowseComp-Plus evidence search/visit recall; Steps = mean tool calls. MQ/SQ/PSQ/PR = main question, current sub-query, previous sub-queries, pre-search reasoning. SR and recall annotations in the 0.6B ITER block show relative changes over LRAT (red: increase). Stars report unadjusted two-sided exact McNemar tests for all ITER variants against LRAT: ∗ 𝑝<. 05 .                                                                               
+
+> Method Configuration InfoSeek-Eval (ID) BrowseComp-Plus (OOD) SR ( ↑)Steps ( ↓)SR ( ↑)Search Recall ( ↑)Visit Recall ( ↑)Steps ( ↓)Baselines BM25 (sparse) 77.3 17.4 31.1 .442 .248 41.1 Base (0.6B) 58.0 26.3 32.4 .479 .249 41.5 LRAT (0.6B) 72.7 19.6 43.4 .602 .323 40.0 ITER (0.6B) SQ only 76.7 (+5.5%) 18.3 43.7 (+0.7%) .619 (+2.8%) .339 (+5.0%) 40.3 MQ+SQ+PSQ 80.0 (+10.0%) *18.0 46.6 (+7.4%) .636 (+5.6%) .340 (+5.3%) 39.6 MQ+SQ+PSQ+PR 79.0 (+8.7%) *19.0 47.6 (+9.7%) *.648 (+7.6%) .350 (+8.4%) 39.9 ITER (4B) SQ only 73.7 20.1 45.3 .636 .350 39.6 MQ+SQ+PSQ 77.0 18.6 48.0 *.600 .351 39.2 MQ+SQ+PSQ+PR 79.0 *20.3 47.0 *.628 .354 39.6
+
+# 6 Main Results 
+
+We evaluate ITER in two settings. The matched-agent evaluation uses Tongyi-DeepResearch-30B for both trajectory collection and evaluation, while the cross-agent evaluation tests transfer to five unseen agent backbones. 11 Preprint. Under review. 
+
+6.1 Matched-Agent Evaluation 
+
+Table 1 reports the matched-agent results. From these comparisons, we draw three findings about trajectory-relative training, interaction history, and retriever scale. 
+
+> Finding 1: Trajectory-relative training already improves performance with the current sub-query held fixed.
+
+To isolate the effect of trajectory-relative training, we compare LRAT with the current-sub-query-only ITER variant while holding the encoder backbone and query representation fixed. Both use Qwen3-Embedding-0.6B and receive only the current sub-query, but differ in how their training signals are con-structed from agent trajectories. On InfoSeek-Eval, ITER increases task success from 72.7 to 76.7 and reduces the average number of tool calls from 19.6 to 18.3. On BrowseComp-Plus, it increases evidence search recall from .602 to .619 and task success from 43.4 to 43.7. Because the retrieval input is identical, these gains isolate the benefit of constructing supervision relative to the agent’s position in the trajectory. 
+
+> Finding 2: Encoding the main question and previous sub-queries provides further gains.
+
+We next compare the query representations used to train and evaluate ITER. Adding the main question and previous sub-queries to the current-sub-query-only representation raises InfoSeek-Eval task success from 76.7 to 80.0. On BrowseComp-Plus, evidence search recall increases from .619 to .636 and task success from 43.7 to 46.6. These components therefore provide most of the BrowseComp-Plus improvement over LRAT. Further adding pre-search reasoning increases BrowseComp-Plus evidence search recall to .648 and task success to 47.6, but lowers InfoSeek-Eval task success by 1.0 point. Thus, the main question and previous sub-queries provide useful context beyond the current sub-query, while pre-search reasoning produces mixed gains across the two benchmarks. 
+
+> Finding 3: Increasing retriever scale does not consistently improve performance.
+
+Scaling ITER from 0.6B to 4B produces mixed results. On BrowseComp-Plus, task success improves for the current-sub-query-only and default representations, but slightly decreases for the reasoning-augmented representation. On InfoSeek-Eval, the current-sub-query-only and default representations both drop by 3.0 points, while the reasoning-augmented representation remains unchanged. Evidence search recall is similarly mixed, improving only for the current-sub-query-only representation. History conditioning remains beneficial at the larger scale. At 4B, the default representation outperforms the current-sub-query-only representation by 3.3 points on InfoSeek-Eval and 2.7 points on BrowseComp-Plus. Because LRAT does not provide a 4B model, these results characterize how ITER behaves when scaled from 0.6B to 4B rather than providing a same-scale comparison with LRAT. Increasing retriever scale therefore does not replace history conditioning, which remains beneficial even with the larger encoder. 12 Preprint. Under review. 
+
+Table 2: Cross-agent evaluation of LRAT, AgentIR, and ITER across six agent backbones. SR = task success rate; Search/Visit Recall = BrowseComp-Plus evidence search/visit recall; Steps = mean tool calls; PR = pre-search reasoning. SR and recall annotations use scale-matched references: 0.6B ITER variants are relative to LRAT (0.6B), and 4B ITER variants are relative to AgentIR (4B) (red: increase; green: decrease); bold marks the best value in each column within each backbone. Stars report unadjusted two-sided exact McNemar tests under the same agent backbone: 0.6B ITER variants are compared with LRAT (0.6B), and 4B ITER variants with AgentIR (4B). All significant comparisons use ∗ 𝑝<. 05 .
+
+Agent Backbone Retriever InfoSeek-Eval (ID) BrowseComp-Plus (OOD) SR ( ↑) Steps ( ↓) SR ( ↑) Search Recall ( ↑) Visit Recall ( ↑) Steps ( ↓)Tongyi-30B LRAT (0.6B) 72.7 19.6 43.4 .602 .323 40.0 ITER (0.6B) 80.0 (+10.0%) * 18.0 46.6 (+7.4%) .636 (+5.6%) .340 (+5.3%) 39.6 ITER+PR (0.6B) 79.0 (+8.7%) * 19.0 47.6 (+9.7%) * .648 (+7.6%) .350 (+8.4%) 39.9 AgentIR (4B) 77.3 17.2 50.4 .724 .375 39.3 ITER (4B) 77.0 (−0.4%) 18.6 48.0 (−4.8%) .600 (−17.1%) .351 (−6.4%) 39.2 Qwen3.5-4B LRAT (0.6B) 69.0 14.6 24.2 .455 .268 24.2 ITER (0.6B) 72.7 (+5.4%) 14.5 29.9 (+23.6%) * .504 (+10.8%) .297 (+10.8%) 24.6 ITER+PR (0.6B) 70.3 (+1.9%) 15.3 25.8 (+6.6%) .435 (−4.4%) .253 (−5.6%) 23.9 AgentIR (4B) 66.0 15.3 27.2 .513 .296 23.5 ITER (4B) 72.0 (+9.1%) * 14.7 31.8 (+16.9%) * .474 (−7.6%) .320 (+8.1%) 24.5 Qwen3.5-9B LRAT (0.6B) 73.0 13.5 32.2 .539 .325 25.1 ITER (0.6B) 76.0 (+4.1%) 12.6 33.9 (+5.3%) .554 (+2.8%) .322 (−0.9%) 25.5 ITER+PR (0.6B) 75.0 (+2.7%) 13.8 34.1 (+5.9%) .523 (−3.0%) .304 (−6.5%) 25.1 AgentIR (4B) 73.3 13.3 32.7 .582 .347 25.2 ITER (4B) 73.7 (+0.5%) 12.4 34.3 (+4.9%) .536 (−7.9%) .331 (−4.6%) 25.0 Qwen3.5-27B LRAT (0.6B) 79.7 13.1 43.9 .588 .425 24.9 ITER (0.6B) 84.3 (+5.8%) * 12.1 48.1 (+9.6%) * .644 (+9.5%) .470 (+10.6%) 25.0 ITER+PR (0.6B) 78.0 (−2.1%) 13.0 46.1 (+5.0%) .593 (+0.9%) .422 (−0.7%) 25.0 AgentIR (4B) 79.3 13.0 46.3 .646 .458 24.8 ITER (4B) 83.3 (+5.0%) 12.5 48.4 (+4.5%) .605 (−6.3%) .455 (−0.7%) 24.7 Qwen3.6-27B LRAT (0.6B) 68.7 12.9 28.1 .383 .187 17.6 ITER (0.6B) 79.3 (+15.4%) * 12.1 34.5 (+22.8%) * .467 (+21.9%) .226 (+20.9%) 18.2 ITER+PR (0.6B) 76.0 (+10.6%) * 12.7 31.9 (+13.5%) * .426 (+11.2%) .211 (+12.8%) 17.8 AgentIR (4B) 63.0 14.6 30.7 .441 .212 17.2 ITER (4B) 80.7 (+28.1%) * 12.1 35.4 (+15.3%) * .446 (+1.1%) .236 (+11.3%) 17.5 gpt-oss-120B LRAT (0.6B) 67.0 10.2 36.3 .553 .304 19.4 ITER (0.6B) 70.0 (+4.5%) 9.7 40.8 (+12.4%) * .602 (+8.9%) .330 (+8.6%) 19.7 ITER+PR (0.6B) 69.3 (+3.4%) 10.2 30.2 (−16.8%) * .376 (−32.0%) .216 (−28.9%) 18.0 AgentIR (4B) 66.3 10.0 39.6 .577 .319 18.2 ITER (4B) 71.7 (+8.1%) * 10.1 39.9 (+0.8%) .543 (−5.9%) .322 (+0.9%) 18.2 
+
+13 Preprint. Under review. 
+
+6.2 Cross-Agent Evaluation 
+
+Table 2 reports retriever performance across six agent backbones, including Tongyi-DeepResearch-30B, which generated the training trajectories. For each backbone, we hold the agent configuration fixed and change only the retriever. These comparisons yield three findings about cross-agent transfer, pre-search reasoning, and performance relative to AgentIR. 
+
+> Finding 1: ITER consistently outperforms LRAT across agent backbones.
+
+Across the six agent backbones, the default ITER improves task success over LRAT in all 12 backbone–benchmark comparisons. The average gains are +5.4 points on InfoSeek-Eval and +4.3 points on BrowseComp-Plus, with seven gains statistically significant at 𝑝<. 05. On BrowseComp-Plus, evidence search recall also improves for all six backbones, by 4.8 percentage points on average. The benefit of ITER is therefore not limited to the agent that generated its training trajectories, but extends across three model families and agent scales ranging from 4B to 120B. 
+
+> Finding 2: Pre-search reasoning transfers less reliably across agent backbones.
+
+The matched-agent evaluation shows that adding pre-search reasoning can improve performance with Tongyi-DeepResearch-30B. Across the five unseen backbones, however, the reasoning-augmented represen-tation performs worse than the default representation on InfoSeek-Eval in every case, on BrowseComp-Plus in four of five cases, and in evidence search recall in all five cases. Although it still outperforms LRAT in most unseen-agent comparisons, its gains are less consistent than those of the default representation. One possible explanation is that pre-search reasoning is free-form and model-specific, so different agent backbones may express the same search intent differently. Because the reasoning-augmented representation is trained only with reasoning produced by Tongyi, it may transfer less reliably to unseen agents. These results reveal a transfer trade-off specific to pre-search reasoning: it can help with the matched agent but becomes less reliable when the agent backbone changes. 
+
+> Finding 3: AgentIR’s higher evidence search recall does not reliably translate into evidence visits or task success.
+
+AgentIR performs strongly with Tongyi, but its search recall advantage transfers less reliably to unseen agents. In the size-matched 4B comparison, AgentIR achieves higher evidence search recall than the default ITER on four of five unseen backbones, whereas ITER achieves higher task success on all five. Against the smaller 0.6B ITER, AgentIR has higher search recall on three of five backbones, while ITER has higher visit recall on four of five and higher task success on all five. Thus, retrieving relevant evidence does not guarantee that the agent will consume it or use it successfully. Unlike ITER, AgentIR relies on LLM-as-a-judge relevance labels rather than document-visit signals from agent trajectories [3]. These labels identify relevant documents but do not indicate which documents an agent will visit. Consequently, AgentIR may repeatedly rank relevant but unvisited documents highly, whereas ITER learns from the evidence agents actually consume. This difference may explain ITER’s stronger transfer in visit recall and task success. 14 Preprint. Under review.  
+
+> Table 3:
+
+Query-input ablation with Tongyi. All ITER variants share the same training setup; LRAT is included for reference. DI = document interpretation extracted from post-visit reasoning; docs = visited-document text; other abbreviations as in Table 1. Recall = evidence search recall. Superscripts 𝑎 and 𝑏 mark significant differences from LRAT and the default i2 setting, respectively, using two-sided exact McNemar tests for SR and paired 𝑡 -tests for recall, with Bonferroni correction by metric and anchor family at 𝑝 < . 05 .
+
+Retriever input InfoSeek-Eval SR BCP SR BCP Recall 
+
+LRAT SQ 72.7 43.4 .602 
+
+i0 SQ 76.7 43.7 .619 i1 MQ, SQ 76.7 45.4 .629 
+
+i2 MQ, SQ, PSQ (default) 80.0 46.6 .636 i3 MQ, SQ, PSQ, docs 77.7 41.1 b .541 ab 
+
+i4 MQ, SQ, PSQ, DI 76.3 42.7 .579 b
+
+i5 MQ, SQ, PSQ, docs, DI 75.0 42.7 .579 b
+
+i6 SQ, PR 77.0 47.1 .656 a
+
+i7 MQ, SQ, PSQ, PR 79.0 a 47.6 .648 a 
+
+> Table 4:
+
+Negative-tier ablation of the default ITER configuration with Tongyi. Weights are ordered as 
+
+(𝑤 red , 𝑤 hard , 𝑤 weak ). Notation follows Table 3. 
+
+Variant InfoSeek-Eval SR BCP SR BCP Recall 
+
+LRAT 72.7 43.4 .602 
+
+default (3.0, 1.0, 0.3) 80.0 46.6 .636 w/o redundancy 79.3 a 40.8 b .561 ab 
+
+w/o hard 79.3 a 45.8 .637 a
+
+uniform (1, 1, 1) 80.7 a 43.9 .608 b
+
+stronger red. (5, 1, 0.2) 75.0 45.4 .635 a
+
+# 7 Ablation Analysis 
+
+We analyze the two main design choices in the default ITER configuration: the history-conditioned query representation and trajectory-relative negative supervision. We vary each component separately while holding the other fixed. 
+
+7.1 Query Representation 
+
+We first vary the query representation while holding the training examples, negative tiers, and training recipe fixed. Each representation is used during both training and evaluation. Table 3 compares eight variants. Variants i0–i2 progressively add the main question and previous sub-queries; i3–i5 incorporate visited documents, post-visit document interpretations, or both; and i6–i7 examine pre-search reasoning. Variant i6 follows the representation used by AgentIR [3], while i7 adds pre-search reasoning to the default representation. 15 Preprint. Under review. 
+
+> Finding 1: The main question and previous sub-queries provide complementary gains.
+
+Adding the main question (i0 → i1) leaves InfoSeek-Eval task success unchanged at 76.7, but improves BrowseComp-Plus task success from 43.7 to 45.4 and evidence search recall from .619 to .629. Further adding previous sub-queries (i1 → i2) raises InfoSeek-Eval task success to 80.0, BrowseComp-Plus task success to 46.6, and evidence search recall to .636. The main question preserves the overall task, while previous sub-queries indicate which search directions have already been explored. Their combination therefore provides the strongest representation among i0–i2. 
+
+> Finding 2: Explicitly encoding visited content hurts retrieval.
+
+Adding visited documents (i3), post-visit interpretations (i4), or both (i5) lowers BrowseComp-Plus task success to 41.1–42.7 and evidence search recall to .541–.579, with all three variants performing worse than i2. One possible explanation is that visited-document text conflicts with the training signal: it places consumed evidence in the query representation while the same documents may serve as redundancy negatives that the retriever is trained to rank lower. Document interpretations summarize what the agent learned more abstractly, which may explain why i4 performs better than i3 on BrowseComp-Plus. Nevertheless, all three variants remain below i2. This result indicates that representing previously explored directions through sub-queries is more effective than directly encoding consumed evidence or its interpretation. 
+
+> Finding 3: Pre-search reasoning provides agent- and benchmark-specific gains.
+
+Adding pre-search reasoning improves BrowseComp-Plus performance with Tongyi-DeepResearch-30B but does not improve InfoSeek-Eval. As shown in Section 6.2, these gains also transfer less consistently to unseen agent backbones. Pre-search reasoning can therefore provide useful context for the agent that produced the training trajectories, but it is less reliable than the structured default representation across benchmarks and agents. 
+
+7.2 Negative Supervision 
+
+We next examine the construction and weighting of trajectory-relative negatives. Table 4 compares the effects of removing negative tiers and varying their loss weights. 
+
+> Finding 1: Redundancy negatives provide the strongest trajectory-relative signal.
+
+Removing redundancy negatives has the largest effect, reducing BrowseComp-Plus task success from 46.6 to 40.8 and evidence search recall from .636 to .561, while InfoSeek-Eval task success decreases by only 0.7 points. This result captures the central distinction of interaction-aware retrieval: a document may remain relevant to the current sub-query while providing little additional value after its information has been consumed. The large drop shows that learning to recognize this changing utility is the main contribution of trajectory-relative negative supervision. 16 Preprint. Under review. 
+
+> Finding 2: Hard negatives provide complementary relevance supervision.
+
+Removing hard negatives reduces task success from 80.0 to 79.3 on InfoSeek-Eval and from 46.6 to 45.8 on BrowseComp-Plus. Although these effects are smaller than those of redundancy negatives, the declines on both benchmarks show that conventional relevance supervision remains useful. Hard negatives help distinguish irrelevant documents from useful evidence, complementing the history-dependent signal provided by redundancy negatives. 
+
+> Finding 3: Negative tiers require calibrated weighting.
+
+Uniform weighting (1, 1, 1) assigns uncertain weak negatives the same weight as redundancy negatives. This reduces BrowseComp-Plus task success from 46.6 to 43.9 and evidence search recall from .636 to .608. The default weighting (3, 1, 0.3) instead reflects the strength of the interaction evidence: redundancy negatives receive the largest weight, visited but irrelevant documents retain the standard weight, and unvisited documents are discounted. It provides the best overall balance, reaching task success of 80.0 on InfoSeek-Eval and 46.6 on BrowseComp-Plus. Further increasing the separation with weights (5, 1, 0.2) does not improve BrowseComp-Plus and reduces InfoSeek-Eval task success to 75.0. The negative tiers should therefore not be treated uniformly, but the redundancy signal should not dominate the training objective. The default weighting balances strong evidence of redundancy against the uncertainty of unvisited documents. 
+
+# 8 Conclusion 
+
+Deep-research agents search cumulatively: each sub-query and document visit changes what evidence remains useful. We introduced ITER, an interaction-aware dense retriever that models a document’s marginal gain using a history-conditioned query representation and trajectory-relative supervision. Across two benchmarks and six agent backbones, ITER consistently outperforms LRAT and shows stronger cross-agent transfer than AgentIR, achieving higher task success for all five unseen backbones on both benchmarks. Our analyses show that the main question and previous sub-queries provide robust retrieval context, whereas document visits are more effective as supervision than as query content, and free-form pre-search reasoning transfers less reliably. More broadly, these results suggest that agentic retrieval should optimize progress through a search trajectory, rather than relevance at an isolated step. Agent trajectories provide a useful starting point, but fully capturing the agent’s evolving information state remains an open problem. Important questions include how to represent what an agent has learned, transfer interaction signals across agents, and jointly optimize retrieval and search decisions. Addressing them could shift retrieval from finding relevant evidence to finding the evidence most useful next for the agent. 
+
+# Acknowledgments 
+
+We thank Sunhao Dai and Yuqi Zhou for helpful discussions. 17 Preprint. Under review. 
+
+# References 
+
+[1] Eugene Agichtein, Eric Brill, and Susan Dumais. 2006. Improving Web Search Ranking by Incorporat-ing User Behavior Information. In Proceedings of the 29th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval (Seattle, USA) (SIGIR ’06) . Association for Computing Machinery, 19–26. doi: 10.1145/1148170.1148177 
+
+[2] Akari Asai, Timo Schick, Patrick Lewis, Xilun Chen, Gautier Izacard, Sebastian Riedel, Hannaneh Hajishirzi, and Wen-tau Yih. 2023. Task-Aware Retrieval with Instructions. In Findings of the Asso-ciation for Computational Linguistics (Toronto, Canada) (ACL ’23) . Association for Computational Linguistics, 3650–3675. doi: 10.18653/v1/2023.findings-acl.225 
+
+[3] Zijian Chen, Xueguang Ma, Shengyao Zhuang, Jimmy Lin, Akari Asai, and Victor Zhong. 2026. AgentIR: Reasoning-Aware Retrieval for Deep Research Agents. arXiv:2603.04384 [4] Zijian Chen, Xueguang Ma, Shengyao Zhuang, Ping Nie, Kai Zou, Andrew Liu, Joshua Green, Kshama Patel, Ruoxi Meng, Mingyi Su, Sahel Sharifymoghaddam, Yanxi Li, et al. 2026. BrowseComp-Plus: A More Fair and Transparent Evaluation Benchmark of Deep-Research Agent. In Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) (San Diego, USA). Association for Computational Linguistics, 22349–22370. arXiv:2508.06600 doi: 10.1 8653/v1/2026.acl-long.1023 
+
+[5] Sunhao Dai, Wenjie Wang, Liang Pang, Jun Xu, See-Kiong Ng, Ji-Rong Wen, and Tat-Seng Chua. 2025. NExT-Search: Rebuilding User Feedback Ecosystem for Generative AI Search. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval 
+
+(Padua, Italy) (SIGIR ’25) . Association for Computing Machinery, 3922–3931. doi: 10.1145/372630 2.3730353 
+
+[6] FlagOpen Team. 2023. FlagEmbedding: A Powerful Toolkit for Retrieval and Retrieval-Augmented LLMs. GitHub repository. https://github.com/FlagOpen/FlagEmbedding 
+
+[7] Luyu Gao, Xueguang Ma, Jimmy Lin, and Jamie Callan. 2023. Precise Zero-Shot Dense Retrieval without Relevance Labels. In Proceedings of the 61st Annual Meeting of the Association for Com-putational Linguistics (Volume 1: Long Papers) (Toronto, Canada). Association for Computational Linguistics, 1762–1777. doi: 10.18653/v1/2023.acl-long.99 
+
+[8] Tiansheng Hu, Yilun Zhao, Canyu Zhang, Arman Cohan, and Chen Zhao. 2026. SAGE: Benchmarking and Improving Retrieval for Deep Research Agents. arXiv:2602.05975 [9] Yuxuan Huang, Yihang Chen, Haozheng Zhang, Kang Li, Meng Fang, Linyi Yang, Xiaoguang Li, Lifeng Shang, Songcen Xu, Jianye Hao, et al. 2025. Deep Research Agents: A Systematic Examination and Roadmap. arXiv:2506.18096 [10] Bowen Jin, Hansi Zeng, Zhenrui Yue, Jinsung Yoon, Sercan Ö. Arık, Dong Wang, Hamed Zamani, and Jiawei Han. 2025. Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning. In Proceedings of the Second Conference on Language Modeling (Montreal, Canada) (COLM ’25) . OpenReview.net. https://openreview.net/forum?id=Rwhi91ideu 
+
+18 Preprint. Under review. 
+
+[11] Thorsten Joachims. 2002. Optimizing Search Engines Using Clickthrough Data. In Proceedings of the 8th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (Edmonton, Canada) (KDD ’02) . Association for Computing Machinery, 133–142. doi: 10.1145/775047.775067 
+
+[12] Thorsten Joachims, Laura A. Granka, Bing Pan, Helene Hembrooke, and Geri Gay. 2005. Accurately Interpreting Clickthrough Data as Implicit Feedback. In Proceedings of the 28th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval (Salvador, Brazil) 
+
+(SIGIR ’05) . Association for Computing Machinery, 154–161. doi: 10.1145/1076034.1076063 
+
+[13] Vladimir Karpukhin, Barlas Oğuz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. 2020. Dense Passage Retrieval for Open-Domain Question Answering. In 
+
+Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (Online) 
+
+(EMNLP ’20) . Association for Computational Linguistics, 6769–6781. doi: 10.18653/v1/2020.emn lp-main.550 
+
+[14] Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph E. Gonzalez, Hao Zhang, and Ion Stoica. 2023. Efficient Memory Management for Large Language Model Serving with PagedAttention. In Proceedings of the 29th ACM Symposium on Operating Systems Principles (Koblenz, Germany) (SOSP ’23) . Association for Computing Machinery, 611–626. doi: 10 .1145/3600006.3613165 
+
+[15] Victor Lavrenko and W. Bruce Croft. 2001. Relevance-Based Language Models. In Proceedings of the 24th Annual International ACM SIGIR Conference on Research and Development in Information Retrieval (New Orleans, USA) (SIGIR ’01) . Association for Computing Machinery, 120–127. doi: 10 .1145/383952.383972 
+
+[16] Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Küttler, Mike Lewis, Wen-tau Yih, Tim Rocktäschel, Sebastian Riedel, and Douwe Kiela. 2020. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. In Proceedings of the 34th International Conference on Neural Information Processing Systems (Vancouver, Canada) (NIPS ’20) . Curran Associates Inc., 9459–9474. [17] Xiaoxi Li, Guanting Dong, Jiajie Jin, Yuyao Zhang, Yujia Zhou, Yutao Zhu, Peitian Zhang, and Zhicheng Dou. 2025. Search-o1: Agentic Search-Enhanced Large Reasoning Models. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing (Suzhou, China) 
+
+(EMNLP ’25) . Association for Computational Linguistics, 5420–5438. doi: 10.18653/v1/2025.emn lp-main.276 
+
+[18] Xiaoxi Li, Jiajie Jin, Guanting Dong, Hongjin Qian, Yutao Zhu, Yongkang Wu, Ji-Rong Wen, and Zhicheng Dou. 2025. WebThinker: Empowering Large Reasoning Models with Deep Research Ca-pability. In Advances in Neural Information Processing Systems (San Diego, USA) (NeurIPS ’25) .
+
+https://www.proceedings.com/085713-4011.html 
+
+[19] Zhuofeng Li, Haoxiang Zhang, Cong Wei, Pan Lu, Ping Nie, Yuyang Bai, Shangbin Feng, et al. 2026. Beyond Semantic Similarity: Rethinking Retrieval for Agentic Search via Direct Corpus Interaction. arXiv:2605.05242 [20] Wenhan Liu, Xinyu Ma, Yutao Zhu, Yuchen Li, Daiting Shi, Dawei Yin, and Zhicheng Dou. 2026. Agentic-R: Learning to Retrieve for Agentic Search. In Findings of the Association for Computational 
+
+19 Preprint. Under review. 
+
+Linguistics (San Diego, USA) (ACL ’26) . Association for Computational Linguistics, 15987–16005. doi: 10.18653/v1/2026.findings-acl.785 
+
+[21] Kelong Mao, Chenlong Deng, Haonan Chen, Fengran Mo, Zheng Liu, Tetsuya Sakai, and Zhicheng Dou. 2024. ChatRetriever: Adapting Large Language Models for Generalized and Robust Conversa-tional Dense Retrieval. arXiv:2404.13556 [22] Quinn McNemar. 1947. Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages. Psychometrika 12, 2 (1947), 153–157. doi: 10.1007/BF02295996 
+
+[23] Chuan Meng, Litu Ou, Sean MacAvaney, and Jeff Dalton. 2026. Revisiting Text Ranking in Deep Re-search. In Proceedings of the 49th International ACM SIGIR Conference on Research and Development in Information Retrieval (Melbourne, Australia) (SIGIR ’26) . Association for Computing Machinery, 3006–3016. doi: 10.1145/3805712.3808557 
+
+[24] Fengran Mo, Chen Qu, Kelong Mao, Tianyu Zhu, Zhan Su, Kaiyu Huang, and Jian-Yun Nie. 2024. History-Aware Conversational Dense Retrieval. In Findings of the Association for Computational Linguistics (Bangkok, Thailand) (ACL ’24) . Association for Computational Linguistics, 13366–13378. doi: 10.18653/v1/2024.findings-acl.792 
+
+[25] Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina Kim, Christo-pher Hesse, et al. 2021. WebGPT: Browser-Assisted Question-Answering with Human Feedback. arXiv:2112.09332 [26] OpenAI. 2025. gpt-oss-120b & gpt-oss-20b Model Card. arXiv:2508.10925 [27] Qwen Team. 2026. Qwen3.5 and Qwen3.6 Model Family. Hugging Face model collection. https: //huggingface.co/Qwen 
+
+[28] Stephen Robertson and Hugo Zaragoza. 2009. The Probabilistic Relevance Framework: BM25 and Beyond. Foundations and Trends in Information Retrieval 3, 4 (2009), 333–389. doi: 10.1561/1500 000019 
+
+[29] Joseph John Rocchio. 1971. Relevance Feedback in Information Retrieval. In The SMART Retrieval System: Experiments in Automatic Document Processing , Gerard Salton (Ed.). Prentice-Hall, 313–323. [30] Tongyi DeepResearch Team. 2025. Tongyi DeepResearch Technical Report. arXiv:2510.24701 [31] Harsh Trivedi, Niranjan Balasubramanian, Tushar Khot, and Ashish Sabharwal. 2023. Interleav-ing Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions. In 
+
+Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Vol-ume 1: Long Papers) (Toronto, Canada). Association for Computational Linguistics, 10014–10037. doi: 10.18653/v1/2023.acl-long.557 
+
+[32] Shuai Wang, Haodong Chen, Yu Yin, Shengyao Zhuang, Bevan Koopman, and Guido Zuccon. 2026. Search, Inspect, Fetch: Exploiting Structure-Aware Boolean Retrieval for Deep-Research Agents. arXiv:2608.02751 [33] Jason Wei, Zhiqing Sun, Spencer Papay, Scott McKinney, Jeffrey Han, Isa Fulford, Hyung Won Chung, Alex Tachard Passos, William Fedus, and Amelia Glaese. 2025. BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents. arXiv:2504.12516 20 Preprint. Under review. 
+
+[34] Ryen W. White. 2024. Advancing the Search Frontier with AI Agents. Commun. ACM 67, 9 (2024), 54–65. doi: 10.1145/3655615 
+
+[35] Ziyi Xia, Kun Luo, Hongjin Qian, and Zheng Liu. 2025. Open Data Synthesis For Deep Research. arXiv:2509.00375 [36] Lee Xiong, Chenyan Xiong, Ye Li, Kwok-Fung Tang, Jialin Liu, Paul N. Bennett, Junaid Ahmed, and Arnold Overwijk. 2021. Approximate Nearest Neighbor Negative Contrastive Learning for Dense Text Retrieval. In International Conference on Learning Representations (Virtual Event) (ICLR ’21) .OpenReview.net. https://openreview.net/forum?id=zeFrfgyZln 
+
+[37] An Yang et al. 2025. Qwen3 Technical Report. arXiv:2505.09388 [38] Seunghan Yang, Juntae Lee, Jihwan Bang, Kyuhong Shim, Minsoo Kim, and Simyung Chang. 2025. Learning Contextual Retrieval for Robust Conversational Search. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing (Suzhou, China) (EMNLP ’25) . Association for Computational Linguistics, 11991–12003. doi: 10.18653/v1/2025.emnlp-main.602 
+
+[39] Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan Cao. 2023. ReAct: Synergizing Reasoning and Acting in Language Models. In International Conference on Learning Representations (Kigali, Rwanda) (ICLR ’23) . OpenReview.net. https://openreview.n et/forum?id=WE_vluYUL-X 
+
+[40] Shi Yu, Jiahua Liu, Jingqin Yang, Chenyan Xiong, Paul Bennett, Jianfeng Gao, and Zhiyuan Liu. 2020. Few-Shot Generative Conversational Query Rewriting. In Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval (Virtual Event, China) 
+
+(SIGIR ’20) . Association for Computing Machinery, 1933–1936. doi: 10.1145/3397271.3401323 
+
+[41] Shi Yu, Zhenghao Liu, Chenyan Xiong, Tao Feng, and Zhiyuan Liu. 2021. Few-Shot Conversational Dense Retrieval. In Proceedings of the 44th International ACM SIGIR Conference on Research and Development in Information Retrieval (Virtual Event, Canada) (SIGIR ’21) . Association for Computing Machinery, 829–838. doi: 10.1145/3404835.3462856 
+
+[42] Yanzhao Zhang, Mingxin Li, Dingkun Long, Xin Zhang, Huan Lin, Baosong Yang, Pengjun Xie, An Yang, Dayiheng Liu, Junyang Lin, Fei Huang, and Jingren Zhou. 2025. Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models. arXiv:2506.05176 [43] Yuxiang Zheng, Dayuan Fu, Xiangkun Hu, Xiaojie Cai, Lyumanshan Ye, Pengrui Lu, and Pengfei Liu. 2025. DeepResearcher: Scaling Deep Research via Reinforcement Learning in Real-world Environments. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing (Suzhou, China) (EMNLP ’25) . Association for Computational Linguistics, 414–431. doi: 10.18653/v1/2025.emnlp-main.22 
+
+[44] Yuqi Zhou, Sunhao Dai, Changle Qu, Liang Pang, Jun Xu, and Ji-Rong Wen. 2026. Learning to Retrieve from Agent Trajectories. In Proceedings of the 49th International ACM SIGIR Conference on Research and Development in Information Retrieval (Melbourne, Australia) (SIGIR ’26) . Association for Computing Machinery, 2544–2555. doi: 10.1145/3805712.3809675 
+
+[45] Shengyao Zhuang, Yuansheng Ni, Hengxin Fun, Jimmy Lin, and Xueguang Ma. 2026. Towards Retrieving Interaction Spaces for Agentic Search. arXiv:2606.06880 21

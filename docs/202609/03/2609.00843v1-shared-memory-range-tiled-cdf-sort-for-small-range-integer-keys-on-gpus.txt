@@ -1,0 +1,1132 @@
+Title: Shared-Memory Range-Tiled CDF Sort for Small-Range Integer Keys on GPUs
+
+URL Source: https://arxiv.org/pdf/2609.00843v1
+
+Published Time: Wed, 02 Sep 2026 01:10:54 GMT
+
+Number of Pages: 44
+
+Markdown Content:
+# Shared-Memory Range-Tiled CDF Sort for Small-Range Integer Keys on GPUs 
+
+## Kento Ando 1 Kaito Takase 2 Noriyuki Fujimoto 3 Koichi Wada 4
+
+> 1
+
+Major in Applied Informatics, Graduate School of Science and Engineering, Hosei University 
+
+> 2
+
+THIRD, Inc. 
+
+> 3
+
+Department of Core Informatics, Graduate School of Informatics, Osaka Metropolitan University 
+
+> 4
+
+Information Media Education and Research Center, Hosei University 
+
+Abstract 
+
+We study unstable integer sorting on GPUs for arrays whose elements lie in a known integer range. Focusing on counting-sort-based methods that determine the output interval of each value from its frequency and the prefix sums of the frequencies, we propose and evaluate Range-Tiled CDF sort (RT-CDF), which partitions the possible value range into small intervals, called tiles, that fit in shared memory. For each tile, RT-CDF constructs a histogram, computes its prefix sum as a local CDF, and directly generates the output array from the local CDF. We compare RT-CDF against three baselines: CUB DeviceRadixSort , whose processed bit range is restricted to [0 , ⌈log 2 R⌉) to exploit the known range size R; Ref-H-P sort; and an implementation based on the algorithm of Kolonias et al. Experiments on an NVIDIA GeForce RTX 4090 with range sizes from R = 2 7 to 2 18 , input sizes from n = 10 6 to 10 9, and uniformly distributed, normally distributed, and all-equal inputs show that RT-CDF outperforms the baselines over a broad set of conditions for small to medium ranges, achieving a maximum speedup of 4.39 over the fastest baseline. For R = 2 18 , however, at least one baseline outperforms RT-CDF for every evaluated input size and input distribution, showing that the cost of histogram construction limits the applicability of RT-CDF to larger ranges. 
+
+# 1 Introduction 
+
+Sorting is a fundamental operation used in many computational tasks, including database processing, graph processing, simulation, and image processing. GPUs can process large numbers of elements in parallel, and many parallel sorting algorithms, including radix sort, merge sort, and sample sort, have been studied and implemented [1, 2]. GPU radix sorting for integers is particularly important in practice, and recent implementations such as Onesweep reduce the amount of data read from and written to global memory [3]. CUB DeviceRadixSort , provided by NVIDIA, is also widely used as a highly optimized GPU sorting implementation [4]. When the range of possible input values is known in advance and is sufficiently small relative to the input size, however, this additional restriction can be exploited. In particular, counting sort can count the occurrences of each value and use prefix sums of the counts to determine the interval occupied by 1arXiv:2609.00843v1 [cs.DC] 1 Sep 2026 each value in the output array. If stability is not required, individual input elements need not be moved to their respective ranks. A correct sorted output can instead be obtained by determining the contiguous interval occupied by each value and writing that value throughout the interval. We denote the number of input elements by n and the size of the known integer range [ minVal , maxVal ) by R = maxVal − minVal .The problem considered in this paper is to sort n integers from this range into nondecreasing order without preserving the relative order of equal values. Previous work on range-restricted integer sorting on GPUs includes the counting sort of Kolonias et al. [5], a GPU implementation of H-P sort based on Eisenstat’s algorithm [6, 7], and Ref-H-P sort (hereafter RefHP), which refines H-P sort for GPU execution [8]. These methods share the property that a histogram and its prefix sums provide information about the output position or output interval of each value. We focus on this common structure, in which output intervals are determined from a histogram and prefix sums. We then propose and evaluate Range-Tiled CDF sort (RT-CDF), which partitions the possible integer range into multiple small intervals, called range tiles, that fit in shared memory, and constructs a histogram and a cumulative distribution function (CDF) for each tile. In this paper, the term CDF denotes the cumulative-count array obtained as the prefix sum of a histogram. It is not a probability distribution normalized to the interval [0 , 1]; rather, each entry gives the number of input values no greater than the corresponding value. The CDF constructed within a tile, which we call a local CDF, determines the output interval occupied by each value in that tile. Consequently, the output can be generated without rescanning the input array. The contributions of this work are as follows. 
+
+• We develop RT-CDF, which partitions the value range into tiles that fit in shared memory and directly generates the output array from the local CDF of each tile. 
+
+• We clarify the algorithmic relationship between RT-CDF and a counting-sort implementation based on Kolonias et al., H-P sort, and RefHP, and identify how RT-CDF differs from existing methods that determine output intervals from a CDF. 
+
+• On an NVIDIA GeForce RTX 4090, we compare RT-CDF with CUB DeviceRadixSort , RefHP, and an implementation based on Kolonias et al., and identify the range sizes and input sizes for which RT-CDF is effective, as well as its limitations near R = 2 18 .
+
+# 2 Background and Motivation 
+
+## 2.1 Problem Setting and Counting-Sort-Based Baselines 
+
+We consider unstable sorting of arrays whose possible integer values lie in a known range. The input is an array A[0 ..n − 1] of n integers, all of which belong to a known range [ minVal , maxVal ). Let 
+
+R = maxVal − minVal . For simplicity of notation, we subtract minVal from every element and continue to denote the resulting array by A, so that 0 ≤ A[i] < R . The output is an array B[0 ..n − 1] containing the elements of A in nondecreasing order. If value v ∈ [0 , R ) occurs cv times, then its positions in the 2output array form the contiguous interval 
+
+"v−1X
+
+> u=0
+
+cu,
+
+> v
+
+X
+
+> u=0
+
+cu
+
+!
+
+.
+
+Thus, it is unnecessary to compute a separate rank for every input element; it suffices to write each value into its corresponding output interval. The most basic method for this problem setting is counting sort. It first constructs a histogram 
+
+H[0 ..R − 1] satisfying H[v] = cv , and then computes its prefix sums to determine the output interval of each value. For an array X[0 ..ℓ − 1], its prefix-sum array Y [0 ..ℓ − 1] is defined by 
+
+Y [i] = 
+
+> i
+
+X
+
+> j=0
+
+X[j].
+
+Although this procedure is straightforward sequentially, histogram updates on a GPU may concentrate additions at the same address, in which case contention among atomic operations can dominate perfor-mance. Furthermore, a stable counting sort must determine the local rank of each input element among elements with the same value and combine that rank with a prefix sum to determine its output position. By contrast, the unstable integer-array sorting problem considered here only requires the output interval of each value, allowing the output-generation step to be simplified. As an early study of counting sort on GPUs, Sun and Ma presented a CUDA implementation of counting sort. Using a 2 GHz AMD Athlon 64 X2 3800+ CPU and an NVIDIA GeForce 9600 GSO GPU, they reported an 8.08-fold speedup over the corresponding CPU implementation for five million integers [9]. Faujdar and Ghrera compared sequential counting sort with CUDA-based parallel counting sort under six input conditions. Their sequential implementation ran on a 2.60 GHz Intel Core i5-3230M, whereas the CUDA implementation ran on a system with a 2.93 GHz Intel Core i3-530 and an NVIDIA GeForce GTX 460; they reported a maximum speedup of 66 for inputs containing from 1,000 to 10,000,000 elements [10]. These studies show both that counting sort can be effective on GPUs and that its performance can depend strongly on the input distribution and the value range. Kolonias et al. designed an integer counting sort for CUDA GPUs whose final output stage avoids synchronization by writing different values to disjoint intervals. They also considered constructing one partial histogram per thread block in shared memory when the range fits in shared memory [5]. Our method extends this shared-memory histogram idea through range tiling and differs further in that it directly determines the value at each output position from a local CDF. Building on the idea of shared-memory partial histograms, we partition the range into small intervals of width T , called range tiles, that fit in shared memory, thereby increasing the range sizes that can be handled. For each range tile, we construct a CDF—the cumulative counts within that tile—and load the resulting local CDF into shared memory to determine the value corresponding to each output position. The output-generation method of Kolonias et al. can be simplified for our problem setting as shown in Algorithm 1. First, a histogram of the input array is computed, and its prefix sums give the output starting position P [v] of each value. Then, for every value v, the interval [ P [v], P [v + 1]) is filled with v.Because different values are written to disjoint output intervals, the final step requires no synchronization between values. 3Algorithm 1 Simplified structure of the counting sort of Kolonias et al. [5] 
+
+Require: Input array A[0 ..n − 1] and range size R
+
+Ensure: Sorted array B[0 ..n − 1]  
+
+> 1:
+
+H[0 ..R − 1] ← histogram of A 
+
+> 2:
+
+P [0] ← 0 
+
+> 3:
+
+P [1 ..R ] ← prefix sums of H 
+
+> 4:
+
+for all v ∈ [0 , R ) in parallel do  
+
+> 5:
+
+for p ∈ [P [v], P [v + 1]) do  
+
+> 6:
+
+B[p] ← v 
+
+> 7:
+
+end for  
+
+> 8:
+
+end for  
+
+> 9:
+
+return B
+
+Algorithm 1 is directly related to our method in that it generates the output array as one interval per value. If the writing of output intervals is parallelized over values, however, the amount of work assigned to each value becomes imbalanced when occurrence counts vary substantially. Kolonias et al. explain that, under a uniform distribution, the average number of iterations is approximately N/k , whereas if 50% of the input has the same value, the computation assigned to that value must perform N/ 2 writes [5]. Our implementation retains the idea of output intervals for individual values, but assigns parallelism to output positions and determines the value of each output position from a local CDF loaded into shared memory. The goal is to avoid the extreme workload imbalance that can arise when one processing unit is assigned to each value. One practical baseline in this study is CUB DeviceRadixSort (hereafter CUB) [4]. CUB allows the bit range used for sorting to be specified by begin bit and end bit . Because the normalized range size R is known, we provide CUB with the relevant bit range and invoke it with begin bit = 0 and 
+
+end bit = ⌈log 2 R⌉. This is a more appropriate baseline for our problem than always processing all 32 bits. CUB is, however, a general-purpose implementation that provides stable sorting, a stronger functionality than the unstable integer sorting considered here. The comparison with CUB therefore evaluates how effective an implementation specialized to our more restricted problem can be relative to a practical general-purpose GPU sorter. 
+
+## 2.2 H-P Sort, RefHP, and Localizing CDFs 
+
+H-P sort is an integer-sorting algorithm based on histograms and prefix sums [6, 7]. Kozakai et al. position H-P sort and its extensions as counting-sort-based methods, and we likewise treat H-P sort as one implementation family of counting-sort-based integer sorting. H-P sort is not merely a direct GPU translation of ordinary counting sort; its distinctive feature is that it reconstructs output values from CDF boundary information. Let H1 be the histogram of the input array and P1 its prefix-sum array. Because P1[v] is the number of elements no greater than v, P1 can be regarded as a CDF that gives the right endpoint of the output interval for each value. H-P sort constructs another histogram of P1 and 4applies a prefix sum to that histogram to obtain the sorted output. Algorithm 2 shows this procedure. 
+
+Algorithm 2 Basic structure of H-P sort 
+
+Require: Input array A[0 ..n − 1] and range size R
+
+Ensure: Sorted array B[0 ..n − 1]  
+
+> 1:
+
+H1[0 ..R − 1] ← histogram of A 
+
+> 2:
+
+P1[0 ..R − 1] ← prefix sums of H1 
+
+> 3:
+
+H2[0 ..n ] ← histogram of P1 
+
+> 4:
+
+B[0 ..n − 1] ← prefix sums of H2[0 ..n − 1]  
+
+> 5:
+
+return B
+
+Algorithm 2 can be interpreted as follows. Because P1[v] is the right endpoint of the output interval of value v, the positions at which values of P1 occur indicate boundaries at which the value in the output array changes. The array H2 counts these boundary positions, and its prefix sums give the number of boundaries up to each output position i. This number is precisely the value that should be written at output position i. For example, if values 0, 1, and 2 occur 2, 3, and 1 times, respectively, then P1 = (2 , 5, 6). The boundary positions of H2 are 2, 5, and 6, and the prefix sums of H2[0 .. 5] are (0 , 0, 1, 1, 1, 2), yielding the sorted array. Thus, H-P sort reconstructs output values from CDF boundary information. Eisenstat’s integer-sorting algorithm, on which H-P sort is based, runs in O(log ∗ n) time on a Sum-CRCW PRAM [6]. On a GPU, however, histogram updates for identical values cause atomic contention, so the theoretical parallelism of the PRAM algorithm is not directly reflected in practical performance. Kozakai et al. implemented H-P sort on a GPU and compared it with CUB [7]. For n from 10 6 to 10 7, minV al = 0, and maxV al = n/ 50, H-P sort was up to 2.97 times faster than CUB. They also proposed 1-H-P sort, which omits part of H-P sort for inputs without duplicates, and 0-compressed H-P sort, which compresses intervals of absent values in the histogram. They reported that 1-H-P sort was up to 2.01 times faster than CUB for distinct inputs, and that 0-compressed H-P sort was up to 2.73 times faster when the number of distinct values actually present was small [7]. An important result of that work is that H-P sort is not merely a theoretical algorithm: it identifies conditions under which H-P sort is competitive with CUB for range-restricted integer sorting on GPUs. At the same time, its performance varies substantially with the input size n, the range size R, and the number of distinct values that actually occur. In particular, when many threads concurrently add to the same histogram bin, atomic contention increases and the first histogram computation becomes a bottleneck. RefHP, proposed by Takase et al., refines H-P sort to mitigate this GPU implementation bottleneck [8]. RefHP achieved a maximum speedup of 3.45 over the original H-P sort and outperformed CUB even under conditions where H-P sort was slower than CUB. When constructing the CDF, RefHP extends the bin for each value into multiple bins and distributes input elements among these extended bins. If the extension factor is e, it allocates e bins for value v and adds the element at input position i to a location such as ve + ( i mod e). Consequently, even when a value appears many times, updates are less likely to concentrate on a single bin. A prefix sum is then computed over the extended histogram; by referring to 5the last extended bin of each value, the original CDF can be recovered. This refinement is characterized by distributing atomic contention in global memory through bin extension. Unlike the original H-P sort in Algorithm 2, RefHP also provides an implementation that does not construct the second histogram [8]. Let H1[0 ..R − 1] be the input histogram and let P1[0 ..R − 1] be the CDF obtained by computing its prefix sums. For d > 0, 
+
+P1[d] − P1[d − 1] = H1[d].
+
+Thus, P1[d] > P 1[d − 1] if and only if value d occurs in the input array. When d occurs, P1[d − 1] is the number of input elements smaller than d, and hence is the starting position of d in the sorted array. The output array B of length n is therefore initialized to zero, and for every value d > 0 at which the CDF has a step, RefHP writes 
+
+B[P1[d − 1]] ← d. 
+
+At this point, each value is stored only at the first position of its output interval, while all other entries remain zero. Finally, the prefix maximum of B is computed: 
+
+B[i] = max  
+
+> 0≤j≤i
+
+B[j].
+
+This propagates each value up to the position immediately preceding the start of the next value’s interval and yields the sorted array B. Thus, the construction and prefix sum of the second histogram in Algorithm 2 are replaced by Algorithm 3. 
+
+Algorithm 3 Output generation in RefHP using CDF step detection and a prefix maximum [8] 
+
+Require: CDF P1[0 ..R − 1] and input size n
+
+Ensure: Sorted array B[0 ..n − 1]  
+
+> 1:
+
+B[0 ..n − 1] ← 0 
+
+> 2:
+
+for all d ∈ [1 , R ) in parallel do  
+
+> 3:
+
+if P1[d] > P 1[d − 1] then  
+
+> 4:
+
+B[P1[d − 1]] ← d 
+
+> 5:
+
+end if  
+
+> 6:
+
+end for  
+
+> 7:
+
+InclusiveMaximumInPlace (B) 
+
+> 8:
+
+return B
+
+This procedure is an important improvement for efficiently generating the H-P output on a GPU and corresponds to the counting-sort idea of producing an output interval for every value. Taken together, the counting sort of Kolonias et al., H-P sort, and RefHP can all be viewed as methods that construct a CDF from a histogram in some form and determine output intervals from that CDF. From our perspective, the important property of H-P sort and RefHP is that the CDF obtained from the first histogram and its prefix sums determines the output array. Accordingly, the central design choice in our method is not to handle one CDF for the entire range, but to construct a local CDF for each range tile and retain only the relevant tile’s local CDF in shared memory during output generation. 6GPU histogram computations commonly reduce atomic contention by constructing multiple partial his-tograms and merging them afterward. Sakharnykh presented a two-stage method in which each thread block constructs a partial histogram for its assigned input and the partial histograms are subsequently merged into the final histogram. In particular, shared-memory partial histograms were shown to be effective on Maxwell-generation GPUs [11]. Nugteren et al. considered storing independent histograms for each warp or thread in shared memory and demonstrated the trade-off between reducing contention and increasing shared-memory consumption. They also showed that bank conflicts can arise depending on the number of threads and the shared-memory layout, limiting the number of thread blocks that can execute concurrently [12]. Henriksen et al. studied generalized histogram computations in which bin up-dates are extended beyond integer addition. They considered the trade-off between contention reduction through multiple partial histograms and memory consumption, as well as a method that partitions the bin range and scans the input multiple times when the histogram does not fit in shared memory [13]. Although these studies do not directly address H-P sort, they provide important background for a design that handles local CDFs in shared memory. We partition the range into tiles of width T that fit in shared memory and construct a histogram and a local CDF for each tile. The local CDF represents output intervals for values within the tile; adding an offset equal to the number of elements smaller than the tile yields positions in the complete output array. This structure preserves the idea of existing methods that determine output intervals from a histogram and prefix sums while allowing a CDF to be used locally in shared memory. Our objective is to determine the range sizes, input sizes, and input distributions for which this range tiling is effective relative to CUB, RefHP, and an implementation based on the algorithm of Kolonias et al. 
+
+# 3 Proposed Method: Range-Tiled CDF Sort 
+
+This section describes the proposed algorithm and its GPU implementation. The algorithm is an unstable integer-sorting method based on counting sort that partitions the value range into multiple tiles. Rather than handling a CDF for the entire range at once, it constructs a local CDF for each tile that fits in shared memory and generates the output array from these local CDFs. As in the preceding section, input values are normalized by subtracting minVal . Let A[0 ..n −1] be the input array, B[0 ..n −1] the output array, R the range size, and T the tile width. The number of tiles is m = ⌈R/T ⌉. For tile t,let its starting value be bt = tT and its width be wt = min( T, R − bt). Tile t is responsible for the range interval [ bt, b t + wt). 
+
+## 3.1 Algorithm 
+
+The proposed algorithm consists of four operations: histogram construction for each range tile, local-CDF construction, tile-offset construction, and output generation from the local CDFs. Algorithm 4 gives an overview. The array H[0 ..R − 1] in global memory initially stores the histogram of each tile and, after the prefix-sum computation, stores the local CDFs. The array O[0 ..m − 1] in global memory stores the output starting position of each tile. 7Algorithm 4 Overview of RT-CDF 
+
+Require: Input array A[0 ..n − 1], range size R, and tile width T
+
+Ensure: Sorted array B[0 ..n − 1]  
+
+> 1:
+
+m ← ⌈ R/T ⌉ 
+
+> 2:
+
+H[0 ..R − 1] ← 0 
+
+> 3:
+
+for all t ∈ [0 , m ) in parallel do  
+
+> 4:
+
+BuildTileHistogram (A, H, n, b t, w t) 
+
+> 5:
+
+end for  
+
+> 6:
+
+for all t ∈ [0 , m ) in parallel do  
+
+> 7:
+
+InclusiveScanInPlace (H[bt..b t + wt − 1]) ▷ Construct a local CDF  
+
+> 8:
+
+end for  
+
+> 9:
+
+BuildTileOffsets (H, O, R, T, m ) 
+
+> 10:
+
+for t ∈ [0 , m ) do  
+
+> 11:
+
+GenerateOutputFromLocalCDF (H, O, B, t, b t, w t) 
+
+> 12:
+
+end for  
+
+> 13:
+
+return B
+
+Algorithm 5 shows histogram construction for one range tile. Each thread block has an array S[0 ..w −1] of tile width w in shared memory. After initializing S to zero, the threads scan multiple elements of the input array A. Only when input value A[i] belongs to the current tile [ b, b + w) do they perform 
+
+atomicAdd on S[A[i] − b]. The histogram obtained within each block in shared memory is finally added to H[b..b + w − 1] in global memory. After histogram construction is complete, prefix sums are computed over H[b..b + w − 1], and the result is written back to the same region. This produces the local CDF for the range tile. 
+
+Algorithm 5 Histogram construction for one range tile  
+
+> 1:
+
+procedure BuildTileHistogram (A, H, n, b, w ) 
+
+> 2:
+
+Allocate S[0 ..w − 1] in shared memory  
+
+> 3:
+
+S[0 ..w − 1] ← 0 
+
+> 4:
+
+for all i ∈ [0 , n ) in parallel do  
+
+> 5:
+
+x ← A[i] − b 
+
+> 6:
+
+if 0 ≤ x < w then  
+
+> 7:
+
+atomicAdd (S[x], 1)  
+
+> 8:
+
+end if  
+
+> 9:
+
+end for  
+
+> 10:
+
+for all x ∈ [0 , w ) in parallel do  
+
+> 11:
+
+atomicAdd (H[b + x], S [x])  
+
+> 12:
+
+end for  
+
+> 13:
+
+end procedure 
+
+8Once the local CDFs have been constructed, the number Nt of elements in tile t is given by the final local-CDF entry H[bt + wt − 1]. Because the tiles are ordered by value, prefix sums of the numbers of elements in the tiles give the output starting position O[t] of tile t. Algorithm 6 shows this operation. For the reason explained in Section 3.3, Algorithm 6 constructs the offsets sequentially. 
+
+Algorithm 6 Construction of tile offsets  
+
+> 1:
+
+procedure BuildTileOffsets (H, O, R, T, m ) 
+
+> 2:
+
+of f set ← 0 
+
+> 3:
+
+for t = 0 to m − 1 do  
+
+> 4:
+
+O[t] ← of f set  
+
+> 5:
+
+of f set ← of f set + H[bt + wt − 1]  
+
+> 6:
+
+end for  
+
+> 7:
+
+end procedure 
+
+Output generation uses only the local CDFs and does not rescan the input array. Algorithm 7 shows the processing of one tile. First, the local CDF H[b..b +w−1] in global memory is loaded into C[0 ..w −1] in shared memory. For each output position p within the tile, a binary search finds the smallest x satisfying 
+
+C[x] ≥ p + 1, and b + x is written to B[O[t] + p]. 
+
+Algorithm 7 Output generation from a local CDF  
+
+> 1:
+
+procedure GenerateOutputFromLocalCDF (H, O, B, t, b, w ) 
+
+> 2:
+
+Allocate C[0 ..w − 1] in shared memory  
+
+> 3:
+
+C[0 ..w − 1] ← H[b..b + w − 1]  
+
+> 4:
+
+tileStart ← O[t] 
+
+> 5:
+
+tileCount ← C[w − 1]  
+
+> 6:
+
+for all p ∈ [0 , tileCount ) in parallel do  
+
+> 7:
+
+x ← min {j | C[j] ≥ p + 1 } 
+
+> 8:
+
+B[tileStart + p] ← b + x 
+
+> 9:
+
+end for  
+
+> 10:
+
+end procedure 
+
+Like RefHP, the proposed algorithm determines output intervals from a CDF. During output genera-tion, however, it does not compute a prefix maximum over an array of length n; instead, it loads a local CDF into shared memory and directly determines output values. When the number of tiles is small, the costs of per-tile kernel launches and binary searches are relatively low, and avoiding a prefix maximum over the entire output array provides a substantial advantage. Histogram construction, however, scans the input array once for every tile, so the scanning overhead increases with the number of tiles m. Be-cause each tile scans the entire input array during histogram construction, the amount of data read from the input array increases with the number of tiles. This is the principal performance limitation of the proposed algorithm. 9We next give an example of local CDFs and tile offsets. Let the input array be A = (3 , 1, 2, 1, 3, 0, 1), the range size be R = 4, and the tile width be T = 2. Tile 0 handles values 0 and 1, whereas tile 1 handles values 2 and 3. The histogram, local CDF, and tile offset of each tile are shown in Table 1. For tile 0, the local CDF is (1 , 4), so value 0 is written at within-tile position p = 0 and value 1 at positions 
+
+p = 1 , 2, 3. For tile 1, the offset is 4 and the local CDF is (1 , 3), so value 2 is written at global position 4 and value 3 at positions 5 and 6. The resulting output is therefore (0 , 1, 1, 1, 2, 3, 3). As this example illustrates, the proposed algorithm does not compute the rank of every input element; it determines the output interval of each value from a local CDF and writes values through parallel processing over output positions. Table 1: Example of local CDFs and tile offsets                 
+
+> Tile Values Histogram Local CDF Offset 00,1 (1 ,3) (1 ,4) 012,3 (1 ,2) (1 ,3) 4
+
+## 3.2 Correctness and Complexity Analysis 
+
+Correctness follows from the facts that a local CDF correctly represents output intervals within a tile, tile offsets correctly position the tiles relative to one another, and output generation uniquely selects the value corresponding to each output position. Let cv be the number of occurrences of value v. For tile t, let bt be its starting value, wt its width, and Ct[0 ..w t − 1] its local CDF. For convenience, define 
+
+Ct[−1] = 0. 
+
+Lemma 1 (Correctness of the local CDF) . After local-CDF construction, for every tile t and every 
+
+x ∈ [0 , w t),
+
+Ct[x] = 
+
+> x
+
+X
+
+> j=0
+
+cbt+j .
+
+Proof. During histogram construction, one is added to bin x of the tile histogram if and only if an input value Ai belongs to tile t, that is, if there exists an x such that Ai = bt + x. Therefore, before the prefix-sum computation, entry x of the tile histogram is cbt+x. The prefix-sum computation that constructs the local CDF consequently makes entry x equal to the sum of the occurrence counts from entry 0 through entry x. The lemma follows. 
+
+Lemma 2 (Correctness of tile offsets) . The value O[t] obtained by Algorithm 6 is equal to the number of input elements whose values are smaller than the range handled by tile t; that is, 
+
+O[t] = 
+
+> bt−1
+
+X
+
+> u=0
+
+cu.
+
+Proof. Let Ns be the number of elements in tile s. By Lemma 1, Ns = Cs[ws − 1]. Algorithm 6 computes 
+
+O[t] as the prefix sum of Ns over tiles 0 through t − 1. Because the tiles handle disjoint intervals in 10 value order, this prefix sum equals the total number of occurrences of values from 0 through bt − 1. The lemma follows. 
+
+Lemma 3 (Output interval of each value) . Value bt + x occupies the interval 
+
+[O[t] + Ct[x − 1] , O [t] + Ct[x]) 
+
+in the output array. These intervals are mutually disjoint and ordered by value, and the interval for 
+
+bt + x has length cbt+x.Proof. By Lemma 1, the number of values within tile t that are smaller than bt + x is Ct[x − 1], and the number no greater than bt + x is Ct[x]. By Lemma 2, O[t] is the number of elements whose values are smaller than the range handled by tile t. Thus, in the complete output array, the number of values smaller than bt + x is O[t] + Ct[x − 1], and the number no greater than bt + x is O[t] + Ct[x]. The claimed interval follows. Its length is Ct[x] − Ct[x − 1] = cbt+x, and the monotonicity of the CDF together with the construction of tile offsets implies that the intervals for distinct values occur consecutively in value order. 
+
+Theorem 1 (Correctness of the output array) . After output generation, B contains the elements of A
+
+in nondecreasing order. Proof. For each within-tile position p, output generation finds the smallest x satisfying Ct[x] ≥ p + 1. This operation selects the unique x such that p ∈ [Ct[x − 1] , C t[x]). Therefore, exactly cbt+x output positions in the interval for value bt + x given by Lemma 3 are filled with bt + x. The intervals for all values are mutually disjoint, and their total length is PR−1 
+
+> v=0
+
+cv = n, so the entire output array is filled exactly once. Because the intervals are arranged in value order, the output array is in nondecreasing order. The theorem follows. We next summarize the computational complexity. GPU execution time depends strongly on memory bandwidth, atomic contention, occupancy, and the number of kernel launches, and therefore cannot be characterized adequately by a single parallel-time complexity as in a PRAM model. We instead describe the total work and workspace of the algorithm, and evaluate actual performance experimentally in Section 4. Let m = ⌈R/T ⌉ be the number of tiles. During histogram construction, every input element is read for every tile to test whether it belongs to that tile, yielding O(mn ) work. The number of actual additions to shared-memory histograms over all tiles is nevertheless O(n), because each input element belongs to exactly one tile. Merging the shared-memory histogram of each thread block into global memory requires work proportional to the tile width and the number of blocks. The total work of the within-tile prefix sums is O(R) because each bin is processed a constant number of times over all tiles. Constructing tile offsets takes O(m) work. Output generation performs a binary search in a local CDF for every output position and therefore makes O(n log T ) comparisons. The simplified total work is thus 
+
+O(mn + n log T + R).
+
+11 In practice, this is supplemented by kernel-launch costs, global-memory merging proportional to the number of blocks, and atomic-operation costs at the different levels of the memory hierarchy. *1 
+
+Excluding the input and output arrays, the primary global-memory workspaces are H[0 ..R − 1], which stores local CDFs, and O[0 ..m − 1], which stores tile offsets. The workspace is therefore O(R + m). Furthermore, with 32-bit integers, the histogram-construction and output-generation kernels use 4 T
+
+bytes of dynamic shared memory. This analysis identifies the effective range of the implementation. When R is small and m is one or a small number, the number of input scans is low and handling local CDFs in shared memory provides a substantial advantage. As R grows, m increases and histogram construction scans the input array repeatedly. The O(mn ) term then becomes dominant, reducing the advantage over radix sort and RefHP. Accordingly, RT-CDF is positioned as an improvement to counting-sort- and H-P-sort-based implementations for integer arrays with sufficiently small ranges. 
+
+## 3.3 GPU Implementation 
+
+We implemented RT-CDF in CUDA C++. The operations in Algorithm 4 are executed by four kernel types: histogram construction for range tiles, prefix sums for constructing local CDFs, range-tile offset construction, and output generation from local CDFs. We next describe the GPU implementation of each operation. The histogram-construction kernel processes all range tiles in parallel in one kernel launch. We fix the block size at 512 threads. Given a dynamic shared-memory allocation of 4 T bytes, let ahist be the number of thread blocks that can reside concurrently on one SM, as determined from the kernel’s resource usage. *2 If the GPU has S SMs, the number of thread blocks assigned to each range tile is 
+
+ghist = min 
+
+
+
+max 
+
+
+
+1,
+
+ ahist · Sm
+
+ 
+
+,
+
+l n
+
+512 
+
+m
+
+,
+
+and the grid size of the entire kernel is 
+
+Ghist = m · ghist .
+
+Here, ahist · S is the number of thread blocks that can reside concurrently on the entire GPU after accounting for the kernel’s resource use; these blocks are divided evenly among the m range tiles. Each thread block derives its assigned range tile t and its block number q within that tile from the block index as 
+
+t = blockIdx.x mod m, q =
+
+ blockIdx.x 
+
+m
+
+
+
+.
+
+A thread assigned to range tile t starts at input position 
+
+i = 512 · q + threadIdx.x             
+
+> *1 Each tile also merges block-local histograms into global memory. If Gthread blocks are assigned to one range tile, this entails bin-merging work equivalent to O(mGT ). Both Tand Gare implementation parameters, and this cost is included in the measurements.
+> *2 The implementation uses cudaOccupancyMaxActiveBlocksPerMultiprocessor from the CUDA Runtime API.
+
+12 and cooperatively scans the input array using a grid-stride loop that advances by 512 · ghist positions per iteration. Only when the loaded value belongs to the target range tile [ bt, b t + wt) does the thread perform atomicAdd on the corresponding bin in dynamic shared memory. After scanning the input array, each thread block adds the partial histogram obtained in shared memory to H[bt..b t + wt − 1] in global memory. Thus, rather than performing a global-memory atomic addition for every input element, each thread block adds its aggregate count for each bin to global memory once. After histogram construction, the local-CDF construction kernel computes the prefix sums of each range-tile histogram and writes the result back to the same region of H. This kernel is launched once with m thread blocks of 1024 threads each, with one block assigned to each range tile. The block assigned to tile t partitions H[bt..b t + wt − 1] among its threads. Each thread first computes partial sums over its contiguous subrange, then computes the sum of all preceding subranges by applying a block-level prefix sum to the per-thread totals, and adds that sum to every element of its own subrange. This constructs the local CDFs for all range tiles in parallel in one kernel launch. The range-tile offset kernel is launched with one thread block containing one thread. It processes the range tiles in order and obtains the number of input elements in each tile from the final entry of its local CDF. It sequentially accumulates the number of elements appearing before each tile and stores the output starting position of tile t in O[t]. Because the number of repeated input scans during histogram construction grows with the number of tiles m, the implementation is intended for ranges in which m is relatively small. Consequently, the O(m) tile-offset construction has little effect on total execution time and is performed sequentially by one thread. For output generation, range tiles are not processed concurrently; instead, a kernel is launched sequen-tially for each tile containing output elements. Let Nt be the number of input elements in range tile t.The value Nt is needed both to decide whether to launch the kernel and to determine the number of thread blocks in the launch. When m = 1, N0 = n and this value is used directly. When m ≥ 2, the range-tile offset array O of size m is copied once from the device to the host, and the host computes 
+
+Nt =
+
+(
+
+O[t + 1] − O[t] (t < m − 1) ,n − O[t] (t = m − 1) .
+
+No output-generation kernel is launched for a tile with Nt = 0. The output-generation kernel uses a fixed block size of 512 threads. As for histogram construction, let 
+
+aout be the number of blocks that can reside concurrently on one SM when the kernel uses 4 T bytes of dynamic shared memory. If the GPU has S SMs, the number of thread blocks launched for a nonempty tile t is 
+
+gout (t) = min 
+
+
+
+aout · S, 
+
+ Nt
+
+512 
+
+ 
+
+.
+
+Unlike histogram construction, one output-generation launch processes only one range tile, so the number of blocks that can reside concurrently on the entire GPU is not divided by m. This permits enough thread blocks to be assigned to the output of a tile even when input elements are concentrated in only a few tiles, reducing load imbalance caused by unequal tile populations. 13 Each thread block loads the local CDF of its target range tile from global memory into dynamic shared memory. Each thread starts at within-tile output position 
+
+i = 512 · blockIdx.x + threadIdx.x 
+
+and cooperatively handles the Nt output positions in the tile using a grid-stride loop that advances by 512 · gout (t) positions per iteration. For each output position, the thread performs a binary search in the local CDF in shared memory and writes the corresponding value to the output array B. Output generation therefore does not reread the input array and distributes the output positions within a tile among the threads. Table 2 summarizes the launch configurations of these kernels. Table 2: Kernel launch configurations in RT-CDF Operation threads / block blocks / grid Histogram construction 512 m · ghist 
+
+Local-CDF construction 1024 m
+
+Tile-offset construction 1 1Output generation 512 gout (t)The histogram-construction and output-generation kernels use 4 T bytes of dynamic shared memory to store tile-local arrays. If the dynamic shared-memory requirement for tile width T exceeds the default shared-memory limit per thread block, the implementation uses CUDA’s opt-in configuration to increase the permitted dynamic shared-memory allocation up to the GPU’s supported limit. *3 The tile widths used in the evaluation and their selection procedure are described in Section 4.1. 
+
+# 4 Experimental Evaluation 
+
+This section evaluates the RT-CDF implementation on an NVIDIA GeForce RTX 4090. Section 4.1 first examines the performance characteristics of the output-generation methods considered for RT-CDF and uses preliminary experiments to select the tile width for the main evaluation. Section 4.2 then describes the baselines and measurement conditions for the main evaluation. Section 4.3 compares RT-CDF with CUB, RefHP, and an implementation based on the algorithm of Kolonias et al., and Section 4.4 discusses the results. 
+
+## 4.1 Preliminary Evaluation of Implementation Choices 
+
+This subsection evaluates the performance characteristics of the output-generation method used by RT-CDF and selects the tile width used in the main evaluation. The preliminary experiments in this    
+
+> *3 The implementation sets this option using cudaFuncSetAttribute from the CUDA Runtime API.
+
+14 subsection and the main evaluation in Section 4.2 were conducted in the same environment, shown in Table 3. One KiB is 1024 bytes. Table 3: Experimental environment 
+
+Item Setting GPU NVIDIA GeForce RTX 4090 Number of SMs 128 Compute Capability 8.9 CUDA Toolkit 13.0.1 Default shared-memory limit per thread block 48 KiB Opt-in shared-memory limit per thread block 99 KiB Shared-memory limit per SM 100 KiB 
+
+Table 4 summarizes the conditions of the preliminary evaluation. Table 4: Preliminary-evaluation conditions for selecting the implementation 
+
+Item Setting Input 32-bit integer array satisfying 0 ≤ Ai < R 
+
+Range size R = 2 7, 28, . . . , 218 
+
+Input size 10 6, 2 × 10 6, 5 × 10 6, 10 7, 2 × 10 7, 5 × 10 7, 10 8, 2 × 10 8, 5 × 10 8, 10 9
+
+Input distribution Uniform distribution, Normal distribution (mean ( R − 1) /2 and standard deviation 0 .125 R)Candidate tile widths 128 , 256 , 512 , 1024 , 2048 , 4096 , 6144 , 8192 , 12288 , 16384 , 20480 , 24576 Candidate constraints T ≤ R, ⌈R/T ⌉ ≤ 16, and shared-memory use not exceeding the per-block limit Measurements Three independent runs per condition; 10 measurements after warm-up in each run Representative value Median of 10 measurements per run, followed by the median of the three run medians Measured time Host-side wall-clock time including allocation and deallocation of method-specific workspace 
+
+We used uniform and normal input distributions. For the uniform distribution, each element was generated uniformly at random from the integer interval [0 , R − 1]. For the normal distribution, a real value was generated from a normal distribution with mean ( R − 1) /2 and standard deviation 0 .125 R,and was rounded to the nearest integer. A rounded value outside [0 , R − 1] was clipped to 0 or R − 1. Because every entry of a tile-local histogram and local CDF is a 32-bit integer, a thread block requires at most 4 T bytes of shared memory to process a tile. For the largest candidate tile width, T = 24576, this amount is 4 T = 96 KiB, which is below the 99-KiB opt-in shared-memory limit per thread block shown in Table 3. For each range size R, we evaluated only candidates satisfying T ≤ R and whose shared-memory requirement did not exceed the opt-in limit per thread block. Moreover, because increasing the number of tiles m causes the input array to be scanned for every tile, thereby increasing both the amount 15 of work and the number of global-memory accesses, we restricted the candidates to tile widths satisfying 
+
+m = ⌈R/T ⌉ ≤ 16 to avoid excessive rescanning. To reduce the influence of temporary delays and execution-time variability, we performed multiple independent measurement runs for each condition. In each run, several warm-up executions preceded the measurements; the median of the measurements was used as the representative value for that run, and the median of the representative values over all runs was used as the final representative value. Because GPU clock frequencies and system conditions may differ between runs, this aggregation reduces the effect of a temporary fluctuation in any one run. We use host-side wall-clock time to evaluate the total cost of a single sorting operation. The measured interval begins with allocation of algorithm-specific workspace and ends after the GPU sorting operation has completed and the workspace has been deallocated. Allocation of the input and output arrays is common to all methods and is therefore excluded. We first compared the prefix-maximum method in Algorithm 3 with the binary-search method over local CDFs used in Algorithm 7, in order to examine the performance characteristics of the output-generation method used by RT-CDF. The two methods shared the same procedure for constructing a histogram from the input. The binary-search method then constructed a local CDF for every tile and computed tile offsets, whereas the prefix-maximum method constructed a CDF for the complete range; each method subsequently performed its own output-generation procedure. Thus, this experiment compares the total sorting time, including the CDF construction required by each method, rather than only the output-generation kernels. Because the performance of both methods varies with tile width, we measured every feasible tile-width candidate for every combination of range size, input size, and input distribution. For each method, the minimum time over the tile-width candidates was taken as the execution time for that condition. This compares the best performance obtainable by each method without fixing a tile width that might favor or disadvantage one of them. Figure 1 shows the results. We define 
+
+ρ = minimum execution time of the prefix-maximum method minimum execution time of the binary-search method .
+
+The binary-search method is faster when ρ > 1, whereas the prefix-maximum method is faster when 
+
+ρ < 1. Each cell in the figure shows ρ for a particular range size R, input size n, and input distribution. The displayed values are rounded to two decimal places. 16 10 6
+
+> 2 × 10 6
+> 5 × 10 6
+> 10 7
+> 2 × 10 7
+> 5 × 10 7
+> 10 8
+> 2 × 10 8
+> 5 × 10 8
+> 10 9
+
+27
+
+28
+
+29
+
+210 
+
+211 
+
+212 
+
+213 
+
+214 
+
+215 
+
+216 
+
+217 
+
+218 1.19 1.31 1.27 1.15 1.17 1.23 1.21 1.12 1.11 1.13 1.16 1.06 1.18 1.08 1.18 1.03 1.00 1.00 1.04 0.99 1.28 0.80 0.84 0.85 0.91 1.20 0.77 0.77 0.81 1.17 0.77 1.07 0.78 1.02 1.31 0.77 0.95 1.17 1.23 1.29 1.31 1.30 0.78 0.91 1.04 1.08 1.10 1.11 1.11 1.33 1.33 1.34 1.46 1.78 1.80 1.79 1.79 1.77 1.35 1.44 1.76 1.78 1.81 1.78 1.77 1.39 1.74 1.77 1.80 1.78 1.75 1.38 1.73 1.77 1.78 1.78 1.75 1.34 1.72 1.77 1.78 1.76 1.73 1.72 1.77 1.76 1.75 1.72 1.67 1.76 1.75 1.75 1.70 0.66 1.60 1.76 1.75 1.75 1.70 0.62 0.63 0.68 1.50 1.59 1.69 1.67 1.63 0.48 0.55 0.61 1.44 1.49 1.49 1.45 0.40 0.46 0.60 0.49 0.54 0.62 
+
+Input size n
+
+> Range size  R
+
+0.40.60.81.01.25 1.51.8
+
+> ρ
+
+(a) Uniform distribution 
+
+> 10 6
+> 2 × 10 6
+> 5 × 10 6
+> 10 7
+> 2 × 10 7
+> 5 × 10 7
+> 10 8
+> 2 × 10 8
+> 5 × 10 8
+> 10 9
+
+27
+
+28
+
+29
+
+210 
+
+211 
+
+212 
+
+213 
+
+214 
+
+215 
+
+216 
+
+217 
+
+218 1.31 1.31 1.19 1.24 1.14 1.21 1.21 1.19 1.10 1.12 1.22 1.10 1.09 1.12 1.18 1.07 1.05 0.98 1.02 1.01 0.97 1.28 0.77 0.83 0.85 0.88 1.19 0.79 0.84 1.16 0.77 1.07 0.77 1.00 1.31 0.76 0.94 1.18 1.25 1.29 1.29 1.28 0.77 0.89 1.04 1.08 1.10 1.11 1.11 1.32 1.46 1.78 1.80 1.79 1.79 1.77 1.33 1.34 1.41 1.76 1.79 1.80 1.79 1.76 1.40 1.74 1.77 1.80 1.78 1.76 1.37 1.72 1.77 1.79 1.77 1.75 1.33 1.72 1.76 1.77 1.77 1.73 1.71 1.76 1.77 1.75 1.72 1.67 1.76 1.75 1.74 1.71 0.73 0.76 1.60 1.73 1.76 1.76 1.69 0.60 0.64 0.68 1.49 1.65 1.65 1.64 1.58 0.49 0.56 0.62 1.44 1.48 1.47 1.43 0.40 0.46 0.59 0.48 0.52 0.62 
+
+Input size n
+
+> Range size  R
+
+0.40.60.81.01.25 1.51.8
+
+> ρ
+
+(b) Normal distribution 
+
+Figure 1: Execution-time ratio ρ of the prefix-maximum and binary-search methods 17 As shown in Figure 1, the binary-search method was faster in 184 of the 240 conditions. Its advantage became more pronounced as the input size increased: for all 120 conditions with n ≥ 5 × 10 7, the binary-search method was faster regardless of the range size or input distribution. For small inputs and large ranges, by contrast, the prefix-maximum method was faster. This appears to be because a large range increases the number of tiles, making fixed overheads of the binary-search method— including per-tile kernel launches and retrieval of tile populations before output generation—relatively large for small inputs. Our evaluation includes inputs of up to 10 9 elements and uses one common output-generation algorithm for all conditions. The binary-search method was consistently faster for large inputs, indicating that this design is suitable for RT-CDF evaluations that include large-scale inputs. Nevertheless, switching the output-generation method according to the input size and range could further improve RT-CDF under conditions in which binary search was slower. Such adaptive selection is a possible future improvement. We next select the tile width T for the binary-search method used in the main evaluation. Using the binary-search measurements from the preceding comparison of output-generation methods, we compared tile widths separately for each range size R. For each R, the comparison covered 20 conditions formed by 10 input sizes n and two input distributions. For each condition, we define the normalized execution time of tile width T as 
+
+r(T ) = execution time with T
+
+minimum execution time for that condition .
+
+Thus, r(T ) ≥ 1, and r(T ) = 1 means that T is the fastest tile width under that condition. For each tile width, we computed the geometric mean of r(T ) over the 20 conditions and compared tile widths using this value. A value closer to 1 means that the tile width performs closer to the fastest choice for each condition across the 20 combinations of input size and input distribution. Table 5 presents the results. Table 5: Geometric mean of normalized execution time for each tile width                                                                                                                                                               
+
+> Tile width T
+> Range size R128 256 512 1,024 2,048 4,096 6,144 8,192 12,288 16,384 20,480 24,576 271.000 –––––––––––281.134 1.000 ––––––––––291.306 1.102 1.000 –––––––––210 1.806 1.274 1.089 1.001 ––––––––211 2.758 1.759 1.268 1.078 1.001 –––––––212 –2.627 1.688 1.213 1.054 1.001 ––––––213 ––2.420 1.555 1.129 1.013 1.030 1.017 ––––214 –––2.310 1.480 1.112 1.052 1.029 1.119 1.216 ––215 ––––1.951 1.278 1.127 1.010 1.057 1.297 1.323 1.376 216 –––––1.450 1.171 1.004 1.063 1.286 1.318 1.199 217 –––––––1.013 1.012 1.285 1.219 1.136 218 –––––––––1.202 1.123 1.001
+
+Based on Table 5, for each range size R we selected the tile width T with the smallest geometric mean of normalized execution time. The selected tile widths and corresponding numbers of tiles are shown in Table 6. 18 Table 6: Tile widths and numbers of tiles used in the main evaluation 
+
+Range size R Tile width T Number of tiles m = ⌈R/T ⌉
+
+27 128 128 256 129 512 1210 1,024 1211 2,048 1212 4,096 1213 4,096 2214 8,192 2215 8,192 4216 8,192 8217 12,288 11 218 24,576 11 
+
+The main evaluation below fixes the tile width for each range size to the value in Table 6. 
+
+## 4.2 Baselines and Measurement Conditions for the Main Evaluation 
+
+This subsection describes the conditions of the main evaluation using the tile widths selected in Sec-tion 4.1. The experimental environment was the same as in the preliminary evaluation. We compared RT-CDF with CUB, RefHP, and an implementation based on the algorithm of Kolonias et al. Table 7 summarizes the methods. For CUB, we used the known range size R to restrict the bit range processed by DeviceRadixSort to [0 , ⌈log 2 R⌉). Because this setting reduces the number of bits processed relative to sorting all 32 bits, it favors CUB and reflects the known-range problem setting of this study more appropriately than always processing a complete 32-bit integer. RefHP is a prior implementation that refines H-P sort for GPUs and is the closest baseline to RT-CDF. We also included an implementation based on Kolonias et al. because its output generation, which produces one interval per value, is closely related to RT-CDF. Table 7: Baselines 
+
+Method Implementation Role CUB DeviceRadixSort with begin bit=0 and 
+
+end bit= ⌈log 2 R⌉
+
+Stable-sorting baseline using the known range RefHP Prior implementation refining H-P sort for GPUs Unstable counting-sort-based baseline Kolonias et al. Comparison implementation developed in this study from the algorithm of Kolonias et al. Baseline with a closely related output-generation method RT-CDF Implementation that partitions the range and gener-ates output from each tile histogram and CDF Proposed method 
+
+19 Table 8 summarizes the conditions of the main evaluation. Table 8: Measurement conditions for the main evaluation                                  
+
+> Item Setting Input 32-bit integer array satisfying 0 ≤Ai< R
+> Range size R= 2 7,28, . . . , 218
+> Input size 10 6,2×10 6, . . . , 9×10 6, 10 7,2×10 7, . . . , 9×10 7, 10 8,2×10 8, . . . , 10 9
+> Input distribution Uniform, normal (mean ( R−1) /2, standard deviation 0 .125 R), and all-equal Repetitions Three independent runs per condition; 30 measurements after warm-up in each run Representative value Median of 30 measurements per run, followed by the median of the three run medians Measured time Host-side wall-clock time including allocation and deallocation of method-specific workspace Termination condition For a fixed range and distribution, omit larger input sizes after the execution time exceeds 1000 ms
+
+The uniform and normal inputs were generated in the same manner as in the preliminary evaluation. For all-equal inputs, every element was set to zero. The range supplied to the algorithms remained R,as for the other distributions; it was not changed to R = 1 even though only one distinct value actually occurred. This evaluates performance when all values are concentrated at one point while the declared range remains fixed. Because the output-generation method of Kolonias et al. assigns work by value, concentrating oc-currences on one value creates a workload imbalance [5]. The all-equal input used here is therefore an unfavorable condition for that output-generation method. The aggregation of measurements and the measured interval were the same as in Section 4.1. If an execution time exceeded 1000 ms, measurements for larger input sizes with the same range R and input distribution were terminated. To investigate the causes of performance changes in RT-CDF, Section 4.4 uses an additional timing experiment on RT-CDF alone. This experiment fixed the input size at n = 10 8 and used the same 12 range sizes, three input distributions, and tile widths from Table 6 as the main evaluation. The number of measurements and their aggregation also followed the main evaluation: three independent runs were performed, each containing 30 measurements after 10 warm-up executions; the median within each run was used as its representative value, and the median of the three run representatives was used as the final value. CUDA events recording positions in the GPU execution stream were placed before and after each processing stage, and elapsed times between event pairs were measured. The measured stages were histogram-array initialization, histogram construction, local-CDF construction, tile-offset construction, and output generation. *4      
+
+> *4 The implementation uses cudaEventRecord and cudaEventElapsedTime from the CUDA Runtime API.
+
+20 4.3 Performance Evaluation 
+
+We first fix the input size at n = 10 8. Tables 9, 10, and 11 show execution times and speedup ratios for the uniform, normal, and all-equal inputs, respectively. Here, “Best baseline” denotes the fastest execution time among CUB, RefHP, and the implementation based on Kolonias et al. The speedup ratio is the execution time of the fastest baseline divided by the execution time of RT-CDF. Consequently, a ratio greater than 1 means that RT-CDF is faster than every baseline. Table 9: Execution times and speedups for n = 10 8 (uniform distribution) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] Best baseline Best baseline/RT-CDF 27 0.956 1.446 2.833 73.34 CUB 1.51 28 0.961 1.444 2.849 73.52 CUB 1.50 29 0.968 2.561 4.088 37.00 CUB 2.65 210 0.971 2.579 4.090 18.76 CUB 2.66 211 0.982 2.584 4.091 9.651 CUB 2.63 212 0.993 2.579 4.089 5.085 CUB 2.60 213 1.008 2.565 4.089 3.135 CUB 2.54 214 1.012 2.597 4.084 3.517 CUB 2.57 215 1.187 2.610 4.078 3.982 CUB 2.20 216 1.714 2.606 4.078 4.202 CUB 1.52 217 2.975 3.414 3.953 5.798 CUB 1.15 218 5.528 3.421 3.994 8.642 CUB 0.62 
+
+Table 10: Execution times and speedups for n = 10 8 (normal distribution) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] Best baseline Best baseline/RT-CDF 27 0.956 1.435 2.953 69.75 CUB 1.50 28 0.961 1.442 2.850 73.03 CUB 1.50 29 0.968 2.582 4.080 36.77 CUB 2.67 210 0.973 2.585 4.078 35.31 CUB 2.66 211 0.980 2.578 4.091 25.43 CUB 2.63 212 0.992 2.578 4.094 14.48 CUB 2.60 213 1.007 2.580 4.096 7.738 CUB 2.56 214 1.012 2.587 4.089 4.803 CUB 2.56 215 1.186 2.590 4.089 4.293 CUB 2.18 216 1.707 2.607 4.078 4.274 CUB 1.53 217 2.881 3.429 3.983 5.951 CUB 1.19 218 5.520 3.419 3.990 8.690 CUB 0.62 
+
+21 Table 11: Execution times and speedups for n = 10 8 (all-equal input)                                                                               
+
+> RRT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] Best baseline Best baseline/RT-CDF 270.956 1.430 1.831 267.40 CUB 1.50 280.961 1.430 1.852 267.41 CUB 1.49 290.969 2.562 3.042 267.38 CUB 2.64 210 0.974 2.576 3.042 267.38 CUB 2.65 211 0.981 2.576 4.093 266.65 CUB 2.63 212 0.994 2.507 4.450 267.36 CUB 2.52 213 1.018 2.509 6.839 267.39 CUB 2.46 214 1.029 2.509 7.056 267.89 CUB 2.44 215 1.200 2.509 11.722 267.74 CUB 2.09 216 1.688 2.506 11.656 267.91 CUB 1.48 217 2.767 3.387 13.259 270.19 CUB 1.22 218 5.333 3.404 15.744 273.06 CUB 0.64
+
+For all three input distributions, RT-CDF was the fastest method from R = 2 7 through 2 17 , whereas CUB was fastest at R = 2 18 . For R ≤ 214 , the RT-CDF execution times differed little across the input distributions, and all three distributions exhibited the same tendency of increasing execution time with the range size. Even at R = 2 17 , RT-CDF was 1.15, 1.19, and 1.22 times faster than the fastest baseline for the uniform, normal, and all-equal inputs, respectively. At R = 2 18 , its speedup ratios relative to the fastest baseline fell to 0.62, 0.62, and 0.64, respectively, and the advantage of RT-CDF disappeared independently of the input distribution. The largest ratios in these tables occurred at R = 2 10 for the uniform and all-equal inputs and at R = 2 9 for the normal input, and were approximately 2.65–2.67. The implementation based on Kolonias et al. required approximately 267–273 ms for every range under the all-equal input, much longer than for the other two distributions. This is presumably because its threads are assigned by value and almost all output generation is concentrated in the single thread assigned to value zero. CUB was the fastest baseline in every one of these 36 conditions, and RT-CDF outperformed CUB and all other baselines in 33 of the 36. The only conditions in which RT-CDF was not the fastest were the three input distributions at R = 2 18 . These results show that, for n = 10 8,RT-CDF performance depends primarily on the range size and only weakly on the input distribution. We next fix the range and compare execution time as a function of the input size n. As a representative range for which RT-CDF performs well over a broad interval of input sizes, we first consider R = 2 10 .Figures 2, 3, and 4 show the uniform, normal, and all-equal results, respectively. 22 10 6 10 7 10 8 10 9
+
+10 −2
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 2: Execution time for uniformly distributed inputs ( R = 2 10 )10 6 10 7 10 8 10 9
+
+10 −2
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 3: Execution time for normally distributed inputs ( R = 2 10 )23 10 6 10 7 10 8 10 9
+
+10 −2
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 4: Execution time for all-equal inputs ( R = 2 10 )For R = 2 10 , RT-CDF was fastest at all 28 measured input sizes for each of the three input distributions. Thus, it outperformed every baseline in all 84 conditions across the three distributions. The RT-CDF curves for the three input distributions were also nearly identical over the entire measurement range, indicating little distribution-dependent performance variation at R = 2 10 . For all-equal inputs, the execution time of the implementation based on Kolonias et al. increased sharply with the input size, and results beyond the termination threshold are omitted from the figures. We next consider R = 2 17 , near the boundary at which the relative performance of RT-CDF and the baselines changes with the input size. Figures 5, 6, and 7 show the uniform, normal, and all-equal results, respectively. 24 10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 5: Execution time for uniformly distributed inputs ( R = 2 17 )10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 6: Execution time for normally distributed inputs ( R = 2 17 )25 10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 7: Execution time for all-equal inputs ( R = 2 17 )At R = 2 17 , unlike at R = 2 10 , a baseline was faster for small inputs, whereas RT-CDF became the fastest method as the input size increased. For the uniform distribution, RefHP was fastest for n ≤ 10 7,CUB was fastest at n = 2 × 10 7, and RT-CDF was fastest for n ≥ 3 × 10 7. For the normal distribution, RefHP was fastest at n = 10 6, CUB for 2 × 10 6 ≤ n ≤ 10 7, and RT-CDF for n ≥ 2 × 10 7. For all-equal inputs, CUB was fastest for n ≤ 10 7, whereas RT-CDF was fastest for n ≥ 2 × 10 7. Across the three distributions, RT-CDF was fastest in 53 of the 84 conditions. Thus, R = 2 17 is a boundary regime in which fixed overheads favor the baselines for small inputs, but the advantage of RT-CDF emerges once the input is sufficiently large. Finally, we examine the largest evaluated range, R = 2 18 . Figures 8, 9, and 10 show execution time as a function of n for the uniform, normal, and all-equal inputs, respectively. 26 10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 8: Execution time for uniformly distributed inputs ( R = 2 18 )10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 9: Execution time for normally distributed inputs ( R = 2 18 )27 10 6 10 7 10 8 10 9
+
+10 −1
+
+10 0
+
+10 1
+
+10 2
+
+10 3
+
+Input size n
+
+> Execution time [ms]
+
+RT-CDF CUB RefHP Kolonias et al. Figure 10: Execution time for all-equal inputs ( R = 2 18 )For R = 2 18 , RT-CDF was not the fastest method at any of the 28 measured input sizes for any distribution. For uniform and normal inputs, the fastest method alternated between CUB and RefHP depending on the input size, but both outperformed RT-CDF throughout the measurement range. For all-equal inputs, RT-CDF and CUB were nearly tied at n = 10 6, but CUB was faster thereafter. Moreover, increasing the input size did not produce a trend in which RT-CDF caught up with and overtook the baselines; the large-input advantage observed at R = 2 17 was lost at R = 2 18 .In summary, RT-CDF was superior independently of the input size and distribution at R = 2 10 ; its relative performance changed with the input size at R = 2 17 ; and the baselines were superior throughout the measurement range at R = 2 18 . The performance boundary of RT-CDF therefore appears clearly between R = 2 17 and R = 2 18 .We next present the speedup ratio defined as the execution time of the fastest baseline divided by that of RT-CDF for each condition. A ratio greater than 1 means that RT-CDF is fastest; a ratio below 1 means that at least one baseline is faster. In the version of CUB DeviceRadixSort used in this experimental environment, 32-bit keys are processed using Onesweep, with up to eight bits processed per pass. We refer to each such processing step as a pass. Because CUB was instructed to sort only the low-order log 2 R bits required by the range, it requires one pass for R ≤ 28, two passes for 2 9 ≤ R ≤ 216 , and three passes for 2 17 ≤ R ≤ 218 . To account for these differences, we divide the speedup results into these three ranges. For the two-pass range, we show representative results for R = 2 9, 212 , 215 , 216 . Figures 11, 12, and 13 show the uniform, normal, and all-equal results, respectively. Because the numerator is the fastest baseline for each condition, changes in the curves reflect not only changes in the performance gap relative to RT-CDF but also changes in which baseline is fastest. 28 10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 7 R = 2 8
+
+(a) Ranges requiring one CUB pass ( R ≤ 28)
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 9 R = 2 12 
+
+R = 2 15 R = 2 16 
+
+(b) Representative ranges requiring two CUB passes (2 9 ≤ R ≤ 216 )
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 17 R = 2 18 
+
+(c) Ranges requiring three CUB passes (2 17 ≤ R ≤ 218 )
+
+Figure 11: RT-CDF speedup over the fastest baseline for uniformly distributed inputs For uniform inputs, the largest advantage over the baselines occurred at R = 2 9, where the maximum speedup was 3.70 at n = 9 × 10 6. For R = 2 9 and 2 12 , the ratio exceeded 1 at every measured input size. As the range increased, however, the ratio for small inputs decreased: it fell below 1 at n = 10 6, 2 × 10 6
+
+for R = 2 15 and at n ≤ 5 × 10 6 for R = 2 16 . This tendency became more pronounced at R = 2 17 , where a baseline was faster for n ≤ 2 × 10 7, whereas RT-CDF was fastest for n ≥ 3 × 10 7. At R = 2 18 , the ratio was below 1 for every measured input size, with no indication that RT-CDF would overtake the baselines as the input size increased. 29 10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 7 R = 2 8
+
+(a) Ranges requiring one CUB pass ( R ≤ 28)
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 9 R = 2 12 
+
+R = 2 15 R = 2 16 
+
+(b) Representative ranges requiring two CUB passes (2 9 ≤ R ≤ 216 )
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 17 R = 2 18 
+
+(c) Ranges requiring three CUB passes (2 17 ≤ R ≤ 218 )
+
+Figure 12: RT-CDF speedup over the fastest baseline for normally distributed inputs For normal inputs, the largest advantage likewise occurred at R = 2 9, with a maximum speedup of 3.60 at n = 9 × 10 6. RT-CDF was fastest throughout the measured range for R = 2 9 and 2 12 . The ratio fell below 1 at n = 10 6 for R = 2 15 and at n ≤ 5 × 10 6 for R = 2 16 , but RT-CDF was fastest for larger inputs. At R = 2 17 , a baseline was faster for n ≤ 10 7, whereas RT-CDF was fastest for n ≥ 2 × 10 7. As for the uniform distribution, the ratio was below 1 for every input size at R = 2 18 .30 10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 7 R = 2 8  
+
+> (a) Ranges requiring one CUB pass ( R≤28)
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 9 R = 2 12 
+
+R = 2 15 R = 2 16     
+
+> (b) Representative ranges requiring two CUB passes (2 9≤R≤216 )
+
+10 6 10 7 10 8 10 9
+
+01234Input size n
+
+> Speedup
+
+R = 2 17 R = 2 18     
+
+> (c) Ranges requiring three CUB passes (2 17 ≤R≤218 )
+
+Figure 13: RT-CDF speedup over the fastest baseline for all-equal inputs For all-equal inputs, the maximum speedup observed in the entire experiment, 4.39, occurred at R = 2 9
+
+and n = 10 6. For each representative two-pass range shown in the figure— R = 2 9, 212 , 215 , 216 —the ratio exceeded 1 at every measured input size. This differs from the uniform and normal results for large ranges, in which the ratio fell below 1 for small inputs. At R = 2 17 , a baseline was faster for n ≤ 10 7,whereas RT-CDF was fastest for n ≥ 2 × 10 7. At R = 2 18 , RT-CDF and CUB were nearly tied at 
+
+n = 10 6, but the ratio was at most 1 for every measured input size. For all three input distributions, the largest advantage of RT-CDF over the baselines was obtained at 
+
+R = 2 9. The ratio generally decreased as the range grew, and a baseline was particularly likely to be superior for small inputs with a large range. At R = 2 17 , all three distributions exhibited a boundary 31 behavior in which the ratio crossed 1 as the input size increased; at R = 2 18 , RT-CDF was never fastest over the measured range. The speedup ratios therefore also confirm that the performance boundary lies between R = 2 17 and R = 2 18 .We next identify the fastest method at representative input sizes. Tables 12, 13, and 14 show the method with the smallest execution time for each range at n = 10 6, 10 7, 10 8, 10 9.Table 12: Fastest methods at representative input sizes (uniform distribution) Input size n
+
+Range size R 10 6 10 7 10 8 10 9
+
+27 RT-CDF RT-CDF RT-CDF RT-CDF 28 RT-CDF RT-CDF RT-CDF RT-CDF 29 RT-CDF RT-CDF RT-CDF RT-CDF 210 RT-CDF RT-CDF RT-CDF RT-CDF 211 RT-CDF RT-CDF RT-CDF RT-CDF 212 RT-CDF RT-CDF RT-CDF RT-CDF 213 RefHP RT-CDF RT-CDF RT-CDF 214 RefHP RT-CDF RT-CDF RT-CDF 215 RefHP RT-CDF RT-CDF RT-CDF 216 RefHP RT-CDF RT-CDF RT-CDF 217 RefHP RefHP RT-CDF RT-CDF 218 RefHP CUB CUB RefHP 32 Table 13: Fastest methods at representative input sizes (normal distribution) Input size n
+
+Range size R 10 6 10 7 10 8 10 9
+
+27 RT-CDF RT-CDF RT-CDF RT-CDF 28 RT-CDF RT-CDF RT-CDF RT-CDF 29 RT-CDF RT-CDF RT-CDF RT-CDF 210 RT-CDF RT-CDF RT-CDF RT-CDF 211 RT-CDF RT-CDF RT-CDF RT-CDF 212 RT-CDF RT-CDF RT-CDF RT-CDF 213 RT-CDF RT-CDF RT-CDF RT-CDF 214 RT-CDF RT-CDF RT-CDF RT-CDF 215 RefHP RT-CDF RT-CDF RT-CDF 216 RefHP RT-CDF RT-CDF RT-CDF 217 RefHP CUB RT-CDF RT-CDF 218 RefHP CUB CUB RefHP Table 14: Fastest methods at representative input sizes (all-equal input) Input size n
+
+Range size R 10 6 10 7 10 8 10 9
+
+27 RT-CDF RT-CDF RT-CDF RT-CDF 28 CUB RT-CDF RT-CDF RT-CDF 29 RT-CDF RT-CDF RT-CDF RT-CDF 210 RT-CDF RT-CDF RT-CDF RT-CDF 211 RT-CDF RT-CDF RT-CDF RT-CDF 212 RT-CDF RT-CDF RT-CDF RT-CDF 213 RT-CDF RT-CDF RT-CDF RT-CDF 214 RT-CDF RT-CDF RT-CDF RT-CDF 215 RT-CDF RT-CDF RT-CDF RT-CDF 216 RT-CDF RT-CDF RT-CDF RT-CDF 217 CUB CUB RT-CDF RT-CDF 218 CUB CUB CUB CUB For all three distributions, RT-CDF was fastest over a broad interval of input sizes when the range was small. As the range grew, RefHP or CUB was increasingly likely to be fastest, particularly for small inputs. At R = 2 17 , a baseline was fastest at n = 10 6 and 10 7 for all three distributions, whereas RT-CDF was fastest at n = 10 8 and 10 9. This confirms that the relative performance of RT-CDF and 33 the baselines changes with the input size at R = 2 17 . At R = 2 18 , RT-CDF was not fastest for any of the four representative input sizes. For uniform and normal inputs, RefHP or CUB was fastest depending on the input size, and CUB was fastest in all four all-equal conditions. Thus, these winner maps show the same pattern as the execution-time and speedup results: RT-CDF retains an advantage for large inputs at R = 2 17 but loses it at R = 2 18 . Among all 144 combinations of representative input size and range, RT-CDF was fastest in 119, RefHP in 13, and CUB in 12; the implementation based on Kolonias et al. was never fastest. Finally, we compare the absolute execution times of all methods at representative input sizes. For 
+
+n = 10 6, 10 7, 10 8, 10 9, Tables 15, 16, and 17 show the execution times of RT-CDF, CUB, RefHP, and the implementation based on Kolonias et al. over every evaluated range for uniform, normal, and all-equal inputs, respectively. The smallest execution time in each condition is shown in bold. These tables make it possible to examine not only which method is fastest, but also the absolute magnitude of the performance differences. Table 15: Execution times of the methods at representative input sizes (uniform distribution) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 
+
+n = 10 6
+
+27 0.01772 0.02296 0.04203 0.7402 28 0.01998 0.02553 0.04174 0.7446 29 0.02095 0.1034 0.04301 0.3795 210 0.02190 0.1028 0.04327 0.1989 211 0.02700 0.1027 0.04134 0.1128 212 0.03053 0.1025 0.04337 0.07029 213 0.04580 0.1042 0.04311 0.06548 214 0.05649 0.1053 0.04325 0.09759 215 0.06625 0.1056 0.04215 0.1665 216 0.08320 0.1067 0.04139 0.2489 217 0.1261 0.1217 0.04245 0.4601 218 0.2464 0.1172 0.1004 0.9149 
+
+n = 10 7
+
+27 0.07101 0.1641 0.2198 7.327 28 0.07424 0.1694 0.2218 7.345 29 0.07891 0.2742 0.2263 3.694 210 0.08275 0.2737 0.2254 1.871 211 0.08786 0.2738 0.2278 0.9625 212 0.09407 0.2735 0.2284 0.5096 213 0.1105 0.2766 0.2278 0.3295 214 0.1245 0.2784 0.2274 0.3526 215 0.1571 0.2822 0.2289 0.4213 216 0.2172 0.2776 0.7029 0.5276 217 0.3335 0.3227 0.2309 0.7531 Continued on the next page 
+
+34 Table 15 (continued) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 218 0.7043 0.3231 0.6655 1.316 
+
+n = 10 8
+
+27 0.9558 1.446 2.833 73.34 28 0.9609 1.444 2.849 73.52 29 0.9677 2.561 4.088 37.00 210 0.9710 2.579 4.090 18.76 211 0.9819 2.584 4.091 9.651 212 0.9934 2.579 4.089 5.085 213 1.008 2.565 4.089 3.135 214 1.012 2.597 4.084 3.517 215 1.187 2.610 4.078 3.982 216 1.714 2.606 4.078 4.202 217 2.975 3.414 3.953 5.798 218 5.528 3.421 3.994 8.642 
+
+n = 10 9
+
+27 9.695 13.49 27.77 734.5 28 9.724 13.56 27.90 734.5 29 9.753 24.72 30.13 369.7 210 9.824 24.79 30.13 187.4 211 9.897 24.76 30.12 96.07 212 9.970 24.78 30.12 50.34 213 10.15 24.81 30.09 30.97 214 10.20 24.92 30.02 34.32 215 11.88 25.00 29.93 38.46 216 16.79 25.01 29.86 40.16 217 28.55 33.28 29.75 54.50 218 53.14 33.30 29.75 81.03 
+
+Table 16: Execution times of the methods at representative input sizes (normal distribution) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 
+
+n = 10 6
+
+27 0.01812 0.02305 0.04751 0.7089 28 0.02004 0.02487 0.04623 0.7402 29 0.02118 0.1017 0.04826 0.3779 210 0.02213 0.1016 0.04948 0.3643 211 0.02478 0.1019 0.05229 0.2674 212 0.03195 0.1014 0.05645 0.1660 213 0.04552 0.1029 0.05638 0.1115 214 0.05626 0.1037 0.05788 0.1081 Continued on the next page 
+
+35 Table 16 (continued) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 215 0.06472 0.1040 0.04520 0.1659 216 0.08306 0.1046 0.04046 0.2481 217 0.1741 0.1124 0.09901 0.5141 218 0.1824 0.1130 0.1002 0.9306 
+
+n = 10 7
+
+27 0.07161 0.1645 0.2316 6.985 28 0.07487 0.1686 0.2190 7.297 29 0.07943 0.2746 0.2227 3.672 210 0.08325 0.2758 0.2225 3.527 211 0.08825 0.2745 0.2243 2.541 212 0.09440 0.2756 0.2257 1.448 213 0.1105 0.2775 0.2256 0.7834 214 0.1247 0.2790 0.2266 0.4759 215 0.1572 0.2778 0.2256 0.4535 216 0.2160 0.2725 0.7039 0.5239 217 0.3968 0.3083 0.6642 0.8433 218 0.6153 0.3098 0.6592 1.319 
+
+n = 10 8
+
+27 0.9556 1.435 2.953 69.75 28 0.9613 1.442 2.850 73.03 29 0.9676 2.582 4.080 36.77 210 0.9727 2.585 4.078 35.31 211 0.9803 2.578 4.091 25.43 212 0.9920 2.578 4.094 14.48 213 1.007 2.580 4.096 7.738 214 1.012 2.587 4.089 4.803 215 1.186 2.590 4.089 4.293 216 1.707 2.607 4.078 4.274 217 2.881 3.429 3.983 5.951 218 5.520 3.419 3.990 8.690 
+
+n = 10 9
+
+27 9.704 13.44 29.43 696.6 28 9.731 13.50 29.51 729.7 29 9.752 24.77 32.19 367.0 210 9.815 24.76 32.19 352.5 211 9.891 24.73 34.35 253.7 212 9.963 24.79 32.24 144.1 213 10.16 24.79 32.23 76.82 214 10.21 24.82 32.21 47.42 215 12.14 24.87 33.18 41.40 216 17.04 24.97 33.08 40.55 Continued on the next page 
+
+36 Table 16 (continued) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 217 27.62 33.99 31.83 56.38 218 53.21 33.34 31.82 80.57 
+
+Table 17: Execution times of the methods at representative input sizes (all-equal input) 
+
+R RT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 
+
+n = 10 6
+
+27 0.01813 0.01908 0.07474 2.699 28 0.02030 0.01905 0.09596 2.692 29 0.02140 0.09403 0.1167 2.699 210 0.02225 0.09387 0.1280 2.694 211 0.02495 0.09367 0.1781 2.702 212 0.03237 0.09434 0.2372 2.703 213 0.04279 0.09674 0.4516 2.723 214 0.05246 0.09567 0.4508 2.754 215 0.05246 0.09591 0.4508 2.823 216 0.05248 0.09638 0.4524 2.909 217 0.1234 0.09981 0.5112 3.179 218 0.1010 0.1010 0.5125 3.604 
+
+n = 10 7
+
+27 0.07673 0.1432 0.1461 26.76 28 0.07958 0.1414 0.2218 26.76 29 0.08302 0.2445 0.3717 26.76 210 0.08690 0.2460 0.3782 26.76 211 0.09209 0.2455 0.6833 26.82 212 0.09795 0.2471 0.8374 26.77 213 0.1157 0.2469 0.8814 26.83 214 0.1286 0.2468 1.236 26.86 215 0.1446 0.2472 1.680 26.95 216 0.1865 0.2417 3.496 26.99 217 0.3432 0.2586 4.819 27.29 218 0.5385 0.2593 4.818 27.79 
+
+n = 10 8
+
+27 0.9559 1.430 1.831 267.4 28 0.9613 1.430 1.852 267.4 29 0.9688 2.562 3.042 267.4 210 0.9736 2.576 3.042 267.4 211 0.9806 2.576 4.093 266.7 212 0.9937 2.507 4.450 267.4 213 1.018 2.509 6.839 267.4 Continued on the next page 
+
+37 Table 17 (continued)                                                                          
+
+> RRT-CDF [ms] CUB [ms] RefHP [ms] Kolonias et al. [ms] 214 1.029 2.509 7.056 267.9 215 1.200 2.509 11.72 267.7 216 1.688 2.506 11.66 267.9 217 2.767 3.387 13.26 270.2 218 5.333 3.404 15.74 273.1
+> n= 10 9
+> 279.701 13.33 17.29 –289.731 13.33 17.29 –299.767 24.55 19.78 –210 9.830 24.55 21.87 –211 9.904 24.54 23.98 –212 9.969 24.54 21.88 –213 10.15 24.55 30.26 –214 10.22 23.87 46.93 –215 12.05 23.87 75.89 –216 17.06 23.87 79.74 –217 27.66 32.90 109.9 –218 51.75 32.90 109.6 –
+
+As Tables 15–17 show, when RT-CDF outperforms the baselines on large inputs, the absolute reduction in execution time is also substantial. For example, for a uniform input with R = 2 15 and n = 10 9, RT-CDF runs in 11.88 ms, reducing the execution time by approximately 13.12 ms relative to the fastest baseline, CUB, at 25.00 ms. For the same range and input size under the normal distribution, RT-CDF runs in 12.14 ms and CUB in 24.87 ms, a difference of approximately 12.73 ms. For small inputs, by contrast, even a large speedup ratio corresponds to a small absolute difference. For an all-equal input with R = 2 9 and n = 10 6, the speedup is approximately 4.39, but RT-CDF runs in 0.02140 ms and the fastest baseline, CUB, in 0.09403 ms, a difference of approximately 0.073 ms. Both the ratio and the absolute execution time should therefore be considered. As the range approaches the performance boundary, the absolute advantage on large inputs also narrows. For a uniform input with R = 2 17 and n = 10 9, RT-CDF runs in 28.55 ms and the fastest baseline, RefHP, in 29.75 ms, an advantage of approximately 1.20 ms. At R = 2 18 and n = 10 9, RT-CDF takes 53.14 ms, whereas RefHP takes 29.75 ms, making RT-CDF approximately 23.39 ms slower. This again demonstrates that the performance boundary occurs between R = 2 17 and R = 2 18 .
+
+## 4.4 Execution-Time Breakdown and Performance Limitations 
+
+To investigate why RT-CDF performance changes with the range and input distribution, we used the additional measurements described in Section 4.2 to break down the time spent in each processing stage. Figure 14 shows the results with the input size fixed at n = 10 8. The figure presents the execution times of two processing stages: histogram construction and output generation. We also measured local-38 CDF construction, tile-offset construction, and histogram-array initialization, but each required no more than 0.037 ms under every condition and was sufficiently small relative to histogram construction and output generation to be omitted from the figure. The breakdown reported here is based on elapsed times between CUDA events, as described in Section 4.2, and is not a complete decomposition of the host-side wall-clock time used in the main evaluation. The main-evaluation time includes allocation and deallocation of method-specific workspace, whereas the times in this figure do not. 39 27 28 29 210 211 212 213 214 215 216 217 218 
+
+0123456
+
+Range size R
+
+> Execution time [ms]
+
+Histogram construction Output generation 
+
+(a) Uniform distribution 
+
+27 28 29 210 211 212 213 214 215 216 217 218 
+
+0123456
+
+Range size R
+
+> Execution time [ms]
+
+(b) Normal distribution 
+
+27 28 29 210 211 212 213 214 215 216 217 218 
+
+0123456
+
+Range size R
+
+> Execution time [ms]
+
+(c) All-equal input 
+
+Figure 14: Execution times of the principal RT-CDF stages ( n = 10 8)40 Under the settings in Table 6, the number of range tiles is m = 1 for R ≤ 212 . In this interval, histogram-construction time and output-generation time are similar, and neither stage differs substan-tially across the three input distributions. For a fixed range, histogram-construction times differ little among the three distributions, indicating that the effect of skewed input values is limited. They increase substantially with the range, however: approximately 0.67 ms at R = 2 15 , 1.15–1.18 ms at R = 2 16 , 2.25–2.29 ms at R = 2 17 , and 4.54–4.62 ms at R = 2 18 .During RT-CDF histogram construction, every input element is tested for membership in each range tile. With m tiles, the entire input array is therefore examined m times, for O(mn ) input references. Re-peated scanning as the number of tiles increases is the principal cause of the higher histogram-construction time for large ranges. Indeed, from R = 2 14 through 2 17 , m increases to 2, 4, 8, and 11, respectively, and the histogram-construction time rises accordingly. From R = 2 17 to 2 18 , histogram-construction time nearly doubles even though m = 11 in both cases. As shown in Table 6, the tile width is T = 12288 for R = 2 17 and T = 24576 for R = 2 18 . Because each thread block retains a histogram of width T in shared memory, the shared-memory use per block with 32-bit integers is approximately 48 KiB and 96 KiB, respectively. Consequently, two thread blocks can reside concurrently on one SM at R = 2 17 , but only one at R = 2 18 . The resulting decrease in occupancy due to fewer concurrently resident blocks is one reason that histogram construction becomes slower at 
+
+R = 2 18 despite the unchanged value of m.Output-generation time changes less with the range than histogram-construction time and also differs little among the input distributions. For R ≤ 216 , it is approximately 0.47–0.53 ms over all three distributions. At R = 2 17 , it is 0.585 ms for uniform inputs, 0.581 ms for normal inputs, and 0.487 ms for all-equal inputs. Our implementation launches output-generation kernels sequentially by range tile and chooses the number of thread blocks according to the number of elements in each tile. As a result, output-generation time does not increase substantially either when elements are distributed across several tiles, as under the uniform distribution, or when they are concentrated in only a few tiles, as under the normal and all-equal inputs. For an all-equal input, in particular, only the range tile containing value zero is nonempty, and no output-generation kernel is launched for tiles without output elements. The output-generation time at 
+
+R = 2 17 is consequently shorter than for the uniform and normal inputs. This result also shows that the output-generation stage does not suffer a large performance degradation from distribution-induced imbalance in tile populations. At R = 2 18 , output-generation time also increases, to 0.835 ms for uniform inputs, 0.817 ms for normal inputs, and 0.668 ms for all-equal inputs. The tile width is T = 24576 at this range, so more shared memory is needed to retain the local CDF during output generation. Furthermore, for uniform and normal inputs, output-generation kernels must be launched sequentially for several nonempty tiles. This increase is nevertheless small relative to that of histogram construction. At R = 2 18 , histogram construction accounts for most of the measured time. For the uniform dis-tribution, histogram construction requires approximately 4.62 ms and output generation approximately 0.83 ms; the corresponding values are approximately 4.57 and 0.82 ms for the normal distribution, and 41 4.54 and 0.67 ms for the all-equal input. Thus, among the principal processing stages measured here, histogram construction dominates at R = 2 18 regardless of the input distribution. These results are consistent with the main-evaluation trends in Section 4.3. At R = 2 17 , the baselines are faster for small inputs, but RT-CDF becomes fastest for sufficiently large inputs under all three distributions. At R = 2 18 , RT-CDF is never fastest over the measured input sizes. In Figure 14, the increase in histogram-construction time from R = 2 17 to 2 18 is greater than the increase in output-generation time, and this pattern occurs for all three distributions. The performance loss at R = 2 18 
+
+therefore appears to be caused primarily by the cost of constructing histograms for a large range, rather than by a problem specific to one input distribution. RT-CDF can therefore execute histogram construction and output generation efficiently when the range is relatively small and can be processed with a small number of range tiles. As the range grows, however, the input array is rescanned more often during histogram construction because the number of tiles m increases. Moreover, a large tile width increases the shared-memory consumption per thread block, reducing the number of concurrently resident thread blocks and lowering occupancy. At R =218 , these effects make histogram construction dominant and eliminate the advantage of RT-CDF over the baselines. Extending the applicability of RT-CDF to larger ranges will therefore require reducing histogram-construction cost rather than primarily optimizing output generation. The implementation based on Kolonias et al. also generates the sorted array from one output interval per value. Because it assigns output-generation work by value, that work can be distributed among many values under uniform and normal inputs; for an all-equal input, however, almost every output element is generated by the single processing unit corresponding to value zero. In the main evaluation, its host-side wall-clock time for all-equal inputs of n = 10 8 was approximately 267–273 ms throughout the evaluated ranges, and increasing the range did not improve output-generation parallelism. RT-CDF, in contrast, generates output by range tile and assigns multiple thread blocks according to the number of elements in the tile, allowing output generation to be parallelized even for all-equal inputs. The primary global-memory workspaces used by RT-CDF, excluding the input and output arrays, are the array H of length R and the tile-offset array O of length m. With 32-bit integers, their total size is 4 R + 4 m bytes. By contrast, the ordinary SortKeys interface of CUB DeviceRadixSort used in this evaluation requires O(n + P ) temporary storage for an input of length n and P SMs [4]. RT-CDF can therefore be advantageous in workspace size when R is sufficiently small relative to n.This advantage concerns the global-memory capacity required for workspace and does not imply that the number of global-memory accesses is always small. As discussed above, RT-CDF histogram construc-tion repeatedly examines the input array according to the number of range tiles m, increasing input-array traffic for large ranges. RT-CDF can thus process small ranges quickly with limited workspace, whereas repeated input scans become a performance limitation as the range grows. The tile width for the main evaluation was fixed for each range on the basis of the preliminary evaluation with uniform and normal inputs and was not separately tuned for all-equal inputs. The all-equal results therefore represent RT-CDF performance under a distribution-independent configuration rather than under a tile width specialized for that input. Neither Figure 14 nor the main-evaluation results show a substantial degradation for all-equal inputs under this configuration, indicating that the implementation 42 is not strongly dependent on the input distribution. The evaluation used a single NVIDIA GeForce RTX 4090 GPU. On GPUs with different numbers of SMs, shared-memory capacities, memory bandwidths, and atomic-operation performance, the optimal tile width, the time ratios among processing stages, and the relative performance against the baselines may change. In particular, because tile width directly affects occupancy through the shared-memory use per thread block, the range size at which performance begins to degrade is likely to differ on GPUs with different shared-memory limits. Evaluation on other GPU architectures remains future work. 
+
+# 5 Conclusion 
+
+We focused on counting-sort-based unstable integer sorting, in which output intervals are obtained from a histogram and its prefix sums, and proposed and evaluated RT-CDF, which partitions the value range into tiles that fit in shared memory. RT-CDF divides the possible integer range into small inter-vals, constructs a histogram and a local CDF for each tile, and uses the CDF to determine the value corresponding to every output position. It therefore generates the output array without computing a prefix maximum over the entire output array. On an NVIDIA GeForce RTX 4090, we compared RT-CDF with CUB DeviceRadixSort , RefHP, and an implementation based on the algorithm of Kolonias et al. for range sizes from R = 2 7 to 2 18 , input sizes from n = 10 6 to 10 9, and uniformly distributed, normally distributed, and all-equal inputs. RT-CDF outperformed the baselines over a broad set of conditions for small to medium ranges. For every distribution, its maximum speedup over the fastest baseline occurred at R = 2 9: 3.70 at n = 9 × 10 6 for the uniform distribution, 3.60 at n = 9 × 10 6 for the normal distribution, and 4.39 at n = 10 6 for the all-equal input. For large input sizes, RT-CDF also reduced absolute execution time by several to more than ten milliseconds, rather than only improving the speedup ratio. Its advantage diminished as the range increased. At R = 2 17 , CUB or RefHP was faster for small inputs, but RT-CDF became fastest for large inputs under all three distributions. At R = 2 18 , RT-CDF was not fastest for any evaluated input size or distribution. Thus, in the evaluated environment, the performance boundary of RT-CDF lies between R = 2 17 and R = 2 18 . RT-CDF performance differed relatively little among the three input distributions and depended more strongly on the range size. The timing breakdown showed that histogram construction is the primary cause of performance degra-dation for large ranges. Because RT-CDF examines the entire input array for every range tile, the number of input references grows as O(mn ) with the number of tiles m. At R = 2 18 , the larger tile width also increases shared-memory use per thread block, reducing the number of concurrently resident blocks and lowering occupancy. As a result, histogram construction occupied most of the measured time at R = 2 18 . Output-generation time, by contrast, varied little with the input distribution and did not degrade substantially even when elements were concentrated in a small portion of the range, as for the normal and all-equal inputs. Reducing histogram-construction cost is therefore the main challenge in extending RT-CDF to larger ranges. Because the prefix-maximum method outperformed the binary-search method for some combi-nations of small inputs and large ranges, adaptively selecting the output-generation method according to 43 the input size and range is another possible improvement. Finally, because the evaluation used only one NVIDIA GeForce RTX 4090, evaluating optimal tile widths and performance characteristics on other GPU architectures remains future work. 
+
+# References 
+
+[1] Dmitri I Arkhipov, Di Wu, Keqin Li, and Amelia C Regan. Sorting with GPUs: A survey. arXiv preprint arXiv:1709.02520 , 2017. [2] Nadathur Satish, Mark Harris, and Michael Garland. Designing efficient sorting algorithms for manycore GPUs. In 2009 IEEE International Symposium on Parallel & Distributed Processing ,pages 1–10. IEEE, 2009. [3] Andy Adinets and Duane Merrill. Onesweep: A faster least significant digit radix sort for GPUs. 
+
+arXiv preprint arXiv:2206.01784 , 2022. [4] NVIDIA Corporation. CUB DeviceRadixSort documentation. NVIDIA Documentation. [5] Vasileios Kolonias, Artemios G Voyiatzis, George Goulas, and Efthymios Housos. Design and im-plementation of an efficient integer count sort in CUDA GPUs. Concurrency and Computation: Practice and Experience , 23(18):2365–2381, 2011. [6] Stanley C Eisenstat. o(log ∗ n) algorithms on a Sum-CRCW PRAM. Computing , 79(1):93–97, 2007. [7] Seiya Kozakai, Noriyuki Fujimoto, and Koichi Wada. Efficient GPU-implementation for integer sorting based on histogram and prefix-sums. In Proceedings of the 50th International Conference on Parallel Processing , pages 1–11, 2021. [8] Kaito Takase, Takumi Hagihara, Noriyuki Fujimoto, and Koichi Wada. Efficient GPU-implementation of a sorting algorithm based on histogram computation and prefix-sums. Parallel Processing Letters , 36(01n02):2650005, 2026. [9] Weidong Sun and Zongmin Ma. Count sort for GPU computing. In 2009 15th International Con-ference on Parallel and Distributed Systems , pages 919–924. IEEE, 2009. [10] Neetu Faujdar and SatyaPrakash Ghrera. Performance evaluation of parallel count sort using GPU computing with CUDA. Indian Journal of Science and Technology , 9(15):1–12, 2016. [11] Nikolay Sakharnykh. GPU pro tip: Fast histograms using shared atomics on Maxwell. NVIDIA Technical Blog, 2015. [12] Cedric Nugteren, Gert-Jan van den Braak, Henk Corporaal, and Bart Mesman. High performance predictable histogramming on GPUs: exploring and evaluating algorithm trade-offs. In Proceedings of the Fourth Workshop on General Purpose Processing on Graphics Processing Units , pages 1–8, 2011. [13] Troels Henriksen, Sune Hellfritzsch, Ponnuswamy Sadayappan, and Cosmin Oancea. Compiling gen-eralized histograms for GPU. In SC20: International Conference for High Performance Computing, Networking, Storage and Analysis , pages 1–14. IEEE, 2020. 44

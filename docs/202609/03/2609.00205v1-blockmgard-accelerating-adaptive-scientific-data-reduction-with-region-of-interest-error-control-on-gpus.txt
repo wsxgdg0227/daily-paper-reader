@@ -1,0 +1,591 @@
+Title: BlockMGARD: Accelerating Adaptive Scientific Data Reduction with Region-of-Interest Error Control on GPUs
+
+URL Source: https://arxiv.org/pdf/2609.00205v1
+
+Published Time: Wed, 02 Sep 2026 00:09:42 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# BlockMGARD: Accelerating Adaptive Scientific Data Reduction with Region-of-Interest Error Control on GPUs 
+
+Yanliang Li 
+
+University of Oregon 
+
+Eugene, OR leonli@uoregon.edu 
+
+Qian Gong 
+
+Oak Ridge National Laboratory 
+
+Oak Ridge, TN gongq@ornl.gov 
+
+Qing Liu 
+
+New Jersey Institute of Technology 
+
+Newark, NJ qing.liu@njit.edu 
+
+Jaemoon Lee 
+
+Oak Ridge National Laboratory 
+
+Oak Ridge, TN leej8@ornl.gov 
+
+Norbert Podhorszki 
+
+Oak Ridge National Laboratory 
+
+Oak Ridge, TN pnorbert@ornl.gov 
+
+Scott Klasky 
+
+Oak Ridge National Laboratory 
+
+Oak Ridge, TN klasky@ornl.gov 
+
+Xin Liang 
+
+Oregon State University 
+
+Corvallis, OR lianxin@oregonstate.edu 
+
+Jieyang Chen 
+
+University of Oregon 
+
+Eugene, OR jieyang@uoregon.edu 
+
+Abstract —The growing scale of scientific data makes lossy compression essential for reducing data volume under control-lable error. Transformation-based compressors using multilevel decomposition, such as MGARD, achieve strong compression ratios but map poorly to GPU architectures. We propose Block-MGARD, an adaptive, Region-of-Interest (ROI)-supported GPU lossy compressor, with four contributions: (1) an In-cache Block decomposition leveraging GPU on-chip memory and constant lookup tables to accelerate decomposition; (2) a hybrid hierarchy combining In-cache Block and global decomposition to balance speed and compression ratio; (3) an end-to-end pipeline with fine-grained ROI error control for feature preservation; and (4) an evaluation against state-of-the-art methods on five real-world datasets. Compared to MGARD-X, BlockMGARD achieves up to 4.2 × and 9.1 × higher compression and decompression through-put, and up to 8.63 × higher compression ratio than uniform-tolerance baselines under ROI-aware error control. Across four GPUs, BlockMGARD achieves near-ideal linear scaling and up to 14.8 × I/O cost reduction over uncompressed I/O. 
+
+Index Terms —High-performance computing, graphics process-ing units, data compression, scientific data 
+
+I. I NTRODUCTION 
+
+The velocity and volume of scientific data generated from large-scale simulations [1]–[4], observational instruments [5], [6], and experimental facilities [7] continue to grow at an un-precedented pace. Modern scientific workflows routinely pro-duce multi-terabyte to petabyte-scale datasets, far outpacing the bandwidth and capacity growth of storage systems and I/O subsystems [8]–[10]. As a result, data movement and storage 
+
+This manuscript has been authored in part by UT-Battelle, LLC, under contract DE-AC05-00OR22725 with the US Department of Energy (DOE). The publisher, by accepting the article for publication, acknowledges that the U.S. Government retains a non-exclusive, paid up, irrevocable, world-wide license to publish or reproduce the published form of the manuscript, or allow others to do so, for U.S. Government purposes. The DOE will provide public access to these results in accordance with the DOE Public Access Plan (http://energy.gov/downloads/doe-public-access-plan). 
+
+have become critical bottlenecks that increasingly limit end-to-end scientific productivity. To cope with these constraints, scientific datasets are often truncated, downsampled, or se-lectively pruned before being written to storage. While these approaches reduce data size, they risk permanently discarding valuable information, including subtle features that may be essential for downstream analysis, validation, or scientific discovery [11]. Preserving scientific fidelity while reducing data volume has therefore emerged as a fundamental challenge in data-intensive scientific computing. Error-controlled lossy compression has been widely recog-nized as a viable and effective solution to this problem [12]– [14]. By bounding the numerical error introduced during com-pression, error-controlled compressors can significantly reduce data volume while maintaining user-defined accuracy guar-antees. Among these approaches, transformation-based data decorrelation plays a central role. By transforming raw data into a representation that is more compressible and amenable to error control, decorrelation algorithms enable high com-pression ratios without violating scientific error constraints. Representative examples include multigrid-based decomposi-tion used in MGARD [15], [16] and near-orthogonal transform techniques employed by ZFP [14], [17]. These methods exploit spatial or hierarchical structure in scientific data to separate coarse and fine components, thereby exposing redundancy that can be efficiently encoded. To maximize compressibility, such decorrelation algorithms typically operate over large data domains—often the entire dataset—so as to fully exploit global correlations [18]–[20]. Transformation-based decorrelation involves complex com-putation patterns with deep data dependencies across multi-ple stages of decomposition. These dependencies introduce substantial coordination and communication overhead, leading to low computational efficiency [21], [22]. In practice, the transformation step can dominate the overall compression 
+
+SC26, November 15-20, 2026, Chicago, Illinois, USA 979-8-3195-4789-7/26/$31.00 ©2026 IEEE arXiv:2609.00205v1 [cs.DC] 31 Aug 2026 pipeline, slowing down data reduction and, in some cases, even delaying I/O operations themselves [23], [24]. GPUs have been increasingly adopted to accelerate transformation-based decorrelation algorithms due to their massive parallelism and high memory bandwidth [22], [25]–[28]. Despite their effectiveness, transformation-based decorre-lation algorithms are poorly matched to GPU architectures. They are memory-intensive and synchronization-heavy due to deep data dependencies, offer limited parallelism, and rely on decomposition hierarchies that neither align well with the GPU memory hierarchy nor support fine-grained region-of-interest (ROI) error control needed for preserving key features in scientific data [18], [21], [27], [29]. In this work, we aim to fundamentally redesign transformation-based data decorrelation to better fit GPU architectures, enabling high-performance compression with flexible and adaptive trade-offs among performance, compression ratio, and error control.  
+
+> •
+
+We introduce a new data decomposition hierarchy, termed the In-cache Block hierarchy, that leverages pro-grammable on-chip memory (e.g., shared memory) on GPUs to enable fast, localized decomposition. By keep-ing an entire single-level decomposition within on-chip memory, this approach dramatically reduces unnecessary DRAM accesses and improves computational efficiency. Moreover, the In-cache Block hierarchy decouples the decomposition structure from input data dimensions, sig-nificantly improving performance for small or narrow datasets.  
+
+> •
+
+To enable adaptive trade-offs between performance and compressibility, we propose the first data de-composition hierarchy that combines high-throughput In-cache Block-based local decomposition with high-decorrelation-capable global decomposition, forming a 
+
+hybrid hierarchy . This hybrid approach allows fine-grained control over the balance between decomposition performance and data decorrelation efficiency, enabling the compressor to adapt to diverse application require-ments and system resource constraints.  
+
+> •
+
+We build a complete hybrid-hierarchy-based lossy com-pression pipeline, BlockMGARD . Compared with state-of-the-art MGARD-X compression [15], [24], BlockM-GARD significantly improves compression throughput while providing explicit trade-off control between per-formance and compression ratio. In addition, BlockM-GARD enables fine-grained, ROI error control using the hybrid hierarchy, improving compression effectiveness while preserving scientifically important features in crit-ical regions of the data.  
+
+> •
+
+We evaluate BlockMGARD on five real-world scientific datasets and demonstrate that our In-cache Block de-composition achieves up to 5.26 × per-level throughput improvement over the original MGARD decomposition. Our hybrid hierarchy spans a continuum from up to 2.96 × decomposition speedup over full global decom-position while retaining competitive compression ratios, to up to 8.1 × speedup when maximizing throughput. For ROI-aware error control, BlockMGARD delivers up to 8.63 × higher compression ratio than uniform-tolerance baselines at matched reconstruction fidelity, and superior visual quality at matched compression ratio. End-to-end compression evaluation further shows that, compared to the MGARD-X baseline, BlockMGARD achieves up to 4.17 × and 9.13 × higher compression and decompression throughput, respectively. Across four GPUs, BlockM-GARD achieves near-ideal linear scaling and up to 14.8 ×
+
+I/O cost reduction over uncompressed I/O. II. B ACKGROUND AND RELATED WORKS 
+
+A. GPU-Accelerated Lossy Compression 
+
+Lossless compression techniques such as GZIP [30], ZSTD [31], and FPZIP [32] are widely used in data man-agement systems due to their ability to perfectly reconstruct original data. However, lossless compressors suffer from very limited compression ratios (usually less than 2 ×) on scientific floating-point data due to the incompressible noise inherent in the low-order bits of floating-point mantissas [33]. Given the massive data volumes generated by modern simulations, lossy compression with guaranteed error bounds has been developed as a more practical solution. Error-bounded lossy compression allows users to specify acceptable error tolerances while achieving significantly higher compression ratios (often 10:1 to 100:1 or more). Existing approaches can be broadly categorized into prediction-based methods and transformation-based methods. SZ [34] [35] [36] [37] is a leading prediction-based compressor that performs prediction, quantization, entropy encoding, and lossless com-pression in sequence. SZ3 further extends this framework with a modular design allowing different predictor, quantizer, and encoder combinations to be composed for different datasets. ZFP [14] is a representative transformation-based compressor that applies near-orthogonal block transforms followed by embedded coding to achieve fixed-rate or error-bounded com-pression. MGARD [20] [19] [38] [16], another transformation-based compressor, leverages multilevel decomposition based on finite element theory to provide rigorous error control on raw data and downstream Quantities of Interest (QoIs) [39]. As demand for compression throughput to match the data generation rates of modern scientific applications grows, GPU acceleration has become necessary. cuSZ [27] elim-inates prediction-based compression’s sequential dependen-cies through dual quantization, enabling efficient GPU par-allelization of the SZ algorithm. cuZFP [26] provides GPU acceleration for the ZFP compressor, but is limited to fixed-rate compression mode and does not support error-bounded compression. GPU-MGARD [22] accelerates MGARD’s mul-tilevel decomposition on GPUs through optimized kernels for grid-wise, linear, and iterative processing with efficient memory access patterns. Recent developments have further improved GPU compression performance. cuSZp [28] [40] [41] [42] introduces progressive enhancements, including ker-nel fusion, optimized lossless encoding modes, and extended dimensionality support across multiple compression modes, pushing kernel throughput to hundreds of GB/s on NVIDIA GPUs. Despite these advances in GPU compression throughput, existing approaches face inherent trade-offs between com-pression ratio and speed. Transformation-based methods like MGARD achieve high compression ratios through multilevel decomposition that captures global data correlations, but the intra- and cross-level data dependencies limit parallelization granularity. Prediction-based methods like cuSZp enable fine-grained parallelism but may sacrifice compression efficiency on data with strong spatial correlations. Furthermore, current GPU implementations primarily optimize global memory ac-cess patterns, leaving the potential of the on-chip memory hi-erarchy (shared memory and registers) largely unexplored for accelerating compression kernels. These limitations motivate the need for new algorithmic designs that can better exploit GPU memory hierarchies while providing flexible control over the compression ratio-speed trade-off. 
+
+B. Multilevel Decomposition in MGARD 
+
+MGARD [20] [19] [38] [16] performs decorrelation through a multilevel decomposition rooted in finite element theory. Given data on a structured grid, MGARD constructs a se-quence of nested grids G0 ⊂ G 1 ⊂ · · · ⊂ G ℓ, where each level halves the resolution along every dimension so that a dimension of size n coarsens to ⌊n/ 2⌋ + 1 nodes. The number of levels is therefore fixed by the grid dimensions, and every level is defined over the entire domain. Decomposition proceeds from the finest level downward. At each level, MGARD interpolates the coarse-grid values onto the fine grid and subtracts the result from the fine-grid data, producing multilevel coefficients on the nodes that the coarse grid does not contain. These coefficients capture the detail that the coarser representation cannot express. To make the decomposition a projection in the finite element sense rather than a plain difference, MGARD then applies a correction to the coarse-grid values, computed by solving a mass matrix system derived from the underlying basis func-tions. For multidimensional data, interpolation and correction are applied as a sequence of one-dimensional passes, one per dimension, each shrinking the working array along the dimension it processes. The output of a full decomposition is the coarsest representation and the multilevel coefficients at every level, from which the original data can be recovered exactly by reversing the operations. Because the coefficients at coarser levels influence a pro-gressively larger portion of the reconstruction, MGARD as-signs a level-dependent share of the error budget when quan-tizing them, tightening the tolerance as the level coarsens. This construction yields provable bounds on the reconstruction error in L∞ and other norms [19], and extends to bounding the error of derived quantities of interest [18], [43], [44]. MGARD-X [15], [22] provides a portable GPU/CPU im-plementation of this pipeline via the HPDR framework [24], [39], organizing each level into grid-wise, linear, and itera-tive kernels tuned for coalesced global-memory access. Our work builds directly on MGARD-X and reuses its global decomposition in our hybrid hierarchy designs. MGARD’s de-composition and our hybrid hierarchy both assume structured grids; extending error-controlled multilevel decomposition to unstructured meshes remains an active and complementary line of work [45]. 
+
+C. Region-of-Interest Based Compression 
+
+A region of interest (ROI) is a subset of the domain whose scientific value justifies preserving it at higher fidelity than the rest of the data. ROI-aware compression exploits this by allocating bits non-uniformly, increasing fidelity inside the ROI while aggressively compressing the background. What constitutes an ROI differs sharply across domains: image compression relies on semantic object detection, whereas in scientific data the ROI is typically characterized by numer-ical properties such as steep gradients or coherent vortical structures. In the image compression domain, deep-learning approaches have achieved significant progress. Cai et al. [46] proposed an end-to-end framework that jointly optimizes ROI prediction and coding through convolutional neural networks, achieving rate-distortion optimization via learned entropy models and hierarchical distortion losses. Jin et al. [47] further introduced text-controlled mask acquisition and customizable quality trade-offs between ROI and non-ROI regions. How-ever, these methods optimize perceptual quality metrics rather than strict error bounds, making them unsuitable for scientific data where reconstruction must satisfy user-specified accuracy guarantees. For scientific data compression, several works have explored spatially-varying error control to better preserve regions of scientific importance. Gong et al. [48] leverage MGARD’s multilevel decomposition to automatically detect regions with rich details and establish the theoretical foundations for region-wise error control. Liang et al. [49] preserve topological features in vector fields by computing vertex-wise adaptive error bounds. Li et al. [50] translate isosurface topology errors into per-block raw-data error bounds on GPUs, but require invoking an unmodified compressor once per coarse domain-decomposition block. A related line of work instead adapts compression parameters to features detected in the data rather than to a fixed region: Yakushin et al. [51] couple in situ feature tracking with compression to guide reduction deci-sions, and Gong et al. [52] adapt spatiotemporal compression aggressiveness to preserve climate features such as tropical cyclones. Together, these methods show how to decide where error tolerance should vary. But none of them integrate this decision into the compression pipeline at the kernel level. A second line of work adds ROI support to high-performance GPU compressors, but does so at decompression time. Wang et al. [53] proposed STZ, whose hierarchical partitioning enables random-access decompression of selected spatial regions such as 2D slices or 3D boxes without de-compressing the entire dataset. Huang et al. [41] introduced VGC, which locates and operates on a specified ROI through block metadata and early stopping. Both provide flexible spatial access patterns, yet both apply a uniform error bound during compression: the ROI determines what is read back, not how many bits are spent. Consequently, no existing GPU compressor varies precision during compression—only after. Our block-wise decomposition makes this possible, since each block is already processed independently. III. P ROBLEM STATEMENT 
+
+Despite recent efforts on GPU acceleration, the irregular computation structure of existing multilevel decomposition is not well matched to GPU architectures, which are optimized for uniform, regular, and highly parallel workloads [29]. This mismatch introduces several critical challenges: (1) Decompo-sition algorithms are often memory-heavy, requiring repeated accesses to global memory as data are processed across mul-tiple decomposition levels, leading to underutilized streaming multiprocessors (SMs) and poor arithmetic intensity [27]. (2) Strong data dependencies necessitate frequent communication and synchronization among GPU threads, incurring high coor-dination costs that do not scale well for large datasets [21]. (3) Parallelism is often fundamentally limited by data dimension-ality. For example, in MGARD, the smallest dimension of the dataset can constrain the available decomposition parallelism, causing severe performance degradation for datasets with nar-row dimensions [22]. (4) Decomposition reorganizes data into hierarchical structures that are not well aligned with the GPU memory hierarchy, resulting in inefficient use of caches and shared memory [29]. (5) Existing decomposition hierarchies do not support fine-grained, ROI-aware error control, making it difficult to preserve critical features in selected regions while aggressively compressing less important areas. In this work, we aim to answer the following research questions:  
+
+> •
+
+How can we redesign data decomposition to better suit GPU architectural characteristics?  
+
+> •
+
+How can we enable a fine-grained trade-off between performance and compression ratio to suit diverse time and resource requirements?  
+
+> •
+
+How can we achieve non-uniform ROI error control to preserve key scientific information in the data while maintaining high GPU compression throughput? IV. M ETHOD 
+
+In this section, we introduce the design of BlockMGARD. As shown in Figure 1, BlockMGARD follows the standard transform-quantize-lossless encode pipeline; we redesign the first two stages and fuse them at the kernel level. Decompo-sition is structured based on a hybrid hierarchy that combines 
+
+L local In-cache Block levels with M global levels, allowing users to trade throughput against compression ratio. We extend quantization with ROI error control at block granularity. To eliminate the global memory round trip between these two stages, we fuse decomposition and quantization into a single kernel for the local levels. We detail the In-cache Block decomposition in Section IV-A, the hybrid hierarchy in Sec-tion IV-B, the ROI error control in Section IV-C, and the kernel fusion in Section IV-D. Hybrid Hierarchy  
+
+> In-cache Block Decomposition Global Decomposition Quantization (ROI err. ctrl.) Lossless Compression
+> Original Data Compressed Data
+> x L x M Kernel Fusion
+
+Fig. 1: Overview of BlockMGARD compression framework 
+
+A. In-cache Block Decomposition 
+
+In-cache Block decomposition rests on one simple fact: on-chip memory is much faster than DRAM. Each GPU SM has its own pool of on-chip shared memory. For example, on NVIDIA Hopper GPUs, on-chip memory has an access latency of around only 29 clock cycles, versus over 650 clock cycles for accessing DRAM [54]. That gap motivates our design. We exploit it by processing the data in small, fixed-size blocks, as shown in Figure 2. Each block is small enough that its entire working set—the input and intermediate data—fits in shared memory. Once a block is loaded, it never leaves the chip until decomposition is done. The only global memory traffic is one coalesced load at start and one coalesced store at the end. 
+
+a) Block Size Selection: The 8 × 8 × 8 block dimensions result from co-optimization of shared memory capacity and thread parallelism. The hierarchical decomposition processes each dimension sequentially, producing intermediate arrays that must coexist in shared memory: the input block ( 8×8×8)and intermediate arrays of sizes 5×8×8, 5×5×8, and 5×5×5
+
+from successive dimensional passes. The total working set of 1157 elements occupies approximately 4.63 KB for single-precision data and 9.26 KB for double-precision data, fitting within a single SM’s shared memory capacity (e.g., NVIDIA H100 can be configured to have up to 228 KB shared memory) with room for lookup tables. The 83 = 512 threads organize into 16 warps, providing sufficient parallelism for latency hiding while remaining within SM thread limits. Smaller blocks such as 43 yield only 64 threads (2 warps), insufficient for effective scheduling and lower decorrelation efficiency. Larger blocks such as 16 3
+
+require 4096 threads, exceeding SM capacity, with working sets risking shared memory overflow. 
+
+b) Compile-Time Index Resolution: For fixed block di-mensions, all indexing patterns and numerical coefficients are compile-time constants. Index mappings between input and output positions, mass matrix entries, and interpolation weights are defined as constexpr arrays embedded directly into the executable. This approach draws inspiration from the Flying Edges algorithm [55], which eliminates runtime case analysis through precomputed lookup tables. During kernel execution, threads retrieve coefficients and offsets through direct table lookups indexed by thread ID, replacing expensive runtime division and modulo operations for multi-dimensional index calculation. This shifts indexing Global Memory (DRAM): High Latency & Capacity Original Data Partitioned Data Block Partitioning InCacheBlock Decomposition Local Coefficients 
+
+. . .    
+
+> Streaming Multiprocessor (SM)
+> Compile-Time Index Tables (const/reg, Direct Lookup)
+> Warp Execution & Registers
+> (SIMT, 512 Threads)
+> Shared Memory (L1) (Low latency, ~9.3KB Used)
+> Input Block (8x8x8) Interm. Array 1 (5x8x8) Interm. Array 2 (5x5x8) Interm. Array 3 (5x5x5)
+> Total Working Set (Input + Intermediates) = No Eviction Coarse Representation Coefficients Output
+> . . .
+> SM0 SM1 SMN
+
+Fig. 2: In-cache Block decomposition mapped onto a GPU streaming multiprocessor. The entire working set—input block and intermediate arrays totaling 9.3 KB—resides in shared memory throughout computation, with global memory ac-cessed only for initial load and final store. Compile-time index tables eliminate runtime index arithmetic. overhead to compilation, reducing per-thread instruction count and eliminating index-dependent branching that would cause warp divergence. 
+
+c) Warp Execution Uniformity: The fixed block dimen-sions guarantee identical execution paths for all threads within a warp. Every In-cache Block executes the same instruc-tion sequence without boundary-handling conditionals. Pre-computed lookup tables reinforce this uniformity: threads retrieve data through identical indexed load instructions rather than conditional arithmetic. Shared memory on modern GPUs is organized into 32 banks with 4-byte stride. Our linear thread indexing maps con-secutive threads to consecutive addresses, achieving conflict-free access for both single- and double-precision data and maximizing shared memory bandwidth. 
+
+d) Global Memory Access Pattern: Each thread block performs exactly two global memory transactions: an initial coalesced load of the 83 input block and a final coalesced store of the output. Consecutive threads access consecutive memory addresses, allowing the memory controller to com-bine requests into 128-byte transactions. For double-precision data, a warp’s 32 threads access 256 bytes, serviced by two cache line transactions. Between these boundary accesses, all computation proceeds with zero global memory traffic. 
+
+B. Hybrid Hierarchy Architecture 
+
+While In-cache Block decomposition achieves high per-formance through block-wise local decomposition, its spatial partitioning has two limitations: it sacrifices global structural information that could improve compression ratio, and it may introduce boundary artifacts at block interfaces. In contrast, MGARD’s global decomposition operates on the whole data domain, better preserving global features and achieving supe-rior compression quality at the cost of performance. Hybrid Hierarchy in Decomposition 
+
+ML
+
+> 3 Glocal Decomposition 3 Local Decomposition Balanced Perf. & Eff.
+
+ML
+
+> 1 Global Decomposition 5 Local Decomposition Higher Throughput
+
+ML
+
+> 5 Global Decomposition 1 Local Decomposition Higher Compression Ratio
+
+Fig. 3: Overview of the Hybrid Hierarchy Decomposition with different configurations. Each case represents a specific trade-off between performance and compression efficiency. We propose a hybrid hierarchy architecture that provides flexibility in balancing these objectives as shown in Figure 3: the first L levels use In-cache Block local decomposition for maximum GPU efficiency, followed by M levels of MGARD’s global decomposition to reach the desired total hierarchy depth 
+
+L + M . This design allows users to control the speed-quality trade-off through the parameter L. Larger L values prioritize speed by performing more decomposition locally, reducing global memory operations and achieving faster compression. Smaller L values leverage more global processing to achieve better compression quality with fewer artifacts, at the cost of increased runtime. The parameter M determines the final coarseness of the hierarchical representation, affecting the achievable compression ratio. To determine the optimal parameter value for L and M
+
+that maximize the compression ratio while keeping the total cost under a time budget, we first aim to understand the performance characteristics of In-cache Block kernel via pro-filing. As shown in Figure 4, throughput scaling exhibits two distinct regimes impacted by different hardware bottlenecks. In the first regime, when the number of 8 × 8 × 8 blocks is small, throughput scales approximately linearly with block count. Since each block is mapped to a single CUDA thread block of 512 threads and each SM supports a maximum of 2048 concurrent threads, only 4 blocks can execute simulta-neously per SM. H100 provides 132 SMs, yielding an SM occupancy saturation point of 132 × 4 = 528 blocks. Below this point, each additional block directly occupies an available SM slot, and throughput grows proportionally. In the second regime, beyond 528 blocks, all SM slots are occupied, yet throughput continues to grow substantially. Although each In-cache Block performs its decomposition and recomposition entirely within shared memory, it still needs one coalesced load and one coalesced store per block. H100’s asynchronous memory pipeline requires a large number of concurrent in-flight requests to reach full utilization. As block count in-0 10000 20000 30000 40000 50000 60000 70000 80000         
+
+> Concurrency (Number of Blocks)
+> 050 100 150 200 250 300
+> Throughput (GB/s)  The Knee (~8012 Blocks) Model: TP = min(0.0347 * N, 277.9)
+> FP32 Performance Model
+> Theoretical Latency Bound Theoretical Throughput Bound (277.9 GB/s) Smooth Analytical Model Measured Data
+> 010000 20000 30000 40000 50000 60000 70000 80000
+> Concurrency (Number of Blocks)
+> 0100 200 300 400
+> Throughput (GB/s)  The Knee (~5073 Blocks) Model: TP = min(0.0756 * N, 383.4)
+> FP64 Performance Model
+> Theoretical Latency Bound Theoretical Throughput Bound (383.4 GB/s) Smooth Analytical Model Measured Data
+
+Fig. 4: Throughput modeling of the decomposition kernel on H100. The analytical model (solid curves) accurately predicts the measured performance (dots) by combining the theoretical latency bound and maximum throughput bound. The ”knee” indicates the threshold where hardware utilization saturates. creases, the GPU scheduler overlaps load and store operations from queued blocks with the on-chip computation of active blocks, progressively filling the memory pipeline until peak throughput is reached. We model this throughput behavior using the two-regime framework proposed by Volkov [29], which separates perfor-mance into a latency-bound regime where throughput scales linearly with concurrency, and a throughput-bound regime where performance saturates at the hardware limit. However, a strict piecewise linear model ( min function) assumes perfect overlap of execution and memory delays, which rarely holds in practice due to structural hazards and resource contention. Therefore, incorporating the principles from queueing theory and Little’s Law [56], we derive a smooth analytical expression (Equation 1) based on an additive execution time model. By superimposing the ideal latency-bound execution time and the asymptotic throughput-bound congestion-time, we formulate the effective throughput as the reciprocal sum of these limits. Unlike a discrete piecewise linear model, this formulation captures the diminishing returns in throughput as the system approaches architectural saturation. TP (N ) = N
+
+1
+
+Slope + N
+
+TP peak 
+
+(1) where N is the number of concurrent blocks, Slope is the per-block throughput slope estimated via linear regression over the latency-bound regime ( N < 528 ), and TP peak is the measured peak throughput. Our analytical model identifies the knee point —where the marginal throughput gains become negligible—at approximately 8,012 blocks for FP32 and 5,073 blocks for FP64. 
+
+Algorithm 1: Automatic Parameter Selection for Hy-brid Hierarchy 
+
+Input: Data type dtype , shape S, time budget Tbgt 
+
+(ms) 
+
+Output: Recommended configuration (L∗, M ∗) 
+
+> 1
+
+candidates ← GEN CANDIDATES (S) ; 
+
+// enumerate all valid (L, M ) pairs  
+
+> 2
+
+F ← ∅  
+
+> 3
+
+for (L, M ) ∈ candidates do  
+
+> 4
+
+td ← PREDICT DECOMP TIME (dtype , S, L, M ) 
+
+> 5
+
+tq ← PREDICT QUANT TIME (dtype , S, L, M ) 
+
+> 6
+
+te ← PREDICT LOSSLESS TIME (dtype , S, L, M ) 
+
+> 7
+
+if td + tq + te ≤ Tbgt then  
+
+> 8
+
+F ← F ∪ { (L, M )} 
+
+> 9
+
+return arg max (L,M )∈F (M, −L) ; // maximize 
+
+M , break ties by minimize L
+
+The knee point serves as a performance reference: any configuration where the block count exceeds the knee point guarantees that the In-cache Block kernel operates in the throughput-saturated regime. Given this insight, we propose an automatic parameter selection strategy as shown in Algo-rithm 1. We first enumerate all valid (L, M) pairs via perfor-mance modeling and prediction, and filter those satisfying the time budget Tbgt . Each prediction function is a simple formula fit to profiling data on the target GPU (e.g., H100), not a full simulation. P REDICT DECOMP TIME adds up two pieces: local levels use the throughput model from Equation 1, and global levels use a separate linear fit, since MGARD’s global decomposition doesn’t show the same saturation behavior as In-cache Block decomposition. P REDICT QUANT TIME works the same way for local and global quantization—each is 
+
+max (slope ×N, T latency ), capturing both the per-element cost and a fixed latency floor we saw in practice. P REDICT LOSS -
+
+LESS TIME breaks Huffman coding [57] into its stages—outlier handling, histogramming, codebook building, encoding, and deflate—and fits each one separately, since they don’t all scale the same way with input size. We add up all three predictions and check them against Tbgt . Finally, we select the configuration that lexicographically maximizes (M, −L)—prioritizing more global decomposition levels and fewer local levels to maximize the decorrelation efficiency. 
+
+C. Region-of-Interest Error Control 
+
+Scientific datasets often contain regions of varying impor-tance, where critical features require stricter error control than background areas. We propose an ROI-based compression scheme that supports spatially-varying error tolerances at block granularity, naturally integrating with our In-cache Block decomposition architecture. 
+
+a) Block-Wise Tolerance Assignment: Our ROI imple-mentation assigns tolerance values at the block level, aligning with the In-cache Block decomposition structure. Let B =
+
+{B1, B 2, . . . , B K } denote the set of blocks partitioning the 0 100 200 300 400 500 0100 200 300 400 500 Original Scientific Data Field 
+
+> 2000
+> 1500
+> 1000
+> 500
+> 0500 1000 1500
+> Physical Value
+
+(a) Dataset Visualization 0 100 200 300 400 500 0100 200 300 400 500 ROI Block Extraction (8x8)     
+
+> Low ( 2)
+> Middle ( 1)
+> High ( 0)
+
+(b) ROI Extraction 
+
+Fig. 5: ROI extraction example on a scientific dataset. (a) Original data field showing a prominent central feature. (b) Block-level ROI assignment discretized to 8 × 8 granularity: strict tolerance τ2 (magenta) covers the central feature, normal tolerance τ1 (green) captures the transition region, and back-ground tolerance τ0 (blue) applies elsewhere. domain, where K is the total block count. Each block Bi is assigned a tolerance τi that specifies the maximum allowable error for data points within that block. Users specify ROI through a tolerance map that can be defined programmatically (e.g., based on gradient magnitude or feature detection) or through explicit region specification. The tolerance map is discretized to block resolution: if a user-defined ROI region partially overlaps a block, that block receives the stricter ROI tolerance to ensure complete coverage of the region of interest. Figure 5 illustrates this process on a 2D slice from the pressure field (Pf48) of the Hurricane ISABEL dataset. The original data field (a) contains a central low-pressure feature surrounded by gradient regions. In (b), we demonstrate ROI extraction using a value-based criterion: data points within the lowest 15% of the value range are assigned strict tolerance 
+
+τ2, those within 15–40% receive normal tolerance τ1, and the remainder is treated as background with tolerance τ0. This value-based approach is one example; users may alternatively specify ROI regions through gradient magnitude thresholds, explicit spatial masks, or application-specific feature detectors. We support multiple tolerance tiers: strict ROI ( τ2) for critical features requiring maximum preservation, normal ROI (τ1) for important regions with moderate precision require-ments, and background ( τ0) for non-critical regions allowing aggressive compression, satisfying τ2 < τ 1 < τ 0.
+
+b) Error Propagation across Tolerance Boundaries: The primary challenge in our ROI-based compression is main-taining error bounds when blocks with different tolerances contribute to the same coarse-level block through the hybrid decomposition hierarchy. The propagation issue arises from the spatial reorganization between decomposition levels. At Level L + 1 , each 8 × 8 × 8
+
+block decomposes to a 5 × 5 × 5 coarse representation with detail coefficients. When proceeding to Level L, these 5×5×5
+
+outputs must be assembled into new 8 × 8 × 8 blocks for continued decomposition. Due to the size mismatch, a single block at Level L may aggregate coarse elements originating Level L+1 Level L Propagation Boundary Block with Tolerance 𝜏 !        
+
+> Block with Tolerance 𝜏 "
+> Block with Tolerance 𝜏 #
+> Decomposition with ROI
+> Note: At the overlapping block (1,1), stricter tolerance 𝜏 #overrides 𝜏 "(𝜏 !> 𝜏 "> 𝜏 #)
+
+Fig. 6: ROI tolerance propagation from fine level (left) to coarse level (right). At Level L + 1 , three adjacent blocks have tolerances τ0, τ1, and τ2. After decomposition, the coarse outputs are assembled into new blocks at Level L. Block 
+
+(1 , 1) receives contributions from all three tolerance regions; conservative propagation assigns τ2 (the strictest) to guarantee 
+
+L∞ bounds. from multiple Level L + 1 blocks with different assigned tolerances. Figure 6 illustrates this scenario. At Level L + 1 , three adjacent blocks have tolerances τ0 (background), τ1 (normal ROI), and τ2 (strict ROI), where τ0 > τ 1 > τ 2. The dashed boundary indicates the propagation region where tolerance mixing occurs. After decomposition, their 5 × 5 × 5 coarse outputs are spatially adjacent. When forming the 8 × 8 × 8
+
+blocks at Level L, block (1 , 1) contains tolerance contributions derived from all three tolerance regions. If block (1 , 1) were quantized using the more permissive tolerance τ0 or τ1, the resulting quantization error would prop-agate through recomposition. Since this coarse data ultimately reconstructs fine-level values belonging to the strict ROI region, the reconstructed values would violate the required L∞
+
+bound τ2.
+
+c) Conservative Tolerance Propagation Strategy: To guarantee L∞ error bounds across all tolerance regions, we adopt a conservative propagation rule: each coarse-level block inherits the minimum (strictest) tolerance among all fine-level blocks that contribute to it. Formally, let C(BLj ) denote the set of Level L + 1 blocks whose coarse outputs contribute to block BLj at Level L. The propagated tolerance is: 
+
+τ Lj = min   
+
+> BL+1
+> i∈C (BLj)
+
+τ L+1  
+
+> i
+
+(2) This propagation is applied recursively through all L levels of In-cache Block decomposition. A block at level ℓ inherits the strictest tolerance from its contributing blocks at level 
+
+ℓ + 1 , which in turn inherited from level ℓ + 2 , and so on. Consequently, strict ROI tolerances propagate outward through the hierarchy, creating an expanding “influence region” at coarser levels. TABLE I: Datasets used for evaluation                                             
+
+> Dataset Variable Dimensions Type Size NYX temperature, velocity x/y/z 512 ×512 ×512 FP32 2 GB Hurricane ISABEL Pf48, Uf48, Vf48, Wf48 100 ×500 ×500 FP32 380 MB SCALE-LETKF PRES, T, U, V 98 ×1200 ×1200 FP32 2.1 GB Miranda density, diffusivity, pressure, velocityz 256 ×384 ×384 FP64 1.1 GB S3D CH4, CO2, H2O, O2 500 ×500 ×500 FP64 4 GB
+
+The conservative strategy guarantees correctness but intro-duces overhead: blocks that contain no strict-ROI data in their original fine-level region may still receive strict tolerances due to propagation. This results in more bits allocated to these blocks than strictly necessary. However, since ROI regions are typically spatially concentrated, the propagation influence remains localized. The overhead grows with the number of local decomposition levels L, but for moderate L values, the propagation region extends only a limited distance beyond the original ROI boundary. When global MGARD decomposition levels ( M > 0)follow the local levels, the error budget for global processing derives from the strictest tolerance at the final local level: 
+
+τglobal = min i τ 1 
+
+> i
+
+, where τ 1 
+
+> i
+
+denotes the propagated tolerance of block i at Level 1 (the last local level). This budget is then distributed equally across the M global levels, allocating 
+
+τglobal /M to each level. This uniform allocation maintains the mathematical guarantees of MGARD’s error control frame-work without requiring modifications to its global processing pipeline. 
+
+D. Pipeline Stage Fusion 
+
+The unfused pipeline runs In-cache Block decomposition and quantization as two separate kernels. Decomposition writes each level’s coefficients to global memory in full precision. Quantization reads them back, applies the level’s tolerance—a scalar quantizer, or a per-block reciprocal quan-tizer derived from the ROI tolerance map—and writes out quantized symbols. For each 8 × 8 × 8 block, this means a full-precision round trip through global memory for detail coefficients that are only ever used once. We fuse quantization directly into the In-cache Block kernel to avoid this round trip. 125 of the 512 threads still write out the 5 × 5 × 5 coarse output in full precision, since the next level (or the global hierarchy, at the final local level) needs it. The other 387 threads compute detail coefficients instead. While those values are still sitting in shared memory, each thread applies the block’s quantizer on the spot and writes the quantized symbol straight to global memory. Only the quantized index ever touches HBM, and one kernel launch per local level disappears along with it. The fused kernel also reads its input with bounds checks instead of requiring pre-padded input, so the memset-and-copy step used to pad each level’s input goes away too—out-of-range positions are simply zero-filled in-kernel. This fusion applies to the L local levels only; the M global levels have no per-block resident working set to fuse against and keep running as separate kernels. V. E XPERIMENTAL EVALUATION 
+
+A. Experimental Setup a) Evaluation Platform: We conduct our experimental evaluation using the Talapas cluster [58] from the University of Oregon, using a compute node equipped with 4 NVIDIA H100 GPUs (80 GB HBM3, 132 SMs, SM 9.0), CUDA Toolkit 12.4, and two 24-core Intel Xeon CPUs with 1,024 GB memory. 
+
+b) Comparison Baselines and Error Bounds: We eval-uate compression performance against three GPU-accelerated compressors: MGARD-X [22], cuZFP [26], and VGC [41]. Our evaluation is based on the L∞-norm relative error bound: we set REL error bounds of 1e−2, 1e−4, and 1e−6,and every reconstructed value satisfies |u−u′|∞ < tol ×| u|∞.VGC instead defines its error bound point-wise as a fraction of the data range ( dmax − dmin ), so we convert our L∞-norm relative tolerance into the corresponding absolute error bound before passing it to VGC. cuZFP only supports fixed-rate mode, so for each target error bound we manually measure the fixed rate that achieves the equivalent error and use that rate in our evaluation. 
+
+c) Datasets: We evaluate on five real-world HPC simu-lation datasets from the Scientific Data Reduction Benchmarks suite [59] [60]: the NYX cosmology simulation [61], the Hurricane ISABEL weather simulation [62], the SCALE-LETKF climate simulation [63], the Miranda hydrodynamics simulation [64], and the S3D combustion simulation [65]. Table I presents dataset details and the variables used in the evaluation. To ensure a fair comparison, we use four variables per dataset and report the average of the measured results across all variables. 
+
+B. In-cache Block Decomposition 
+
+We first evaluate the performance of In-cache Block decom-position by comparing it against the original global decompo-sition under controlled conditions. To accurately compare the efficiency of each approach, we measure only kernel execution time, excluding data transfer overhead between host and device memory. For a fair comparison, we apply a single level of decomposition to four variables for each dataset and report the average throughput. Figure 7 presents the throughput comparison across all five datasets. In-cache Block achieves 233–381 GB/s for decom-position compared to 44–120 GB/s for global decomposition, bringing a speedup of 3.16 ×–5.26 × (avg. 4.1 ×). For recom-position, In-cache Block achieves 204–327 GB/s versus 47– 117 GB/s, with a speedup of 2.79 ×–4.40 × (avg. 3.5 ×). The consistent speedup across all datasets validates that confining the working set to shared memory effectively reduces global NYX ISABEL SCALE Miranda S3D    
+
+> Dataset
+> 0100 200 300 400
+> Throughput (GB/s)
+> 76 282 44 233 56 264 99 371 120 381
+> Decomposition
+> Global InCacheBlock NYX ISABEL SCALE Miranda S3D
+> Dataset
+> 0100 200 300 400
+> 77 241 47 204 58 233 103 319 117 327
+> Recomposition
+> Global InCacheBlock
+
+Fig. 7: Comparing performance of decomposing and recom-posing one level of data using the original global hierarchy method vs. In-cache Block memory traffic. The speedup is particularly pronounced on datasets with narrow dimensions, such as Hurricane-ISABEL and SCALE-LETKF. In global decomposition, the smallest dimension of the dataset can severely constrain the available decomposition parallelism, leading to substantial performance degradation due to under-utilized hardware resources and heavy global memory traffic. In contrast, our In-cache Block decomposition effectively mitigates this bottleneck by con-fining the working set to shared memory, which decouples the decomposition process from global memory hierarchy constraints and ensures high throughput even when dataset dimensions are restrictive. 
+
+C. Hybrid Hierarchy Decomposition 
+
+Figure 8 compares decomposition and recomposition kernel execution times across five datasets. The Full Global baseline, which decomposes to the maximum hierarchy depth using global MGARD kernels, incurs the highest execution time due to repeated full-dataset read-modify-write operations over GPU global memory at each level. Our hybrid hierarchy addresses this by replacing some global levels with In-cache Block levels: under a fixed 3-level decomposition depth case, transitioning from L=1/M=2 to L=2/M=1 consistently reduces execution time across all datasets, achieving a speedup of 1.72 ×–2.96 × (avg. 2.2 ×) and 1.82 ×–3.03 × (avg. 2.3 ×) over Full Global for decomposition and recomposition respectively, as each substituted global level replaces a full-dataset global memory traversal with on-chip shared memory computa-tion confined within each SM. For applications prioritizing throughput over compression ratio, pure local configurations (L=5, L=3, L=1) remove global levels entirely and further reduce kernel time—reaching a speedup of 2.18 ×–8.10 × (avg. 4.2 ×) and 2.78 ×–6.87 × (avg. 4.2 ×) over Full Global for decomposition and recomposition respectively. Hybrid hierar-chy with pure local configurations reaches the peak of 8.10 ×
+
+decomposition and 6.87 × recomposition speedup over Full Global on Hurricane ISABEL, where the dataset’s smaller volume makes global memory latency the dominant bottle-neck. Across larger datasets such as S3D, speedups remain substantial at 4.05 × and 3.55 ×, as higher SM concurrency partially amortizes global memory latency even in the baseline. These results demonstrate that the hybrid hierarchy provides a flexible continuum from compression-ratio-preserving con-TABLE II: Compression and decompression throughput and compression ratio comparison among MGARD-X (M-X), BlockMGARD (BM), and BlockMGARD-Fused (BMF).                                                                                                                                    
+
+> Dataset Err. Comp. (GB/s) Decomp. (GB/s) CR M-X BM BMF M-X BM BMF M-X BM/BMF NYX 1e-2 33.15 55.34 68.36 33.65 48.79 56.71 29.27 26.23 1e-4 30.24 53.54 65.90 19.68 48.76 56.41 7.52 7.98
+> 1e-6 27.77 50.57 61.15 15.96 46.52 53.45 2.07 2.22
+> ISABEL 1e-2 10.63 30.86 35.71 5.32 34.51 38.80 19.11 18.51 1e-4 9.01 29.16 33.82 3.63 29.87 33.14 4.28 4.37
+> 1e-6 8.32 29.06 34.68 3.82 30.83 34.15 1.13 1.15
+> SCALE 1e-2 31.62 51.51 64.49 24.34 45.88 53.34 24.09 19.20 1e-4 28.94 49.75 61.55 15.60 45.03 52.23 5.59 4.69 1e-6 27.63 47.57 57.88 15.04 45.63 52.86 1.63 1.25 Miranda 1e-2 28.88 68.65 82.20 19.96 68.57 80.42 50.71 48.66 1e-4 23.96 65.40 79.95 11.61 61.92 71.54 20.85 20.08 1e-6 23.15 66.52 81.24 10.63 65.66 76.42 3.92 4.69
+> S3D 1e-2 56.83 86.28 115.71 57.80 81.16 97.82 61.53 48.49 1e-4 54.00 84.82 112.79 34.95 78.34 93.97 23.95 17.43 1e-6 51.36 83.98 110.26 29.13 77.08 92.14 7.64 5.96
+
+figurations to throughput-maximizing ones, all outperforming the full global baseline by exploiting GPU shared memory to eliminate unnecessary global memory traffic. Figure 9 further examines how the hybrid configuration affects compression ratio relative to full global decomposition. Configurations with a sufficient number of global levels ( e.g. ,
+
+L=1 , M =2 and L=2 , M =1 ) retain 0.64 ×–1.78 × (avg. 1.7 ×)of the compression ratio of full global decomposition across NYX, Hurricane, SCALE-LETKF, and Miranda. In contrast, configurations that eliminate global levels entirely ( e.g. , L=5 ,
+
+L=3 , L=1 ) suffer severe compression ratio degradation across all datasets. S3D is particularly sensitive, dropping to as low as 
+
+0.15 ×, owing to its high-frequency content that makes block boundary artifacts more pronounced. These results confirm that retaining at least one global decomposition level is critical for preserving compression quality in the hybrid hierarchy. 
+
+D. End-to-End Compression Pipeline 
+
+We compare the compression ratio (CR), compression throughput, and decompression throughput of BlockMGARD (L=1 , M =2 ) against MGARD-X across five scientific datasets at error bounds of 1e−2, 1e−4, 1e−6. Results are in Table II, reported for successful compression runs. BlockMGARD consistently outperforms MGARD-X in both compression and decompression throughput, achieving a speedup of 1.52 ×–3.49 × (avg. 2.2 ×) for compression and 1.40 ×–8.23 × (avg. 3.9 ×) for decompression. In-cache Block decomposition explains the gain: each block touches global memory only twice, avoiding the irregular access patterns that MGARD-X’s global decomposition incurs. However, this speed comes at a cost. Compression ratio drops in several cases, most consistently on SCALE and S3D, since splitting the domain into blocks breaks the spatial locality that global decomposition relies on. This penalty is not uniform, however—on Miranda at 1e−6, BlockMGARD matches or exceeds MGARD-X, suggesting that the effect is dataset-dependent and tolerance-dependent. Users can mitigate Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1 
+
+> 0246810
+> Decomp. (ms)  1.0× 2.0× 2.6× 2.9× 3.3× 4.8×
+
+NYX    
+
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+> 012341.0× 2.0× 2.7× 4.5× 5.3× 8.1×
+
+Hurricane ISABEL    
+
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+> 036912 15 1.0× 2.0× 3.0× 3.5× 4.0× 6.1×
+
+SCALE-LETKF    
+
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+> 0123451.0× 1.8× 2.3× 2.9× 3.4× 5.3×
+
+Miranda    
+
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+> 0246810 12 1.0× 1.7× 2.1× 2.2× 2.6× 4.0×
+
+S3D   
+
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration   
+
+> 0246810
+> Recomp. (ms)  1.0× 1.9× 2.7× 3.3× 3.3× 4.1×
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration    
+
+> 012341.0× 1.9× 3.0× 5.1× 5.4× 6.9×
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration    
+
+> 036912 15 1.0× 1.9× 3.0× 4.2× 4.3× 5.5×
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration    
+
+> 0123451.0× 1.9× 2.7× 3.5× 3.6× 4.6×
+> Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration  
+
+> 0246810 12 1.0× 1.8× 2.4× 2.8× 2.8× 3.6×
+
+Local Decomposition Global Decomposition Local Recomposition Global Recomposition Fig. 8: Comparing decomposition and recomposition performance between global, hybrid, and local hierarchy. Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1 
+
+Con fi guration 
+
+> 0510 15 20 25
+> Compression Ratio
+> 1.0× 1.2× 1.1× 0.6× 0.9× 0.9×
+
+NYX      
+
+> Temp Vel-X Vel-Y Vel-Z Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration 
+
+> 012345
+> 1.0× 1.4× 1.1× 0.8× 1.0× 1.6×
+
+Hurricane ISABEL      
+
+> Pf48 Uf48 Vf48 Wf48 Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration 
+
+> 0246
+> 1.0× 1.2× 1.0× 0.5× 0.8×0.8×
+
+SCALE-LETKF      
+
+> PRES TUVFull Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration 
+
+> 0510 15 20 25
+> 1.0× 1.4× 1.1× 0.4× 0.8× 1.3×
+
+Miranda      
+
+> Dens. Di ff .Press. Vel-Z Full Global L=1 M=2 L=2 M=1 L=5 L=3 L=1
+
+Con fi guration 
+
+> 0816 24 32
+> 1.0× 0.8× 0.7× 0.5× 0.6× 0.2×
+
+S3D    
+
+> CH4 CO2 H2O O2
+
+Fig. 9: Comparing compression ratio between between global, hybrid, and local hierarchy the compression ratio loss in practice by increasing M relative to L, trading some throughput for better compression ratio. Kernel fusion keeps the same compression ratio and pushes throughput further—a speedup of 1.16 ×–1.34 × (avg. 1.2 ×)for compression and 1.11 ×–1.21 × (avg. 1.2 ×) for decompres-sion, on top of BlockMGARD. Put together, BlockMGARD-Fused reaches a speedup of 2.04 ×–4.17 × (avg. 2.7 ×) for compression throughput and 1.69 ×–9.13 × (avg. 4.6 ×) for decompression throughput over MGARD-X, with no compres-sion ratio loss over the unfused version. We use this fused configuration as our default for the rest of the experiments. 
+
+E. ROI-aware Compression a) Higher Compression Ratio at Matched Visual Quality: 
+
+We evaluate on the PRES field from SCALE-LETKF, where regions exhibiting large local pressure gradients correspond to active meteorological features such as frontal boundaries and convective systems. We designate a 150 × 150 subregion within the 1200 × 1200 horizontal slice that encompasses such high-gradient pressure structures as the ROI, assigning a tight relative error tolerance of 1e−6 to this region while applying a relaxed tolerance of 1e−2 to the background. Figure 11 presents a visual quality comparison on the 75th slice of the PRES field. VGC and cuZFP apply a uniform tolerance of REL 1e−6 across the entire domain, achieving compression ratios of 1.67 × and 3.41 × respectively. Block-MGARD’s ROI-aware compression achieves a compression ratio of 5.17 ×—a 1.52 × improvement over cuZFP and a 3.10 × improvement over VGC. As highlighted in the zoomed-in insets, the spatial features within the ROI subregion are faithfully reconstructed by BlockMGARD, matching the visual quality of the uniform high-precision baselines within the region of interest. The visible quality degradation in the background regions is an expected and intentional trade-off, reflecting the relaxed tolerance applied outside the ROI. These results demonstrate that BlockMGARD’s block-granularity error control enables scientists to concentrate reconstruction fidelity in application-critical regions without sacrificing over-all compression efficiency. 
+
+b) Superior Visual Fidelity at Matched Compression Ra-tio: We further evaluate on the density field from Miranda at a target compression ratio of 50 ×, where all three compressors are configured to produce comparable output sizes. Figure 12 presents the reconstructed density field at the 120th 384 × 384 
+
+slice. At this aggressive compression ratio, the reconstructions reveal stark differences in visual fidelity. VGC suffers severe quality degradation—the zoomed-in inset shows near-complete loss of structural information, with fine-scale density features reduced to a nearly featureless dark region. cuZFP preserves the global structure but introduces visible block-boundary artifacts in the magnified ROI, distorting the smooth gradient transitions characteristic of the original field. In contrast, BlockMGARD’s ROI-aware compression faithfully preserves both the large-scale structure and fine-grained spatial features Org. LL 1e−2 1e−4 1e−6                                               
+
+> 0.0 0.4 0.8 1.2 1.6
+> Write Time (s)
+> Write Org.
+> NYX
+> Org. LL 1e−2 1e−4 1e−6
+> 0.00 0.08 0.16 0.24 0.32 Write Org.
+> Hurricane ISABEL
+> Org. LL 1e−2 1e−4 1e−6
+> 0.0 0.4 0.8 1.2 1.6
+> Write Org.
+> SCALE-LETKF
+> Org. LL 1e−2 1e−4 1e−6
+> 0.00 0.25 0.50 0.75 1.00 Write Org.
+> Miranda
+> Org. LL 1e−2 1e−4 1e−6
+> 0.0 0.8 1.6 2.4 Write Org.
+> S3D
+> Org. LL 1e−2 1e−4 1e−6
+> Error
+> 0.00 0.15 0.30 0.45 0.60
+> Read Time (s)
+> Read Org.
+> Org. LL 1e−2 1e−4 1e−6
+> Error
+> 0.00 0.04 0.08 0.12 0.16
+> Read Org.
+> Org. LL 1e−2 1e−4 1e−6
+> Error
+> 0.00 0.15 0.30 0.45 0.60 Read Org.
+> Org. LL 1e−2 1e−4 1e−6
+> Error
+> 0.00 0.08 0.16 0.24 Read Org.
+> Org. LL 1e−2 1e−4 1e−6
+> Error
+> 0.0 0.2 0.4 0.6 0.8
+> Read Org.
+> Original I/O Compressed I/O NVCOMP-LZ4 VGC cuZFP BlockMGARD
+
+Fig. 10: Comparing the end-to-end parallel I/O cost of using 4 parallel processes each uses one H100 GPU for (de)compression. Original VGC(REL 1e-6) cuZFP 1e-6 BlkMGARD 1e-6 
+
+Fig. 11: Visual quality comparison at matched reconstruc-tion fidelity REL 1e−6. BlockMGARD with ROI-aware error control achieves a compression ratio of 5.17 ×, compared to 3.41 × for cuZFP and 1.67 × for VGC, while preserving spatial features in the ROI (dashed inset). PRES field from SCALE-LETKF, 75th 1200 ×1200 slice. Original VGC CR=50 PSNR=8.9/2.1 cuZFP CR=50 PSNR=50.5/50.9 BlkMGARD CR=50 PSNR=53/83.2 
+
+Fig. 12: Visual fidelity comparison at matched compression ratio ( CR ≈ 50 ×). PSNR values are reported as global/ROI, where ROI denotes the PSNR within the designated critical region. Density field from Miranda, 120th 384 × 384 slice. within the critical region, with the zoomed inset closely matching the original. These results demonstrate that Block-MGARD’s block-granularity error control delivers superior reconstruction quality in scientifically sensitive subregions even under aggressive compression, where uniform-tolerance competitors either fail catastrophically or introduce structured artifacts. 
+
+c) Higher Compression Ratio with ROI-Aware Error Control: Table III compares the compression ratios achieved by uniform-tolerance compressors against BlockMGARD’s ROI-aware mode across five scientific datasets at REL 1e−4.For uniform compressors, the tolerance is applied globally across the entire domain. For BlockMGARD, the same tight tolerance of REL 1e−4 is enforced within the designated ROI, while a relaxed tolerance is applied to the scientifically less critical background regions—reflecting the realistic scenario where scientists require high fidelity only in application-relevant sub-regions. TABLE III: Compression ratio of error-bounded GPU lossy compressors under 1e-4 tolerance. Bold indicates the highest. 
+
+REL 1E-4 VGC cuZFP MGARD-X BlockMGARD 
+
+NYX 2.29 3.42 5.13 14.81 
+
+ISABEL 2.18 3.72 3.95 8.99 
+
+SCALE-LETKF 6.78 3.78 3.79 7.89 
+
+Miranda 2.88 2.92 4.03 34.78 
+
+S3D 6.30 4.93 23.28 42.75 
+
+Under this setting, BlockMGARD achieves substantially higher compression ratios across all datasets. On Miranda and S3D, BlockMGARD delivers 34 .78 × and 42 .75 × com-pression ratio respectively— 8.63 × and 1.84 × higher than the best uniform-tolerance baseline (MGARD-X). On NYX and Hurricane, BlockMGARD outperforms the strongest baseline by 2.89 × and 2.28 × respectively. Even on SCALE-LETKF, where VGC benefits from favorable data characteristics, BlockMGARD still achieves a 1.16 × improvement. Critically, these gains come without compromising reconstruction fidelity in the ROI: the designated critical subregion is guaranteed the same REL 1e−4 accuracy as the uniform baselines applied globally, while the overall compression efficiency benefits from the relaxed background tolerance. This demonstrates that BlockMGARD’s block-granularity error control provides a principled mechanism to align compression aggressiveness with scientific data importance. 
+
+F. Parallel I/O and Scalability 
+
+To evaluate the effectiveness of using data reduction to accelerate parallel I/O at scale [66], we measure the end-to-end wall time as the sum of compression, write, decompression and read time across all five scientific datasets. Scientific floating-point data exhibits limited compressibility under lossless schemes, resulting in only marginal size reduction. The extra computational overhead consequently increases total I/O time 1 2 3 4       
+
+> Num. of GPUs
+> 100 200 300 400
+> Tput. (GB/s)
+> Compression (H100)
+> 1234
+> Num. of GPUs
+> 100 200 300 400
+> Tput. (GB/s)
+> Decompression (H100)
+> NYX Hurricane ISABEL SCALE-LETKF Miranda S3D
+
+Fig. 13: Compression and decompression throughput of Block-MGARD scaling up to four H100 GPUs. by 1.19–1.48 × over the uncompressed baseline, confirming that lossless compression is ill-suited as an I/O optimization strategy for scientific simulation data. Among tested GPU lossy compressors, VGC achieves no-table acceleration under coarser tolerances, with total I/O speedups of up to 95.4 × on NYX at 1e−2, benefiting from superior CR of 227. However, its speedup degrades sharply at tighter tolerances (average 3.68 × at 1e−4, 2.21 × at 1e−6), as the compression ratio diminishes while the decompression overhead grows. cuZFP delivers more consistent but modest acceleration, ranging from 1.1 ×–6.1 × at 1e−2 and 2.0 ×–3.5 ×
+
+at 1e−4, reflecting its fixed-rate compression design. BlockMGARD achieves superior and consistent I/O accel-eration by leveraging its high compression ratio across all tolerance levels. At tolerance 1e−2, BlockMGARD reduces total I/O wall time by 3.4 ×–14.8 × across datasets; at 1e−4,it still delivers 2.0 ×–8.6 × speedup. The benefit of write is particularly prominent: the effective write bandwidth improves by up to 25.2 × on NYX, as the GPU compression throughput is sufficient to be fully absorbed within the I/O latency. For Hurricane ISABEL and SCALE-LETKF at tolerance 1e−6, the total I/O time of BlockMGARD approaches the uncompressed baseline ( 0.97 × and 0.94 ×, respectively). This occurs because these datasets become incompressible at extreme precision requirements, causing BlockMGARD to fall back to copying the original data directly and incur compression overhead without any corresponding reduction in data volume. We additionally evaluate the scalability of BlockMGARD by running compression and decompression on up to 4 H100 GPUs within a single node, where each GPU independently processes the same dataset without inter-GPU communication. Figure 13 reports the aggregate throughput across five scien-tific datasets. BlockMGARD achieves near-linear throughput scaling with increasing GPU count, reaching a peak aggregate throughput of 461.9 GB/s for compression and 391.9 GB/s for decompression on S3D dataset at 4 GPUs. The average scaling efficiency across all datasets is 99.3% for compression and 99.8% for decompression, demonstrating that BlockMGARD introduces negligible multi-GPU overhead. VI. C ONCLUSION 
+
+In this paper, we present BlockMGARD, a GPU-accelerated lossy compressor that redesigns transformation-based data decorrelation to better fit GPU architectures. Specifically, we first introduce In-cache Block decomposition, which con-fines the entire decomposition working set to shared memory and eliminates runtime index overhead through compile-time lookup tables, achieving up to 5.26 × throughput improvement over global MGARD decomposition. We further propose a hybrid hierarchy that combines local and global decompo-sition levels, with automatic parameter selection under auser-specified time budget to balance compression speed and ratio. Finally, we develop block-granularity ROI error con-trol with conservative tolerance propagation that guarantees 
+
+L∞ error bounds across tolerance boundaries. Experimental evaluation on five real-world scientific datasets demonstrates that BlockMGARD consistently outperforms the state-of-the-art MGARD-X lossy compressor in throughput, achieves up to 8.63 × higher compression ratio over uniform-tolerance baselines under ROI-aware mode, and delivers up to 14.8 × I/O cost reduction over uncompressed I/O with near-ideal linear multi-GPU scaling across four H100 GPUs. ACKNOWLEDGMENT 
+
+The research is supported in part by the U.S. Department of Energy (DOE) RAPIDS-3 SciDAC and Sirius2 projects un-der contract number DE-AC05-00OR22725, and the National Science Foundation (NSF) under Grants OAC-2628470, OAC-2628472, OAC-2628473, OAC-2311757, and OAC-2144403. We would like to thank the University of Oregon Research Advanced Computing Services for its support and use of the Talapas clusters. REFERENCES [1] C. S. Chang, S. Ku, and H. Weitzner, “Compressed ion temperature gradient turbulence in diverted tokamak plasmas,” Physics of Plasmas ,vol. 16, no. 5, p. 056108, 2009. [2] S. Ku, C. S. Chang, R. Hager et al. , “Full-f gyrokinetic particle simulation of tokamak plasma turbulence in realistic geometry,” Physics of Plasmas , vol. 25, no. 5, p. 056101, 2018. [3] J.-L. Vay, A. Almgren, J. Bell et al. , “Warpx: A new exascale computing platform for beam–plasma simulations,” Plasma Physics and Controlled Fusion , vol. 60, no. 1, p. 014001, 2018. [4] H. Burau, R. Widera, W. H¨ onig, G. Juckeland, A. Debus, T. Kluge, U. Schramm, T. E. Cowan, R. Sauerbrey, and M. Bussmann, “Picon-gpu: A fully relativistic particle-in-cell code for a gpu cluster,” IEEE Transactions on Plasma Science , vol. 38, no. 10, pp. 2831–2839, 2010. [5] M. G. Labate, M. Waterson, G. Swart, M. Bowen, and P. Dewdney, “The square kilometre array observatory,” in 2019 IEEE International Sym-posium on Antennas and Propagation and USNC-URSI Radio Science Meeting , 2019, pp. 391–392. [6] R. Dodson, A. Williamson, Q. Gong, P. Elahi, A. Wicenec, M. J. Rioja, J. Chen, N. Podhorszki, S. Klasky, and M. Meyer, “Optimising the processing and storage of visibilities using lossy compression,”               
+
+> Publications of the Astronomical Society of Australia , vol. 42, p. e093, 2025. [7] D. H. Bilderback, P. Elleaume, and E. Weckert, “Review of third and next generation synchrotron light sources,” Journal of Physics B: Atomic, Molecular and Optical Physics , vol. 38, no. 9, p. S773, apr 2005. [Online]. Available: https://doi.org/10.1088/0953-4075/38/9/022 [8] J. Dongarra, P. Beckman, T. Moore, P. Aerts, G. Aloisio, J.-C. Andre, D. Barkai, J.-Y. Berthou, T. Boku, B. Braunschweig, F. Cappello, B. Chapman, X. Chi, A. Choudhary, S. Dosanjh, T. Dunning, S. Fiore, A. Geist, B. Gropp, R. Harrison, M. Hereld, M. Heroux, A. Hoisie, K. Hotta, Z. Jin, Y. Ishikawa, F. Johnson, S. Kale, R. Kenway, D. Keyes, B. Kramer, J. Labarta, A. Lichnewsky, T. Lippert, B. Lucas, B. Maccabe, S. Matsuoka, P. Messina, P. Michielse, B. Mohr, M. S. Mueller, W. E. Nagel, H. Nakashima, M. E. Papka, D. Reed, M. Sato, E. Seidel, J. Shalf, D. Skinner, M. Snir, T. Sterling, R. Stevens, F. Streitz,
+
+B. Sugar, S. Sumimoto, W. Tang, J. Taylor, R. Thakur, A. Trefethen, M. Valero, A. Van Der Steen, J. Vetter, P. Williams, R. Wisniewski, and K. Yelick, “The international exascale software project roadmap,” 
+
+Int. J. High Perform. Comput. Appl. , vol. 25, no. 1, p. 3–60, Feb. 2011. [Online]. Available: https://doi.org/10.1177/1094342010391989 [9] P. Kogge, S. Borkar, D. Campbell, W. Carlson, W. Dally, M. Denneau, P. Franzon, W. Harrod, J. Hiller, S. Keckler, D. Klein, and R. Lucas, “Exascale computing study: Technology challenges in achieving exascale systems,” Defense Advanced Research Projects Agency Information Processing Techniques Office (DARPA IPTO), Techinal Representative , vol. 15, 01 2008. [Online]. Available: https://ftp.eecs.berkeley.edu/ ∼yelick/papers/Exascale final report.pdf [10] L. Wan, A. Huebl, J. Gu, F. Poeschel, A. Gainaru, R. Wang, J. Chen, X. Liang, D. Ganyushin, T. Munson, I. Foster, J.-L. Vay, N. Podhorszki, K. Wu, and S. Klasky, “Improving I/O performance for exascale appli-cations through online data layout reorganization,” IEEE Transactions on Parallel and Distributed Systems , vol. 33, no. 4, pp. 878–890, 2022. [11] J. Chen, D. Pugmire, M. Wolf, N. Thompson, J. Logan, K. Mehta, L. Wan, J. Y. Choi, B. Whitney, and S. Klasky, “Understanding performance-quality trade-offs in scientific visualization workflows with lossy compression,” in 2019 IEEE/ACM 5th International Workshop on Data Analysis and Reduction for Big Scientific Data (DRBSD) , 2019. [12] D. Tao, S. Di, Z. Chen, and F. Cappello, “Significantly improving lossy compression for scientific data sets based on multidimensional prediction and error-controlled quantization,” in 2017 IEEE International Parallel and Distributed Processing Symposium (IPDPS) , 2017, pp. 1129–1139. [13] S. Di and F. Cappello, “Optimization of error-bounded lossy compres-sion for hard-to-compress hpc data,” IEEE Transactions on Parallel and Distributed Systems , vol. 29, no. 1, pp. 129–143, 2018. [14] P. Lindstrom, “Fixed-rate compressed floating-point arrays,” IEEE Transactions on Visualization and Computer Graphics , vol. 20, no. 12, pp. 2674–2683, 2014. [15] Q. Gong, J. Chen, B. Whitney, X. Liang, V. Reshniak, T. Banerjee, J. Lee, A. Rangarajan, L. Wan, N. Vidal et al. , “Mgard: A multigrid framework for high-performance, error-controlled data compression and refactoring,” SoftwareX , vol. 24, p. 101590, 2023. [16] X. Liang, B. Whitney, J. Chen, L. Wan, Q. Liu, D. Tao, J. Kress, D. Pugmire, M. Wolf, N. Podhorszki et al. , “Mgard+: Optimizing multilevel methods for error-bounded scientific data reduction,” IEEE Transactions on Computers , vol. 71, no. 7, pp. 1522–1536, 2021. [17] P. Lindstrom, J. Hittinger, J. Diffenderfer, A. Fox, D. Osei-Kuffuor, and J. Banks, “Zfp: A compressed array representation for numerical com-putations,” The International Journal of High Performance Computing Applications , vol. 39, no. 1, pp. 104–122, 2025. [18] M. Ainsworth, O. Tugluk, B. Whitney, and S. Klasky, “Multilevel techniques for compression and reduction of scientific data-quantitative control of accuracy in derived quantities,” SIAM Journal on Scientific Computing , vol. 41, no. 4, pp. A2146–A2171, 2019. [19] ——, “Multilevel techniques for compression and reduction of scientific data—the multivariate case,” SIAM Journal on Scientific Computing ,vol. 41, no. 2, pp. A1278–A1303, 2019. [20] ——, “Multilevel techniques for compression and reduction of scientific data—the univariate case,” Computing and Visualization in Science ,vol. 19, no. 5, pp. 65–76, 2018. [21] S. Li, S. Sane, L. Orf, P. Mininni, J. Clyne, and H. Childs, “Spatiotem-poral wavelet compression for visualization of scientific simulation data,” in 2017 IEEE International Conference on Cluster Computing (CLUSTER) , 2017, pp. 216–227. [22] J. Chen, L. Wan, X. Liang, B. Whitney, Q. Liu, D. Pugmire, N. Thomp-son, J. Y. Choi, M. Wolf, T. Munson, I. Foster, and S. Klasky, “Accelerating multigrid-based hierarchical scientific data refactoring on gpus,” in 2021 IEEE International Parallel and Distributed Processing Symposium (IPDPS) , 2021, pp. 859–868. [23] S. Jin, D. Tao, H. Tang, S. Di, S. Byna, Z. Lukic, and F. Cappello, “Accelerating parallel write via deeply integrating predictive lossy compression with hdf5,” in SC22: International Conference for High Performance Computing, Networking, Storage and Analysis , 2022, pp. 1–15. [24] J. Chen, Q. Gong, Y. Li, X. Liang, L. Wan, Q. Liu, N. Podhorszki, and S. Klasky, “Hpdr: High-performance portable scientific data reduc-tion framework,” in 2025 IEEE International Parallel and Distributed Processing Symposium (IPDPS) , 2025, pp. 1104–1116. [25] B. Lu, Y. Li, J. Wang, H. Luo, and K. Li, “Zfp-x: Efficient embedded coding for accelerating lossy floating point compression,” in 2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS) ,2023, pp. 1041–1050. [26] “cuzfp,” https://github.com/LLNL/zfp/tree/develop/src/cuda zfp, 2019. [27] J. Tian, S. Di, K. Zhao, C. Rivera, M. H. Fulp, R. Underwood, S. Jin, X. Liang, J. Calhoun, D. Tao, and F. Cappello, “cusz: An efficient gpu-based error-bounded lossy compression framework for scientific data,” in Proceedings of the ACM International Conference on Parallel Architectures and Compilation Techniques , ser. PACT ’20. New York, NY, USA: Association for Computing Machinery, 2020, p. 3–15. [Online]. Available: https://doi.org/10.1145/3410463.3414624 [28] Y. Huang, S. Di, X. Yu, G. Li, and F. Cappello, “cuszp: An ultra-fast gpu error-bounded lossy compression framework with optimized end-to-end performance,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis , ser. SC ’23. New York, NY, USA: Association for Computing Machinery, 2023. [Online]. Available: https://doi.org/10.1145/3581784.3607048 [29] V. Volkov, “Understanding latency hiding on gpus,” Ph.D. dissertation, EECS Department, University of California, Berkeley, Aug 2016. [Online]. Available: http://www2.eecs.berkeley.edu/Pubs/ TechRpts/2016/EECS-2016-143.html [30] P. Deutsch, “Gzip file format specification version 4.3,” Tech. Rep., 1996. [31] Y. Collet and E. Kucherawy, “Zstandard-real-time data compression algorithm,” Zstandard–real-time data compression algorithm , 2015. [32] P. Lindstrom and M. Isenburg, “Fast and efficient compression of floating-point data,” IEEE Transactions on Visualization and Computer Graphics , vol. 12, no. 5, pp. 1245–1250, 2006. [33] F. Knorr, P. Thoman, and T. Fahringer, “ndzip-gpu: efficient lossless compression of scientific floating-point data on gpus,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis , ser. SC ’21. New York, NY, USA: Association for Computing Machinery, 2021. [Online]. Available: https://doi.org/10.1145/3458817.3476224 [34] X. Liang, S. Di, D. Tao, S. Li, S. Li, H. Guo, Z. Chen, and F. Cappello, “Error-controlled lossy compression optimized for high compression ratios of scientific datasets,” in 2018 IEEE International Conference on Big Data (Big Data) , 2018, pp. 438–447. [35] X. Liang, K. Zhao, S. Di, S. Li, R. Underwood, A. M. Gok, J. Tian, J. Deng, J. C. Calhoun, D. Tao, Z. Chen, and F. Cappello, “Sz3: A modular framework for composing prediction-based error-bounded lossy compressors,” IEEE Transactions on Big Data , vol. 9, no. 2, pp. 485– 498, 2023. [36] D. Tao, S. Di, Z. Chen, and F. Cappello, “Significantly improving lossy compression for scientific data sets based on multidimensional prediction and error-controlled quantization,” in 2017 IEEE International Parallel and Distributed Processing Symposium (IPDPS) , 2017, pp. 1129–1139. [37] K. Zhao, S. Di, M. Dmitriev, T.-L. D. Tonellot, Z. Chen, and F. Cappello, “Optimizing error-bounded lossy compression for scientific data by dy-namic spline interpolation,” in 2021 IEEE 37th International Conference on Data Engineering (ICDE) , 2021, pp. 1643–1654. [38] M. Ainsworth, O. Tugluk, B. Whitney, and S. Klasky, “Multilevel techniques for compression and reduction of scientific data—the unstructured case,” SIAM J. Sci. Comput. , vol. 42, no. 2, p. A1402–A1427, Jan. 2020. [Online]. Available: https://doi.org/10.1137/ 19M1267878 [39] Y. Li, W. Li, Q. Gong, Q. Liu, N. Podhorszki, S. Klasky, X. Liang, and J. Chen, “Hp-mdr: High-performance and portable data refactoring and progressive retrieval with advanced gpus,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis , ser. SC ’25. New York, NY, USA: Association for Computing Machinery, 2025, p. 2076–2093. [Online]. Available: https://doi.org/10.1145/3712285.3759845 [40] Y. Huang, S. Di, G. Li, and F. Cappello, “cuszp2: A gpu lossy compressor with extreme throughput and optimized compression ratio,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage, and Analysis , ser. SC ’24. IEEE Press, 2024. [Online]. Available: https://doi.org/10.1109/SC41406.2024.00021 [41] ——, “Gpu lossy compression for hpc can be versatile and ultra-fast,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis , ser. SC ’25. New York, NY, USA: Association for Computing Machinery, 2025, p. 2056–2075. [Online]. Available: https://doi.org/10.1145/3712285.3759817 [42] B. Zhang, Y. Huang, S. Di, F. Song, G. Li, and F. Cappello, “Pushing the limits of gpu lossy compression: A hierarchical delta approach,” in Proceedings of the 39th ACM International Conference on Supercomputing , ser. ICS ’25. New York, NY, USA: Association for Computing Machinery, 2025, p. 654–669. [Online]. Available: https://doi.org/10.1145/3721145.3725743 [43] Q. Gong, X. Liang, B. Whitney, J. Y. Choi, J. Chen, L. Wan, S. Ethier, S.-H. Ku, M. Churchill, C.-S. Chang, M. Ainsworth, O. Tugluk, T. Munson, D. Pugmire, R. Archibald, and S. Klasky, “Maintaining trust in reduction: Preserving the accuracy of quantities of interest for lossy compression,” in Smoky Mountains Computational Sciences and Engineering Conference (SMC) , 2022. [44] T. Banerjee, J. Lee, J. Choi, Q. Gong, J. Chen, C.-S. Chang, S. Klasky, A. Rangarajan, and S. Ranka, “Online and scalable data compression pipeline with guarantees on quantities of interest,” in 2023 IEEE 19th International Conference on e-Science (e-Science) , 2023. [45] Q. Gong, Z. Wang, V. Reshniak, X. Liang, J. Chen, Q. Liu, T. M. Athawale, Y. Ju, A. Rangarajan, S. Ranka, N. Podhorszki, R. Archibald, and S. Klasky, “A general framework for error-controlled unstructured scientific data compression,” in 2024 IEEE 20th International Confer-ence on e-Science (e-Science) , 2024. [46] C. Cai, L. Chen, X. Zhang, and Z. Gao, “End-to-end optimized roi image compression,” IEEE Transactions on Image Processing , vol. 29, pp. 3442–3457, 2020. [47] J. Jin, F. Xia, F. Ding, X. Zhang, M. Liu, Y. Zhao, W. Lin, and L. Meng, “Customizable roi-based deep image compression,” IEEE Transactions on Circuits and Systems for Video Technology , vol. 36, no. 1, pp. 566– 578, 2026. [48] Q. Gong, B. Whitney, C. Zhang, X. Liang, A. Rangarajan, J. Chen, L. Wan, P. Ullrich, Q. Liu, R. Jacob, S. Ranka, and S. Klasky, “Region-adaptive, error-controlled scientific data compression using multilevel decomposition,” in Proceedings of the 34th International Conference on Scientific and Statistical Database Management , ser. SSDBM ’22. New York, NY, USA: Association for Computing Machinery, 2022. [Online]. Available: https://doi.org/10.1145/3538712.3538717 [49] X. Liang, H. Guo, S. Di, F. Cappello, M. Raj, C. Liu, K. Ono, Z. Chen, and T. Peterka, “Toward feature-preserving 2d and 3d vector field com-pression,” in 2020 IEEE Pacific Visualization Symposium (PacificVis) ,2020, pp. 81–90. [50] Y. Li and J. Chen, “Accelerating in-transit isosurface generation with topology preserving compression,” in 2024 IEEE 20th International Conference on e-Science (e-Science) , 2024, pp. 1–3. [51] I. Yakushin, K. Mehta, J. Chen, M. Wolf, I. Foster, S. Klasky, and T. Munson, “Feature-preserving lossy compression for in situ data analysis,” in Workshop Proceedings of the 49th International Conference on Parallel Processing (ICPP Workshops) , 2020. [52] Q. Gong, C. Zhang, X. Liang, V. Reshniak, J. Chen, A. Rangarajan, S. Ranka, N. Vidal, L. Wan, P. Ullrich, N. Podhorszki, R. Jacob, and S. Klasky, “Spatiotemporally adaptive compression for scientific dataset with feature preservation—a case study on simulation data with extreme climate events analysis,” in 2023 IEEE 19th International Conference on e-Science (e-Science) , 2023. [53] D. Wang, P. Grosset, J. Pulido, J. Tian, T. Athawale, J. Jia, B. Sun, B. Zhang, S. Jin, K. Zhao, J. Ahrens, and F. Song, “Stz: A high quality and high speed streaming lossy compression framework for scientific data,” in Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis , ser. SC ’25. New York, NY, USA: Association for Computing Machinery, 2025, p. 2038–2055. [Online]. Available: https://doi.org/10.1145/3712285.3759795 [54] W. Luo, R. Fan, Z. Li, D. Du, Q. Wang, and X. Chu, “ Benchmarking and Dissecting the Nvidia Hopper GPU Architecture ,” in 2024 IEEE International Parallel and Distributed Processing Symposium (IPDPS) . Los Alamitos, CA, USA: IEEE Computer Society, May 2024, pp. 656–667. [Online]. Available: https://doi.ieeecomputersociety. org/10.1109/IPDPS57955.2024.00064 [55] W. Schroeder, R. Maynard, and B. Geveci, “Flying edges: A high-performance scalable isocontouring algorithm,” in 2015 IEEE 5th Sym-posium on Large Data Analysis and Visualization (LDAV) , 2015, pp. 33–40. [56] J. D. Little, “A proof for the queuing formula: L= λ w,” Operations research , vol. 9, no. 3, pp. 383–387, 1961. [57] J. Tian, C. Rivera, S. Di, J. Chen, X. Liang, D. Tao, and F. Cappello, “Revisiting huffman coding: Toward extreme performance on modern gpu architectures,” in 2021 IEEE International Parallel and Distributed Processing Symposium (IPDPS) , 2021, pp. 881–891. [58] “Research advanced computing services (racs),” racs.uoregon.edu, 2026. [59] “Sdrbench,” https://sdrbench.github.io. [60] K. Zhao, S. Di, X. Lian, S. Li, D. Tao, J. Bessac, Z. Chen, and F. Cappello, “Sdrbench: Scientific data reduction benchmark for lossy compressors,” in 2020 IEEE International Conference on Big Data (Big Data) , 2020, pp. 2716–2724. [61] A. S. Almgren, J. B. Bell, M. J. Lijewski, Z. Luki´ c, and E. Van Andel, “Nyx: A massively parallel amr code for computational cosmology,” 
+
+The Astrophysical Journal , vol. 765, no. 1, p. 39, feb 2013. [Online]. Available: https://doi.org/10.1088/0004-637X/765/1/39 [62] “Hurricane isabel simulation data,” http://vis.computer.org/ vis2004contest/data.html, 2019. [63] B. R. Hunt, E. J. Kostelich, and I. Szunyogh, “Efficient data assimilation for spatiotemporal chaos: A local ensemble transform kalman filter,” Physica D: Nonlinear Phenomena , vol. 230, no. 1, pp. 112–126, 2007, data Assimilation. [Online]. Available: https: //www.sciencedirect.com/science/article/pii/S0167278906004647 [64] A. W. COOK, W. CABOT, and P. L. MILLER, “The mixing transition in rayleigh–taylor instability,” Journal of Fluid Mechanics , vol. 511, p. 333–362, 2004. [65] J. H. Chen, A. Choudhary, B. de Supinski, M. DeVries, E. R. Hawkes, S. Klasky, W. K. Liao, K. L. Ma, J. Mellor-Crummey, N. Podhorszki, R. Sankaran, S. Shende, and C. S. Yoo, “Terascale direct numerical simulations of turbulent combustion using s3d,” Computational Science & Discovery , vol. 2, no. 1, p. 015001, jan 2009. [Online]. Available: https://doi.org/10.1088/1749-4699/2/1/015001 [66] X. Wang, L. Wan, J. Chen, Q. Gong, B. Whitney, J. Wang, A. Gainaru, Q. Liu, N. Podhorszki, D. Zhao, F. Yan, and S. Klasky, “Unbalanced parallel I/O: An often-neglected side effect of lossy scientific data compression,” in 2021 7th International Workshop on Data Analysis and Reduction for Big Scientific Data (DRBSD) , 2021.

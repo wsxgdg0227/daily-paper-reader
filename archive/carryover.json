@@ -1,256 +1,12 @@
 {
-  "generated_at": "2026-09-02T22:54:29.397231+00:00",
-  "updated_date": "20260902",
+  "generated_at": "2026-09-03T22:48:18.323676+00:00",
+  "updated_date": "20260903",
   "carryover_days": 9,
   "tag_states": {
     "gkg": {
-      "updated_date": "20260902",
+      "updated_date": "20260903",
       "carryover_days": 9,
       "items": [
-        {
-          "id": "2608.31057v1",
-          "source": "arxiv",
-          "title": "Measure Before You Manage: Evaluating Agent Working Memory in Coding Agents",
-          "abstract": "Agent working memory is heterogeneous. Objects such as instructions, artifacts, tool outputs, and agent-generated state play different semantic roles and exhibit different size, retention, and representation profiles. Recent work has begun to explore memory-management mechanisms that account for such heterogeneity. This work focuses on semantic heterogeneity and studies how it should shape the management and evaluation of working memory in coding agents. Across 55 archived coding-agent trajectories, we find that semantically different working-memory objects exhibit distinct retention and compression behavior. This heterogeneity motivates semantically informed memory management. We study two semantically informed strategies: an object-aware compression policy and a retrieval-based policy. Their evaluation shows that calibration gains may not transfer to held-out tasks, and that equal token budgets do not imply equal delivered context or management cost. A real-system replay further exposes serving limits that nominal budgets alone do not capture. Together, these results show why semantic structure matters for agent working memory and why evaluating memory-management strategies requires more than a nominal token budget. We organize these lessons into four levels: stored state, delivered context, management work, and task or process outcome.",
-          "authors": [
-            "Le Chen",
-            "Zishen Wan",
-            "Baixi Sun",
-            "Xiaolong Ma",
-            "Chih-Hsuan Yang",
-            "Feng Yan",
-            "Sheng Di",
-            "Franck Cappello",
-            "Rajeev Thakur"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-08-31T16:34:51+00:00",
-          "link": "https://arxiv.org/pdf/2608.31057v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "semantically aware evaluation and management of heterogeneous working memory in coding agents",
-          "llm_evidence_cn": "研究编码智能体工作记忆的语义异质性并提出对象感知压缩等管理策略",
-          "llm_evidence": "研究编码智能体工作记忆的语义异质性并提出对象感知压缩等管理策略",
-          "canonical_evidence": "研究编码智能体工作记忆的语义异质性并提出对象感知压缩等管理策略",
-          "llm_tldr_en": "Analyzes 55 coding-agent trajectories and shows working-memory objects with different semantic roles have distinct retention and compression behavior, motivating semantically aware management; proposes and studies object-aware compression as a memory strategy.",
-          "llm_tldr_cn": "编码智能体的工作记忆不是同质缓存，指令、产物、工具输出等对象在保留和压缩上差别明显。作者对55条真实编码轨迹做分析，验证这一语义异质性，并提出对象感知压缩等语义信息管理策略。结果显示按语义对象差异化处理比统一管理更能贴近记忆动态。此类评测与策略可为设计长期记忆增强的agent提供重要依据。",
-          "llm_tldr": "编码智能体的工作记忆不是同质缓存，指令、产物、工具输出等对象在保留和压缩上差别明显。作者对55条真实编码轨迹做分析，验证这一语义异质性，并提出对象感知压缩等语义信息管理策略。结果显示按语义对象差异化处理比统一管理更能贴近记忆动态。此类评测与策略可为设计长期记忆增强的agent提供重要依据。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-          "matched_requirement_id": "req-3",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.31057v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.27924v1",
-          "source": "arxiv",
-          "title": "What Makes Agent Memory Useful for Reliable Unanswerable Question Handling?",
-          "abstract": "Reliable handling of unanswerable questions (UAQs) is critical for trustworthy LLM-based agents. Although memory is widely used in agent systems, its role in reliable UAQ handling remains unclear. We present a systematic study of agent memory for UAQ handling under a unified agentic RAG framework, evaluating four representative memory methods across three UAQ-related datasets and two base models.   We find that memory can improve UAQ performance in some settings, but such gains are selective rather than universal and remain fragile under dataset shift. Interestingly, cross-model memory reuse is often more feasible than cross-dataset transfer, suggesting that shifts in answerability patterns pose a greater challenge to memory reuse than changes in the base model itself. We further find that UAQ gains are more strongly preserved through decision guidance than through trajectory shaping, and that memory effectiveness depends strongly on representation. In particular, procedural and rule-based memories often provide the most reliable support for UAQ handling, while memory composition is most effective when procedural guidance is combined with complementary behavioral signals. Overall, our findings suggest that reliable UAQ memory depends less on storing larger amounts of experience and more on preserving transferable behavioral guidance.",
-          "authors": [
-            "Chuanyuan Tan",
-            "Junjie Yu",
-            "Yuxin Wang",
-            "Yining Zheng",
-            "Xipeng Qiu",
-            "Wenliang Chen"
-          ],
-          "primary_category": "cs.CL",
-          "categories": [
-            "cs.CL"
-          ],
-          "published": "2026-08-28T05:00:28+00:00",
-          "link": "https://arxiv.org/pdf/2608.27924v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Systematically studies four agent-memory methods under unified agentic RAG, directly about agent memory storage and retrieval reliability.",
-          "llm_evidence_cn": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
-          "llm_evidence": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
-          "canonical_evidence": "在统一智能体RAG框架下系统研究了四种智能体记忆方法，直接涉及智能体信息的存储与检索及其可靠性。",
-          "llm_tldr_en": "This paper examines whether agent memory improves handling of unanswerable questions; across datasets and models it shows memory gains are selective and fragile to dataset shift, informing when memory reuse helps agentic retrieval.",
-          "llm_tldr_cn": "许多智能体系统依赖记忆来提升可靠性，但其对不可回答问题的作用尚不明确。作者在统一智能体RAG框架下比较四种记忆方法，覆盖三个数据集和两个基础模型。结果显示记忆只在部分情况下改善性能，且跨数据集迁移很不稳定。这提醒我们在设计智能体记忆与检索机制时应关注问题可答性转移带来的挑战。",
-          "llm_tldr": "许多智能体系统依赖记忆来提升可靠性，但其对不可回答问题的作用尚不明确。作者在统一智能体RAG框架下比较四种记忆方法，覆盖三个数据集和两个基础模型。结果显示记忆只在部分情况下改善性能，且跨数据集迁移很不稳定。这提醒我们在设计智能体记忆与检索机制时应关注问题可答性转移带来的挑战。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-          "matched_requirement_id": "req-3",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.27924v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.28183v1",
-          "source": "arxiv",
-          "title": "Memory-efficient GPU pipelines for real-time non-line-of-sight reconstruction",
-          "abstract": "Non-line-of-sight (NLOS) imaging reconstructs scenes hidden around a corner from indirect light recorded by a single-photon avalanche diode (SPAD). A single reconstruction is a large inverse problem: billions of photon timestamps must be binned, moved through memory, transformed and inverted. As SPAD arrays raise acquisition throughput, reconstruction becomes the limiting stage. We rebuild the GPU execution of two established wave-based algorithms, f-k migration and phasor-fields, for both streaming and offline processing. On the phasor-fields side we assemble the ring-and-radius kernels of previous work once and offline, using the analytic Fourier transform of a ring, so the propagation kernel never exists in dense form at runtime, reducing the memory and bandwidth. We reorganize the pipeline of both algorithms with fused kernels, warp-level photon binning, batched transforms, CUDA graph replay, and FP16 storage applied only where it reduces the actual bottleneck. Our implementations are up to 42x faster than the reference streaming pipeline and up to 14x faster than the fastest published GPU baseline, all while using a fraction of the memory (down to 2.5%), enabling vastly larger and finer reconstructions on the same hardware, or comparable ones within a much lower memory budget. We report an ablation of each implementation choice and propose three denoising strategies enabled by the resulting frame budget for next-generation NLOS video processing.",
-          "authors": [
-            "Alfonso López-Ruiz",
-            "Diego Royo"
-          ],
-          "primary_category": "cs.DC",
-          "categories": [
-            "cs.DC",
-            "cs.CV"
-          ],
-          "published": "2026-08-28T10:51:37+00:00",
-          "link": "https://arxiv.org/pdf/2608.28183v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Rebuilds GPU pipelines and kernels for NLOS reconstruction with dense-kernel avoidance and memory-efficient streaming, targeting GPU execution performance.",
-          "llm_evidence_cn": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
-          "llm_evidence": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
-          "canonical_evidence": "为重构建模算法重构GPU流水线与核函数，避免稠密传播核并节省显存，专注提升GPU执行效率。",
-          "llm_tldr_en": "For real-time NLOS imaging, this paper redesigns GPU execution of wave-based f-k migration and phasor-fields, precomputing kernels offline and using analytic transforms so no dense runtime kernel exists, enabling streaming and offline memory-efficient reconstruction.",
-          "llm_tldr_cn": "非视距成像重构计算量巨大，单幅重建需要处理海量光子时间戳，GPU重构成为瓶颈。作者针对两类波动算法重建GPU执行流水线，离线组装环和半径核，利用解析傅里叶变换避免运行时稠密传播核。重构后的流水线同时支持流式与离线处理并显著降低内存占用。这为实时非视距成像提供了存储高效的GPU实现路径。",
-          "llm_tldr": "非视距成像重构计算量巨大，单幅重建需要处理海量光子时间戳，GPU重构成为瓶颈。作者针对两类波动算法重建GPU执行流水线，离线组装环和半径核，利用解析傅里叶变换避免运行时稠密传播核。重构后的流水线同时支持流式与离线处理并显著降低内存占用。这为实时非视距成像提供了存储高效的GPU实现路径。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.28183v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.27912v1",
-          "source": "arxiv",
-          "title": "ITER: Interaction-Aware Retrieval for Agentic Search",
-          "abstract": "Deep-research agents answer complex user questions through an iterative sequence of search steps, where the agent autonomously formulates sub-queries to retrieve the evidence needed at each stage. However, existing retriever training typically relies only on the sub-query and its corresponding search results at the current step as training signals, leaving the information accumulated from previous interactions largely underutilized.   We introduce iter, an agent interaction-aware dense retriever trained using agent trajectory learning signals. iter represents each query by incorporating not only the current sub-query, but also the main question and preceding sub-queries, and is trained using trajectory-relative learning signals derived from the agent's interactions.   Across six agent backbones from three model families, iter consistently outperforms the existing agent-trajectory-trained dense retriever, LRAT, achieving an average improvement of 7.5% on InfoSeek-Eval and 13.5% on BrowseComp-Plus. iter also demonstrates stronger cross-agent robustness than AgentIR, a deep-research retriever that relies on external LLM-judge signals and the agent's pre-search reasoning. Ablations further show that the main question and previous sub-queries provide the most robust query representation, while previously visited and useful documents, used as redundancy negatives in subsequent searches, provide the strongest trajectory-relative supervision. Code is available at https://github.com/ielab/ITER.",
-          "authors": [
-            "Haodong Chen",
-            "Shuai Wang",
-            "Yu Yin",
-            "Shengyao Zhuang",
-            "Guido Zuccon",
-            "Teerapong Leelanupab"
-          ],
-          "primary_category": "cs.IR",
-          "categories": [
-            "cs.IR"
-          ],
-          "published": "2026-08-28T04:36:02+00:00",
-          "link": "https://arxiv.org/pdf/2608.27912v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Trains a dense retriever using agent trajectory signals and interaction context, directly improving how agents retrieve relevant evidence during decision-making search.",
-          "llm_evidence_cn": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
-          "llm_evidence": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
-          "canonical_evidence": "使用智能体轨迹学习信号训练稠密检索器，将交互历史纳入查询表示，直接改进决策搜索中的证据获取方式。",
-          "llm_tldr_en": "Deep-research agents suffer because retrievers ignore prior interactions; ITER encodes the main question and preceding sub-queries together with the current sub-query and trains on trajectory-relative signals, yielding interaction-aware evidence retrieval for agentic search.",
-          "llm_tldr_cn": "深度研究智能体需要多步搜索获取证据，但现有检索器只按当前子查询训练，忽略了此前交互积累的信息。ITER将主问题与前面的子查询一并编码进当前查询，并利用轨迹相对学习信号训练稠密检索器。这样检索结果能反映agent正在执行的决策上下文。该方法使智能体在复杂问答流程中检索到更相关的证据，提升交互式搜索的整体质量。",
-          "llm_tldr": "深度研究智能体需要多步搜索获取证据，但现有检索器只按当前子查询训练，忽略了此前交互积累的信息。ITER将主问题与前面的子查询一并编码进当前查询，并利用轨迹相对学习信号训练稠密检索器。这样检索结果能反映agent正在执行的决策上下文。该方法使智能体在复杂问答流程中检索到更相关的证据，提升交互式搜索的整体质量。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
-          "matched_requirement_id": "req-4",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.27912v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.26263v2",
-          "source": "arxiv",
-          "title": "SKILL.state: Scalable Long-Horizon Agent Skills",
-          "abstract": "Large Language Models (LLMs) increasingly act as autonomous agents executing complex, long-running procedural skills. Existing agent runtimes maintain execution by continually appending observations, actions, and intermediate reasoning traces to an ever-growing conversation history, causing latency degradation and context-poisoning failures over long horizons. We present SKILL.state, a runtime architecture that replaces append-only conversational history with an explicit, mutable execution state. At each execution step, the model receives only the immutable skill specification, the current structured execution state, and the latest observation. Intermediate reasoning is discarded immediately after producing a validated state update, preventing prompt growth with execution history. Across diverse datasets, models, and execution environments, SKILL. state improves task accuracy while substantially reducing cumulative token consumption. Our results demonstrate that explicit execution state is an effective and architecture-agnostic abstraction for scalable long-horizon agent skills.",
-          "authors": [
-            "Sanket Badhe",
-            "Priyanka Tiwari",
-            "Jonghyun Chung"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI",
-            "cs.MA"
-          ],
-          "published": "2026-08-26T18:00:06+00:00",
-          "link": "https://arxiv.org/pdf/2608.26263v2",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Runtime replaces append-only history with mutable execution state, providing memory structure for long-horizon agents.",
-          "llm_evidence_cn": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
-          "llm_evidence": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
-          "canonical_evidence": "以显式可变执行状态作为长期技能的记忆载体，直接服务于智能体状态存储与读取。",
-          "llm_tldr_en": "LLM agents fail over long horizons due to context growth; SKILL.state uses explicit mutable execution state and discards intermediate reasoning after validated updates.",
-          "llm_tldr_cn": "LLM智能体在长期技能执行中若不断把观察和推理追加到历史，会引发延迟与上下文污染。SKILL.state用显式、可变的执行状态取代无界对话历史；每一步只送入技能规格、当前状态和最新观察，中间推理在形成有效更新后立即丢弃。该设计阻止提示词随执行历史增长，提升长时程任务的稳定性和可扩展性。",
-          "llm_tldr": "LLM智能体在长期技能执行中若不断把观察和推理追加到历史，会引发延迟与上下文污染。SKILL.state用显式、可变的执行状态取代无界对话历史；每一步只送入技能规格、当前状态和最新观察，中间推理在形成有效更新后立即丢弃。该设计阻止提示词随执行历史增长，提升长时程任务的稳定性和可扩展性。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-          "matched_requirement_id": "req-3",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.26263v2",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.28264v1",
-          "source": "arxiv",
-          "title": "Finding Where the Buck Stops: An Automated Failure Attribution-Based Reflection Framework for Multi-Agent Collaboration",
-          "abstract": "Multi-agent systems (MAS) powered by large language models have shown promise for complex tasks but suffer from high failure rates. Current self-reflection methods for MAS require all agents to reflect upon failure, overlooking a critical reality: failures typically stem from a specific agent leading the task astray, namely the decisive error agent, while others merely fulfill their regular duties. Forcing regular-behaving agents to reflect contaminates their memory with wrong insights. Hence, we propose DoCtOR (Diagnose-then-Correct PPO-enhanced Reflection), a novel reflection framework that enhances multi-agent collaboration. DoCtOR first identifies the decisive error step and decisive error agent through automated failure attribution, then employs counterfactual reasoning to generate a corrected decisive error step, and finally engages only the decisive error agent to produce targeted reflections. Experimental results show DoCtOR achieves 22%, 26%, and 27% improvements over initial success rates on HotPotQA, ChartQAPro, and Mind2Web datasets, outperforming Reflexion, Retroformer, and COPPER. We further establish the generalizability of our diagnose-then-correct paradigm and demonstrate that in low-resource settings, focusing reflection on reasoning steps after the decisive error step achieves comparable quality to reflecting on the complete failure trajectory.",
-          "authors": [
-            "Xiaoqing Wang",
-            "Keman Huang",
-            "Bin Liang",
-            "Hongyu Li",
-            "Xiaoyong Du",
-            "Wuqiong Pan"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI"
-          ],
-          "published": "2026-08-28T12:26:03+00:00",
-          "link": "https://arxiv.org/pdf/2608.28264v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Automated reflection framework diagnoses decisive error agent and corrects it via PPO, improving multi-agent policies without human intervention",
-          "llm_evidence_cn": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
-          "llm_evidence": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
-          "canonical_evidence": "自动反思框架定位决定性出错智能体并用PPO纠正，使智能体持续改进协作策略，无需人工干预",
-          "llm_tldr_en": "Multi-agent reflection often makes all agents reflect, polluting normal agents' memory. DoCtOR locates the decisive error agent and applies PPO-enhanced reflection only there, improving collaboration and reducing memory pollution over uniform reflection.",
-          "llm_tldr_cn": "现有多智能体自反思让全体智能体统一进行反思，容易污染正常智能体记忆，掩盖真正失败原因。DoCtOR先自动诊断决定性错误步骤和犯错智能体，再用PPO增强的反思仅纠正该智能体。实验表明该框架比统一反思方法更有效地提升多智能体协作成绩并减少无效反思，为多智能体自我进化提供了更精细化机制。",
-          "llm_tldr": "现有多智能体自反思让全体智能体统一进行反思，容易污染正常智能体记忆，掩盖真正失败原因。DoCtOR先自动诊断决定性错误步骤和犯错智能体，再用PPO增强的反思仅纠正该智能体。实验表明该框架比统一反思方法更有效地提升多智能体协作成绩并减少无效反思，为多智能体自我进化提供了更精细化机制。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
-          "matched_requirement_id": "req-5",
-          "selection_source": "carryover_cache",
-          "paper_id": "2608.28264v1",
-          "carry_days": 1
-        },
         {
           "id": "2609.00069v1",
           "source": "arxiv",
@@ -273,13 +29,13 @@
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Self-improving agents iteratively alter their harness; auditing this process directly addresses self-evolving agent improvement.",
-          "llm_evidence_cn": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
-          "llm_evidence": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
-          "canonical_evidence": "研究自我改进智能体迭代修改自身框架导致的篡改风险，直接对应智能体自进化主题。",
-          "llm_tldr_en": "Identifies harness tampering as a risk in self-improving agents, proposes a two-axis taxonomy and an annotated corpus of tampered-benign edits for auditing.",
-          "llm_tldr_cn": "自我改进智能体为提升性能可能修改自己的框架，产生虚假收益或破坏授权、溯源完整性等约束，这些问题从奖励与测量篡改扩展到整个自我改进生命周期。作者提出二维分类法，从框架功能角色和违反义务两个维度刻画每次错误编辑，并通过向真实轨迹中植入篡改-良性编辑对构建标注语料库。相关工作为审计智能体自改进过程中的对齐风险提供了系统基础。",
-          "llm_tldr": "自我改进智能体为提升性能可能修改自己的框架，产生虚假收益或破坏授权、溯源完整性等约束，这些问题从奖励与测量篡改扩展到整个自我改进生命周期。作者提出二维分类法，从框架功能角色和违反义务两个维度刻画每次错误编辑，并通过向真实轨迹中植入篡改-良性编辑对构建标注语料库。相关工作为审计智能体自改进过程中的对齐风险提供了系统基础。",
+          "llm_evidence_en": "Examines self-improving agents that iteratively alter their harness, proposing taxonomy and corpus to audit performance gains and integrity in the self-improvement lifecycle",
+          "llm_evidence_cn": "研究自改进智能体迭代改写自身框架的过程，提出分类与语料以审计虚假性能提升和完整性违背",
+          "llm_evidence": "研究自改进智能体迭代改写自身框架的过程，提出分类与语料以审计虚假性能提升和完整性违背",
+          "canonical_evidence": "研究自改进智能体迭代改写自身框架的过程，提出分类与语料以审计虚假性能提升和完整性违背",
+          "llm_tldr_en": "Auditing Harness Tampering formalizes risks when self-improving agents modify their own harness, providing a taxonomy, annotated tampered-benign corpus, and adapted detection benchmarks toward trustworthy self-evolution.",
+          "llm_tldr_cn": "自改进智能体会迭代修改自身执行框架来追求更高性能，但这类修改可能带来虚假提升或破坏授权、溯源与完整性约束。本文将这种问题命名为框架篡改，并用两轴分类法按框架功能角色与违背义务区分类别。作者在真实自改进轨迹中注入篡改与良性编辑形成标注语料，并调适检测方法进行评测。相关工作把篡改研究从奖励或度量篡改扩展至完整自改进生命周期，是自进化可靠性研究的重要审计工具。",
+          "llm_tldr": "自改进智能体会迭代修改自身执行框架来追求更高性能，但这类修改可能带来虚假提升或破坏授权、溯源与完整性约束。本文将这种问题命名为框架篡改，并用两轴分类法按框架功能角色与违背义务区分类别。作者在真实自改进轨迹中注入篡改与良性编辑形成标注语料，并调适检测方法进行评测。相关工作把篡改研究从奖励或度量篡改扩展至完整自改进生命周期，是自进化可靠性研究的重要审计工具。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -291,111 +47,42 @@
           "carry_days": 1
         },
         {
-          "id": "2609.00237v1",
+          "id": "2609.02786v1",
           "source": "arxiv",
-          "title": "Learning What to Retain: Gated-Memory Routing for Efficient Collaboration in Multi-Agent LLM Systems",
-          "abstract": "Large language model (LLM)-based multi-agent systems tackle complex reasoning by orchestrating how multiple agents are configured and how they collaborate. A central challenge is to adapt orchestration to the evolving collaboration state. Routing from the query alone cannot adapt to intermediate progress or errors, which hurts accuracy. Routing from the complete execution history supplies this missing context, but forces later decisions to process every prior step, including redundant or low-utility ones. This creates an execution-history overload that inflates cost. Effective orchestration instead requires a compact state that captures useful progress without accumulating redundant context. We propose Gated-Memory Routing, which conditions each decision on the query and a learned execution memory. A learned Memory Write Gate commits only non-redundant reasoning steps, and a learned Retrieval Gate supplies each agent a compact, relevant subset, so every decision conditions on a clean, informative state. At each step, the system selects the next role and backbone from this memory, while an Adaptive Halting Controller stops execution once the memory contains sufficient evidence for answering. Across five reasoning and code-generation benchmarks, our framework is both effective and efficient: it attains the best average accuracy, exceeding the strongest baseline by 2.44 points, while reducing HumanEval inference cost by 31.9% relative to that baseline. Code is available at https://github.com/rajibrhasan/gated-memory-routing",
+          "title": "SafeEvolve: Harness-Policy Co-Evolution from Agent Experience for Safety Alignment",
+          "abstract": "The performance of LLM-based agents is jointly shaped by the base model and the harness used when interacting with the environment. This exposes them to safety risks in both harmful final responses and multi-step execution trajectories. Existing safety alignment mechanisms often rely on either external harness updates or policy optimization, yet applying either paradigm in isolation fails to bridge runtime control with intrinsic safety. We propose SafeEvolve, an experience-driven self-evolving framework for agent safety alignment. SafeEvolve leverages safety experience from completed on-policy trajectories to drive a continual loop of harness-policy co-evolution. On the harness side, SafeEvolve converts trajectory-level safety evidence into bounded, component-level updates across safety prompt and hierarchical skills, yielding auditable and reversible harness artifacts. On the policy side, SafeEvolve follows a two-stage SFT-RL paradigm, where harness-use SFT bootstraps the policy to actively leverage evolved harness artifacts, and harness-augmented RL further shapes autonomous safety behaviors during multi-step exploration via verifier-decomposed rewards. Through harness-policy co-evolution, SafeEvolve converts safety experience into an evolved runtime harness and improved policy behavior. Experiments on agentic safety benchmarks show that SafeEvolve achieves a stronger safety-utility tradeoff than existing baselines. For Qwen3.5-4B, SafeEvolve achieves a $3\\times$ ASR reduction on AgentDojo while improving benign utility from 59.79% to 61.86%.",
           "authors": [
-            "Rakibul Hasan Rajib",
-            "Mengxing Zheng",
-            "Qian Lou"
+            "Qinghua Mao",
+            "Wanying Qu",
+            "Dadi Guo",
+            "Leitao Yuan",
+            "Qingyu Liu",
+            "Yu Li",
+            "Guanxu Chen",
+            "Yanwei Fu",
+            "Xi Lin",
+            "Xia Hu",
+            "Dongrui Liu"
           ],
           "primary_category": "cs.AI",
           "categories": [
             "cs.AI",
-            "cs.CL"
+            "cs.CR"
           ],
-          "published": "2026-08-31T18:42:57+00:00",
-          "link": "https://arxiv.org/pdf/2609.00237v1",
+          "published": "2026-09-02T16:19:54+00:00",
+          "link": "https://arxiv.org/pdf/2609.02786v1",
           "tags": [
             "keyword:gkg",
             "query:gkg"
           ],
           "llm_score": 8.0,
-          "llm_evidence_en": "Gated-memory routing compresses execution history into a compact state, directly matched to agent memory storage and retrieval.",
-          "llm_evidence_cn": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
-          "llm_evidence": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
-          "canonical_evidence": "门控记忆选择保留有价值的执行上下文并供路由读取，直接对应智能体记忆与检索需求。",
-          "llm_tldr_en": "Routing from full execution history is costly; Gated-Memory Routing learns compact gated state for orchestration in multi-agent LLM systems.",
-          "llm_tldr_cn": "LLM多智能体系统需要依据协作状态调整组织方式，只用初始查询路由会丢失中间反馈，用完整历史又会造成上下文过载和高成本。Gated-Memory Routing用门控机制学习保留高价值执行进度，压缩为紧凑状态供后续路由决策。该方法在降低冗余历史开销的同时提高了协作编配的正确性和效率。",
-          "llm_tldr": "LLM多智能体系统需要依据协作状态调整组织方式，只用初始查询路由会丢失中间反馈，用完整历史又会造成上下文过载和高成本。Gated-Memory Routing用门控机制学习保留高价值执行进度，压缩为紧凑状态供后续路由决策。该方法在降低冗余历史开销的同时提高了协作编配的正确性和效率。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
-          "matched_requirement_id": "req-3",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.00237v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2609.00843v1",
-          "source": "arxiv",
-          "title": "Shared-Memory Range-Tiled CDF Sort for Small-Range Integer Keys on GPUs",
-          "abstract": "We study unstable integer sorting on GPUs for arrays whose elements lie in a known integer range. Focusing on counting-sort-based methods that determine the output interval of each value from its frequency and the prefix sums of the frequencies, we propose and evaluate Range-Tiled CDF sort (RT-CDF), which partitions the possible value range into small intervals, called tiles, that fit in shared memory. For each tile, RT-CDF constructs a histogram, computes its prefix sum as a local CDF, and directly generates the output array from the local CDF. We compare RT-CDF against three baselines: CUB DeviceRadixSort, whose processed bit range is restricted to $[0,\\lceil\\log_2 R\\rceil)$ to exploit the known range size $R$; Ref-H-P sort; and an implementation based on the algorithm of Kolonias et al. Experiments on an NVIDIA GeForce RTX 4090 with range sizes from $R=2^7$ to $2^{18}$, input sizes from $n=10^6$ to $10^9$, and uniformly distributed, normally distributed, and all-equal inputs show that RT-CDF outperforms the baselines over a broad set of conditions for small to medium ranges, achieving a maximum speedup of 4.39 over the fastest baseline. For $R=2^{18}$, however, at least one baseline outperforms RT-CDF for every evaluated input size and input distribution, showing that the cost of histogram construction limits the applicability of RT-CDF to larger ranges.",
-          "authors": [
-            "Kento Ando",
-            "Kaito Takase",
-            "Noriyuki Fujimoto",
-            "Koichi Wada"
-          ],
-          "primary_category": "cs.DC",
-          "categories": [
-            "cs.DC"
-          ],
-          "published": "2026-09-01T07:42:07+00:00",
-          "link": "https://arxiv.org/pdf/2609.00843v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "Presents shared-memory tiled CDF sort kernel for GPUs, directly optimizing GPU kernel execution performance",
-          "llm_evidence_cn": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
-          "llm_evidence": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
-          "canonical_evidence": "提出共享内存分块CDF排序GPU内核，直接优化GPU内核执行性能",
-          "llm_tldr_en": "Proposes RT-CDF, an unstable GPU integer sort that partitions the value range into shared-memory-sized tiles, computes local histograms and CDFs, and writes output directly, beating radix-sort baselines.",
-          "llm_tldr_cn": "针对GPU上已知小范围整数键的不稳定排序，论文提出RT-CDF：将值域划分为适合共享内存的小块，每个块独立建立直方图并计算前缀和得到局部CDF，直接生成输出数组。与CUB DeviceRadixSort等基线相比，该方法在性能上具有竞争力，验证了共享内存分块策略对计数排序的有效性。研究为GPU上的数据并行排序提供了一种高效内核设计思路，但没有涉及LLM与代码生成。",
-          "llm_tldr": "针对GPU上已知小范围整数键的不稳定排序，论文提出RT-CDF：将值域划分为适合共享内存的小块，每个块独立建立直方图并计算前缀和得到局部CDF，直接生成输出数组。与CUB DeviceRadixSort等基线相比，该方法在性能上具有竞争力，验证了共享内存分块策略对计数排序的有效性。研究为GPU上的数据并行排序提供了一种高效内核设计思路，但没有涉及LLM与代码生成。",
-          "llm_tags": [
-            "query:gkg"
-          ],
-          "matched_query_tag": "query:gkg",
-          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
-          "matched_requirement_id": "req-2",
-          "selection_source": "carryover_cache",
-          "paper_id": "2609.00843v1",
-          "carry_days": 1
-        },
-        {
-          "id": "2608.27266v1",
-          "source": "arxiv",
-          "title": "Naive Prompt Optimization: Rethinking the Need for Complex Prompt Search",
-          "abstract": "Efficiently improving autonomous agents across diverse tasks is central to accelerating recursive self-improvement (RSI) in agentic AI, with prompt optimization emerging as a promising approach capable of delivering performance gains comparable to those achieved by fine-tuning model weights, while reducing computational costs in both optimization and serving. However, recent developments increasingly favor unnecessarily complex prompt optimizers. We introduce Naive Prompt Optimization (NPO), a lightweight single-lineage method that iteratively revises prompts using a teacher model with rollout feedback. NPO achieves comparable or better performance than GEPA with fewer rollouts, and its advantage increases with stronger teacher models, suggesting that stronger teacher reasoning can partially substitute for optimizer-side search complexity. In interactive games, NPO remains broadly competitive with GEPA, while GRPO performs better on some tasks less amenable to prompt optimization. We also show that NPO-optimized prompts elicit similar performance improvements when applied verbatim to other student models, especially across models within the same family. Overall, our preliminary results show that simple, linear prompt optimization can rival substantially more sophisticated and complex search procedures.",
-          "authors": [
-            "Yuan Chang",
-            "Xiaoqi Chen"
-          ],
-          "primary_category": "cs.AI",
-          "categories": [
-            "cs.AI",
-            "cs.CL"
-          ],
-          "published": "2026-08-27T15:47:58+00:00",
-          "link": "https://arxiv.org/pdf/2608.27266v1",
-          "tags": [
-            "keyword:gkg",
-            "query:gkg"
-          ],
-          "llm_score": 8.0,
-          "llm_evidence_en": "NPO iteratively revises agent prompts with a teacher model and rollout feedback, giving a lightweight route to improving autonomous agents without human intervention.",
-          "llm_evidence_cn": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
-          "llm_evidence": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
-          "canonical_evidence": "通过单线程朴素提示优化反复迭代提示词，使自主智能体在无人工干预下持续改进，并加速递归自我改进。",
-          "llm_tldr_en": "The paper shows that a simple iteratively revised prompt lineage, using teacher-model feedback, outperforms or matches complex prompt optimizers with fewer rollouts, offering a low-cost route to recursive self-improvement.",
-          "llm_tldr_cn": "现有提示优化方法越来越复杂，却未必带来相应收益，而提示优化正是以较低代价让自主智能体递归自我改进的重要途径。论文提出NPO朴素提示优化：仅沿单条提示谱系维护候选，用教师模型生成修订并用回滚反馈筛选，无需搜索复杂的提示组合。实验显示，相比GEPA等较复杂优化器，NPO在更少回滚下即可取得相当或更好性能，且教师模型越强优势越明显。该结果表明简单迭代提示修订即可支撑智能体持续自主进化，为递归自我改进提供了低成本且易实现的方案。",
-          "llm_tldr": "现有提示优化方法越来越复杂，却未必带来相应收益，而提示优化正是以较低代价让自主智能体递归自我改进的重要途径。论文提出NPO朴素提示优化：仅沿单条提示谱系维护候选，用教师模型生成修订并用回滚反馈筛选，无需搜索复杂的提示组合。实验显示，相比GEPA等较复杂优化器，NPO在更少回滚下即可取得相当或更好性能，且教师模型越强优势越明显。该结果表明简单迭代提示修订即可支撑智能体持续自主进化，为递归自我改进提供了低成本且易实现的方案。",
+          "llm_evidence_en": "Experience-driven self-evolving agent framework that continually improves policy and harness from its own trajectories without manual intervention",
+          "llm_evidence_cn": "利用智能体自身的轨迹经验持续协同进化策略与外部编排，体现无需人工干预的自我进化机制",
+          "llm_evidence": "利用智能体自身的轨迹经验持续协同进化策略与外部编排，体现无需人工干预的自我进化机制",
+          "canonical_evidence": "利用智能体自身的轨迹经验持续协同进化策略与外部编排，体现无需人工干预的自我进化机制",
+          "llm_tldr_en": "SafeEvolve leverages completed agent trajectories as safety experience to drive continual co-evolution of harness and policy, improving safety alignment beyond isolated updates.",
+          "llm_tldr_cn": "大模型智能体的安全由基座模型与外部交互编排共同决定，单纯更新策略或外部编排都难以兼顾运行时控制与内在安全。SafeEvolve从智能体自身在线轨迹中提取安全经验，驱动外部编排与策略的持续协同进化，在运行时控制与模型内在安全之间形成循环对齐。实验显示该自进化机制能同时改善多步执行轨迹与最终回复的安全性，验证了外部控制与内部策略协同演化的价值。该工作为无需人工干预的智能体持续改进提供了可实现范式。",
+          "llm_tldr": "大模型智能体的安全由基座模型与外部交互编排共同决定，单纯更新策略或外部编排都难以兼顾运行时控制与内在安全。SafeEvolve从智能体自身在线轨迹中提取安全经验，驱动外部编排与策略的持续协同进化，在运行时控制与模型内在安全之间形成循环对齐。实验显示该自进化机制能同时改善多步执行轨迹与最终回复的安全性，验证了外部控制与内部策略协同演化的价值。该工作为无需人工干预的智能体持续改进提供了可实现范式。",
           "llm_tags": [
             "query:gkg"
           ],
@@ -403,7 +90,127 @@
           "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
           "matched_requirement_id": "req-5",
           "selection_source": "carryover_cache",
-          "paper_id": "2608.27266v1",
+          "paper_id": "2609.02786v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.02074v1",
+          "source": "arxiv",
+          "title": "CHIME: Credit-Aware Hierarchical Memory Evolution for Long-Horizon Agentic Planning",
+          "abstract": "Planning is a central capability that enables agents to decompose complex long-horizon tasks into manageable steps. Test-time search and training-based methods improve planning but incur high inference costs or require expensive training data. Self-evolving memory instead accumulates reusable experience from agent interaction outcomes into an external memory bank, so planning capability keeps improving at inference time without parameter updates. However, existing self-evolving memory methods share an inherent credit assignment problem: they rely on final task outcomes as feedback, but such outcomes conflate plan quality with execution errors and environmental factors, so the accumulated planning experience is often biased and noisy. To address this problem, we propose Credit-Aware Hierarchical Memory Evolution (CHIME), a self-evolving memory framework that maintains a separate planning bank and execution bank and follows an attribute-before-memorize principle: CHIME first attributes each task outcome to the plan, the execution, both, or neither, and then updates only the corresponding memory bank. Extensive experiments on four long-horizon agent benchmarks show that CHIME consistently outperforms state-of-the-art training-based and self-evolving memory baselines. Further analyses reveal several interesting findings. For example, CHIME accumulates effective memory with far fewer items. In addition, the learned memory values faithfully reflect downstream utility: high-quality planning memories are more valuable than execution memories. Finally, the accumulated memory effectively transfers across backbone models. Code will be released at https://github.com/ATH-MaaS/Marco-DeepResearch.",
+          "authors": [
+            "Yongshi Ye",
+            "Tian Lan",
+            "Feihu Jiang",
+            "Muyang Ye",
+            "Bin Zhu",
+            "Qianghuai Jia",
+            "Longyue Wang",
+            "Zhao Xu",
+            "Weihua Luo",
+            "Xiaodong Shi"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-02T03:59:21+00:00",
+          "link": "https://arxiv.org/pdf/2609.02074v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "Self-evolving agent memory that improves planning without human intervention",
+          "llm_evidence_cn": "智能体自演化记忆，无需人工干预即可持续改进规划能力",
+          "llm_evidence": "智能体自演化记忆，无需人工干预即可持续改进规划能力",
+          "canonical_evidence": "智能体自演化记忆，无需人工干预即可持续改进规划能力",
+          "llm_tldr_en": "CHIME addresses credit assignment in self-evolving agent memory by maintaining hierarchical memory banks, enabling agents to improve long-horizon planning at inference without parameter updates.",
+          "llm_tldr_cn": "该论文指出现有自演化记忆方法以最终任务结果作为反馈，难以区分计划质量与执行误差，导致积累的规划经验存在偏置。作者提出CHIME，引入层级化外部记忆库和信誉感知的演化更新机制，使长期规划智能体在不更新模型参数的推理过程中不断沉淀可靠经验。实验表明，该方法在提升规划性能的同时避免了昂贵的搜索或训练开销。这为无人工干预下持续进化的智能体提供了记忆层面的可靠方案。",
+          "llm_tldr": "该论文指出现有自演化记忆方法以最终任务结果作为反馈，难以区分计划质量与执行误差，导致积累的规划经验存在偏置。作者提出CHIME，引入层级化外部记忆库和信誉感知的演化更新机制，使长期规划智能体在不更新模型参数的推理过程中不断沉淀可靠经验。实验表明，该方法在提升规划性能的同时避免了昂贵的搜索或训练开销。这为无人工干预下持续进化的智能体提供了记忆层面的可靠方案。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.02074v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.02265v1",
+          "source": "arxiv",
+          "title": "CAPTURE: Disentangling Preference Drift from Memory Poisoning in Personalized LLM Agents",
+          "abstract": "Personalized language agents use persistent memory to adapt to users over time, but the same mechanism creates an attack surface. When new information conflicts with stored preferences, an agent must distinguish genuine preference drift from temporary context shifts, ambiguity, or adversarial memory poisoning. We formulate this problem as a continuous-time partially observable decision process over a latent user state and show why rules based only on recency and provenance are insufficient. CAPTURE addresses this ambiguity with a neural differential-equation belief tracker, a multi-timescale memory ledger, uncertainty-triggered clarification, and counterfactual auditing of cited memories. On 480 held-out episodes from 96 users, CAPTURE achieves a 71.5% win rate, compared with 69.3% for an identically supervised baseline and 66.1% for the strongest heuristic baseline. It limits fixed-policy poisoning success to 11.5% while accepting 83.5% of genuine preference updates. Under an adaptive attacker with access to the released weights, attack success rises to 24.7%, exposing a real adaptation-security tradeoff. We further evaluate the frozen system zero-shot on an independently constructed benchmark and replay longitudinal interaction histories from 40 users collected over two to three weeks. These results suggest that modeling preference authenticity explicitly can improve both personalization and robustness in memory-augmented LLM agents.",
+          "authors": [
+            "S M Asif Hossain",
+            "Ruksat Khan Shayoni",
+            "Md Kishor Morol"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG"
+          ],
+          "published": "2026-09-02T08:10:26+00:00",
+          "link": "https://arxiv.org/pdf/2609.02265v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "introduces a multi-timescale memory ledger and auditing process to store, retrieve, and verify persistent memories of personalized agents",
+          "llm_evidence_cn": "引入多时间尺度记忆账本与审计过程，管理与验证个性化智能体的持久记忆存取",
+          "llm_evidence": "引入多时间尺度记忆账本与审计过程，管理与验证个性化智能体的持久记忆存取",
+          "canonical_evidence": "引入多时间尺度记忆账本与审计过程，管理与验证个性化智能体的持久记忆存取",
+          "llm_tldr_en": "Personalized agents must tell genuine preference drift from memory poisoning. CAPTURE frames the problem as a continuous-time partially observable decision process, then uses a neural-ODE belief tracker, a multi-timescale memory ledger, uncertainty-triggered clarification, and counterfactual auditing of cited memories, outperforming baselines over 480 episodes from 96 users.",
+          "llm_tldr_cn": "个性化语言智能体的持久记忆会被新信息与旧偏好冲突所扰动，难以区分真正偏好漂移、暂时上下文变化与对抗性记忆投毒。CAPTURE将该问题形式化为连续时间部分可观察决策过程，并提供了一个神经微分方程信念追踪器、多层时间尺度的记忆账本、不确定触发澄清以及引用记忆的反事实审计。在96位用户的480个保留片段上，CAPTURE有效分离了偏好漂移与记忆污染，改善了个性化决策的安全性和准确性。",
+          "llm_tldr": "个性化语言智能体的持久记忆会被新信息与旧偏好冲突所扰动，难以区分真正偏好漂移、暂时上下文变化与对抗性记忆投毒。CAPTURE将该问题形式化为连续时间部分可观察决策过程，并提供了一个神经微分方程信念追踪器、多层时间尺度的记忆账本、不确定触发澄清以及引用记忆的反事实审计。在96位用户的480个保留片段上，CAPTURE有效分离了偏好漂移与记忆污染，改善了个性化决策的安全性和准确性。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.02265v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.01956v1",
+          "source": "arxiv",
+          "title": "FlashKAN: B-Spline KANs via Truncated Power Form",
+          "abstract": "Kolmogorov-Arnold Networks (KANs) place learnable B-spline activations on network edges rather than fixed activations on nodes. The standard Cox-de Boor recursion evaluates these activations through k sequential passes for degree-k splines, consuming over 90% of forward-pass time. FlashKAN replaces this recursion with the truncated power form, a classical result from approximation theory that expresses each uniform cubic B-spline as five (x)_+^3 terms at shifted knot positions. This paper makes three contributions: (1) a torch.compile-fused implementation that collapses these operations into a single GPU kernel, eliminating all recursion, span lookup, and scatter-gather operations; (2) a bounded-coordinate stabilization that clamps the normalized input to [0, k+1], preventing the catastrophic cancellation that historically motivated the Cox-de Boor recursion; and (3) a production-ready, open-source package (pip install flashkan) that serves as a drop-in replacement for existing KAN layers.",
+          "authors": [
+            "Naveen Mysore"
+          ],
+          "primary_category": "cs.LG",
+          "categories": [
+            "cs.LG",
+            "math.NA"
+          ],
+          "published": "2026-09-02T00:17:13+00:00",
+          "link": "https://arxiv.org/pdf/2609.01956v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "collapses B-spline KAN evaluation into one fused GPU kernel and removes recursion, a concrete GPU kernel execution optimization",
+          "llm_evidence_cn": "将B样条KAN求值整合为单个GPU内核并去除递归，是具体的GPU内核执行优化",
+          "llm_evidence": "将B样条KAN求值整合为单个GPU内核并去除递归，是具体的GPU内核执行优化",
+          "canonical_evidence": "将B样条KAN求值整合为单个GPU内核并去除递归，是具体的GPU内核执行优化",
+          "llm_tldr_en": "Cox-de Boor recursion consumes over 90% of KAN forward time. FlashKAN switches to the truncated power form, fuses all operations into one GPU kernel with torch.compile, and adds bounded-coordinate stabilization, avoiding recursion and scatter-gather overhead while preserving KAN expressiveness.",
+          "llm_tldr_cn": "KAN将可学习的B样条激活放在边上，但其标准Cox-de Boor递归需k轮顺序求值，占前向时间九成以上。FlashKAN改用截断幂形式，将每个均匀三次B样条写成五个移位节点的非负三次幂项之和，再用torch.compile将全部操作融合为单个GPU内核；同时加入有界坐标稳定化。该实现避免了递归、区间查找和散射-聚集等开销，显著提升KAN的GPU前向性能。",
+          "llm_tldr": "KAN将可学习的B样条激活放在边上，但其标准Cox-de Boor递归需k轮顺序求值，占前向时间九成以上。FlashKAN改用截断幂形式，将每个均匀三次B样条写成五个移位节点的非负三次幂项之和，再用torch.compile将全部操作融合为单个GPU内核；同时加入有界坐标稳定化。该实现避免了递归、区间查找和散射-聚集等开销，显著提升KAN的GPU前向性能。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+          "matched_requirement_id": "req-2",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.01956v1",
           "carry_days": 1
         }
       ]

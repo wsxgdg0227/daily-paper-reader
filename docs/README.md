@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-02</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-03</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 21 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 20 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>10</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>9</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-02 23:06:26 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-03 23:03:12 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,10 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日共读21篇论文，精读10篇，重点聚焦“自进化智能体”方向。</p>
-<p>最值得关注：满分10分论文提出经验驱动工作流与经验图记忆，用于硬件内核优化；9分论文则用递归经验工作记忆突破长时程任务瓶颈。</p>
-<p>建议普通读者先从“自进化智能体”的记忆机制入手，可结合经验复用与迭代反馈两条主线理解。</p>
+<p>今日共生成 20 篇推荐（精读 9 篇，速读 11 篇）</p>
+<p>精读：《Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory》（10.0/10）, 《SKILL.state: Scalable Long-Horizon Agent Skills》（9.0/10）</p>
+<p>速读：《XREPOTEST: Benchmarking Multilingual Repository-Level Unit Test Generation for Large Language Models》（8.0/10）, 《What Makes Agent Memory Useful for Reliable Unanswerable Question Handling?》（8.0/10）, 《Memory-efficient GPU pipelines for real-time non-line-of-sight reconstruction》（8.0/10）</p>
+<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +81,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">10 篇</strong>
+    <strong class="dpr-home-dashboard-count">9 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory">Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="Recursive Experiential-Working Memory Evolution for Long-Horizon Agent Harnesses">Recursive Experiential-Working Memory Evolution for Long-Horizon Agent Harnesses</span></li><li><span class="dpr-home-dashboard-paper-title" title="Learning What to Share and What to Personalize: Hierarchical Strategy Co-Evolution for Agent Memory">Learning What to Share and What to Personalize: Hierarchical Strategy Co-Evolution for Agent Memory</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory">Beyond Scaling: Self-Evolving LLM Agents for Hardware Kernel Optimization via an Experience-Driven Workflow and Experience Graph Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="SKILL.state: Scalable Long-Horizon Agent Skills">SKILL.state: Scalable Long-Horizon Agent Skills</span></li><li><span class="dpr-home-dashboard-paper-title" title="Naive Prompt Optimization: Rethinking the Need for Complex Prompt Search">Naive Prompt Optimization: Rethinking the Need for Complex Prompt Search</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>10</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>9</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -96,7 +97,7 @@
     <strong class="dpr-home-dashboard-count">11 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Coalition-Aware Skill Reliability for Self-Evolving Agents">Coalition-Aware Skill Reliability for Self-Evolving Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="An HPC Approach to Accelerate Tensor Decompositions">An HPC Approach to Accelerate Tensor Decompositions</span></li><li><span class="dpr-home-dashboard-paper-title" title="CAFE: Self-Improving Search Agents Need Co-Evolving Feedback">CAFE: Self-Improving Search Agents Need Co-Evolving Feedback</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="XREPOTEST: Benchmarking Multilingual Repository-Level Unit Test Generation for Large Language Models">XREPOTEST: Benchmarking Multilingual Repository-Level Unit Test Generation for Large Language Models</span></li><li><span class="dpr-home-dashboard-paper-title" title="What Makes Agent Memory Useful for Reliable Unanswerable Question Handling?">What Makes Agent Memory Useful for Reliable Unanswerable Question Handling?</span></li><li><span class="dpr-home-dashboard-paper-title" title="Memory-efficient GPU pipelines for real-time non-line-of-sight reconstruction">Memory-efficient GPU pipelines for real-time non-line-of-sight reconstruction</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
 </section>
