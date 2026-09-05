@@ -1,0 +1,89 @@
+{
+  "date": "20260905",
+  "date_label": "",
+  "generated_at": "2026-09-05 22:30:02 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.00069v1",
+      "route": "202609/05/2609.00069v1-auditing-harness-tampering-in-self-improving-agents",
+      "title": "Auditing Harness Tampering in Self-Improving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "研究自改进智能体迭代改写自身框架的过程，提出分类与语料以审计虚假性能提升和完整性违背",
+      "first_seen_at": "2026-09-05 22:30:02 UTC",
+      "updated_at": "2026-09-05 22:30:02 UTC"
+    },
+    {
+      "paper_id": "2609.01956v1",
+      "route": "202609/05/2609.01956v1-flashkan-b-spline-kans-via-truncated-power-form",
+      "title": "FlashKAN: B-Spline KANs via Truncated Power Form",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "将B样条KAN求值整合为单个GPU内核并去除递归，是具体的GPU内核执行优化",
+      "first_seen_at": "2026-09-05 22:30:02 UTC",
+      "updated_at": "2026-09-05 22:30:02 UTC"
+    },
+    {
+      "paper_id": "2609.02074v1",
+      "route": "202609/05/2609.02074v1-chime-credit-aware-hierarchical-memory-evolution-for-long-horizon-agentic-planning",
+      "title": "CHIME: Credit-Aware Hierarchical Memory Evolution for Long-Horizon Agentic Planning",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "智能体自演化记忆，无需人工干预即可持续改进规划能力",
+      "first_seen_at": "2026-09-05 22:30:02 UTC",
+      "updated_at": "2026-09-05 22:30:02 UTC"
+    },
+    {
+      "paper_id": "2609.02265v1",
+      "route": "202609/05/2609.02265v1-capture-disentangling-preference-drift-from-memory-poisoning-in-personalized-llm-agents",
+      "title": "CAPTURE: Disentangling Preference Drift from Memory Poisoning in Personalized LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "引入多时间尺度记忆账本与审计过程，管理与验证个性化智能体的持久记忆存取",
+      "first_seen_at": "2026-09-05 22:30:02 UTC",
+      "updated_at": "2026-09-05 22:30:02 UTC"
+    },
+    {
+      "paper_id": "2609.02786v1",
+      "route": "202609/05/2609.02786v1-safeevolve-harness-policy-co-evolution-from-agent-experience-for-safety-alignment",
+      "title": "SafeEvolve: Harness-Policy Co-Evolution from Agent Experience for Safety Alignment",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "利用智能体自身的轨迹经验持续协同进化策略与外部编排，体现无需人工干预的自我进化机制",
+      "first_seen_at": "2026-09-05 22:30:02 UTC",
+      "updated_at": "2026-09-05 22:30:02 UTC"
+    }
+  ]
+}
