@@ -1,0 +1,691 @@
+Title: RT-HiSS: Ray Tracing Accelerated High Dimensional Vector Similarity Searches
+
+URL Source: https://arxiv.org/pdf/2609.01975v1
+
+Published Time: Thu, 03 Sep 2026 00:23:34 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# RT-HiSS: Ray Tracing Accelerated High Dimensional Vector Similarity Searches 
+
+Revanth Reddy Munugala 
+
+School of Informatics, Computing, and Cyber Systems Northern Arizona University 
+
+Flagstaff, AZ, U.S.A. rm2878@nau.edu 
+
+Michael Gowanlock 
+
+School of Informatics, Computing, and Cyber Systems Northern Arizona University 
+
+Flagstaff, AZ, U.S.A. michael.gowanlock@nau.edu 
+
+Abstract —Recent GPU generations include special-purpose ray tracing (RT) cores for graphics applications. While RT cores are primarily used for rendering, recent works show they can be leveraged for general-purpose tasks, including similarity searches. However, existing approaches do not support datasets exceeding three dimensions. In this work, we propose RT-HiSS, the first exact GPU RT-core-based similarity search algorithm for high-dimensional datasets. GPU similarity search often scales poorly for large datasets with substantial search distances. To address this, RT-HiSS uses RT cores for fast index construction and searches, followed by candidate refinement on CUDA cores. We introduce a two-pass approach to estimate an upper bound on result size, enabling efficient batching under GPU memory constraints with near-perfect load balancing. Additionally, we examine shared memory tiling and compressed result masks to improve GPU resource utilization. RT-H ISS yields speedups up to 8.37 × over competitive state-of-the-art GPU algorithms and up to 2,368.26 × relative to the brute-force algorithm across six real-world datasets. 
+
+Index Terms —Distance Similarity Search, GPU, High Dimen-sional, In-memory Databases, Parallel Computing, Vector Search 
+
+I. I NTRODUCTION 
+
+Current scientific instruments generate enormous quantities of data that need to be processed, and consequently there has been significant effort to efficiently compute data analysis workflows on parallel and high performance computing (HPC) systems. In this paper, we examine distance similarity searches (DSS) which are a data analytic method that are used for numerous tasks, including clustering [1], outlier detection [2], and natural language processing [3], among others. DSS on points refer to identifying points in a dataset that are similar to a given query point based on a similarity metric. These searches are computationally expensive as they require nu-merous distance comparisons between query and data points. HPC systems are becoming increasingly heterogeneous and nodes often contain two or more processor types, including CPUs, Graphics Processing Units (GPUs), and Data Process-ing Units (DPUs). Even GPUs themselves are equipped with both tensor and ray tracing cores [4]. An example of a highly 
+
+This material is based upon work supported by the National Science Foundation under Grant No. 2042155. This paper to appear in the Proceedings of the 2026 International Conference for High Performance Computing, Networking, Storage and Analysis (SC ’26). 
+
+heterogeneous HPC system is Frontera which contains both Nvidia V100 and RTX 5000 GPUs to address FP32 and FP64 workloads [5], and of particular interest to this paper is that the RTX 5000 GPUs contain ray tracing (RT) cores. Several papers have examined kernel-level optimizations for DSS on GPUs [6]–[10] including those using GPU RT cores because they benefit from hardware-accelerated searches on Bounding Volume Hierarchy (BVH) trees [8], [11]. These similarity search algorithms employ two phases: (i) An index search phase that prunes the search to identify candidate neighbors that may be within the search distance (ϵ) of query points. (ii ) A refinement phase that compares query and candidate neighbor points to identify the exact neighbors within ϵ. The search-and-refine approach using RT cores yields two major challenges, as follows. 
+
+Challenge #1: Unconstrained Result Set Sizes: DSS identify all neighbors within ϵ of a given query point. The number of neighbors identified for each query is a function of dataset properties (i.e., distribution, number of points, and dimensionality). Subsequently, the result set size often exceeds GPU global memory capacity when processing large datasets and typically batching is employed to address this limitation. We identify several unintended consequences of batching which include: (i) poor saturation of GPU resources due to insufficient work in each batch; (ii ) load imbalance across batches; and (iii ) overhead costs [10], [12]. 
+
+Challenge #2: Limitations of RT Cores: RT cores are limited to datasets having ≤ 3 dimensions; therefore, they cannot be directly employed for high-dimensional datasets [8], [13]. RT similarity search algorithms typically represent each data point as an individual geometrical primitive and use it to construct a BVH tree to efficiently prune the data space [8], [11]. However, this approach results in a large number of ray-primitive intersections during BVH tree traversals, particularly for large datasets which significantly deteriorates performance. We demonstrate that using RT cores for indexing on three dimensions in conjunction with CUDA cores for refinement addresses the challenges above. To our knowledge, we propose the first algorithm to compute DSS on high-dimensional datasets using RT cores. In summary, this paper makes the following contributions:  
+
+> •
+
+We propose a scalable RT accelerated High-dimensional arXiv:2609.01975v1 [cs.DC] 2 Sep 2026 Similarity Search algorithm (RT-H ISS) by indexing on RT cores, and refining candidate neighbors using CUDA cores.  
+
+> •
+
+We identify nearby data points, and represent the ϵ-neighborhood of all such data points as a single primitive in the O PTI X scene to mitigate ray-primitive intersections.  
+
+> •
+
+We design a multi-pass ray-tracing approach that yields the upper bound on the number of neighbors for each query and a batching scheme to mitigate global memory limitations.  
+
+> •
+
+We propose a method for compressing the result set by representing neighbors on the bit level. This method increases GPU utilization across batches. Paper organization: Section II outlines background material. Section III details the O PTI X programming model. Section IV describes our algorithm, RT-H ISS. Section V presents the evaluation. Section VI concludes the paper. II. B ACKGROUND 
+
+We present the problem statement and discuss the limi-tations of RT cores for distance similarity searches in Sec-tion II-A. We detail the prior work on indexing methods used in DSS, as well as GPU-based approaches in Section II-B. 
+
+A. Problem Statement 
+
+Instead of treating DSS as a classical problem that relies on spatial partitioning methods, we reformulate it as a ray tracing problem. 1 Although prior work has used this approach [8], [13], these works are limited to datasets with ≤ 3 dimensions (Section II-B). In this work, we propose Ray Tracing Accel-erated Similarity Search (RT-H ISS) algorithm for large high dimensional datasets. In a dataset D having d dimensions, we define the co-ordinates (or vector values) of a point pi ∈ D as pi =
+
+{x1 
+
+> i
+
+, x 2 
+
+> i
+
+, . . . , x di }, where i = 1, 2, . . . , |D|. Similarly, we define query set Q, having query points qj ∈ Q where 
+
+j = 1 , 2, . . . , |Q|.The Euclidean distance between two points pi ∈ D and 
+
+qj ∈ Q is defined as dist (pi, q j ) = 
+
+qPdk=1 (xik − xj k)2.Two points pi, q j are defined as neighbors of each other if and only if dist (pi, q j ) ≤ ϵ, where ϵ is the search distance. We employ the Euclidean distance throughout the paper as it is widely used in other studies [14], [15]. In database terminology, the case above is referred to as a 
+
+semi-join , where D and Q are distinct. If Q = D then this is referred to as a self-join where the data points themselves are also the query points, which is common in many data an-alytic applications (inlier/outlier detection, clustering, among others [16], [17]). We evaluate our algorithm using the self-join scenario, but the algorithm and optimizations are directly applicable to the semi-join as well.  
+
+> 1To avoid confusion, DSS in the literature are also referred to as fixed radius searches, ϵ-neighborhood searches, or proximity searches and we use the former terminology throughout the paper.
+
+1) Result Set Representation: As described above, the points that are within dist (pi, p j ) ≤ ϵ are stored in the result set, that we denote as R. However, the representation of R varies throughout the literature. The most conservative approach is to store a distance matrix of size |Q| × | D| [18] such that for each query point, qj ∈ Q, there is sufficient storage to indicate that all points in the dataset have been found by a given query. A more practical approach is to simply store key-value pairs, where the key is the query point ID for qj ∈ Q
+
+and the value is the point ID of pi ∈ D [6]. This stores the total number of neighbors that are within the ϵ of each other, where there are a total of |R| results and thus key-value storage requires 2 · | R| elements. Comparing the distance matrix to key-value pairs, the latter requires significantly less storage for real-world application scenarios. Thus, in our evaluation, we compare our approach to storing the result set to the key-value pair approach instead of the distance matrix. 
+
+2) RT Cores: We represent the ϵ-neighborhood of data points in the dataset D as geometrical primitives in an O PTI Xscene in our algorithm, where the O PTI X scene represents the data space. RT cores are limited to 3 dimensions because only 3 spatial dimensions are needed for ray tracing. To enable searches in high dimensions, we use RT cores to index on three dimensions ( d = 3 ) to identify candidate neighbor points for each query and later refine these candidate points using conventional CUDA cores in a separate kernel. 
+
+B. Related Work 
+
+The literature on distance similarity searches is extensive. Searching each query point using a linear scan over the dataset is computationally expensive and yields a O(|D|2)
+
+time complexity and is referred to as a brute-force approach. The performance of DSS can be improved by: (i) Employing an index to partition the search space and limit the number of distance calculations between query and data points. (ii )
+
+Leveraging specialized hardware, particularly GPUs to accel-erate distance calculations as they are well-suited for data parallel tasks like DSS due to their Single Instruction Multiple Data (SIMD) architecture. We discuss these two approaches below. 
+
+1) Indexing Methods: Indexing methods prune the search space and reduce the number of distance comparisons and thus mitigate the quadratic time complexity. In what follows, we describe various indexing methods used in the literature. 
+
+Tree-based: Tree-based data structures such as kd-trees [19], R-trees [20], Oct-trees [21], and Ball-trees [22] prune the search space through hierarchical partitioning, enabling ef-ficient searches. However, tree-based algorithms suffer from poor performance on high-dimensional datasets due to the 
+
+curse of dimensionality [23], where the search space increases exponentially with data dimensionality, and so a correspond-ing increase in search distance, ϵ, is needed to find nearby neighbors. In tree-based approaches, this often implies that a large fraction of the tree needs to be searched which often degrades to a brute-force search where all pairs of points are compared to each other. Grid-based: Grid-based algorithms employ coordinate-based indexing to partition the data space using axis-aligned parti-tions to optimize the search by pruning the data space and considering at most 3d non-empty neighboring grid cells [6]. 
+
+Metric-based: Metric-based algorithms use reference points in the data space and leverage the distance between each data point and its closest reference point to prune the search space. This strategy is typically more effective than grid-based indexing in high-dimensional spaces, but incurs higher indexing costs in low-dimensional spaces [10]. All of the above indexing methods have their strengths and weaknesses and their performance largely depends on the dataset properties such as the dimensionality, distribution, and size, |D|. As such, in our evaluation, we compare our approach to several indexes having varying properties, including grids, trees, coordinate- and metric-based approaches. 
+
+2) GPU Similarity Searches: We briefly review several GPU similarity search algorithms in the literature. As de-scribed in the papers below, they are well-suited for GPU architectures as queries can be executed independently in massively parallel fashion. 
+
+GPU CUDA Core–based DSS: PCLO CTREE is an imple-mentation from the Point Cloud Library (PCL) that supports kNN and DSS [24]. Grid-based indexing approaches include GDS-J OIN [6] and FRNN [25]. Metric-based approaches that use reference points (or pivot points) include GTS [9], COSS [7], and M ISTIC [10]. All of these approaches rely only on general-purpose CUDA cores for pruning the search space and identifying neighbors, and do not leverage RT cores. 
+
+GPU RT Core–based DSS: Evangelou et al. [13] proposed the first similarity search algorithm using RT cores. Zhu pro-posed RTNN [8], which uses query partitioning and Z-order sorting to perform efficient neighbor searches using RT cores. Meneses et al. [26] presented a similarity search algorithm that determines whether the BVH tree should be updated or reconstructed from scratch when performing updates. Lastly, while Nagarajan et al. [11] did not conduct DSS, they proposed 
+
+k-nearest neighbor searches using RT cores, which is an orthogonal algorithm but its methods overlap with DSS. 
+
+All existing RT core similarity search algorithms are limited to datasets with d ≤ 3 due to the hardware constraints. We address this limitation and to our knowledge, we are the first to exploit RT cores for high dimensional DSS where d ≫ 3.
+
+III. O PTI X P ROGRAMMING MODEL 
+
+NVIDIA introduced the O PTI X API in 2009, enabling users to harness ray tracing capabilities with support for user-defined geometries using programmable shaders that execute during different stages of the ray tracing pipeline [8], [27]. Figure 1 illustrates the O PTI X programming model [27]. BVH tree is constructed using the bounding volumes of user-defined geometries. The ray tracing pipeline starts with ray generation where Ray Generation Shader launches rays based on the ray origin and direction. During the BVH tree traversal, the Intersection Shader is triggered whenever a ray intersects with an object in the scene. After an intersection is 
+
+> Construct BVH Tree Bounding Box Program Ray Generation Shader Traverse BVH Tree Intersection Shader Hit? Any Hit Shader
+> Pre traversal Post traversal
+> Hit? Yes No Miss Shader Yes No Closest Hit Shader
+
+Fig. 1: O PTI X programming model [27]. Shaders used in RT-HISS are shown in green, while the rest are in blue.          
+
+> p3
+> AABB 3
+> p1
+> AABB 1
+> ϵp2
+> AABB 2
+> pq BV 3
+> BV 12
+> BV 123 BV 123
+> BV 3BV 12
+> AABB 3AABB 1AABB 2
+> p3p1p2
+> (a) Bounding volumes and AABBs of ϵ-neighborhoods of points p1,
+> p2, and p3.(b) BVH tree constructed using bounding volumes for range searches.
+
+Fig. 2: DSS using RT cores. Here, data points p1 and p2 are candidate neighbor points for query point qj .detected, the Any-Hit Shader enables users to define custom processing based on intersection data. Similarly, the Closest-Hit Shader processes the closest intersection, while the Miss Shader handles cases where a ray does not intersect any objects in the scene [27]. We only use Ray Generation and Intersection shader in RT-H ISS. 
+
+A. Distance Similarity Searches using RT Cores 
+
+To identify all neighbors in a dataset within a search distance ϵ of a query point qj , data points are represented in the scene using a user defined geometry which is often a sphere for d = 3 searches. These user defined geometries or geometrical primitives are represented by Axes Aligned Bounding Boxes (AABBs). The AABBs tightly encompass the primitives and are used to construct a BVH tree. The OPTI X BVH tree construction details are abstracted from the programmer. Similar to the prior work [8], [11] that employed RT cores for similarity and k-nearest neighbor searches, to identify all the neighbors of a query point qj , we invoke an infinitesimally short ray in any arbitrary direction with the origin as the query point qj . We use an infinitesimally short ray to avoid false positives, as a long ray could potentially intersect many distant AABBs in the scene. Instead of checking if each point pi ∈ D falls within the ϵ-neighborhood of qj , we perform an inverse search. We check if the query point qj falls within the ϵ-neighborhood of each data point in the dataset D.Figure 2 shows how neighbors are identified using RT cores. Figure 2(a) illustrates a two-dimensional space, where circles represent the ϵ-neighborhood of data points p1, p2, and 
+
+p3, respectively. The black dotted lines indicate the AABBs encompassing the ϵ-neighborhood of each point, which are used to construct the BVH tree. To effectively prune unnec-essary ray–primitive interactions, the BVH tree groups nearby bounding volumes and recursively constructs higher level bounding volumes that enclose these groups. In Figure 2(a), 
+
+BV 12 represents the bounding volume enclosing AABB 1
+
+and AABB 2, which are close to each other, while BV 3
+
+represents the bounding volume enclosing AABB 3. Finally, 
+
+BV 123 encloses all bounding volumes in the scene. Figure 2(b) illustrates the BVH tree constructed using the bounding volumes in Figure 2(a). Here, BV 123 is the root node encompassing all bounding volumes, BV 3 and BV 12 are intermediate nodes, and the leaf nodes are AABB 3, AABB 1,and AABB 2. The leaf nodes encompass the ϵ-neighborhood of points p1, p2, and p3, respectively. Hence, any ray invoked from the query point qj that intersects the corresponding AABB implies that the query point could potentially be within the ϵ-neighborhood of the corresponding data point. To identify the neighbors of the query point qj , we traverse the BVH tree shown in Figure 2(b). The invoked infinitesi-mally short ray intersects the bounding volume BV 12 . There-fore, the AABBs within BV 12 (i.e., AABB 1 and AABB 2)are considered as candidate neighbors for qj . The bounding volume BV 3 is ignored since the ray does not intersect it. The same principle applies to large numbers of data points. The query point qj intersects the AABB of data points p1
+
+and p2. However, this is insufficient to determine if points p1
+
+and p2 are neighbors of qj . To address this, we perform a Eu-clidean distance (or point comparison) test, in the intersection shader and identify the exact neighbors within ϵ distance. A key difference between our work and prior work is that while we utilize the ray-AABB intersection test to determine if a point is a potential neighbor, we do not perform the Euclidean distance test. Instead, we use a separate CUDA core-only kernel to refine candidates after searching the BVH tree using RT cores. We define a point pr as a candidate (potential) neighbor for a query point qj if qj intersects the AABB of pr .IV. RT-H ISS: R AY TRACING ACCELERATED HIGH 
+
+DIMENSIONAL SIMILARITY SEARCH 
+
+The steps of our proposed RT-H ISS algorithm is summa-rized below and described in the associated subsections. 1) Select a good combination of three RT indexing dimen-sions from d dimensions (Section IV-A). 2) Identify and group nearby points using a kd-tree and rep-resent the ϵ-neighborhood of nearby points as a primitive (Section IV-B). 3) Rearrange D in memory to improve caching and employ a result mask to store the result set (Section IV-C). 4) Employ a two-pass ray tracing batching scheme to ad-dress limited GPU global memory (Section IV-D). 5) Refine candidate neighbor points by tiling query and can-didate neighbor points in shared memory (Section IV-E). 6) Enable efficient result set transfers from device to host (Section IV-F). 
+
+A. Selecting Indexing Dimensions on RT Cores 
+
+Recall that RT cores are limited to three dimensions (Sec-tion II-A). To address this limitation, we utilize RT cores to index on three dimensions and identify candidate neighbor points for all queries, qj ∈ Q. Recent works in the literature have demonstrated that dimensions with higher variance prune the data space more efficiently than those with relatively lower variance [6], [7], [28]. This is because dimensions with higher variance tend to have more spread between the coordinates of data points. We refer to a good combination of dimensions for indexing as indexing dimensions. These indexing dimensions are identified by computing the statistical variance of each dimension in the dataset and reordering the coordinates of the data points in memory such that dimensions with higher variance are placed before those with lower variance. We then use the first three dimensions as the indexing dimensions for RT cores. Reordering the dataset also helps in the early termination of the distance computations during the refinement of candidate points using CUDA cores (Section IV-E). 
+
+B. Identifying and Grouping Nearby Points 
+
+We represent the ϵ-neighborhood of point pi ∈ D using the first 3 dimensions and represent pi as a primitive (sphere) si
+
+in the O PTI X scene with center at {x1 
+
+> i
+
+, x 2 
+
+> i
+
+, x 3 
+
+> i
+
+}. For each point 
+
+pi ∈ D, we map a primitive si and store it in an array S.
+
+Traditional Approach: Prior work that indexes using RT cores involves constructing the BVH tree using the primitives in the array S. For each query, a ray is generated following the steps outlined in Section III-A to identify neighbors (Figure 3(a)). However, this approach might not yield good performance as RT searches using BVH tree traversals suffer from a high number of ray-primitive intersections on large datasets, which degrades performance. 
+
+Our Approach: To address this challenge, as shown in Figure 3(b), we identify nearby points in the data space and instead of representing the ϵ-neighborhood of each point in the dataset as an individual primitive in the scene, we group 
+
+ϵ-neighborhood of nearby points in the data space together. Specifically, we identify a bounding sphere that encompasses the ϵ-neighborhood of nearby points. These bounding spheres are inserted as primitives in the O PTI X scene, and to maintain consistent terminology with the ray-tracing literature, we refer to these bounding spheres as primitives. A query qj intersect-ing the AABB of the bounding sphere during the BVH tree traversal implies that all of the individual data points within the primitive are candidate neighbors for the query. We find that perhaps surprisingly, grouping the ϵ-neighborhood of nearby points in the data space together is a good task for an indexing method. This is because indexes partition the space and in doing so implicitly group nearby points which we then use to create bounding spheres. We construct a balanced kd-tree of height hkd on the GPU as we find that it is a good index for this purpose because it has a tunable parameter to control the number of levels/height, and a balanced kd-tree ensures that each leaf node contains qj
+
+p2
+
+p0p4
+
+p1 p3
+
+p5 p6     
+
+> ϵ
+> (a) Points in the dataset Dwhere the ϵ-neighborhood of each point is represented as a primitive. Query point qjis highlighted in blue.
+
+qj
+
+p2
+
+p0p4
+
+p1 p3
+
+p5 p6
+
+s2 ϵ
+
+s0
+
+s1  
+
+> (b) Grouping and representing the ϵ-neighborhood of nearby points as a primitive s.
+
+DD′ p4 p0 p2 p5 p6 p1 p3
+
+p0 p1 p2 p3 p4 p5 p6
+
+s0 s2 s1   
+
+> (c) All points in each primitive sare rearranged contiguously in D′.
+
+qj
+
+s0 s2
+
+p4 p0 p2 p5 p6
+
+s0 s2
+
+p4 p0 p2 p5 p6 p1 p3
+
+q4 q0 q2 q5 q6 q1 q3Q = D′ QSD′
+
+s0 s2 s1
+
+p4 p0 p2 p5 p6 p1 p3
+
+s0 s2 s1
+
+Self-join Semi-join 
+
+> (d) Queries intersecting the same primitive are stored contiguously, with primitives having the highest number of intersections stored first.
+
+Fig. 3: Figure illustrating our RT-H ISS algorithm (see text for details). roughly the same number of points. 2 This yields uniform number of points within each bounding sphere. We exploit this property to design an efficient batching scheme with minimal load imbalance in Section V-G1. We denote |L| as the number of points in each kd-tree leaf node which are stored in each bounding sphere, and denote primitive points as points within a bounding sphere. A ray mapped to a query intersecting the AABB of the bounding sphere implies that all the points contained within are candidate neighbors of the query point that will need to be refined by the CUDA kernel.   
+
+> 2Each leaf node has roughly the same number of points because some leaf nodes will contain more points than others if |D|is not a power of two.
+
+There is a trade-off regarding the height of the kd-tree. A short kd-tree with few levels will have few leaf nodes and thus fewer bounding spheres. This implies that there will be many candidate points that will need to be refined as each sphere will map to a large number of points in the dataset. In contrast, a kd-tree with more levels will generate a larger number of bounding spheres which improves pruning efficiency, but it may also result in higher tree traversal costs for large datasets. Hence, selecting a good kd-tree height is critical for the overall performance of the algorithm. Although other indexes including Morton, Hilbert, and Ball trees do not provide all the advantages of a kd-tree, we evaluated them and found that the kd-tree provides better overall performance. Figure 3(a) illustrates a sample two-dimensional data space for the dataset D, where circles denote the ϵ-neighborhood of each point with search distance ϵ. Here, p0 is a neighbor of 
+
+p2 because p0 lies within the ϵ-neighborhood of p2 and vice versa. Similarly, points p1 and p3, and p5 and p6 lie within each other’s ϵ-neighborhood and are therefore neighbors. This represents the traditional approach to range searches using RT cores, as described in Section III-A. Representing each point as a primitive results in |D|
+
+primitives in the O PTI X scene and leads to a large number of ray–primitive intersections, particularly for large datasets, resulting in poor performance. Figure 3(b) illustrates our pro-posed approach, in which nearby points are grouped together and the ϵ-neighborhood of each group is represented as a single primitive. As shown in Figure 3(b), points p4, p0, and p2
+
+are close to each other, and we represent the ϵ-neighborhood encompassing these three points as a single primitive s0.Similarly, points p1 and p3, and p5 and p6 are grouped together and are represented as primitive s1 and s2, respectively. 
+
+C. Rearranging the Points Within the Dataset 
+
+For a given query, we traverse the BVH tree using RT cores to identify candidate neighbor points. However, these points are typically stored close to each other in global memory, leading to uncoalesced accesses during further refinement (Section IV-E). Uncoalesced memory accesses result in a large number of memory transactions, poor cache hits, and ultimately, poor performance overall. To address this problem, we rearrange pi ∈ D so that all points belonging to the same bounding sphere are stored contiguously in memory. Additionally, a query mapped to a ray often intersects with multiple bounding spheres. To further optimize memory access patterns, we order the group of points between two primitives using Morton ordering [29]. We as-sume that primitives closer to each other in data space are more likely to be intersected by a given query, and accessing points close to each other in global memory promotes coalesced memory accesses and improves performance. Figure 3(c) illustrates the dataset before and after rearrang-ing. Here, D represents the original layout of points in the dataset, whereas D′ represents the dataset after rearranging. As shown in Figure 3(b), we represent points p4, p0, and p2
+
+as primitive s0; points p1 and p3 as primitive s1; and points p5 and p6 as primitive s2. We then rearrange the points in dataset D such that points within primitive s0 (p4, p0, and p2)are contiguous in memory. Similarly, points within primitive 
+
+s1 (p1 and p3) and s2 (p5 and p6) are also contiguous. The points belonging to primitives s0 and s2 are stored together as a query intersecting the primitive s0 is highly likely to intersect 
+
+s2 as well, and vice versa. This rearranging enables coalesced memory access patterns during candidate refinement. 
+
+D. Batching Queries: Two Pass Ray Tracing Approach 
+
+GPUs typically have limited global memory compared to CPU main memory, and estimating the memory required to store the results for a given batch of queries is pivotal for saturating GPU resources (Section I). To ensure that we saturate resources while accommodating large result set sizes that may exceed GPU global memory capacity, for each query, we traverse the BVH tree using RT cores to count the total number of primitives intersected by all queries in the scene. We also count the number of queries intersected by each primitive. We refer to this as the First Intersection Test (FIT). Recall that all primitives in the O PTI X scene represent roughly the same number of points (Section IV-B). Hence, the memory required to refine candidate neighbor points for each ray–primitive intersection is approximately the same. We use the FIT to determine the number of primitives intersected by a given query point qj and identify the maximum number of ray–primitive intersections ( Imax ) that can be processed in a single GPU batch by referencing the available global memory using cudaMemGetInfo [30]. After rearranging the dataset, we process queries in the same order. This order is chosen because consecutive queries often belong to the same leaf node and have similar primitive intersections and traverse the same BVH tree path, which helps mitigate ray divergence [8]. The query set Q′ ⊆ Q is constructed using a window approach, in which queries are accumulated until the total number of intersections are less than or equal to the previously identified Imax .Figure 4 illustrates our two-pass ray tracing approach em-ployed by our batching scheme, described as follows: 
+
+RT Pass 1: For a given query set Q′ ⊆ Q, we traverse the BVH tree to determine the number of primitive intersections for each query qj ∈ Q′ and the number of queries intersected by each primitive in the scene. 3 Using this, we build a prefix sum array on the CPU to indicate the positions to begin writing the query index intersected for each primitive in the scene. 
+
+RT Pass 2: For each query qj , we generate a ray and store the indices of the primitives that intersect with the ray, using the prefix sum array constructed in the previous step. This two-pass approach outlined in Figure 4 offers several advantages over the conventional method of storing the results using key-value pairs: ( i) It eliminates the need for global atomic updates to identify the next position to write when storing elements in the result set. ( ii ) It reduces the memory    
+
+> 3The number of primitives intersected by each query can be obtained from the FIT. However, the number of queries intersecting each primitive changes across batches as Q′varies across batches.
+> First Intersection Test (FIT)
+> RT Pass1 : Count num. primitive intersections
+> RT Compute prefix sum array
+> CPU
+> Refine candidate neighbor points
+> CUDA RT Pass2 : Store candidate neighbor points
+> Batching scheme
+
+Fig. 4: Two-pass ray tracing approach used in RT-H ISS. usage in half as we store only the query index, instead of both query and candidate index, as all the queries intersected by a primitive are stored together. Lastly, the prefix sum array is constructed such that prim-itives with more intersections are processed first which miti-gates load imbalance towards the end of the execution. Now that we have described batching using the two-pass RT approach, we illustrate how candidate neighbor points are identified using RT cores in Figure 3(d). Here, Q =
+
+{q4, q 0, q 2, q 5, q 6, q 1, q 3} represents the query set for the self-join scenario (query set is the same as the dataset) defined in Section II-A, which includes all points in dataset D′. As shown in Figure 3(b), we use primitives s0, s1, and s2 to construct the BVH tree for identifying candidate neighbors for points in the query set Q. Points p4, p0, and p2 intersect the axis-aligned bounding box (AABB) of primitive s0, as they lie within that primitive. Similarly, points p5 and p6, and p1 and 
+
+p3 intersect the AABB of primitive s2 and s1, respectively. All the points within the primitive are candidate neighbors for the query point. For a query point qj in the semi-join scenario (query set is distinct from the dataset), qj intersects the AABB of primitives s0 and s2. Consequently, all points contained within primitives s0 and s2 are considered candidate neighbor points for the query qj .
+
+E. Candidate Refinement on CUDA Cores 
+
+The prior subsections largely discussed RT cores, these include selecting indexing dimensions, constructing bounding spheres, rearranging point data, and executing batches. The RT core phase in a given batch records the candidate data, which are those points that may be within ϵ search distance of the batch of queries, Q′.Now that the candidates have been established in global memory, we execute a refinement kernel that uses CUDA cores. A straightforward approach is to perform Euclidean distance calculations between each query point and each point within a bounding sphere by reading point coordinate data directly from global memory. However, this approach is inefficient due to (slow) off-chip global memory accesses. To improve performance, we present the following steps: ( i) We assign a thread block to identify neighbors for all queries that intersect a given primitive. We allocate shared memory for each thread block. ( ii ) We divide the shared memory into two sections: one for loading query points and the other for 0 1 2 3 4 5 6 7 8 9 10 11 12 13 
+
+R 0 1 0 0 0 1 0 0 1 1 0 0 1 0
+
+R′ 1 5 8 9 12 Fig. 5: Stream compaction employed in RT-H ISS. Here, R
+
+and R′ denote the result set before and after compression. loading primitive points from global memory. ( iii ) All threads within a block cooperate to tile the primitive points into shared memory. All the coordinates of a given point in D are stored contiguously. However, when copying into shared memory from global memory, we store the coordinates of all points belonging to the same dimension contiguously (i.e., thus trans-posing the data). We tile the query points into shared memory using the same approach as above. ( iv ) We refine candidate neighbor points by accessing shared memory and performing Euclidean distance calculations (point comparisons). The shared memory tiling enables data reuse and mitigates slow global memory accesses. We show that it is more efficient than directly reading the point data from global memory. 
+
+F. Result Representation & Data Transfers 
+
+Storing the result set as key-value pairs (Section II-A1) requires a significant amount of space. This limits the number of queries that can be processed in a single batch and also impacts the time required to copy the results from the device (GPU) to the host (CPU). Recall that all queries that intersect with a given primitive are stored together (Section IV-D). We use a result mask where the result of a comparison between a query and point within the primitive is represented using a single bit (0 or 1). If there are |Q′| queries in a given batch and |S′| primitives intersected across all queries in this batch, we only require |Q′| · | S′| · | L|
+
+bits to record whether a query point is within ϵ of the candidate points. Using the result mask significantly reduces the memory required to store the result set and enables more queries to be processed in a single batch. 
+
+1) Result Mask Compression: The result mask often con-tains a long sequence of consecutive zeroes and a few ones, where ones represent neighbors. Instead of storing the result of the point comparison for each query and candidate point (i.e., whether they are within ϵ of each other), we only store the positions of neighbors (ones) and construct a compressed result mask that only contains |R| ones representing the positions of neighbors. This directly reduces the size of result set that is copied from the device to the host. This compression occurs on the GPU after refining candidate neighbor points using CUDA cores. Figure 5 illustrates the stream compaction technique em-ployed in RT-H ISS. Here, R represents the result mask that stores the outcomes of point comparisons between query points and candidate neighbor points. As shown in the figure, 
+
+R requires 14 result elements, whereas storing only the indices TABLE I: The five real-world datasets with their dimension-ality ( d), size ( |D|), and search distances ( ϵ).                     
+
+> Dataset d|D|ϵsϵmϵl
+> SuSy [32] 18 5,000,000 0.017030 0.020780 0.025555
+> Higgs [32] 28 11,000,000 0.049186 0.055580 0.063117
+> WEC [33] 49 287,999 0.005400 0.007020 0.008358
+> BigCross [34] 57 11,620,300 0.013100 0.019940 0.028100
+> MSD [35] 90 515,345 0.007600 0.009130 0.011334
+> Sift [36] 128 10,000,000 0.598828 0.668554 0.748242
+
+of point comparisons corresponding to neighbors requires only 5 result elements after stream compaction, denoted by R′.
+
+2) Pinned Memory for Fast Data Transfers: Another limi-tation of memory transfers arises from copying data from GPU global memory to pageable memory on the host. Copying data from device to host involves the temporary locking of pages in main memory and then copying to pageable memory. To minimize memory copy time, we allocate a small amount of pinned memory as a staging area and utilize nested parallelism with multiple GPU streams to copy the compressed result mask from the device to the host. This approach decreases the time needed to store results on the host. V. E XPERIMENTAL EVALUATION 
+
+A. Experimental Methodology 
+
+The GPU code is written in CUDA and compiled using CUDA version 13.0. The host code is compiled using g++ version 13.3.0 and is parallelized using OpenMP with the O3 optimization flag. The O PTI X code is written using the O PTI XWrappers Library (OWL) version 7.4.0. OWL is a convenience library built on top of O PTI X that abstracts many low level details [31]. Experiments are conducted on a platform with an Intel W-2295 CPU with 256 GiB of main memory, equipped with a Quadro RTX 5000 GPU with 16 GiB of global memory. All response times reported in this section include all time components, including reordering the dataset, grouping points together using a balanced kd-tree, indexing using RT cores, refining candidate neighbor points using CUDA cores, and copying the result set from device to host, and exclude the time to load the dataset from disk. We set a timeout limit of 60,000 seconds for all experiments, and the response time of any experiment exceeding this limit is marked as T IME OUT .For all experiments, if the corresponding algorithm exceeds the timeout limit, we use the timeout value to compute the lower bound speedup, even though the actual response time may be significantly larger. 
+
+B. Datasets 
+
+Table I lists the real-world datasets and search distances ( ϵ)employed in the experimental evaluation. The datasets contain 288K–11.6M data points, with a dimensionality d ∈ [18 , 128] .We use three search distances, ϵs, ϵm, and ϵl, corresponding to small, medium, and large selectivity levels. Here, the selectivity is defined as z = |R|−| D||D| , which denotes the average number of neighbors found per query in the query set Q [6], [7], [10]. Specifically, ϵs, ϵm, and ϵl correspond 10 11 12 13 14 15 16 17 18  
+
+> Kd-Tree Height ( hkd )
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Normalized Time
+> BigCross Higgs MSD SIFT SuSy WEC
+> Best normalized time Proposed kd-tree height
+
+Fig. 6: Averaged normalized response time for kd-tree heights (hkd ) in the range [10, 18] across all datasets. The observed best time and the proposed kd-tree height are indicated using star and triangle markers, respectively. to selectivity values of 28, 210 , and 212 , respectively. These selectivity values are consistent with the literature [10]. 
+
+C. Reference Implementations 
+
+We evaluate the performance of RT-H ISS using the follow-ing state-of-the-art (SOTA) GPU-accelerated distance similar-ity search algorithms. 
+
+GDS-J OIN : A similarity search algorithm using grid-based indexing for multi-dimensional data, proposed by Gowanlock and Karsin [6]. 
+
+COSS : A similarity search algorithm using a metric-based indexing method, by Donnelly and Gowanlock [7]. 
+
+GTS : A similarity search algorithm using a metric-based tree structure for efficient searches, proposed by Zhu et al. [9]. 
+
+PYTORCH 3D : A similarity search algorithm from the PyTorch3D library by the Facebook AI Research team [37]. 
+
+> CU
+
+VS-B RUTE : A brute-force vector similarity search algorithm from the CUDA Vector Search (cuVS) software development kit by NVIDIA [38]. 
+
+RTNN : A RT-accelerated similarity search algorithm. We use this only for d = 3 dataset performance evaluation. To address the limited global memory issue, GDS-J OIN ,COSS, and GTS employ a batching scheme. We implemented a similar approach for CU VS-B RUTE and P YTORCH 3D to handle out-of-memory issues. 
+
+D. kd-tree Height 
+
+Recall that the kd-tree height ( hkd ) directly affects the number of primitives in the scene and consequently, the number of ray–primitive intersections. A higher hkd results in more primitives, offering greater pruning but also incurs higher indexing and search costs, whereas a lower hkd provides less pruning and leads to increased work when refining candidate points using the CUDA cores (Section IV-B). Figure 6 shows the averaged normalized response time across the three search distances ( ϵs, ϵm, and ϵl) for kd-tree heights in the range [10, 18]. For the WEC dataset, the best performance is observed at hkd = 10 , and performance dete-riorates as hkd increases. For all other datasets, performance WEC MSD SuSy BigCross Higgs SIFT       
+
+> s
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> Response Time (s)
+> 30 .6×
+> 29 .7×
+> 86 .3×
+> 45 .9×≥77 .2×≥8.4×
+> WEC MSD SuSy BigCross Higgs SIFT
+> m
+> 23 .6×
+> 27 .2×
+> 107 .8×
+> 33 .2×≥52 .7×≥7.4×
+> WEC MSD SuSy BigCross Higgs SIFT
+> l
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> Response Time (s)
+> 16 .2×
+> 21 .1×
+> 130 .6×
+> 25 .1×≥33 .0×≥6.6×
+> -neighborhood of nearby points as a primitive (RT-HiSS)
+> -neighborhood of each point as a primitive (Baseline)
+
+Fig. 7: Response time (s) on a logarithmic scale of RT-H ISS when a primitive is defined by the combined ϵ-neighborhood of nearby points compared to that of each point as a primitive. improves with an increase in tree height up to a certain tree height and then degrades later. We observe that an appropriate kd-tree height hkd depends on the number of points in the dataset, |D|. We propose that a good value of hkd can be identified as a function of |D|.Specifically, setting hkd = ⌊ln |D|⌋ yields a tree height that performs well across all datasets (triangle markers in Figure 6) and is close to the optimal height (star markers). Therefore, we use hkd = ⌊ln |D|⌋ in all forthcoming experiments. 
+
+E. Impact of Grouping Points Together 
+
+All DSS algorithms using RT cores represent the ϵ-neighborhood of each point in the dataset as a primitive in the O PTI X scene [8], [11]. The number of primitives in the scene directly affects the number of ray–primitive intersections and consequently, the overall performance of the algorithm. In contrast, we identify nearby points in the data space and represent the ϵ-neighborhood of all the nearby points as a single primitive (Section IV-B). Figure 7 shows the performance of RT-H ISS on a logarith-mic scale when representing the ϵ-neighborhood of each point as a primitive compared to our proposed approach of grouping the ϵ-neighborhood of nearby points together into a single bounding sphere. Across all datasets and search distances, performance improves significantly with this optimization. We observe a minimum and maximum speedup of 16 .2× and 
+
+130 .6× for WEC and SuSy with ϵl, respectively. These results indicate that grouping nearby points together has a more pronounced impact on computationally expensive datasets (i.e., Higgs ). This is because such datasets typically incur a high number of ray–primitive intersections when the 
+
+ϵ-neighborhood of each point is represented as a primitive, TABLE II: Experiment configurations used in our ablation studies. Here, Shared-Query , Shared-Primitive , and 
+
+Shared-None are point comparison variants whereas un-compressed result mask copy and key-value copy are result representation variants. 
+
+Point Comparison Result & Copying Variants Experimental Config. Query Shared Mem. Primitive Shared Mem. Compr-essed Uncompr-essed Key-Value RT-H ISS ✓ ✓ ✓ ✗ ✗
+
+Ablation Study #1: Point Comparison (Section V-F) 
+
+Shared-Query ✓ ✗ ✓ ✗ ✗
+
+Shared-Primitive ✗ ✓ ✓ ✗ ✗
+
+Shared-None ✗ ✗ ✓ ✗ ✗
+
+Ablation Study #2: Result Representation (Section V-G) Uncomp. mask ✓ ✓ ✗ ✓ ✗
+
+Key-value copy ✓ ✓ ✗ ✗ ✓
+
+which directly increases the workload on RT cores during the indexing phase of the two-pass ray tracing approach. By iden-tifying nearby points, and representing the ϵ-neighborhoods of nearby points as a single primitive, we substantially reduce the number of ray-primitive intersections, thereby reducing the cost of indexing. This yields an average speedup of 42.4 ×
+
+across all datasets and search distances. 
+
+Takeaway #1: Grouping points together is a primary fac-tor in enabling the effective use of RT cores for indexing large, high-dimensional datasets. Overall, representing the ϵ-neighborhood of nearby points as a single bounding sphere significantly improves overall performance. F. Ablation Study #1: Point Refinement Kernel 
+
+We conduct an ablation study to examine the impact of reading query and primitive points from shared memory, by disabling optimizations in RT-H ISS (see Table II). Fig-ure 8 shows the ablation study results where we compare to the baseline, Shared-None , in which both query and primitive points are loaded from global memory. Reading only query points from shared memory ( Shared-Query )yields a slowdown over the baseline on some datasets (i.e. 
+
+WEC , MSD , BigCross , AND Sift ) due to insufficient data reuse and synchronization overhead. Reading only primitive points, Shared-Primitive , outperforms Shared-None 
+
+in all experimental scenarios yielding an average speedup of 2.64 ×. Similarly, Shared-Query-Primitive (RT-H ISS) outperforms Shared-None across all datasets and search distances with an average speedup of 2.12 ×.In summary, loading primitive and query points into shared memory improves performance by reducing off-chip global memory accesses. However, we show that shared memory should be used judiciously to avoid performance degradation. 
+
+G. Ablation Study #2: Result Representation 
+
+We examine the impact of different result representations on the number of batches and the response time of RT-H ISS. As described in Table II, we disable optimizations in RT-H ISS which uses a compressed result mask. We compare this to two s m l                 
+
+> WEC
+> 012345Response Time (s)
+> 1.5×
+> 1.6×
+> 1.6×
+> 1.5×1.6×
+> 1.6×
+> 1.0×
+> 1.0×
+> 1.0×
+> sml
+> MSD
+> 0510 15
+> 1.4×
+> 1.5×
+> 1.7×
+> 1.7×
+> 1.8×
+> 1.8×
+> 0.9×
+> 0.9×
+> 0.9×
+> sml
+> SuSy
+> 0100 200 300 400 500 Response Time (s)
+> 1.9×
+> 1.9×
+> 1.9×
+> 1.8×
+> 1.8×
+> 1.8×
+> 1.0×
+> 1.0×
+> 1.0×
+> sml
+> BigCross
+> 050 100 150
+> 1.3×
+> 1.4×
+> 1.6×
+> 1.4×
+> 1.6×
+> 1.8×
+> 0.9×
+> 0.9×
+> 0.9×
+> sml
+> Higgs
+> 02000 4000 6000 Response Time (s)
+> 2.8×
+> 2.8×
+> 2.7×
+> 2.8×
+> 2.7×
+> 2.7×1.0×
+> 1.0×
+> 1.0×
+> sml
+> SIFT
+> 010000 20000 30000 40000
+> 3.3×3.5×3.7×
+> 6.4×6.4×6.4×
+> 1.0×
+> 1.0×
+> 1.0×
+> Shared-Query-Primitive (RT-HiSS) Shared-Query Shared-Primitive Shared-None (Baseline)
+
+Fig. 8: Response time (s) of RT-H ISS and the point compari-son variants outlined in Section V-F. Here, both global is used as the baseline, and the speedup of each variant relative to the baseline is shown. TABLE III: The number of batches required for result repre-sentation variants outlined in Section V-G with ϵl. The ratio of the number of batches for the key-value copy compared to RT-H ISS is shown in parentheses. Fewer batches are better. 
+
+Dataset ϵ Comp. Result Mask Copy (RT-H ISS) Uncomp. Result Mask Copy Key-value Copy 
+
+WEC ϵl 1 1 13 (13.00 ×)
+
+MSD ϵl 1 1 47 (47.00 ×)
+
+SuSy ϵl 100 100 5,563 (55.63 ×)
+
+BigCross ϵl 16 16 860 (53.75 ×)
+
+Higgs ϵl 896 896 50,791 (56.69 ×)
+
+Sift ϵl 1,638 1,638 91,621 (55.93 ×)
+
+variants: (i) not compressing the result mask; and (ii ) using key-value pairs to represent the result set. 
+
+1) Impact on the Number of Batches : Table III compares the number of batches required to process all queries for different result representation strategies using the ϵl search dis-tance, where we observe that using a result mask significantly reduces the number of batches compared to key-value copies. The compressed and uncompressed result mask variants use the same number of batches, and require 1–1,638 batches, s m l                
+
+> WEC
+> 01234Response Time (s)
+> 1.1×
+> 1.1×
+> 1.2×
+> 0.9×
+> 1.1×1.5×
+> sml
+> MSD
+> 02.5 57.5 10
+> 1.0×
+> 1.0×
+> 1.2×
+> 0.8×
+> 0.9×
+> 1.2×
+> sml
+> SuSy
+> 0100 200 300 400 500 Response Time (s)
+> 1.6×
+> 1.9×
+> 2.2×
+> 0.8×
+> 1.0×
+> 1.2×
+> sml
+> BigCross
+> 020 40 60 80 100 120
+> 1.0×
+> 1.1×
+> 1.5×
+> 0.9×
+> 1.1×
+> 1.5×
+> sml
+> Higgs
+> 02500 5000 7500 Response Time (s)
+> 1.7×2.2×
+> 3.0×
+> 1.0×
+> 1.2×
+> 1.7×
+> sml
+> SIFT
+> 05000 10000 15000 20000 25000
+> 2.6×2.3×2.0×2.0×1.9×1.6×
+> Compressed Result Mask (RT-HiSS) Key-Value Copy (Baseline) Uncompressed Result mask
+
+Fig. 9: Response time (s) of RT-H ISS compared to the result representation variants (Section V-G). The speedup of RT-HISS and the uncompressed result mask copy relative to the baseline (key-value pairs) is shown. whereas the key-value copy requires 13 to ≳90K batches, with 
+
+WEC and Sift requiring the minimum and maximum number of batches, respectively. The key–value copy strategy requires significantly more batches, as each result element uses two 32-bit integers, whereas RT-H ISS uses only one bit per point comparison, achieving a 64 × compression ratio (Section IV-F). This dif-ference enables RT-H ISS to execute more queries per batch and enables GPU resource saturation. 
+
+2) Impact of Batching on Response Time : The overall performance of the algorithm is directly affected by the number of batches as each batch requires two RT kernel executions (Section IV-D). Figure 9 shows the response time of RT-H ISS compared to those in Table II. We observe that RT-H ISS outperforms key-value copy across all evaluation scenarios with an average speedup of 1.65 ×. Similarly, except for a few evaluation scenarios, the compressed result mask copy (RT-H ISS) outperforms the uncompressed result mask copy method across all datasets and search distances with an average speedup of 1.24 ×. This improvement is due to reduced data transfer time resulting from result mask compression. 
+
+Takeaway #2: While the representation of the result set may seem inconsequential to performance, the larger space requirements of storing key-value pairs necessitates additional batches to process all of the queries which directly corresponds to the additional overhead induced by the two-pass ray tracing approach during batching. In addition to using a result mask, compression reduces the result set size and improves data transfer time, which further improves performance. H. Comparison with the State-of-the-art 
+
+We compare RT-H ISS with other GPU SOTA algorithms. Table IV reports the performance of RT-H ISS against the reference algorithms described in Section V-C. 
+
+Indexing Approaches: We compare to the SOTA GPU al-gorithms that employ an index to prune the search space. We observe that RT-H ISS outperforms GDS-J OIN achieving a speedup up to 9.19 × across all datasets (RT-H ISS only yielded a slowdown for SuSy dataset with ϵs search distance). Similarly, RT-H ISS outperforms COSS across all datasets and 
+
+ϵ distances, except for the WEC dataset with the ϵl search distance, yielding a maximum speedup of 8.37 ×.RT-H ISS also outperforms P YTORCH 3D across all datasets and search distances achieving speedup spanning 34.20 × to 4,180.12 × across all evaluation scenarios. Similarly, RT-H ISS outperforms GTS across all datasets and search distances. GTS reaches the timeout limit on several experiments, and is not competitive with RT-H ISS. 
+
+Brute-Force Approaches: Lastly, we compare to CU VS-BRUTE which is brute-force approach by NVIDIA [38]. RT-H ISS outperforms CU VS-B RUTE across all datasets and search distances, with minimum and maximum speedup of 4.74 × and 2,368.26 ×, respectively. Overall, we find that RT-H ISS largely yields significant speedups as it addresses majority of the challenges of pro-cessing data-dependent workloads and scales well with dataset size. GDS-J OIN uses a grid-based indexing method for pruning the ϵ-neighborhood and employs an efficient batch-ing scheme with overlapping host and GPU computation to achieve high performance. COSS uses metric-based indexing along with an efficient batching scheme. CU VS-B RUTE is an optimized brute-force algorithm that does not use a result estimator and allocates |D|2 elements to store the result set, which limits the number of queries processed per batch and introduces batching overhead. P YTORCH 3D uses a maximum neighbors per query parameter to allocate memory for results, where the parameter value is set based on the selectivity level for each ϵ distance. GTS employs a pivot-based tree structure and performs poorly for large datasets and larger search distances. 
+
+Takeaway #3: The two-pass RT core approach yields two major advantages: (i) it enables fast indexing and searching; and (ii ) it enables an efficient batching scheme as it bounds the expected number of results based on the query-primitive in-TABLE IV: Response time (s) of RT-H ISS compared to the SOTA algorithms outlined in Section V-C, presented in the order of increasing mean speedup over the SOTA, with speedups shown in parentheses. The best time is shown in bold.                                                                                                                                                                       
+
+> Dataset ϵRT-H ISS GDS-J OIN [6] COSS [7] CU VS-B RUTE
+> (NVIDIA) [38] PYTORCH 3D (Facebook) [37] GTS [9]
+> WEC ϵs1.16 1.51 (1.31 ×)1.93 (1.67 ×)14.88 (12.87 ×)74.99 (64.87 ×)3,739.45 (3,234.81 ×)
+> WEC ϵm1.67 3.27 (1.95 ×)2.92 (1.74 ×)14.88 (8.89 ×)133.43 (79.71 ×)5,006.74 (2,990.88 ×)
+> WEC ϵl2.71 7.10 (2.62 ×)1.82 (0.67 ×)14.88 (5.50 ×)5,790.01 (2,139.69 ×)5908.50 (2,183.48 ×)
+> MSD ϵs3.18 5.48 (1.72 ×)5.00 (1.57 ×)49.20 (15.46 ×)544.75 (171.20 ×)14,404.56 (4,526.89 ×)
+> MSD ϵm4.41 9.66 (2.19 ×)7.38 (1.67 ×)49.20 (11.17 ×)1,378.92 (313.04 ×)19,121.26 (4,340.81 ×)
+> MSD ϵl7.24 19.80 (2.74 ×)15.75 (2.18 ×)49.20 (6.80 ×)30,243.18 (4,180.12 ×)25,743.88 (3,558.24 ×)
+> SuSy ϵs74.48 52.14 (0.70 ×)94.63 (1.27 ×)9,616.54 (129.11 ×)2,668.60 (35.83 ×)31,704.42 (425.65 ×)
+> SuSy ϵm117.31 122.55 (1.04 ×)196.50 (1.68 ×)9,616.54 (81.97 ×)14,846.70 (126.56 ×)50,823.54 (433.24 ×)
+> SuSy ϵl195.39 424.32 (2.17 ×)488.61 (2.50 ×)9,616.54 (49.22 ×)TIME OUT (≥307.08 ×) T IME OUT (≥307.08 ×)
+> BigCross ϵs23.20 37.55 (1.62 ×)94.63 (4.08 ×) 54,943.70 (2,368.26 ×) T IME OUT (≥2,586.21 ×)37,585.78 (1,620.08 ×)
+> BigCross ϵm37.87 143.88 (3.80 ×)196.50 (5.19 ×) 54,943.70 (1,451.04 ×) T IME OUT (≥1,584.58 ×)51,911.63 (1,370.97 ×)
+> BigCross ϵl67.90 623.97 (9.19 ×)488.61 (7.20 ×)54,943.70 (809.21 ×)TIME OUT (≥883.68 ×) T IME OUT (≥883.68 ×)
+> Higgs ϵs775.55 1,801.58 (2.32 ×)3,362.11 (4.34 ×)46,551.90 (60.02 ×)26,526.54 (34.20 ×)TIME OUT (≥77.36 ×)
+> Higgs ϵm1,139.14 2,101.15 (1.84 ×)3,292.26 (2.89 ×)46,551.90 (40.87 ×)TIME OUT (≥52.67 ×)TIME OUT (≥52.67 ×)
+> Higgs ϵl1,81.49 2,819.33 (1.55 ×)4,460.49 (2.45 ×)46,551.90 (25.60 ×)TIME OUT (≥32.99 ×)TIME OUT (≥32.99 ×)
+> Sift ϵs7,169.15 7,732.33 (1.08 ×) T IME OUT (≥8.37 ×)43,250.30 (6.03 ×)TIME OUT (≥8.37 ×)TIME OUT (≥8.37 ×)
+> Sift ϵm8,070.70 9,232.53 (1.14 ×) T IME OUT (≥7.43 ×)43,250.30 (5.36 ×)TIME OUT (≥7.43 ×)TIME OUT (≥7.43 ×)
+> Sift ϵl9,134.09 11,290.50 (1.24 ×) T IME OUT (≥6.57 ×)43,250.30 (4.74 ×)TIME OUT (≥6.57 ×)TIME OUT (≥6.57 ×)
+> Speedup Range [1.00, 1.00] ×[0.70, 9.19] ×[0.67, 8.37] ×[4.74, 2,368.26] ×[34.20, 4,180.12] ×[425.65, 4,526.89] ×
+
+TABLE V: Response time (s) of RT-H ISS compared to RTNN 
+
+for d = 3 datasets. The speedup of RT-H ISS over RTNN is listed in the speedup column. The best time is in bold.                         
+
+> Dataset d|D|ϵsRT-H ISS RTNN Speedup
+> Ionosphere [39] 3 5,159,737 0.457142 6.22 8.79 1.41 ×
+> Gaia [40] 3 5,000,000 0.374163 5.22 8.57 1.64 ×
+> Uniform 3 5,000,000 0.023206 4.58 8.62 1.88 ×
+> Exponential 3 5,000,000 0.001170 7.10 8.54 1.20 ×
+> Speedup Range [1.20, 1.88] ×
+
+tersections, which in turn results in saturating GPU resources. This enables significant speedups over the SOTA. I. Comparison with RT-based State-Of-the-art ( d = 3 )
+
+We compare RT-H ISS to RTNN to examine the perfor-mance on low dimensional datasets. Table V lists two real-world ( Ionosphere and Gaia ) and two synthetic ( Uniform and 
+
+Exponential ) d = 3 datasets used to compare the performance of RT-H ISS relative to RTNN using the ϵs search distance. 4
+
+The synthetic exponential dataset is generated using rate parameter λ = 40 . We observe that RT-H ISS outperforms RTNN across all datasets with speedups up to 1.88 ×.RT-H ISS is designed to accelerate high-dimensional dis-tance similarity searches using RT cores; however, there are two design decisions for high-dimensional searches that reduce the performance of RT-H ISS in the low-dimensional setting as described above. (i) Recall that RT-H ISS first identifies candidate neighbor points during the RT indexing step and later refines in a separate CUDA refinement kernel (Sec-tion IV-D). The performance of RT-H ISS for low dimensional DSS could be improved by refining within the RT kernel itself instead of using a separate kernel. (ii ) Similarly, the result set compression optimization benefits high-dimensional DSS but introduces overhead for low-dimensional DSS.     
+
+> 4We do not compare with ϵmand ϵlas RTNN does not have a batching scheme and runs out of global memory on our platform.
+
+TABLE VI: The reduction in the number of Euclidean distance calculations due to the employed pruning method for RT-H ISS and GDS-J OIN relative to CU VS-B RUTE . Higher is better.               
+
+> Dataset RT-H ISS GDS-J OIN
+> WEC 76.4% 74.4%
+> MSD 71.7% 67.9%
+> SuSy 64.7% 71.2%
+> BigCross 99.2% 99.0%)
+> Higgs 37.9% 0.8%
+> Sift 0.0% 0.0%
+
+J. RT-H ISS Indexing Efficiency 
+
+Euclidean distance calculations are often the most expen-sive step in similarity searches due to their quadratic time complexity [10]. We compare the reduction in the number of Euclidean distance calculations performed by RT-H ISS and GDS-J OIN relative to CU VS-B RUTE using the ϵl search distance to understand the efficiency of the employed pruning method in mitigating these distance calculations. As shown in Table VI, RT-H ISS indexing using the BVH tree in 3 dimensions performs fewer distance calculations relative to GDS-J OIN using a grid indexing in 6 dimensions, except for the SuSy dataset where RT-H ISS is slower than GDS-JOIN (Table IV). This shows that RT-H ISS prunes the search space more efficiently despite indexing in only 3 dimensions. We observe a high degree of pruning for WEC , MSD , SuSy ,and BigCross (≥ 64.7%), whereas low pruning is observed on Higgs (37.9%). Even though no pruning occurs on Sift ,RT-H ISS and GDS-J OIN outperforms CU VS-B RUTE across all search distances due to locality aware computation and aborting the search early, among other optimizations. 
+
+K. RT-H ISS Profiler Statistics 
+
+We profile the GPU kernel that refines candidate points to examine the impact of our proposed optimizations using Nvidia Nsight Compute. At present, RT kernels cannot be TABLE VII: Profiler statistics for the refinement kernel com-paring RT-H ISS to Shared-None (baseline). The increase in compute throughput and the reduction in global instructions are shown in the ratio and reduction columns, respectively.                                              
+
+> Dataset Compute Throughput Global Memory Instructions RT-HISS
+> Shared-None
+> Ratio RT-HISS
+> Shared-None
+> Reduction
+> WEC 72.75% 28.97% 2.51 ×1.18 G 27.16 G 95.66%
+> MSD 61.00% 26.45% 2.31 ×7.22 G 92.76 G 92.22%
+> SuSy 77.81% 37.82% 2.06 ×0.72 G 37.43 G 98.08%
+> BigCross 60.23% 23.66% 2.55 ×3.41 G 43.98 G 92.25%
+> Higgs 84.22% 27.90% 3.02 ×0.93 G 56.38 G 98.35%
+> Sift 53.27% 12.28% 4.38 ×12.85 G 89.49 G 85.64% WEC MSD SuSy BigCross Higgs SIFT Average
+> Dataset 0.0 0.2 0.4 0.6 0.8 1.0
+> Fraction of Total Time
+> 1.77% 4.81% 59.54% 1.51% 5.37% 15.71% 11.30%
+> First Intersection Test Time Compression Time CPU Time RT Core Time Memory Copy Time CUDA Core Time KD-Tree Construction Time
+
+Fig. 10: Normalized response time of RT-H ISS components, averaged across all search distances. The “Average” bar rep-resents the average time spent in each component across all datasets and search distances. profiled using NVIDIA Nsight Compute. We compare RT-HISS to the baseline variant that does not use shared memory tiling ( Shared-None ). Table VII compares the compute throughput and the number of global memory instructions for all datasets with ϵl.We observe that compute throughput increases significantly when shared memory tiling is employed to read point data. Specifically, RT-H ISS achieves 2.06 × to 4.38 × compute throughout improvement compared to the baseline. Next, examining the number of global memory loads, we observe a reduction of 85.64% to 98.35% in RT-H ISS compared to the baseline. This highlights the benefit of staging data in shared memory and minimizing off-chip global memory access requests. Lastly, we find that the number of shared memory load bank conflicts spans 5.13% to 42.89% (average of 13.86%) across all datasets. These results demonstrate that the data path is well-optimized through efficient shared memory tiling and coalesced memory accesses (Section IV-C). 
+
+L. Time Distribution Analysis 
+
+We examine the time distribution of each component of RT-HISS. Figure 10 illustrates the fraction of total time spent in each component. The total time is averaged across all search distances ( ϵs, ϵm, and ϵl) and normalized to the range [0,1]. We observe that across all datasets, CUDA core time accounts for the majority of the total execution time (average of 59.54%) followed by the kd-tree construction time (average of 15.71%). CPU time (average of 11.30%) includes the time to identify bounding spheres of nearby points, and other host-side tasks. The FIT and two-pass RT-core approach together account for only an average of 6.58% of the total time, which is minimal compared to the other components. Thus, RT cores provide a lightweight method for efficient indexing and searching, while also enabling a batching scheme with near-perfect load balancing across batches. VI. D ISCUSSION & C ONCLUSION 
+
+To address diverse workloads, HPC systems contain numer-ous processor types including tensor cores, ray tracing cores, data processing units, FPGAs, among others. We examine the design space for high-dimensional distance similarity searches and find that RT cores can be used for hardware-accelerated index searches. We address the inherent hardware limitations of RT cores with an algorithmic approach that leverages RT cores for indexing followed by CUDA cores for refinement for high-dimensional DSS, yielding significant performance gains over state-of-the-art GPU algorithms. The paper focuses on accelerating distance similarity searches on a single-GPU system; however, our algorithm (RT-H ISS) and the proposed optimizations can be directly translated into multi-GPU systems and HPC environments with multiple nodes. In particular, after the first intersection test, RT-H ISS identifies the number of distance calculations required for each query based on the number of ray-bounding sphere intersections. This is then used to support the proposed batching scheme. In multi-GPU or HPC environments, instead of processing one batch at a time, work could be asyn-chronously offloaded to other GPUs or nodes while employing all the optimizations discussed in the paper. This improves scalability for large datasets and can also be exploited for near-real time distance similarity searches. Our future work includes other types of similarity searches. Similarly to distance similarity searches, the high dimensional 
+
+k-nearest neighbors problem is also constrained by the inher-ent limitation of RT cores to three dimensions. This can be addressed by extending RT-H ISS to translate the k-nearest neighbors problem into a recursive similarity search problem that expands the initial search radius ( ϵ) until k neighbors are found. This approach yields the exact k-nearest neighbors while indexing in three dimensions. All the optimizations proposed in the paper can be applied to this problem as well. RT-H ISS is designed for large high-dimensional datasets and using it for small or low-dimensional datasets with in-sufficient work leads to resource underutilization including other limitations discussed in the paper, thereby resulting in degraded performance. We will examine this limitation in addition to extending RT-H ISS to support other distance similarity searches in future work. ACKNOWLEDGMENT 
+
+The Chameleon testbed supported by the National Science Foundation [41] was used as part of our Artifact Description and Evaluation appendices. REFERENCES [1] E. Schubert, J. Sander, M. Ester, H. P. Kriegel, and X. Xu, “DBSCAN Revisited, Revisited: Why and How You Should (Still) use DBSCAN,” 
+
+ACM Transactions on Database Systems (TODS) , vol. 42, no. 3, pp. 1–21, 2017. [Online]. Available: https://doi.org/10.1145/3068335 [2] H. C. Mandhare and S. Idate, “A Comparative Study of Cluster Based Outlier Detection, Distance Based Outlier Detection and Density Based Outlier Detection Techniques,” in 2017 International Conference on Intelligent Computing and Control Systems (ICICCS) . IEEE, 2017, pp. 931–935. [Online]. Available: https://doi.org/10.1109/ICCONS.2017. 8250601 [3] S. Mathur and A. Chhabra, “Vector Search Algorithms: A Brief Survey,” in 2024 4th International Conference on Ubiquitous Computing and Intelligent Information Systems (ICUIS) . IEEE, 2024, pp. 365–371. [Online]. Available: https://doi.org/10.1109/ICUIS64676.2024.10866377 [4] R. Nvidia, “Blackwell GPU Architecture,” https:// images.nvidia.com/aem-dam/Solutions/geforce/blackwell/ nvidia-rtx-blackwell-gpu-architecture.pdf, 2025. [5] D. Stanzione, J. West, R. T. Evans, T. Minyard, O. Ghattas, and D. K. Panda, “Frontera: The Evolution of Leadership Computing at the National Science Foundation,” in Practice and Experience in Advanced Research Computing 2020: Catch the Wave , 2020, pp. 106–111. [Online]. Available: https://doi.org/10.1145/3311790.3396656 [6] M. Gowanlock and B. Karsin, “GPU-Accelerated Similarity Self-Join For Multi-Dimensional Data,” in Proceedings of the 15th International Workshop on Data Management on New Hardware , 2019, pp. 1–9. [Online]. Available: https://doi.org/10.1145/3329785.3329920 [7] B. Donnelly and M. Gowanlock, “A Coordinate-Oblivious Index for High-Dimensional Distance Similarity Searches on the GPU,” in Proceedings of the 34th ACM International Conference on Supercomputing , 2020, pp. 1–12. [Online]. Available: https://doi.org/ 10.1145/3392717.3392768 [8] Y. Zhu, “RTNN: Accelerating Neighbor Search Using Hardware Ray Tracing,” in Proceedings of the 27th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming , 2022, pp. 76–89. [Online]. Available: https://doi.org/10.1145/3503221.3508409 [9] Y. Zhu, R. Ma, B. Zheng, X. Ke, L. Chen, and Y. Gao, “GTS: GPU-based Tree Index for Fast Similarity Search,” Proceedings of the ACM on Management of Data , vol. 2, no. 3, pp. 1–27, 2024. [Online]. Available: https://doi.org/10.1145/3654945 [10] B. Donnelly and M. Gowanlock, “Multi-Space Tree with Incremental Construction for GPU-Accelerated Range Queries,” in 2024 IEEE 31st International Conference on High Performance Computing, Data, and Analytics (HiPC) . IEEE, 2024, pp. 132–142. [Online]. Available: https://doi.org/10.1109/HiPC62374.2024.00024 [11] V. Nagarajan, D. Mandarapu, and M. Kulkarni, “RT-kNNS unbound: Using RT Cores to Accelerate Unrestricted Neighbor Search,” in Proceedings of the 37th International Conference on Supercomputing , 2023, pp. 289–300. [Online]. Available: https://doi.org/10.1145/3577193.3593738 [12] M. Gowanlock and B. Karsin, “Accelerating the Similarity Self-Join Using the GPU,” Journal of Parallel and Distributed Computing , vol. 133, pp. 107–123, 2019. [Online]. Available: https://doi.org/10.1016/j. jpdc.2019.06.005 [13] I. Evangelou, G. Papaioannou, K. Vardis, and A. A. Vasilakis, “Fast Radius Search Exploiting Ray-Tracing Frameworks,” Journal of Computer Graphics Techniques Vol , vol. 10, no. 1, pp. 25–48, 2021. [Online]. Available: http://jcgt.org/published/0010/01/02/ [14] H. Wang, K. Han, C. Li, J. Zhao, N. Che, and X. Liu, “A Euclidean Distance-Based Novel Algorithm for Binary Feature Selection,” Neural Processing Letters , vol. 57, no. 6, p. 90, 2025. [Online]. Available: https://doi.org/10.1007/s11063-025-11797-z [15] S. Fotopoulou, “A Review of Unsupervised Learning in Astronomy,” 
+
+Astronomy and Computing , vol. 48, p. 100851, 2024. [Online]. Available: https://doi.org/10.1016/j.ascom.2024.100851 [16] G. H. Orair, C. H. Teixeira, W. Meira Jr, Y. Wang, and S. Parthasarathy, “Distance-Based Outlier Detection: Consolidation and Renewed Bearing,” Proceedings of the VLDB Endowment ,vol. 3, no. 1-2, pp. 1469–1480, 2010. [Online]. Available: https: //doi.org/10.14778/1920841.1921021 [17] O. Kulkarni and A. Burhanpurwala, “A Survey of Advancements in DBSCAN Clustering Algorithms for Big Data,” in 2024 3rd International Conference on Power Electronics and IoT Applications in Renewable Energy and its Control (PARC) . IEEE, 2024, pp. 106–111. [Online]. Available: https://doi.org/10.1109/PARC59193.2024.10486339 [18] S. Li and N. Amenta, “Brute-Force k-Nearest Neighbors Search on the GPU,” in International Conference on Similarity Search and Applications . Springer, 2015, pp. 259–270. [Online]. Available: https://doi.org/10.1007/978-3-319-25087-8 25 [19] R. A. Brown, “Building a Balanced k-d Tree in O(kn log n) Time,” 
+
+Journal of Computer Graphics Techniques (JCGT) , vol. 4, no. 1, pp. 50–68, March 2015. [Online]. Available: https://doi.org/10.48550/arXiv. 1410.5420 [20] A. Guttman, “R-Trees: A Dynamic Index Structure for Spatial Searching,” in Proceedings of the 1984 ACM SIGMOD International Conference on Management of Data , 1984, pp. 47–57. [Online]. Available: https://doi.org/10.1145/602259.602266 [21] C. L. Jackins and S. L. Tanimoto, “Oct-Trees and Their Use in Representing Three-Dimensional Objects,” Computer Graphics and Image Processing , vol. 14, no. 3, pp. 249–270, 1980. [Online]. Available: https://doi.org/10.1016/0146-664X(80)90055-6 [22] M. Dolatshah, A. Hadian, and B. Minaei-Bidgoli, “Ball*-tree: Efficient Spatial Indexing for Constrained Nearest-Neighbor Search in Metric Spaces,” arXiv preprint arXiv:1511.00628 , 2015. [Online]. Available: https://doi.org/10.48550/arXiv.1511.00628 [23] R. Bellman, “Adaptive Control Processes; A Guided Tour,” Princeton University Press , 1961. [Online]. Available: https://doi.org/10.2307/ 3611672 [24] R. B. Rusu and S. Cousins, “3D is Here: Point Cloud Library (PCL),” in IEEE International Conference on Robotics and Automation (ICRA) . Shanghai, China: IEEE, May 9-13 2011. [Online]. Available: https://doi.org/10.1109/ICRA.2011.5980567 [25] L. Xue, “Fixed Radius NN Search,” https://github.com/lxxue/FRNN, 2026. [26] E. Meneses, H. Bec, C. A. Navarroa, B. Crespin, F. A. Quezada, N. Hitschfeld, H. Porro, and M. Maria, “Advancing RT Core-Accelerated Fixed-Radius Nearest Neighbor Search,” arXiv preprint arXiv:2601.15633 , 2026. [Online]. Available: https://doi.org/10.48550/ arXiv.2601.15633 [27] Nvidia, “Optix Documentation,” 2026. [Online]. Available: https: //raytracing-docs.nvidia.com/optix8/index.html [28] R. R. Munugala and M. Gowanlock, “GDBOD: Density-Based Outlier Detection Exploiting Efficient Tree Traversals on the GPU,” in 2024 IEEE 31st International Conference on High Performance Computing, Data, and Analytics (HiPC) . IEEE, 2024, pp. 111–121. [Online]. Available: https://doi.org/10.1109/HiPC62374.2024.00021 [29] A. E. Nocentino and P. J. Rhodes, “Optimizing Memory Access on GPUs using Morton Order Indexing,” in Proceedings of the 48th annual ACM Southeast Conference , 2010, pp. 1–4. [Online]. Available: https://doi.org/10.1145/1900008.1900035 [30] NVIDIA, “CUDA Toolkit Documentation,” 2026. [Online]. Avail-able: https://docs.nvidia.com/cuda/cuda-runtime-api/group CUDART MEMORY.html [31] Ingo Wald, “OWL: A Productivity Library for OptiX,” 2026, Available at: https://github.com/NVIDIA/OWL. [32] P. Baldi, P. Sadowski, and D. Whiteson, “Searching for Exotic Particles in High-Energy Physics with Deep Learning,” Nature Communications , vol. 5, p. 4308, 2014. [Online]. Available: https: //doi.org/10.1038/ncomms5308 [33] M. Neshat, B. Alexander, M. Wagner, and Y. Xia, “A Detailed Comparison of Meta-Heuristic Methods for Optimising Wave Energy Converter Placements,” in Proceedings of the Genetic and Evolutionary Computation Conference , 2018, pp. 1318–1325. [Online]. Available: https://doi.org/10.1145/3205455.3205492 [34] M. R. Ackermann, M. M¨ artens, C. Raupach, K. Swierkot, C. Lammersen, and C. Sohler, “StreamKM++ A Clustering Algorithm for Data Streams,” Journal of Experimental Algorithmics (JEA) , vol. 17, pp. 2–1, 2012. [Online]. Available: https://doi.org/10.1145/2133803.2184450 [35] T. Bertin-Mahieux, D. Ellis, B. Whitman, and P. Lamere, “The Million Song Dataset.” in Proceedings of the 12th International Conference on Music Information Retrieval (ISMIR 2011) , 01 2011, pp. 591–596. [Online]. Available: https://doi.org/10.7916/D8NZ8J07 [36] X. Fu, B. McCane, S. Mills, M. Albert, and L. Szyman-ski, “SIFT10M,” UCI Machine Learning Repository, 2016, DOI: https://doi.org/10.24432/C5S603. [37] N. Ravi, J. Reizenstein, D. Novotny, T. Gordon, W.-Y. Lo, J. Johnson, and G. Gkioxari, “Accelerating 3D Deep Learning with PyTorch3D,” arXiv:2007.08501 , 2020. [Online]. Available: https://doi.org/10.48550/arXiv.2007.08501 [38] NVIDIA, “cuVS: GPU-Accelerated Vector Search and Clustering Li-brary,” https://github.com/rapidsai/cuvs, 2025, version 25.12.00, Apache-2.0 License. [39] M. Gowanlock, D. M. Blair, and V. Pankratius, “Exploiting Variant-Based Parallelism for Data Mining of Space Weather Phenomena,” in 2016 IEEE International Parallel and Distributed Processing Symposium (IPDPS) . IEEE, 2016, pp. 760–769. [Online]. Available: https://doi.org/10.1109/IPDPS.2016.10 [40] Gaia Collaboration, Brown, A. G. A., Vallenari, A., Prusti, T., de Bruijne, J. H. J., Babusiaux, C. et al. , “Gaia Data Release 2 - Summary of the Contents and Survey Properties,” Astronomy & Astrophysics , vol. 616, p. A1, 2018. [Online]. Available: https: //doi.org/10.1051/0004-6361/201833051 [41] K. Keahey, J. Anderson, Z. Zhen, P. Riteau, P. Ruth, D. Stanzione, M. Cevik, J. Colleran, H. S. Gunawi, C. Hammock, J. Mambretti, A. Barnes, F. Halbach, A. Rocha, and J. Stubbs, “Lessons Learned from the Chameleon Testbed,” in Proceedings of the 2020 USENIX Annual Technical Conference (USENIX ATC ’20) . USENIX Association, July 2020. [Online]. Available: https://dl.acm.org/doi/abs/10.5555/3489146. 3489161

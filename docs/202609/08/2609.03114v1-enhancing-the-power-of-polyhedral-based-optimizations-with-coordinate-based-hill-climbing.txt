@@ -1,0 +1,506 @@
+Title: Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing
+
+URL Source: https://arxiv.org/pdf/2609.03114v1
+
+Published Time: Fri, 04 Sep 2026 00:11:04 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 
+
+GAURAV VERMA, Stony Brook University, USA 
+
+MICHAEL CANESCHE, Cadence, Brazil 
+
+FERNANDO MAGNO QUINTÃO PEREIRA, UFMG, Brazil This paper describes our experience extending the polyhedral compiler Pluto with a lightweight, coordinate-wise hill-climbing tuner that adjusts numeric transformation parameters—such as tile sizes and thread-block dimensions—after Pluto selects the kernel’s loop structure. To ensure fast convergence and escape local minima, hill climbing is augmented with two techniques: expanded neighborhood exploration and a shortest-hop refinement phase. On x86 and ARM CPUs, tuned kernels outperform Pluto’s default configuration (1.06–1.28× geometric mean speedup across 11 benchmarks) and static optimizers (Clang -O3, Polly, IOOpt), reaching performance competitive with the AutoTVM autotuner at substantially lower search cost. Applying the same technique to GPU thread-block allocation on an NVIDIA A100 yields 5.5–8.5% improvement over default configurations. These results position post-optimization parameter tuning as a practical middle ground between fixed-cost-model polyhedral compilation and full autotuning. CCS Concepts: • Software and its engineering → Compilers .Additional Key Words and Phrases: Kernel, Polyhedron, Hill Climbing 
+
+1 INTRODUCTION 
+
+The polyhedral model is a mathematical framework that optimizes loops in programs by repre-senting their iteration space as a polyhedron (a geometric shape in multi-dimensional space) 1. The theory of polyhedra is important because it allows the systematic representation and optimization of loop-intensive code. By modeling loop iterations as points in a high-dimensional geometric space, polyhedra enable precise analyses of data dependencies, allowing compilers to safely apply complex transformations such as loop interchange, tiling, and fusion to improve cache utilization and parallelism [2, 12, 28, 42, 48, 63, 71, 75]. Given the tremendous popularity of deep-learning models, plus the fact that these models are primarily implemented as nests of loops, one might expect the polyhedral model to be enjoying its golden age. However, modern kernel optimizers like Ansor [74], Atlas [68], AutoTVM [17], cuDNN [1], Halide [51], OpenTuner [4], Spiral [25], TensorComprehensions [66], and Tiramisu [6] often take a different approach. Rather than relying on purely static analyses, they perform an 
+
+empirical exploration of the optimization space. These tools employ techniques such as evolutionary search, gradient-based methods, and machine learning to sample the universe of high-performance kernel implementations. This empirical approach enables compilers to fine-tune performance for specific hardware plat-forms by capturing hardware characteristics—such as cache hierarchies, vectorization capabilities, and memory bandwidth—that static models like the polyhedral approach may not fully account for. By collecting performance data of multiple versions of the kernel, and iteratively refining them, these compilers can adapt to the intricacies of the target architecture. This dynamic search process is often referred to as auto-tuning . While auto-tuning is more hardware-aware than polyhedral-based optimizations, it requires the costly execution of multiple versions of the same program.   
+
+> 1Notions of iteration and data space appeared independently in several works during the 80s and 90s [3, 21, 22, 24, 33, 36, 49, 50, 53–55, 60, 69, 69, 70], eventually leading to the theory known today as the Polyhedral Model .Authors’ addresses: Gaurav Verma, Stony Brook University, Stony Brook, USA, gaurav.verma@stonybrook.edu; Michael Canesche, Cadence, Belo Horizonte, Brazil, canesche@cadence.com; Fernando Magno Quintão Pereira, UFMG, Belo Hori-zonte, Brazil, fernando@dcc.ufmg.br. arXiv:2609.03114v1 [cs.PL] 2 Sep 2026 2Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira
+
+The Contribution of this Work. This paper presents a practical methodology that enhances static polyhedral compilation with lightweight, post-generation parameter tuning. Unlike full autotuners that explore both kernel shape and numeric parameters empirically, we use polyhedral analysis to determine a promising kernel “shape” (the ordering of loops and memory access patterns) and then apply coordinate-wise hill climbing exclusively to numeric parameters such as tile sizes, unrolling factors, and thread-block dimensions. This hybrid approach offers three specific contributions: 
+
+A Focused Tuning Problem. Prior work on combining polyhedral analysis with search-based optimization has explored large, combinatorial spaces that include scheduling deci-sions, fusion/fission choices, and transformation sequences [44, 47, 65]. While powerful, these approaches incur significant search costs due to the size of the space they explore. In contrast, we observe that once a polyhedral compiler has committed to a kernel shape, the remaining optimization space (numeric parameters of already-selected transformations) is substantially smaller and amenable to lightweight local search. Our contribution is not a more expressive search, but rather a demonstration that this focused, post-hoc tuning recovers most of the available performance at a fraction of the cost of broader exploration. 
+
+Static Bootstrapping of the Search Space. Hill climbing and other gradient-based search methods require a well-defined starting point and search space to be effective [14, 37]. Prior applications of hill climbing to kernel optimization have relied on human-provided initial configurations or on seeding from other autotuning algorithms [14, 15]. We show that polyhedral analysis alone can provide both the search space (by fixing the kernel shape) and a competitive starting point (Pluto’s default parameters), eliminating the need for manual intervention or expensive pre-tuning. This addresses a question left open by Canesche et al. [14] and Zhao et al. [72]: how to identify a promising optimization space for gradient-based tuning without empirical sampling. 
+
+Practical Effectiveness Across Architectures and Optimizations. We demonstrate that our lightweight tuning approach generalizes beyond CPU tiling to GPU thread-block allo-cation, a qualitatively different optimization with different performance trade-offs (register pressure vs. occupancy). Across 11 CPU benchmarks and 10 GPU benchmarks, our technique consistently improves upon static compilers and achieves performance competitive with AutoTVM [17], a full autotuner, while requiring substantially less search time. These results establish post-optimization parameter tuning as a cost-effective parameter tuner. 
+
+Summary of Results. As Section 4 shows, the proposed parameter tuning approach has been applied to two parametric compiler optimizations, each targeting a different execution environment: 
+
+Loop Tiling: a combination of strip-mining and loop interchange that reorganizes iteration spaces into blocks called tiles. This optimization, implemented in Pluto [12] 2, uses tile sizes as optimization parameters. 
+
+Thread Blocking: a GPU optimization that partitions threads into blocks, trading register pressure for hardware occupancy. The number of threads per block is typically fixed by the developer; in our approach, it is exposed as a tunable parameter. Our evaluation on x86 and ARM CPUs shows that hill climbing, augmented with expanded neighborhoods and a shortest-hop refinement phase, consistently improves upon Pluto’s default configuration, achieving geometric mean speedups of 1.06–1.28x across 11 benchmarks. Tuned kernels outperform static optimizers such as clang -O3 , Polly, and IOOpt [43], and match the performance of AutoTVM [17] at substantially lower search cost. Although search overhead remains  
+
+> 2The ideas discussed in this paper should be applicable to other polyhedral tools. We chose Pluto because a recent comparison of polyhedral compilers, including Polly, PoCC, and PPCG, shows that it achieves some of the highest observed speedups [62]. Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 3
+
+significant (40–75x relative to compilation time), it compares favorably to full autotuners that require orders of magnitude more samples. On GPU, the same technique improves thread-block allocation on an NVIDIA A100 by 5.5–8.5% over default configurations, with search times that are a fraction of exhaustive exploration. These results demonstrate that post-optimization parameter tuning offers a practical middle ground between fixed-cost-model polyhedral compilation and full autotuning. 
+
+2 OPTIMAL CONFIGURATIONS OF POLYHEDRAL OPTIMIZATIONS 
+
+The polyhedral model treats each loop iteration as a point in the loop’s iteration space . The model uses inequalities to define the bounds and dependencies between these iterations. This combination of bounds and dependencies provides a framework that enables loop transformations such as tiling, fusion, and interchange. Tools that utilize the polyhedral model to optimize programs, such as Pluto [12] or Polly [27], generally work in three phases: 
+
+Static analysis: The polyhedral optimizer analyzes the iteration space to determine how loops interact with each other and with data. 
+
+Rewriting: The optimizer applies transformations like tiling or loop interchange to improve data locality and parallelism. 
+
+Code generation: The transformed code is generated. Example 2.1 illustrates these notions of iteration space and dependencies. 
+
+Example 2.1. Figure 1 shows a basic implementation of matrix multiplication, 𝐶 = 𝐴 × 𝐵 , written in the C programming language. Each loop forms a dimension of the iteration space. Figure 1 represents this set of all valid loop iterations as a 3D space with i, j, and k forming the axes. Each point in this 3D space corresponds to a specific combination of loop indices (i, j, k) for which an operation is performed. The iteration space is bounded by the loop limits. For instance, for 
+
+i, the bounds are 0 ≤ i < n. The polyhedral model captures these bounds as inequalities that form a polyhedron in a higher-dimensional space. The model also captures dependencies between iterations. In Figure 1, there is no dependency between different iterations of i and j, but there is a dependency within the k loop because C[i][j] is updated in every iteration of k.ivoid matmul(                                         
+
+> int n, float A[n][n], float B[n][n], float C[n][n] ){
+> for (int i=0; i<n; i++) {
+> for (int j=0; j<n; j++) {
+> for (int k=0; k<n; k++) {C[i][j] += A[i][k] *B[k][j]; }}}}01 02 03 04 05 06 07 08 09 10 11
+> (0, 0, 0)
+> jknnn
+
+Fig. 1. The implementation of basic matrix multiplication, used to illustrate the effects of polyhedral transfor-mations, and the iteration space of this kernel, showing loop dependencies along the K dimension. 
+
+2.1 Polyhedral Transformations 
+
+The polyhedral model enables optimizations like loop interchange and tiling. This theory guar-antees that such transformations preserve the program’s correctness by ensuring that memory dependencies across different loop iterations are respected. Once the dependencies are captured, 4 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+the model can safely apply transformations like strip mining (breaking loops into smaller blocks) and loop interchange (reordering loops to improve data locality). Example 2.2 illustrates how these two transformations enable loop tiling .
+
+Example 2.2. Figure 2 shows the code that results from manually applying strip mining and loop interchange to the program in Figure 1. Strip mining partitions the loops into smaller blocks. Once combined with interchange, these blocks form tiles . Looping over such tiles, instead of over the entire iteration space, enhances cache locality. The optimized program runs faster: on an AMD Ryzen at 2.6GHz, the program in Figure 1 (b), compiled with gcc -O3, with 1024 × 1024 matrices, might take about 0.1 seconds to finish, whereas the naïve version in Figure 1 takes more than 2 seconds. for (int ii = 0; ii < N; ii += I)                                                                                                                                                     
+
+> for (int kk =0; kk <N; kk += K)
+> for (int jj =0; jj <N; jj += J)
+> for (int i=ii; i<ii +I&& i<N; i++)
+> for (int k=kk; k<kk +K&& k<N; k++)
+> for (int j=jj; j<jj +J&& j<N; j++) C[i][j] += A[i][k] *B[k][j];
+> for (int ii =0; ii <N; ii += I)
+> for (int i=ii; i<ii +I&& i<N; i++)
+> for (int jj =0; jj <N; jj += J)
+> for (int j=jj; j<jj +J&& j<N; j++)
+> for (int kk =0; kk <N; kk += K)
+> for (int k=kk; k<kk +K&& k<N; k++) C[i][j] += A[i][k] *B[k][j];
+> Strip Mining: Loop Interchange:
+> (a) (b)
+> 4816 32 64 128 256 512 Speedup over baseline IJK 8.3 8.3 14.3 20 25 25 20 20
+> CPU : AMD Ryzen 2.6GHz
+> Cache : 1 MiB L1d
+> Matrices : 1536 * 1536
+> I== J== K
+
+Fig. 2. A tiled version of the matrix multiplication algorithm (see Figure 1). This version results from the application of two compiler transformations: strip mining and loop interchange. The bar plot shows the speedup of the tiled version over the implementation in Figure 1 on a commodity AMD Ryzen. 
+
+2.2 Parameter Tuning 
+
+The optimizations that produced the program in Figure 2 rely on three parameters: I, J, and K, the dimensions of the three tiling windows. The values in Figure 2, I = J = K = 32, are the default dimensions used by tools like Pluto. However, they are not necessarily the best values; hence, these tools usually offer users knobs to configure them. Example 2.3 shows what such fine-tuning can achieve. 
+
+Example 2.3. Figure 3 shows the search space formed by the tiling parameters I and J defined in Figure 2, with K = 32, considering square matrices of 1024 ×1024 elements. The origin of this space is 
+
+(J = 4, I = 4). The surface was produced by running the kernel in Figure 2 on an AMD Ryzen 2.6GHz, considering every possible combination of (I × J), where {I, J} ⊂ { 4, 8, 16 , 32 , 64 , 128 , 256 }. An exhaustive search on this grid reveals that the optimal kernel implementation uses (J = 256 , I = 64 ),achieving a running time of 0.12 seconds. The naive, non-optimized code seen in Figure 1 runs in 2.19 seconds. Thus, optimizations, in this example, achieve a speedup of 18.25x. Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 50.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 4816 32 64 256 4816 32 64 128 4816 32 64 128 256 128 4816 32 64 128 0.1 0.3 0.5 0.7 0.9 Running Time (s) Running Time (s) Tile size (I) Tile size(J) Tile size (I) Tile size(J) 0.12 s 
+
+Fig. 3. Two different views of the search space of two tiling parameters used in Figure 2 on an AMD Ryzen 2.6GHz. The rightmost view highlights the path produced by hill climbing when applied to this optimization space. 
+
+Figure 3 shows that, in this particular example, the region extending from the origin of the search space to its optimal configuration is convex . A convex subregion within the hypersurface 3
+
+defined by a function is a subset of the hypersurface where, for any two points within the region, the straight line segment connecting them lies entirely within it. In a convex region, any local minimum is a global minimum. This makes optimization much simpler and more efficient, as there are no local minima traps to mislead search algorithms. The expectation that the region containing the origin of a kernel’s search space and its global optimum be convex is known as the Droplet Hypothesis [14]. We notice that this is an “expectation”; not a guarantee: many benchmarks that this paper analyzes yield non-convex optimization surfaces (see Figure 13 on Page 19). Nevertheless, as Section 4 demonstrates, convexity is not a necessary requirement for the adjustment policy proposed in this paper to work. However, whenever this property is present, the adjustment is guaranteed to converge to an optimal kernel configuration. 
+
+3 COORDINATE-WISE HILL CLIMBING OVER POLYHEDRA 
+
+Our search procedure is a hill-climbing algorithm: it repeatedly moves to a better-performing point in a discrete search space by comparing the current candidate against a set of nearby candidates, called its neighborhood . Each neighbor differs from the current candidate in exactly one optimization parameter (one “coordinate”), so we call the approach coordinate-wise hill climbing 4. The essence of our search algorithm consists of four steps: 
+
+Initialization: Start with an initial guess for the solution, and let it be the current kernel candidate (see Section 3.1). 
+
+Neighborhood Generation: For each iteration, generate the neighborhood of the current candidate using the definition of neighborhood from Section 3.2.          
+
+> 3A hypersurface is a manifold of 𝑛 −1 dimensions embedded in an 𝑛 -dimensional space, defined by a function. In Example 2.3, this function maps (J,I)to running time.
+> 4Notice that this approach is a different search strategy from coordinate descent , which instead fixes all but one coordinate and performs a full search (e.g., a line search) along that single coordinate before moving on to the next. 6Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira
+
+Candidate Selection: Evaluate candidates in the neighborhood and update the current can-didate to the one that improves the objective function, using one of the selection strategies described in Section 3.3. 
+
+Convergence: The process continues until some convergence criterion (like a small enough change in the objective function or solution) is met (see Section 3.4). 
+
+3.1 Bootstrapping: Finding the Seed Kernel 
+
+In this work, we use the Polyhedral Model to bootstrap parameter search via coordinate-wise hill climbing. Bootstrapping, in this context, means finding a Kernel Optimization Space . To define this concept, we note that in the Polyhedral Model, typical kernels can be written as a set of polyhedra, each defined by the loop bounds. Example 3.1 illustrates this approach. 
+
+Example 3.1. In the polyhedral model, the iteration space of the loops in the matrix multiplication kernel of Figure 1 are described as a set of polyhedra defined by the loop bounds. The indices 𝑖 , 𝑗 ,and 𝑘 form a three-dimensional space, and the bounds 0 ≤ 𝑖 < 𝑁 , 0 ≤ 𝑗 < 𝑁 , and 0 ≤ 𝑘 < 𝑁 define a polyhedron (a cube) in this space defined as: 
+
+P = {( 𝑖, 𝑗, 𝑘 ) | 0 ≤ 𝑖 < 𝑁 , 0 ≤ 𝑗 < 𝑁 , 0 ≤ 𝑘 < 𝑁 }
+
+This 3D cube represents the entire set of iterations for the three loops. Each point in this cube corresponds to a specific combination of loop indices (𝑖, 𝑗, 𝑘 ), and the computation at that point updates the corresponding element 𝐶 [𝑖 ] [ 𝑗 ].Given the polyhedral representation of a loop, code transformations can be described as transfor-mations of this geometric space. In other words, because the iteration space is represented as a set of integer points, transformations can be applied by multiplying these points by a transformation matrix. Example 3.2 illustrates this point. 
+
+Example 3.2. To perform a loop interchange on the representation seen in Example 3.1, we might swap the loops over 𝑗 and 𝑘 . In this case, the iteration space becomes: 
+
+P′ = {( 𝑖, 𝑘, 𝑗 ) | 0 ≤ 𝑖 < 𝑁 , 0 ≤ 𝑘 < 𝑁 , 0 ≤ 𝑗 < 𝑁 }
+
+We represent this transformation with a permutation matrix that swaps the second and third components of the vector. The matrix that swaps 𝑗 and 𝑘 is: 
+
+𝑇 = ©«
+
+1 0 00 0 10 1 0
+
+ª®¬
+
+This matrix has the following effect: 
+
+• The first row leaves the first coordinate 𝑖 unchanged. 
+
+• The second row places 𝑘 in the second position. 
+
+• The third row places 𝑗 in the third position. To apply the transformation to a point p, we multiply the point by a matrix Θ:
+
+Θ · p = ©«
+
+1 0 00 0 10 1 0
+
+ª®¬
+
+· ©«
+
+𝑖 𝑗 𝑘 
+
+ª®¬
+
+= ©«
+
+𝑖 𝑘 𝑗 
+
+ª®¬
+
+= p′
+
+This new point p′ represents the iteration space after the loop interchange. Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 7
+
+The notions that Examples 3.1 and 3.2 illustrate give us the material to formalize the Kernel Optimization Space :
+
+Definition 3.3 (Kernel Optimization Space). Let P be the polyhedra-based description of a com-putational kernel. Let 𝑆 = ⟨Θ1, Θ2, . . . , Θ𝑛 ⟩ be an ordered sequence of 𝑛 transformations applied to P; hence, leading to a new polyhedra-based description P′. We call the sequence 𝑆 a kernel optimization space relative to kernel P.
+
+Example 3.4. Function tiled (Fig. 2) shows one concrete kernel that inhabits the space that ensues from the following sequence of optimizations applied onto Figure 1: 𝑆 = ⟨interchange 𝑖,𝑗 ,
+
+tile 𝑗 , tile 𝑘 ⟩. Figure 3 shows the full space, which is formed by every possible kernel that abide by the same sequence of optimizations. The beauty of polyhedral-based transformations is that they provide a composable technique to rewrite loops, plus the mechanisms to validate these transformations and to estimate their profit. In this regard, polytope operations give us a measure of memory reuse : by comparing the dimensions of the data space (the bounds of tensors accessed by kernels) with the dimensions of the iteration space we can estimate data locality statically [8]. These observations lead to Proposition 3.5, which we state below: Proposition 3.5. Out-of-the-box polyhedral analyses can be effectively used to find a good kernel optimization space. 
+
+Notice that Proposition 3.5 talks about the kernel space but says nothing within points within this space: this optimal point depends on hardware details. It is not simple to augment polyhedral analyses with cost models that correctly model the many architectures onto which they can be used, as already observed by previous work [64]. To achieve this goal, we resort to the ideas discussed in Section 3.2. 
+
+3.2 The Neighborhood Function 
+
+The Search Space from Definition 3.3 has a basis : a set of parameterizable optimizations that spans the entire space. These parameters, in the context of this paper, are natural numbers. In other words, each point of the optimization space is a choice of values for the parameters of the optimizations that define it. Example 3.6 clarifies this notion. 
+
+Example 3.6. Figure 4 shows the general description of all the kernels that form a five-dimensional optimization space, generated by the following optimizations: 𝑆 = ⟨interchange 𝑖,𝑗 ,
+
+tile 𝑗 , tile 𝑘 , parallelize 𝑖 , unroll 𝑗 , vectorize 𝑗 ⟩. Except for loop interchange, all these optimiza-tions are customized via parameters. For instance, unrolling takes in one parameter: the unrolling factor, and parallelization takes in one parameter: the number of threads. In this example, we consider the following parameter sets: 
+
+• 𝑃 0 = parallel 𝑖 = {1, 2, 4, 6, 8, 10 }• 𝑃 1 = tile 𝑘 ∈ { 1, 4, 8, 16 }• 𝑃 2 = tile 𝑗 ∈ { 1, 4, 8, 16 }• 𝑃 3 = unroll 𝑗 ∈ { 1, 8, 16 , 32 }• 𝑃 4 = vectorize 𝑗 ∈ { 1, 4, 8}
+
+A concrete kernel 𝑘 is defined by a choice of optimization parameters (𝑝 1, 𝑝 2, . . . , 𝑝 𝑛 ), where each parameter belongs to a finite set of natural numbers, e.g., 𝑝 𝑖 ∈ 𝑃 𝑖 ⊂ N. From this observation, we define “neighborhood” as follows: 8 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira The origin of the search space: (P0 = 1, P1 = 1, P2 = 1, P3 = 1, P4 = 1)                                                                            
+
+> void tiled( int n, float A[n][n], float B[n][n], float C[n][n]) {
+> #parallel(P0) in {1, 2, 4, 6, 8, 10}
+> for (int i=0; i<n; i++) {
+> #tile(P1) in {1, 4, 8, 16}
+> for (int k=0; k<n; k+= K) {
+> #tile(P2) in {1, 4, 8, 16} #unroll(P3) in {1, 8, 16, 32}
+> for (int j=0; j<n; j+= J) {
+> #vectorize(P4) in {1, 4, 8}
+> C[i][j] += A[i][k] *B[k][j]; }}}}01 02 03 04 05 06 07 08 09 10 11 12 13
+> (P0 = 2 P1 = 1 P2 = 1 P3 = 1 P4 = 1) (P0 = 1 P1 = 4 P2 = 1 P3 = 1 P4 = 1) (P0 = 1 P1 = 1 P2 = 4 P3 = 1 P4 = 1) (P0 = 1 P1 = 1 P2 = 1 P3 = 8 P4 = 1) (P0 = 2 P1 = 1 P2 = 1 P3 = 1 P4 = 4) Immediate Neighborhood
+
+…
+
+Fig. 4. Example of search space, with base and origin, plus an example of neighborhood. 
+
+Definition 3.7 (Neighborhood). The neighborhood of a kernel 𝑘 = (𝑝 1, . . . , 𝑝 𝑛 ) is the set of all kernels 𝑘 ′ obtained by changing exactly one parameter 𝑝 𝑖 (1 ≤ 𝑖 ≤ 𝑛 ) to an adjacent value in 𝑃 𝑖 ,that is, 𝑘 ′ = (𝑝 1, . . . , 𝑝 ′ 
+
+> 𝑖
+
+, . . . , 𝑝 𝑛 ) where either: 
+
+• 𝑝 ′ 
+
+> 𝑖
+
+> 𝑝 𝑖 , and for any other 𝑝 ∈ 𝑃 𝑖 , if 𝑝 > 𝑝 𝑖 , then 𝑝 ≥ 𝑝 ′ 
+
+> 𝑖
+
+;
+
+• 𝑝 ′ 
+
+> 𝑖
+
+< 𝑝 𝑖 , and for any other 𝑝 ∈ 𝑃 𝑖 , if 𝑝 < 𝑝 𝑖 , then 𝑝 ≤ 𝑝 ′ 
+
+> 𝑖
+
+.Note that the neighborhood from Definition 3.7 is a union taken over every coordinate 𝑖 : it contains, for each of the 𝑛 parameters, the kernel(s) obtained by moving that parameter to its next-larger and/or next-smaller value while holding all other parameters fixed. A neighborhood therefore mixes single-parameter perturbations drawn from all 𝑛 coordinates, rather than being restricted to one coordinate at a time. Example 3.8 illustrates this definition. 
+
+Example 3.8. Figure 4 shows the origin of the kernel optimization space, e.g., the vector (𝑝 0 =
+
+1, 𝑝 1 = 1, 𝑝 2 = 1, 𝑝 3 = 1, 𝑝 4 = 1), and the neighborhood of this vector, which contains five new vectors — one per coordinate, since each 𝑝 𝑖 is already at the minimum of its domain and so only has a next-larger neighbor. 
+
+3.3 Choosing the Next Kernel 
+
+As Definition 3.7 formalizes, a neighborhood is the set of kernels that differ from the current kernel by a change in one of its parameters, pooled across all coordinates. Our search moves through this neighborhood greedily: at each step, it evaluates candidates drawn from every coordinate at once and moves to whichever one improves the objective, rather than committing to a single coordinate and exhausting it before considering the others. In this paper, we have evaluated three different techniques to choose the next kernel candidate: Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 9
+
+(1) Immediate Neighbor Evaluation : In this approach, the algorithm evaluates the imme-diate neighbors (across all coordinates) and selects the best kernel that demonstrates a performance improvement over the current one. This method prioritizes quick progress, especially when the kernel neighborhood is large. (2) Expanded Neighborhoods : The expanded neighborhoods approach broadens the search by considering not only immediate neighbors (first-degree) but also more distant candi-dates, known as higher-degree neighbors (second or third degree). This method allows the algorithm to reach beyond local configurations, helping it avoid getting stuck in suboptimal local minima by exploring a larger radius within the search space. While this flexibility can reveal better-performing configurations, it also introduces a trade-off, as examining higher-degree neighbors increases computational cost. (3) Shortest-Hop Exploration : In this approach, once the hill-climbing search stops (stopping criteria are discussed in Section 3.4), the search continues using the smallest value in the list of valid optimization parameters. This technique allows exploration of points that are not present in the original list of optimization parameters, as Example 3.10 will illustrate. These strategies offer a balance between search speed and thoroughness, allowing the hill-climbing algorithm to adapt to various performance surfaces, as Example 3.9 illustrates. This example shows that our search enables the polyhedral-based optimizer to explore interactions between different optimizations that would be difficult to approximate with an exclusively static cost model. 
+
+Example 3.9. Figure 5 illustrates an example of a kernel neighborhood in a 2D space shaped by two optimizations: vectorization and unrolling. The first-fit approach explores the neighboring kernels in order. In this scenario, the search would move from the current candidate to Kernel-3, even though Kernel-4 offers better performance. In contrast, the best-fit approach would select Kernel-4, as it explores the entire neighborhood. Lastly, an expanded search with a depth of 2 would examine nine kernels in total, ultimately choosing the best one. Vector lanes j Current kernel candidate Immediate neighborhood of current candidate Expanded neighborhood of current candidate Unrolling factor j Running time (sec) 432 1Sampling order 0816 32 64 
+
+Fig. 5. Immediate and expanded neighborhoods of the kernel candidate on a 2D search space. Hill climbing on the immediate neighborhood is faster, but has higher chance of becoming stuck in local minima. 10 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+The immediate and expanded neighborhoods discussed in Example 3.9 consider a predefined list of optimization parameters and do not include new parameters formed by the additive composition of old parameters. This shortcoming is addressed in the shortest-hop variation of our search, as shown in Example 3.10. 
+
+Example 3.10. Figure 6 illustrates how the shortest-hop search works. We assume an optimization, such as tiling, which initially admits five parameters: 2, 4, 8, 16, and 32. These parameters are provided by the user; however, they might not be the only valid solutions for tiling. Tiling windows of length 16, 18, or 20 could also be valid. Indeed, if any of these parameters are perfect divisors of the tiled loop, they might even be better choices, as observed by Tollenaere et al. [64]. In this example, let’s assume that the search stops at tiles of size 16 (because trying tiles of size 32 does not yield faster kernels). At this stopping point, the shortest-hop search will start varying sizes by a step of two, as this is the shortest hop. The search still follows the same neighborhood-based procedure and evaluates tiles of length 14 and 18. If the latter yields faster kernels, it becomes the current candidate. Original optimization parameters = 2, 4, 8, 16, 32 0 2 4 8 16 32  
+
+> Tile sizes Running Time  Shortest hop Coordinate-Wise Hill Climbing Shortest hop search
+> 18 20 22 24
+> Best parameter New parameters
+> Fig. 6. Convergence via shortest-hop search.
+
+3.4 Stopping Criteria 
+
+The hill-climbing search stops if one of the following two conditions is met: 
+
+Convergence: There is no statistical difference between the current candidate kernel 𝐾 and every kernel in 𝐾 ’s neighborhood. 
+
+Iterations: The search runs for a fixed number 𝑁 of iterations. Each iteration consists of finding a new candidate kernel 𝐾 𝑖 , which is strictly faster than the previous candidate kernel 
+
+𝐾 𝑖 −1.The experiments in Section 4 use a fixed bound of 𝑁 = 100 iterations. However, in the experiments reported in Section 4, this bound has never been achieved. The search always stops before its 100 𝑡ℎ 
+
+iteration, due to convergence. We determine convergence at iteration 𝑖 if the current candidate kernel 𝐾 𝑖 cannot be shown to be faster than any kernel on its neighborhood via a Mann-Whitney U test (equivalently, the Wilcoxon rank-sum test). We use this non-parametric test due to the small size of samples that constitute each population that it compares. In our case, a population is the different running times that result from executing a kernel. Our implementation runs each kernel three times, so each population being compared has three samples. Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 11 
+
+4 EVALUATION 
+
+This section evaluates the following research questions: 
+
+RQ1: How does our technique improve upon Pluto in terms of kernel performance? 
+
+RQ2: What is the additional time overhead introduced by our approach? 
+
+RQ3: How does our approach compare to other well-known tools in terms of kernel quality? 
+
+RQ4: How does our approach compare to other well-known tools in terms of search time? 
+
+RQ5: What is the optimal starting point for the search trajectory? 
+
+RQ6: How does the choice of the next candidate improve search efficiency and kernel quality? 
+
+RQ7: Can we generalize the adjustment approach to a different hardware model and a different optimization, such as thread blocking on a graphics processing unit? 
+
+Hardware: We evaluated the scheduling approaches on two architectures: x86 (Intel Xeon Max CPU 9468) and ARM-based A64FX (Fujitsu A64FX-FX700 on the Ookami Cluster). The Intel Xeon Max CPU operates at 2.6 GHz with 96 cores, and features 4.5 MiB L1d cache, 3 MiB L1i cache, 192 MiB L2 cache, and 210 MiB L3 cache. It is equipped with approximately 398 GB of RAM. The Fujitsu A64FX runs at 1.8 GHz with 48 cores and is supported by 32 GB of RAM. Each A64FX core has a 64 KB L1 cache (32 KB for data and 32 KB for instructions), and each 12-core NUMA node shares an 8 MB L2 cache. The architecture lacks an L3 cache. 
+
+Software: The ideas discussed in this paper are implemented in Pluto v0.12.0, which was the last release available at the time we performed the experiments in this section. Henceforth, we shall use 
+
+PlutoCD when referring to the version of Pluto augmented with our implementation of coordinate-based parameter discovery. Pluto’s standard distribution contains a collection of kernels [10]. In this section, we evaluate 11 of them. We use every kernel that we could compile (or transform) with the following tools besides Pluto: gcc v13.2.0, clang v16.0.0, Polly release 20.0.0git, TVM v0.18.0 and IOOpt [43]. Except for TVM, all the tools are given the same implementation of the kernel, in C++. TVM, in turn, uses an implementation written in TensorIR, its internal domain-specific language. The only polyhedral optimization in Pluto that lets us easily adjust parameters is tiling: in this case, tiling is parameterized by the length of the tiling window. Therefore, each dimension of tiling gives us a dimension in the search space that we can optimize using hill climbing. 0123softmax maxpool gemm conv2d depthwise gemm_bias_relu gemm_bilinear gemm_layernorm self_attention 2d-bidirectional cholesky GCC Clang  
+
+> 0123softmax maxpool gemm conv2d depthwise gemm_bias_relu gemm_bilinear gemm_layernorm self_attention 2d-bidirectional cholesky GCC Clang Geomean Geomean Speedup Pluto / PlutoCD
+
+Fig. 7. Performance speedup of the proposed solution compared to Pluto on (a) x86 architecture and (b) A64FX architecture. 
+
+4.1 Speeding Up Kernels Produced by Pluto 
+
+Our first research question evaluates how much room for improvement Pluto’s default choice of optimization parameters leaves. To this end, we evaluate Pluto and PlutoCD on the eleven benchmark we have. In this evaluation, we use two different compilers as code generators: gcc and 12 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+clang, at the -O3 optimization level. In other words, for each kernel, we optimize it using Pluto, adjust parameters using PlutoCD, and report the ratio between the running time of Pluto’s kernel over PlutoCD’s. 
+
+Discussion. Figure 7 reports our speedups. Evidently, PlutoCD always produces some speedup over Pluto. This observation is expected: if PlutoCD cannot optimize any parameter of the target kernel, it defaults to Pluto’s original version. Given our combinations of code generator (clang and gcc) and target architecture (x86 and A64FX), Figure 7 reports 44 different experiments. In only five cases does PlutoCD settle for the same choice of parameters that Pluto uses by default (tiling windows spanning 32 loop iterations). Nonetheless, we still observe noticeable speedups: 1.28x on gcc/x86, 1.06x on clang/x86, 1.21x on gcc/A64FX, and 1.12x on clang/A64FX (geometric mean of ratios). 
+
+4.2 Running Time Overhead of Hill Climbing 
+
+PlutoCD adds a search overhead on top of Pluto. This overhead includes the time required to run coordinate-based hill climbing algorithm and to sample kernels. Sampling a kernel requires running its implementation three times. The goal of this research question is to gauge the extent of this search overhead. 
+
+Discussion. The table in Figure 1 shows the search time of PlutoCD. Without any hill climbing, we observe the following execution times for the generated code for all our eleven benchmarks (in milliseconds): x86/gcc = 184.20; x86/clang = 2486.72; ARM/gcc = 884.89; and ARM/clang = 10829. These are the execution time of the kernel produced by Pluto. Once we add hill climbing to this pipeline — comprising the time to run hill climbing and sample kernels combined with the execution time of the kernels — we observe (time in milliseconds): x86/gcc = 13851; x86/clang = 107224; ARM/gcc = 64731; and ARM/clang = 428901. Therefore, the slowdown that we obtain with PlutoCD instead of Pluto is: x86/gcc = 75.19x; x86/clang = 43.12x; ARM/gcc = 73.15x; and ARM/clang = 39.60x due to the search component added to Pluto. The improvement in the kernel’s execution time is: x86/gcc = 1.23x; x86/clang = 1.06x; ARM/gcc = 1.19x; and ARM/clang = 1.04x 
+
+> Table 1. Time taken to generate the kernel using PlutoCD (measured in milliseconds).
+
+Processor X86 Xeon ARM a64fx Kernel GCC (ms) Clang (ms) GCC (ms) Clang (ms) 
+
+softmax 3806 5762 2851 7273 maxpool 6900 117120 36654 750950 gemm 61511 566470 298080 2603529 conv2d 12159 177808 91968 972797 depthwise 180429 2179340 1377427 7978330 gemm_bias_relu 102679 654436 480187 5706932 gemm_bilinear 102908 548351 448504 4366545 gemm_layernorm 85489 1085021 457104 3492492 self_attention 35172 183203 296563 325822 2d-bidirectional 11 60 38 179 cholesky 2846 33824 19280 161574 
+
+Geomean 13851 107224 64731 428901 Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 13 
+
+4.3 On the Performance of Kernels 
+
+There are various ways to produce executable implementations for the eleven benchmarks chosen in this evaluation, each representing different trade-offs between compilation time and executable quality. This section compares six approaches, each represented by a different tool: Pluto, PlutoCD, gcc -O3, Polly, IOOpt, and AutoTVM. The first five tools receive the same kernel implementation as input. In contrast, TVM receives a specification of the kernel written in its tensor expression (TVM’s DSL). All optimized kernels are compiled with gcc -O3 before deployment, making gcc -O3 the baseline in this study. 02146810 12 softmax maxpool gemm conv2d depthwise gemm_bias_relu gemm_bilinear gemm_layernorm self_attention 2d-bidirectional cholesky Geomean Pluto LLVM Polly IOOPT AutoTVM PlutoCD 
+
+> 17
+> Speedup with relation to GCC -O3
+
+Fig. 8. Performance comparison between GCC -O3 and other tools on x86 architecture. 
+
+Discussion. Figure 8 compares the running time of executable kernels using gcc -O3 as the baseline. We observe the following average running time variations (geometric mean over ratios): x86/Pluto = 1.96x; x86/PlutoCD = 2.46x; x86/Polly = 0.74x; x86/IOOpt = 0.30x; x86/AutoTVM = 1.36x. AutoTVM is allowed to generate and run 1,000 kernels. AutoTVM’s XGBoost typically converges sooner. TVM is only effective when templates for the input kernel are available. Without templates, AutoTVM may run all 1,000 samples without finding a competitive implementation. For IOOpt, we used its online interface to obtain the shape and tiling dimensions for the input kernel. This tool uses analytical cost models, similar to the equations proposed by Narasimhan et al. [40], to choose tile sizes. While it allows specification of cache hierarchy parameters, the chosen tiling parameters and loop ordering did not yield competitive kernels in our x86 setting. Our understanding is that minimizing memory traffic does not automatically optimize for vector register usage or SIMD execution. Without complementary low-level vectorization passes, IOOpt generated code might be optimal for cache movement but underutilize vector execution units. We have reported this observation to the authors. 
+
+4.4 Comparison of Search Times 
+
+This paper considers two approaches to generate optimized versions of kernels: static code gen-eration guided by a cost model (as done by Pluto, Polly, and IOOpt) and sampling (as done by AutoTVM and PlutoCD during the hill climbing phase). Sampling involves executing kernels and thus might impose a significant overhead on the compilation process. This section analyzes this overhead by comparing the search times of PlutoCD and AutoTVM. AutoTVM is allowed to run 1,000 different versions of a kernel, following the same methodology used in Section 4.3. 
+
+Discussion. Figure 9 compares the search times of AutoTVM and PlutoCD. The figure shows that PlutoCD is much faster than AutoTVM: on average, based on the geometric mean of absolute 14 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira Time Search (log scale) 1E+2 1E+3 1E+4 1E+5 1E+6 1E+7 softmax maxpool gemm conv2d depthwise gemm_bias_relu gemm_bilinear gemm_layernorm self_attention 2d-bidirectional cholesky Geomean AutoTVM PlutoCD 
+
+Fig. 9. Search time of AutoTVM and our tool (measured in milliseconds). The search time of PlutoCD on 
+
+2d-bidirectional was too short to show. 
+
+running times, PlutoCD is 24.44x faster than AutoTVM in generating all eleven executables. This difference roughly follows the difference in the number of samples collected by each framework: whereas AutoTVM compiles and runs 1,000 kernels, PlutoCD has a hard limit of 100 iterations, and it often stops before reaching half this number. PlutoCD’s advantage is further reflected in the fact that the kernels it produces are faster than those generated by AutoTVM, as discussed in Section 4.3. We note, however, one limitation of this experiment: AutoTVM and PlutoCD read different inputs. Whereas AutoTVM reads TensorIR, PlutoCD operates on C++ programs; hence, Figure 9 compares search times across different infrastructures. Nevertheless, we emphasize that the difference in infrastructure alone cannot explain a two-order-of-magnitude gap between AutoTVM and PlutoCD. To support this last statement, it is worth to compare PlutoCD with and without searches. Post-optimization tuning causes a slowdown of 40-75x, depending on the benchmark; thus, it is the dominating factor in PlutoCD’s running time. 
+
+4.5 On the Starting Point of Coordinate-Based Hill Climbing 
+
+Hill climbing requires a seed , or starting point. In TVM, its application is based on the “Droplet Hypothesis” [14], the expectation that the line between the origin in the optimization space (i.e., the unoptimized kernel) and the optimal point in this space forms a convex region. Following this hypothesis, hill climbing should ideally begin with a configuration where each tile window has a size of one. However, Pluto provides a practical starting point: a configuration where each tile window has a size of 32. In this section, we explore which starting point leads to the most effective implementation of PlutoCD, considering both the quality of the generated kernels and the convergence time. 
+
+Discussion. Figure 2 shows that beginning from Pluto’s seed (tile size 32) consistently reduces convergence time across the tested kernels compared to starting from the origin (tile size one). Specifically, starting from Pluto’s seed requires fewer iterations to reach an optimal configuration, suggesting that the search space around the seed provides a more favorable trajectory for hill climbing. When initialized from the origin, the search must explore a broader parameter range before achieving comparable performance, resulting in a slower convergence rate as the algorithm Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 15 
+
+> Table 2. Search time and kernel execution time (both in milliseconds) comparing the search starting from the origin or from Pluto’s seed.
+
+Kernel From origin From seed Search time (ms) Kernel exec (ms) Search time (ms) Kernel exec (ms) softmax 762 10 292 10 maxpool 19527 66 2527 66 gemm 193080 116 26735 112 conv2d 46130 178 29969 211 depthwise 923478 3125 650989 3129 gemm_bias_relu 416638 586 111220 587 gemm_bilinear 395848 586 79335 605 gemm_layernorm 262040 736 108420 729 self_attention 27140 425 19281 424 2d-bidirectional 98 0.24 35 0.24 cholesky 8698 260 14938 259 
+
+Geomean 35748 135 13893 137 
+
+takes additional steps to approach the optimal settings found near the seed. The starting point, however, appears to have little impact on the overall quality of the kernels produced by PlutoCD. Although Figure 2 shows slight variations in the “Kernel exec” columns, these differences—except in the case of conv2d —are likely not statistically significant. In conv2d , beginning from the origin of the search space (in line with the Droplet Hypothesis) produces a faster kernel, which may indicate that Pluto’s seed lies outside the convex region anticipated by this hypothesis 
+
+4.6 On the Choice of Next Candidate 
+
+As explained in Section 3.3, our implementation of PlutoCD considers three different approaches to choose the next optimization parameter that hill climbing must explore. This research question evaluates how these different strategies for selecting the next candidate in the search trajectory affect the efficiency of convergence and the quality of the final optimized kernel produced by PlutoCD 
+
+Immediate Neighbor Evaluation: The first method discussed in Section 4.6, the best fit approach, involves evaluating all the immediate neighbors of the current candidate. For each neighbor, we run the kernel three times and select the candidate with the best observed performance. Table 1 and Figure 8 already report results for this approach. Based on those results, we know that PlutoCD’s default best fit approach, even when restricted to a neighborhood of distance one, yields kernels that are faster than those produced by Pluto alone. However, as the search is restricted to the immediate neighborhood, it may fail to identify configurations that require broader exploration, potentially missing global minima due to getting stuck in local minima. 
+
+Expanded Neighborhoods: To evaluate the impact of the expanded neighborhood on PlutoCD’s implementation, we evaluated neighborhoods of degree 2 and degree 3 in addition to the immediate neighborhood of degree 1 (used in Table 1 and in Figure 8). As shown in Figure 10, each degree represents a wider radius of potential configurations from the starting point. These expanded neighborhoods could, in theory, allow PlutoCD to escape local minima. However, regardless of the neighborhood degree, all three classes converged to similarly performing candidates. This result 16 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira Search Time (log scale) 5E+2 1E+3 5E+3 1E+4 5E+4 1E+5 5E+5 softmax maxpool gemm conv2d depthwise gemm_bias_relu gemm_bilinear gemm_layernorm self_attention 2d-bidirectional cholesky Geomean dist=1 dist=2 dist=3 
+
+Fig. 10. Impact of neighborhood distance on search performance. 
+
+suggests that increasing the degree of neighbors does not necessarily enhance performance. Instead, expanding to higher-degree neighborhoods introduces greater search-time overhead without significant improvements in kernel quality. Thus, limiting the neighborhood to degree 1 is typically more efficient, which is why this is the default configuration of PlutoCD. 
+
+Table 3. Search time and execution time (both in milliseconds) for two distinct next-neighbor approaches. 
+
+Kernel GCC -O3 Dynamic Hill Climbing (1 degree neighbor) Shortest-Hop Exploration Search Time (ms) Execution Time (ms) Tile Sizes Search Time (ms) Execution Time (ms) Tile Sizes softmax 9.9 8.17E+02 10 (64) 2.11E+04 9.8 (488) maxpool 103 1.23E+04 57 (4, 16) 5.29E+04 57 (16, 24) gemm 1026 1.82E+05 105 (32,128,4) 2.17E+05 91 (256, 512, 8) conv2d 76 1.45E+04 77 (2, 512) 3.26E+04 77 (4, 512) depthwise 3283 7.86E+05 2511 (1,1,64,32) 1.30E+06 2500 (54,53,116,84) gemm_bias_relu 4022 1.58E+05 735 (4, 64, 2) 3.14E+05 720 (10, 70, 8) gemm_bilinear 3973 2.07E+05 593 (16, 64, 4) 3.04E+05 592 (116,140,110) gemm_layernorm 3977 2.07E+05 594 (8, 64, 8) 4.61E+05 587 (264,312,252) self_attention 1742 9.84E+04 1716 (4, 2) 3.80E+06 1619 (502, 512) 2d-bidirectional 0.25 1.10E+07 0.235 (256) 3.96E+08 0.237 (512) cholesky 342 1.50E+04 260 (4, 2, 2, 2) 6.62E+04 259 (2, 2, 2, 2) 
+
+Shortest-Hop Exploration: The third search approach we evaluate in this section is the shortest-hop technique described in Section 3.3 and illustrated in Example 3.10. Using this strategy, we first adjust parameters using the normal hill climbing algorithm. Once it converges, we switch to constant variations of parameters; hence, exploiting parameter configurations that are not in the original set of predetermined configurations. Table 3 shows how this technique fares. The shortest-hop technique yiels a marginal improvement on the running times of kernels: about 3% on top of the default PlutoCD’s immediate neighborhood. However, its search time is substantially longer: about 30x. Using the shortest-hop exploration, we managed to improve on the default immediate-neighborhood method in only three benchmarks: gemm , gemm_layernorm and self_attention .Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 17 
+
+Improvements naturally happen because the shortest-hop search explores more versions of the same kernel. 
+
+4.7 On the Generalization of the Approach 
+
+The previous techniques have evaluated the impact of parameter adjustment applied onto a single compiler optimization—tiling—when producing code for a standard CPU. This section demonstrates that this form of adjustment based on hill climbing can be applied onto a different optimization— 
+
+thread block tuning —when generating code for a different architecture—the NVIDIA A100: a graphics processing unit (GPU). In CUDA, thread block tuning refers to selecting an optimal configuration of thread blocks; specifically, the number of threads assigned to each block along the X, Y, and Z dimensions [32, 61]. This choice directly impacts memory access patterns, shared memory utilization, and overall execution efficiency. Example 4.1 illustrates this optimization. 
+
+Example 4.1. Figure 11 shows part of a program that implements matrix multiplication in CUDA. Thread block tuning, in this example, involves selecting optimal values for BLOCK_SIZE_X and 
+
+BLOCK_SIZE_Y to balance parallelism, memory efficiency, and hardware occupancy. In this matrix multiplication kernel, each thread computes a single output element C[row, col] by iterating over a row of A and a column of B. The number of threads per block (blockSize) is set as (BLOCK_SIZE_X, BLOCK_SIZE_Y) , while the number of blocks ( gridSize ) is computed to cover all N × N elements. Choosing blocks that are too small leads to excessive scheduling overhead, while too large blocks may waste registers and shared memory, reducing occupancy. The best values depend on GPU architecture, memory bandwidth, and workload characteristics. __global__ void matMul(const float *A, const float *B, float *C, int n) {int row = blockIdx.y * blockDim.y + threadIdx.y; int col = blockIdx.x * blockDim.x + threadIdx.x; if (row < n && col < n) {float sum = 0.0f; for (int k = 0; k < n; k++) sum += A[row * n + k] * B[k * n + col]; C[row * n + col] = sum; }}#define N 2000 #define BLOCK_SIZE_X 16 #define BLOCK_SIZE_Y 64 int main() {... dim3 blockSize(BLOCK_SIZE_X, BLOCK_SIZE_Y); size_t dim_x = (N + BLOCK_SIZE_X - 1) / BLOCK_SIZE_X; size_t dim_y = (N + BLOCK_SIZE_Y - 1) / BLOCK_SIZE_Y; dim3 gridSize(dim_x, dim_y); matMul<<<gridSize, blockSize>>>(dA, dB, dC, N); ... }01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24        
+
+> The goal of thread block tuning is to determine the values of BLOCK_SIZE_X and BLOCK_SIZE_Y that maximize performance. The product BLOCK_SIZE_X *BLOCK_SIZE_Y must be less than the maximum number of threads per block.
+
+Fig. 11. Thread block tuning consists in determining the values of BLOCK_SIZE_X and BLOCK_SIZE_Y that maximize performance. 
+
+Benchmarks. In this section, we evaluate the impact of post-adjustment on ten benchmarks (for the list, see Figure 12). These benchmarks were chosen to simulate the effect of compiler 18 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+optimizations. The suffix “ _vanilla ” denotes the original benchmark, without any transformation. The suffix “ _unroll ” denotes the effect of loop unrolling; and the suffix “ _interchange ” denotes the effect of the interchange of the two innermost loops. Loop interchange and loop unrolling were performed manually on the original benchmark. Two benchmarks used in Figure 12 were taken from an artifact made publicly available by previous work [57]. These benchmarks simulate the application of “statement reordering”, as proposed by Rawat et al. 5.
+
+Methodology. All the results reported in this section were observed on an NVIDIA A100 graphics processing unit, where blocks of threads have access to 1,024 physical threads. We compare the relative performance of programs compiled with the following four thread adjustment plans: 
+
+Baseline: The default thread allocation of each benchmark. This schema assigns 1,024 threads to 1D-applications (those where threads are created along one single dimension), and 32 × 32 threads to 2D-applications, where threads are created along the X and Y dimensions. 
+
+Exhaustive: This approach tests every possible allocation of threads along the available dimensions, varying the allocations in steps of eight threads. 
+
+Degree-1: Adjustment via hill climbing using a neighborhood of size 1. 
+
+Degree-2: Adjustment via hill climbing using a neighborhood of size 2. To evaluate the impact of post-adjustment on thread block tuning, we proceed as follows: we reset to one the number of threads in all the dimensions that are subject to change. We then apply hill climbing onto these parameters, following the methodology explained in Section 3.3. 
+
+Fig. 12. Impact of thread block tuning on the performance of typical Cuda benchmarks. Each number is the average of three results. 
+
+Discussion. Figure 12 shows that the adjustment phase, regardless of the technique used, is advantageous in almost every benchmark, albeit the degree of improvement varies considerably. The geometric average running time improvement over the baseline is 5.48%, 7.67% and 8.53% for 
+
+> 5The “ HY ” benchmark corresponds to the “ hypterm ” routine, a component of the ExpCNS Compressible Navier-Stokes mini-application developed by the U.S. Department of Energy (DoE). The SW4 and related stencil benchmarks originate from the Seismic Wave SW4 application, designed for geodynamic simulations [23].
+
+Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 19 stencil 64pt (vanilla) 1000 
+
+> sw4
+> Matrix multiplication (unroll) Reduction (vanilla) reduction (unroll)
+> Matrix multiplication (interchange)
+> hy
+> stencil 64pt (unroll) The Z dimension in the 3D surfaces is running time (in seconds)  Running time (seconds) Block dimension Block dimension Block dimension (Y) Block dimension (X) Block dimension (Y) Block dimension (X) Block dimension (Y) Block dimension (X) Block dimension (X) Block dimension (Y) Block dimension (X) Block dimension (Y) Block dimension (X) Block dimension (Y) Minima (local or global) Minima (local or global) reduction (vanilla)
+
+Fig. 13. The search space of thread blocks for seven benchmarks evaluated in this section. Each point is the average of three runs. Red stars mark points of minima. Every surface has at least two such points. 
+
+hill climbing with degree one, degree two and the exhaustive search, respectively. Hill climbing delivers results that are very close to the exhaustive search. The extended neighborhood improves upon the neighborhood of degree one in four benchmarks: vanilla_matrix_multiplication ,
+
+sentencil_64pt_unroll , hy and redux_unroll , with a large improvement (approximately 15%) being observed on the latter. Convexity does not seem to be a determining factor for performance. None of the ten benchmarks seen in Figure 12 yields a convex performance surface. To demonstrate this fact, Figure 13 shows the performance surface of eight of these benchmarks. Non-convexity surfaces might cause hill climbing stabilize at local minima. Nevertheless, although the line of hill climbing does not traverse a convex surface, it tends to find thread configurations that are very close to the optimal performance point. To illustrate this observation, Figure 14 shows the search space of the vanilla matrix multiplication kernel. In this example, each one of the four thread-configuration approaches ends with a different 20 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+configuration. Yet, as the figure emphasizes, hill climbing, although not zeroing on the optimal configuration, is very close to it. This surface is the optimization space for the vanilla matrix multiplication kernel. This kernel instantiate threads along two dimensions, X and Y, with the constraint X ╳ Y ≤ 1,024 (number of available physical threads). • The base implementation allocates X=32 and Y=32 threads to each dimension. • Hill climbing with a neighborhood of size one finds X=8 and Y = 16. • Hill climbing with a neighborhood of size two finds X = 8 and Y = 32. • The exhaustive search finds the optimal configuration X=128 and Y = 8. 
+
+Fig. 14. The search space of the vanilla matrix multiplication kernel, showing the thread configurations found by different techniques. 
+
+5 RELATED WORK 
+
+This paper combines two code generation techniques: auto-tuning and polyhedral-based compila-tion. Both share the fundamental goal of producing highly efficient code that maximizes performance by exploiting the underlying hardware’s capabilities. Additionally, both approaches focus on loop optimizations, such as tiling, unrolling, and fusion, and target performance-sensitive domains such as scientific computing, image processing, and deep learning. The key difference between these approaches lies in how they explore the optimization space and make decisions. Figure 15 highlights these differences. Polyhedral Compilation 
+
+Analyze & Compile Cost model Pluto Polly PoCC PPCG GRAPHITE Polygeist Parameter adjustment Modus Operandi Tools 
+
+Search-Based Autotuning 
+
+(Compile → Sample → Adjust)* Sampling Ansor AutoTVM Tiramisu Halide OpenTuner ATF Orio CLTune MetaTune MAQAO PolySA CHiLL 
+
+Fig. 15. High-level comparison between polyhedral compilation and compiler autotuners. 
+
+Auto-tuning, as seen in tools like MetaTune [58], AutoTVM [18], Tiramisu [7], Halide [52], OpenTuner [5], CLTune [41], Orio [31], ATF [56], MAQAO [20] and Ansor [73], is a feedback-driven approach. It generates multiple versions of code with different optimization configurations, runs these versions on the target hardware, and collects performance data, such as execution time and memory usage. On the other hand, polyhedral-based code generation, as applied in tools like Pluto [11, 13], Polly [26, 38], PoCC [46], Polygeist [39], GRAPHITE [45], PolySA [19], PPCG [67], Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 21 
+
+and CHiLL [16], is a theoretical model-driven approach: optimizations are guided by a cost model rather than by runtime feedback. One primary advantage of auto-tuning is its ability to tailor optimizations to specific hardware architectures and workloads by empirically testing multiple code versions. This adaptability allows auto-tuners to optimize code for diverse architectures, from CPUs to GPUs to FPGAs, without relying on theoretical models. However, this trial-and-error process is computationally expensive, as running multiple code versions and gathering performance data is time-consuming. 
+
+Bridging the Gap. This paper proposes a simple technique to unify polyhedral and search-based code generation. However, previous works have already combined these techniques. One of the earliest efforts to combine the two paradigms is Pouchet et al. [47]’s iterative polyhedral compiler, which uses the polyhedral model to prune the auto-tuner’s search space. Since that work, other research groups have explored different ways to combine the two approaches. In this context, it is possible to place our approach relative to three distinct strategies that have been explored in the literature: (i) broader metaheuristic search over the transformation space, (ii) analytical models that eliminate runtime sampling entirely, and (iii) parametric code generation that removes the cost of recompiling between candidates. 
+
+Broader, more expensive search. A more aggressive combination of the two paradigms is explored by Papenhausen and Mueller [44]’s Coding Ants framework, which extends the PPCG compiler with ant colony optimization (ACO) to jointly select scheduling algorithm choices, statement fusion/fission decisions, and tiling, modeling on the order of fifteen search-space dimensions; the underlying hypercube formulation of ACO that Coding Ants builds on is due to Blum and Dorigo [9]. Trifunovic [65] similarly studies search-based strategies for schedule and tiling selection inside a production polyhedral compiler (GRAPHITE), focusing on the scalability of search-driven compilation at compiler scale. These approaches search a substantially larger and more general space than ours — the full scheduling and fusion decision space, not just the numeric parameters of an already-chosen kernel shape — and can consequently find configurations our technique cannot reach. This generality comes at a cost: population-based metaheuristics such as ACO require many iterations over many candidate colonies, each colony member requiring its own kernel execution, which is considerably more expensive than the handful of samples our hill-climbing search needs per kernel (Section 4). Our contribution is not a more thorough search; it is showing that, once a polyhedral compiler has already committed to a kernel shape, a lightweight, model-free local search over that shape’s numeric parameters recovers most of the available performance at a small fraction of this cost. 
+
+Analytical, zero-sampling models. A separate line of work avoids runtime sampling altogether by deriving tile sizes (and, in some cases, fusion decisions) from an analytical cost model. Sarkar and Megiddo [59] give an early cache-miss-based analytical model for tile size selection. Narasimhan et al. [40] propose a fast, general tile size selection model that computes tile sizes as the zeros of a low-degree polynomial capturing temporal and spatial reuse, incurring essentially no compile-time overhead, and demonstrate it across linear algebra, DSP, and image-processing kernels. Jangda and Bondhugula [34] jointly model fusion and tile size selection analytically for image-processing pipelines expressed in PolyMage. Jayaweera et al. [35] extend this line of analytical modeling to a different objective: energy rather than running time for GPU kernels. More recently, Tollenaere et al. [64] used similar techniques to speed up Ansor’s empirical search, avoiding evaluation of kernel versions that are unlikely to yield good performance. These techniques have a real advantage our approach does not share: zero runtime sampling cost, in contrast to the search overhead we report in Section 4.4. Their limitation is the difficulty to model hardware characteristics. Modern hardware is very complex, and often lacks open specifications that model developers can use. As 22 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+we show in this paper, hill-climbing adaptation can approximate hardware characteristics without analytical models, at the price of empirical sampling. The two ideas are complementary rather than competing: an analytical tile size model such as Narasimhan et al. [40]’s could replace Pluto’s fixed default as the seed for our search, likely reducing the number of hill-climbing iterations needed to converge. We leave this composition to future work. 
+
+Parametric, recompilation-free code generation. A third line of work targets a different cost than either of the above: the overhead of regenerating and recompiling code for every candidate parameter value during search. Hartono et al. [29] generate parametric multi-level tiled code (including for imperfectly nested loops) in which tile sizes are runtime rather than compile-time constants, so different candidates can be evaluated without recompilation. DynTile [30] pursues the same goal for parallel execution on multicore processors. This directly addresses a limitation of our approach that we quantify in Section 4.4: each hill-climbing step in our implementation requires regenerating and recompiling the kernel, which is the dominant source of the reported 40–75 ×
+
+search-time overhead relative to Pluto alone. Adopting a parametric code generation strategy is a natural way to reduce this overhead in future versions of our approach without changing the hill-climbing search itself. We believe that using hill climbing to adjust the parameters of polyhedral-based optimizations, seeded exclusively by a static, model-free polyhedral analysis, is an original contribution of this paper. Hill climbing in autotuning itself is not new: the droplet search algorithm was designed to speed up AutoTVM’s search time [14]. Variants of this algorithm were subsequently applied to Ansor [37] and TVM’s MetaScheduler [15]. The key difference in this work is that previous uses of hill climbing were in tandem with autotuners, with initial spaces chosen via human intervention [14] or other autotuning algorithms like evolutionary search [15]. This paper exclusively uses static analyses based on the polytope model to determine the search space for hill climbing. 
+
+6 CONCLUSION 
+
+This paper has introduced a methodology to adjust the optimization parameters used by polyhedral-based compilers, making them more competitive with the autotuners that have gained popularity in recent years. The approach proposed in this paper uses hill climbing to fine tune the parameters of static compiler optimization. The strength of this method lies in observing that a simple hill-climbing tuning approach, once combined with static optimizers, such as Pluto, can bring these optimizers closer to more extensive autotuners, such as AutoTVM, for instance. This combination of polyhedral optimization with hill climbing-based parameter adjustment is synergistic in a number of ways. On one hand, the polyhedral-based compiler provides hill climbing with a feasible optimization space to explore. On the other, the feedback-driven adjustment phase makes the compiler more attuned to the finer details of the target hardware. Without the optimization space generated by the polyhedral compiler, hill climbing would lack direction as it would have no clear space to navigate. Conversely, without the refinement phase of hill climbing, effectively using the polyhedral-based compiler would be challenging, as it would not have the necessary adjustments to align its static optimization parameters with the complexities of the target architecture—a task too intricate to be captured by a general cost model. 
+
+Software. An artifact containing all the tools necessary to reproduce the experiments in Section 4 is available at https://github.com/xintin/kelpie. 
+
+REFERENCES    
+
+> [1] ... 2014. cuDNN: Efficient Primitives for Deep Learning. arXiv preprint arXiv:1410.0759. https://arxiv.org/abs/1410.0759 [2] Khaled Abdelaal and Martin Kong. 2021. Tile size selection of affine programs for GPGPUs using polyhedral cross-compilation. In Supercomputing . ACM, New York, USA, 13–26.
+
+Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 23 
+
+[3] S. Amarasinghe and M. Lam. 1993. Communication Optimization and Code Generation for Distributed Memory Machines. In PLDI . ACM Press, Albuquerque, N.M., 126–138. [4] Jason Ansel, Shoaib Kamil, Kalyan Veeramachaneni, Jonathan Ragan-Kelley, Jeffrey Bosboom, Una-May O’Reilly, and Saman Amarasinghe. 2014. OpenTuner: an extensible framework for program autotuning. In PACT (Edmonton, AB, Canada). Association for Computing Machinery, New York, NY, USA, 303–316. doi:10.1145/2628071.2628092 [5] Jason Ansel, Shoaib Kamil, Kalyan Veeramachaneni, Jonathan Ragan-Kelley, Jeffrey Bosboom, Una-May O’Reilly, and Saman Amarasinghe. 2014. Opentuner: An extensible framework for program autotuning. In Proceedings of the 23rd international conference on Parallel architectures and compilation . Association for Computing Machinery, Edmonton, Alberta, Canada, 303–316. [6] Riyadh Baghdadi, Abdelkader Nadir Debbagh, Kamel Abdous, Fatima Zohra Benhamida, Alex Renda, Jonathan Elliott Frankle, Michael Carbin, and Saman Amarasinghe. 2020. TIRAMISU: A polyhedral compiler for dense and sparse deep learning. [7] Riyadh Baghdadi, Jessica Ray, Malek Ben Romdhane, Emanuele Del Sozzo, Abdurrahman Akkas, Yunming Zhang, Patricia Suriana, Shoaib Kamil, and Saman Amarasinghe. 2019. Tiramisu: A polyhedral compiler for expressing fast and portable code. In 2019 IEEE/ACM International Symposium on Code Generation and Optimization (CGO) . IEEE, IEEE Press, USA, 193–205. [8] Mohamed-Walid Benabderrahmane, Louis-Noël Pouchet, Albert Cohen, and Cédric Bastoul. 2010. The polyhedral model is more widely applicable than you think. In Compiler Construction (Paphos, Cyprus) (CC’10/ETAPS’10) . Springer-Verlag, Berlin, Heidelberg, 283–303. doi:10.1007/978-3-642-11970-5_16 [9] C. Blum and M. Dorigo. 2004. The hyper-cube framework for ant colony optimization. Trans. Sys. Man Cyber. Part B 
+
+34, 2 (April 2004), 1161–1172. doi:10.1109/TSMCB.2003.821450 [10] Uday Bondhugula. 2024. Pluto High-Performance Kernels. https://github.com/bondhugula/pluto/tree/master/ examples. [11] Uday Bondhugula, Muthu Baskaran, Sriram Krishnamoorthy, Jagannathan Ramanujam, Atanas Rountev, and Pon-nuswamy Sadayappan. 2008. Automatic transformations for communication-minimized parallelization and locality optimization in the polyhedral model. In Compiler Construction . Springer, Springer-Verlag, Berlin, Heidelberg, 132–146. [12] Uday Bondhugula, Albert Hartono, J. Ramanujam, and P. Sadayappan. 2008. A practical automatic polyhedral parallelizer and locality optimizer. In PLDI (Tucson, AZ, USA) (PLDI ’08) . Association for Computing Machinery, New York, NY, USA, 101–113. doi:10.1145/1375581.1375595 [13] Uday Bondhugula, Albert Hartono, Jagannathan Ramanujam, and Ponnuswamy Sadayappan. 2008. A Practical Automatic Polyhedral Parallelizer and Locality Optimizer. In Proceedings of the 2008 ACM SIGPLAN Conference on Programming Language Design and Implementation (Tucson, AZ, USA) (PLDI ’08) . Association for Computing Machinery, New York, NY, USA, 101–113. doi:10.1145/1375581.1375595 [14] Michael Canesche, Vanderson M. Rosario, Edson Borin, and Fernando Magno Quintão Pereira. 2024. The Droplet Search Algorithm for Kernel Scheduling. 25 pages. doi:10.1145/3650109 Just Accepted. [15] Michael Canesche, Gaurav Verma, and Fernando Magno Quintao Pereira. 2024. Explore as a Storm, Exploit as a Raindrop: On the Benefit of Fine-Tuning Kernel Schedulers with Coordinate Descent. arXiv:2406.20037 [cs.LG] https://arxiv.org/abs/2406.20037 [16] Chun Chen, Jacqueline Chame, and Mary Hall. 2008. CHiLL: A framework for composing high-level loop transformations .Technical Report. Citeseer. [17] Tianqi Chen, Thierry Moreau, Ziheng Jiang, Lianmin Zheng, Eddie Yan, Haichen Shen, Meghan Cowan, Leyuan Wang, Yuwei Hu, Luis Ceze, et al. 2018. {TVM }: An automated {End-to-End } optimizing compiler for deep learning. In 
+
+OSDI . USENIX, Berkeley, USA, 578–594. [18] Tianqi Chen, Thierry Moreau, Ziheng Jiang, Lianmin Zheng, Eddie Yan, Haichen Shen, Meghan Cowan, Leyuan Wang, Yuwei Hu, Luis Ceze, et al. 2018. {TVM }: An automated {End-to-End } optimizing compiler for deep learning. In 
+
+13th USENIX Symposium on Operating Systems Design and Implementation (OSDI 18) . USENIX Association, CA, USA, 578–594. [19] Jason Cong and Jie Wang. 2018. PolySA: Polyhedral-based systolic array auto-compilation. In ICCAD . IEEE, New York, US, 1–8. [20] Lamia Djoudi, Denis Barthou, Patrick Carribault, Christophe Lemuet, Jean-Thomas Acquaviva, William Jalby, et al. 2005. Maqao: Modular assembler quality analyzer and optimizer for itanium 2. [21] Paul Feautrier. 1992. Some Efficient Solutions to the Affine Scheduling Problem. Part I. One-dimensional Time. 
+
+International Journal of Parallel Programming 21, 5 (1992), 313–347. [22] Paul Feautrier. 1992. Some Efficient Solutions to the Affine Scheduling Problem. Part II. Multidimensional Time. 
+
+International Journal of Parallel Programming 21, 6 (1992), 389–420. [23] Center for Exascale Simulation of Combustion in Turbulence. 2014. SW4 2014. Seismic Wave Modelling (SW4) -Computational Infrastructure for Geodynamics. https://geodynamics.org/cig/software/sw4. 24 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+[24] José A. B. Fortes and Dan I. Moldovan. 1984. Data Broadcasting in Linearly Scheduled Array Processors. ACM SIGARCH Computer Architecture News 12, 3 (Jan. 1984), 224–231. doi:10.1145/773453.808186 [25] Franz Franchetti, Tze Meng Low, Doru Thom Popovici, Richard M Veras, Daniele G Spampinato, Jeremy R Johnson, Markus Püschel, James C Hoe, and José MF Moura. 2018. SPIRAL: Extreme performance portability. Proc. IEEE 106, 11 (2018), 1935–1968. [26] Tobias Grosser, Armin Groesslinger, and Christian Lengauer. 2012. Polly—performing polyhedral optimizations on a low-level intermediate representation. Parallel Processing Letters 22, 04 (2012), 1250010. [27] Tobias Grosser, Armin Größlinger, and Christian Lengauer. 2012. Polly - Performing Polyhedral Optimizations on a Low-Level Intermediate Representation. Parallel Process. Lett. 22, 4 (2012), 23 pages. doi:10.1142/S0129626412500107 [28] Rajiv Gupta, Santosh Pande, Kleanthis Psarris, and Vivek Sarkar. 1999. Compilation techniques for parallel systems. 
+
+Parallel Comput. 25, 13-14 (1999), 1741–1783. [29] Albert Hartono, Muthu Manikandan Baskaran, Cédric Bastoul, Albert Cohen, Sriram Krishnamoorthy, Boyana Norris, J. Ramanujam, and P. Sadayappan. 2009. Parametric multi-level tiling of imperfectly nested loops. In ICS (Yorktown Heights, NY, USA). Association for Computing Machinery, New York, NY, USA, 147–157. doi:10.1145/1542275.1542301 [30] Albert Hartono, Muthu Manikandan Baskaran, Jagannathan Ramanujam, and Ponnuswamy Sadayappan. 2010. DynTile: Parametric tiled loop generation for parallel execution on multicore processors. In IPDPS . IEEE, New York, USA, 1–12. [31] Albert Hartono, Boyana Norris, and Ponnuswamy Sadayappan. 2009. Annotation-Based Empirical Performance Tuning Using Orio. In 2009 IEEE International Symposium on Parallel and Distributed Processing . IEEE, Piscataway, NJ, USA, 1–11. doi:10.1109/IPDPS.2009.5161004 [32] Pieter Hijma, Stijn Heldens, Alessio Sclocco, Ben van Werkhoven, and Henri E. Bal. 2023. Optimization Techniques for GPU Programming. ACM Comput. Surv. 55, 11, Article 239 (March 2023), 81 pages. doi:10.1145/3570638 [33] François Irigoin and Rémi Triolet. 1988. Supernode Partitioning. In Proceedings of the 15th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages (San Diego, CA, USA) (POPL ’88) . Association for Computing Machinery, New York, NY, USA, 319–328. doi:10.1145/73560.73588 [34] Abhinav Jangda and Uday Bondhugula. 2018. An effective fusion and tile size model for optimizing image processing pipelines. SIGPLAN Not. 53, 1 (Feb. 2018), 261–275. doi:10.1145/3200691.3178507 [35] Malith Jayaweera, Martin Kong, Yanzhi Wang, and David Kaeli. 2024. Energy-Aware Tile Size Selection for Affine Programs on GPUs. In CGO (Edinburgh, United Kingdom). IEEE Press, New York, NY, USA, 13–27. doi:10.1109/ CGO57630.2024.10444795 [36] Monica S. Lam. 1989. A Systolic Array Optimizing Compiler . The Springer International Series in Engineering and Computer Science, Vol. 64. Kluwer Academic Publishers, Boston, MA, USA. doi:10.1007/978-1-4613-1705-0 [37] Chendi Li, Yufan Xu, Sina Mahdipour Saravani, and Ponnuswamy Sadayappan. 2024. Accelerated Auto-Tuning of GPU Kernels for Tensor Computations. In Supercomputing (Kyoto, Japan) (ICS ’24) . Association for Computing Machinery, New York, NY, USA, 549–561. doi:10.1145/3650200.3656626 [38] LLVM Project. 2024. Polly — Polyhedral Optimizer for LLVM. https://polly.llvm.org/. Accessed: 2024-10-31. [39] William S. Moses, Lorenzo Chelini, Ruizhe Zhao, and Oleksandr Zinenko. 2021. Polygeist: Raising C to Polyhedral MLIR. In Proceedings of the 30th International Conference on Parallel Architectures and Compilation Techniques (PACT 2021) (Virtual Event). IEEE Computer Society, United States, 45–59. doi:10.1109/PACT52795.2021.00011 [40] Kumudha Narasimhan, Aravind Acharya, Abhinav Baid, and Uday Bondhugula. 2021. A practical tile size selection model for affine loop nests. In ICS (Virtual Event, USA). Association for Computing Machinery, New York, NY, USA, 27–39. doi:10.1145/3447818.3462213 [41] Cedric Nugteren and Valeriu Codreanu. 2015. CLTune: A Generic Auto-Tuner for OpenCL Kernels. In 2015 IEEE 9th International Symposium on Embedded Multicore/Many-core Systems-on-Chip . IEEE, Piscataway, NJ, USA, 195–202. doi:10.1109/MCSoC.2015.10 [42] Tiago Daniel Costa Oliveira. 2023. Analysis and Comparison of Automatic Parallelization Tools . Master’s thesis. Instituto Politecnico do Cavado e do Ave (Portugal). [43] Auguste Olivry, Guillaume Iooss, Nicolas Tollenaere, Atanas Rountev, P. Sadayappan, and Fabrice Rastello. 2021. IOOpt: automatic derivation of I/O complexity bounds for affine programs. In PLDI (Virtual, Canada). Association for Computing Machinery, New York, NY, USA, 1187–1202. doi:10.1145/3453483.3454103 [44] Eric Papenhausen and Klaus Mueller. 2018. Coding Ants: Optimization of GPU code using ant colony optimization. 
+
+Comput. Lang. Syst. Struct. 54, C (Dec. 2018), 119–138. doi:10.1016/j.cl.2018.05.003 [45] Sebastian Pop, Albert Cohen, Cédric Bastoul, Sylvain Girbal, Georges-André Silber, and Nicolas Vasilache. 2006. GRAPHITE: Polyhedral Analyses and Optimizations for GCC. Proceedings of the 2006 GCC Developers Summit. https://gcc.gnu.org/pub/gcc/summit/2006-GCC-Summit-Proceedings.pdf Ottawa, Canada. [46] Louis-Noël Pouchet. 2024. PoCC: The Polyhedral Compiler Collection. https://sourceforge.net/projects/pocc/files/. Accessed: 2024-10-31. Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing 25 
+
+[47] Louis-Noël Pouchet, Cédric Bastoul, Albert Cohen, and John Cavazos. 2008. Iterative optimization in the polyhedral model: part ii, multidimensional time. In PLDI (Tucson, AZ, USA). Association for Computing Machinery, New York, NY, USA, 90–100. doi:10.1145/1375581.1375594 [48] Louis-Noël Pouchet, Uday Bondhugula, Cédric Bastoul, Albert Cohen, R Ramanujam, and P Sadayappan. 2009. Hybrid iterative and model-driven optimization in the polyhedral model . Ph. D. Dissertation. INRIA. [49] W. Pugh. 1992. A practical algorithm for exact array dependence analysis. Commun. ACM 35, 8 (1992), 102–114. doi:10.1145/135226.135233 [50] P. Quinton and V. Van Dongen. 1989. The Mapping of Linear Recurrence Equations on Regular Arrays. Journal of VLSI Signal Processing 1, 2 (1989), 95–113. [51] Jonathan Ragan-Kelley, Connelly Barnes, Andrew Adams, Sylvain Paris, Frédo Durand, and Saman Amarasinghe. 2013. Halide: a language and compiler for optimizing parallelism, locality, and recomputation in image processing pipelines. 
+
+SIGPLAN Not. 48, 6 (jun 2013), 519–530. doi:10.1145/2499370.2462176 [52] Jonathan Ragan-Kelley, Connelly Barnes, Andrew Adams, Sylvain Paris, Frédo Durand, and Saman Amarasinghe. 2013. Halide: a language and compiler for optimizing parallelism, locality, and recomputation in image processing pipelines. 
+
+Acm Sigplan Notices 48, 6 (2013), 519–530. [53] S. V. Rajopadhye. 1986. Synthesis, Optimization and Verification of Systolic Architectures . Ph. D. Dissertation. University of Utah, Salt Lake City, Utah 84112. [54] S. V. Rajopadhye, S. Purushothaman, and R. M. Fujimoto. 1986. On Synthesizing Systolic Arrays from Recurrence Equations with Linear Dependencies. In Foundations of Software Technology and Theoretical Computer Science . Springer Verlag, LNCS 241, New Delhi, India, 488–503. [55] J. Ramanujam and P. Sadayappan. 1990. Nested Loop Tiling for Distributed Memory Multiprocessors. In Proceedings of the Fifth Distributed Memory Computing Conference , Vol. 2. IEEE, Charleston, SC, USA, 1088–1096. doi:10.1109/DMCC. 1990.556321 [56] Ari Rasch and Sergei Gorlatch. 2018. ATF: A Generic Auto-Tuning Framework. In Proceedings of the 27th International Symposium on High-Performance Parallel and Distributed Computing: Posters (Tempe, AZ, USA). Association for Computing Machinery, New York, NY, USA, 3–4. [57] Prashant Singh Rawat, Fabrice Rastello, Aravind Sukumaran-Rajam, Louis-Noël Pouchet, Atanas Rountev, and P. Sadayappan. 2018. Register optimizations for stencils on GPUs. In PPoPP (Vienna, Austria). Association for Computing Machinery, New York, NY, USA, 168–182. doi:10.1145/3178487.3178500 [58] Jaehun Ryu and Hyojin Sung. 2021. MetaTune: Meta-Learning Based Cost Model for Fast and Efficient Auto-Tuning Frameworks. arXiv preprint arXiv:2102.04199. https://arxiv.org/abs/2102.04199 [59] V. Sarkar and N. Megiddo. 2000. An analytical model for loop tiling and its solution. In ISPASS . IEEE Computer Society, USA, 146–153. [60] R. Schreiber and J. Dongarra. 1990. Automatic blocking of nested loops . Technical Report 90.38. RIACS, NASA Ames Research Center. [61] Ankit Sethia and Scott Mahlke. 2014. Equalizer: Dynamic Tuning of GPU Resources for Efficient Execution. In 
+
+Proceedings of the 47th Annual IEEE/ACM International Symposium on Microarchitecture (Cambridge, United Kingdom) 
+
+(MICRO-47) . IEEE Computer Society, USA, 647–658. doi:10.1109/MICRO.2014.16 [62] Arun Thangamani, Vincent Loechner, and Stéphane Genaud. 2024. A Survey of General-purpose Polyhedral Compilers. 
+
+ACM Trans. Archit. Code Optim. 21, 72 (June 2024), 1–26. doi:10.1145/3674735 Just Accepted. [63] Nicolas Tollenaere. 2022. Decoupling the optimization space of tensor computation for a better understanding of performance on Intel CPU . Ph. D. Dissertation. Université Grenoble Alpes [2020-....]. [64] Nicolas Tollenaere, Guillaume Iooss, Stéphane Pouget, Hugo Brunie, Christophe Guillon, Albert Cohen, P. Sadayappan, and Fabrice Rastello. 2023. Autotuning Convolutions Is Easier Than You Think. ACM Trans. Archit. Code Optim. 20, 2, Article 20 (March 2023), 24 pages. doi:10.1145/3570641 [65] Konrad Trifunovic. 2011. Efficient search-based strategies for polyhedral compilation: algorithms and experience in a production compiler . Ph. D. Dissertation. Université Paris Sud-Paris XI. [66] Nicolas Vasilache, Oleksandr Zinenko, Theodoros Theodoridis, Priya Goyal, Zachary DeVito, William S Moses, Sven Verdoolaege, Andrew Adams, and Albert Cohen. 2018. Tensor comprehensions: Framework-agnostic high-performance machine learning abstractions. [67] Sven Verdoolaege, Juan Carlos Juega, Albert Cohen, Jose Ignacio Gomez, Christian Tenllado, and Francky Catthoor. 2013. Polyhedral parallel code generation for CUDA. ACM Transactions on Architecture and Code Optimization (TACO) 
+
+9, 4 (2013), 1–23. [68] R Clint Whaley, Antoine Petitet, and Jack J Dongarra. 2001. Automated empirical optimizations of software and the ATLAS project. Parallel computing 27, 1-2 (2001), 3–35. [69] M. Wolf and M. Lam. 1991. Loop transformation theory and an algorithm to maximize parallelism. Transactions on Parallel and Distributed Systems 2, 4 (Oct 1991), 452–471. 26 Gaurav Verma, Michael Canesche, and Fernando Magno Quintão Pereira 
+
+[70] M. J. Wolfe. 1987. Iteration space tiling for memory hierarchies. In Parallel Processing for Scientific Computing (SIAM) .Society for Industrial and Applied Mathematics, PA, United States, 357–361. [71] Yuanrui Zhang. 2011. Cache-aware application parallelization and optimization for multicores. [72] Yifan Zhao, Hashim Sharif, Vikram Adve, and Sasa Misailovic. 2024. Felix: Optimizing Tensor Programs with Gradient Descent. In ASPLOS (La Jolla, CA, USA). Association for Computing Machinery, New York, NY, USA, 367–381. doi:10.1145/3620666.3651348 [73] Lianmin Zheng, Chengfan Jia, Minmin Sun, Zhao Wu, Cody Hao Yu, Ameer Haj-Ali, Yida Wang, Jun Yang, Danyang Zhuo, Koushik Sen, et al. 2020. Ansor: Generating {High-Performance } tensor programs for deep learning. In 14th USENIX symposium on operating systems design and implementation (OSDI 20) . USENIX Association, Virtual, 863–879. [74] Lianmin Zheng, Chengfan Jia, Minmin Sun, Zhao Wu, Cody Hao Yu, Ameer Haj-Ali, Yida Wang, Jun Yang, Danyang Zhuo, Koushik Sen, Joseph E. Gonzalez, and Ion Stoica. 2020. Ansor: Generating High-Performance Tensor Programs for Deep Learning. In OSDI . USENIX Association, USA, Article 49, 17 pages. [75] Oleksandr Zinenko, Sven Verdoolaege, Chandan Reddy, Jun Shirako, Tobias Grosser, Vivek Sarkar, and Albert Cohen. 2017. Unified polyhedral modeling of temporal and spatial locality . Ph. D. Dissertation. Inria Paris.

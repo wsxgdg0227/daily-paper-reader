@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-07</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-08</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 0 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 20 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>9</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-07 22:24:55 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-08 21:52:53 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日无新推荐，系统未产出可展示论文。</p>
+<p>今日精读聚焦自主智能体技能演化与记忆管理，两篇9.0高分开创“自我进化”新视角。最值得关注方向：EvoSkill Injection揭示红队测试下技能自我生成的风险边界，MemoryLACE则提出记忆生命周期整合方法提升长期检索。建议优先精读这两篇全文，并结合速读中的技能持久化研究形成对照。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">0 篇</strong>
+    <strong class="dpr-home-dashboard-count">9 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EvoSkill Injection: Red-Teaming Autonomous Skill Generation and Evolution in Self-Evolving Agents">EvoSkill Injection: Red-Teaming Autonomous Skill Generation and Evolution in Self-Evolving Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="MemoryLACE: Memory Lifecycle-Aware Consolidation and Evidence Retrieval">MemoryLACE: Memory Lifecycle-Aware Consolidation and Evidence Retrieval</span></li><li><span class="dpr-home-dashboard-paper-title" title="Remember and Reweight: Enhancing Multi-Agent Debate with Experience Memory and Confidence Estimation">Remember and Reweight: Enhancing Multi-Agent Debate with Experience Memory and Confidence Estimation</span></li></ul>
   </div>
-
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>9</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">0 篇</strong>
+    <strong class="dpr-home-dashboard-count">11 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Semantics-Guided Automatic Tensorization for Multiobjective Evolutionary Algorithms: A Multi-Agent Framework">Semantics-Guided Automatic Tensorization for Multiobjective Evolutionary Algorithms: A Multi-Agent Framework</span></li><li><span class="dpr-home-dashboard-paper-title" title="FlowTT: Exploiting Computation Flow Reuse in Irregular Tensor-Train Embedding">FlowTT: Exploiting Computation Flow Reuse in Irregular Tensor-Train Embedding</span></li><li><span class="dpr-home-dashboard-paper-title" title="From Interaction Traces to Persistent Skills: Online Evolution for Computer-Use Agents">From Interaction Traces to Persistent Skills: Online Evolution for Computer-Use Agents</span></li></ul>
   </div>
-
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
 </section>
 </div>
 

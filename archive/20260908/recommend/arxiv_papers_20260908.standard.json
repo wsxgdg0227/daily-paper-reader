@@ -1,0 +1,793 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-08T21:41:12.638703+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 13,
+    "deep_cap": 6,
+    "deep_selected": 9,
+    "quick_candidates": 13,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2608.30429v1",
+      "source": "arxiv",
+      "title": "EvoSkill Injection: Red-Teaming Autonomous Skill Generation and Evolution in Self-Evolving Agents",
+      "abstract": "LLM-based agent systems increasingly adopt skill-based architectures to reduce repetitive reasoning costs and improve stable, efficient task execution. Recent studies propose self-evolving agents that autonomously generate, refine, and reuse skills from past experiences to enable continuous capability evolution. However, autonomous skill evolution introduces a new attack surface in which malicious capabilities are generated, stored, and reused as legitimate skills. In this paper, we define EvoSkill Injection as a threat model targeting the autonomous skill generation and evolution pipeline of self-evolving agents. We further propose SARGE (Red-teaming Autonomous Skill Generation and Evolution in self-evolving agents), a red-teaming framework for evaluating this threat model through iterative generation, escalation, and reinforcement interactions. To support our framework, we construct EvoSkillBench, a benchmark dataset of malicious interaction trajectories for inducing malicious skill formation in self-evolving agents, and introduce EvoSkillSafetyBench, a post-attack benchmark for evaluating whether injected malicious skills are subsequently retrieved and activated as harmful behaviors. Our evaluation shows that SARGE induces malicious skill formation and that injected skills are persistently stored and repeatedly activated, highlighting the risk of persistent capability corruption.",
+      "authors": [
+        "Doyun Kim",
+        "Chanwoo Kim",
+        "Sugyeong Eo",
+        "Yeo-Chan Yoon",
+        "Chanjun Park"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-08-31T08:25:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.30429v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Analyzes self-evolving agents that autonomously generate, refine, and reuse skills from past experiences, directly related to how agents improve over time via skill evolution.",
+      "llm_evidence_cn": "研究自进化智能体从过往经验自动生成、提炼和复用技能以持续提升能力的机制及其攻击面，贴合自进化能力如何随时间改进的问题。",
+      "llm_evidence": "研究自进化智能体从过往经验自动生成、提炼和复用技能以持续提升能力的机制及其攻击面，贴合自进化能力如何随时间改进的问题。",
+      "canonical_evidence": "研究自进化智能体从过往经验自动生成、提炼和复用技能以持续提升能力的机制及其攻击面，贴合自进化能力如何随时间改进的问题。",
+      "llm_tldr_en": "Self-evolving agents reuse generated skills to improve over time, yet this autonomous skill pipeline is attackable. EvoSkill Injection defines that threat model and SARGE, a red-team framework exposing how malicious capabilities could be injected, stored, and reused as legitimate skills.",
+      "llm_tldr_cn": "基于大语言模型的自进化智能体可从过往经验中自动生成、改进并复用技能以持续进化，但这引入了新的安全面：恶意能力可能被当作合法技能注入、存储和重用。本文提出EvoSkill注入威胁模型，并设计SARGE对自进化智能体的技能生成与演化管线进行红队对抗测试，揭示其安全漏洞。该工作表明在追求智能体自主能力进化时，还需防范技能库层面的刻意攻击。",
+      "llm_tldr": "基于大语言模型的自进化智能体可从过往经验中自动生成、改进并复用技能以持续进化，但这引入了新的安全面：恶意能力可能被当作合法技能注入、存储和重用。本文提出EvoSkill注入威胁模型，并设计SARGE对自进化智能体的技能生成与演化管线进行红队对抗测试，揭示其安全漏洞。该工作表明在追求智能体自主能力进化时，还需防范技能库层面的刻意攻击。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03201v1",
+      "source": "arxiv",
+      "title": "MemoryLACE: Memory Lifecycle-Aware Consolidation and Evidence Retrieval",
+      "abstract": "Long-term LLM agents must preserve information across interactions while distinguishing repeated evidence, historical states, updates, and unresolved contradictions. Existing textual memory systems retrieve semantically relevant memories efficiently but often leave these relationships implicit, whereas richer structured approaches model them through global graphs, hierarchical abstractions, or reflection at greater complexity. We introduce MemoryLACE (MemLACE), a lightweight memory framework that explicitly models the lifecycle of textual evidence through sparse merge, supersession, and contradiction relations while preserving atomic natural-language memories and their provenance. Rather than retrieving memories independently, MemLACE reconstructs relation-aware evidence units that expose current, historical, supporting, and conflicting evidence for downstream reasoning. Across BEAM and StructMemEval, using open-weight and proprietary LLM backbones, MemLACE achieves the highest overall performance in same-backbone comparisons while reducing end-to-end runtime on BEAM by 66.6% relative to Hindsight, the strongest reported reflective-memory baseline. Ablation studies identify lifecycle expansion and temporal awareness as the principal contributors to these gains. Together, the results demonstrate that explicitly modeling the local lifecycle of textual evidence is sufficient to substantially improve long-term memory reasoning without requiring comprehensive knowledge graphs or global reflection.",
+      "authors": [
+        "Meriem Yacoubi",
+        "Pia Schmidt",
+        "Nenad Petrovic",
+        "Ahmed Frikha",
+        "Martin Kirchhoff",
+        "Alois Knoll"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-09-02T22:33:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.03201v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Proposes memory lifecycle-aware consolidation and evidence retrieval framework for long-term LLM agents",
+      "llm_evidence_cn": "面向长期LLM智能体提出记忆生命周期感知的证据巩固与检索框架",
+      "llm_evidence": "面向长期LLM智能体提出记忆生命周期感知的证据巩固与检索框架",
+      "canonical_evidence": "面向长期LLM智能体提出记忆生命周期感知的证据巩固与检索框架",
+      "llm_tldr_en": "Long-term LLM agents must handle repeated evidence, state updates, and unresolved contradictions across interactions. MemoryLACE explicitly models memory lifecycle using sparse merge, supersession, and contradiction relations while preserving atomic natural-language memories and provenance for more relational retrieval.",
+      "llm_tldr_cn": "长期运行的LLM智能体需要跨交互保存信息，并区分重复证据、历史状态、更新与未解决矛盾。已有文本记忆系统检索高效但关系建模不足，结构化方法又复杂。本文提出MemoryLACE，通过稀疏的合并、取代和矛盾关系显式建模文本证据生命周期，同时保留原子自然语言记忆及其来源。该框架在轻量化前提下重构记忆关系，帮助智能体更可靠地进行长期记忆巩固与证据检索。",
+      "llm_tldr": "长期运行的LLM智能体需要跨交互保存信息，并区分重复证据、历史状态、更新与未解决矛盾。已有文本记忆系统检索高效但关系建模不足，结构化方法又复杂。本文提出MemoryLACE，通过稀疏的合并、取代和矛盾关系显式建模文本证据生命周期，同时保留原子自然语言记忆及其来源。该框架在轻量化前提下重构记忆关系，帮助智能体更可靠地进行长期记忆巩固与证据检索。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03619v1",
+      "source": "arxiv",
+      "title": "Remember and Reweight: Enhancing Multi-Agent Debate with Experience Memory and Confidence Estimation",
+      "abstract": "Multi-agent debate (MAD) improves the reasoning capabilities of large language models by having multiple agents iteratively refine their responses through discussion. However, MAD suffers from a critical vulnerability known as shared misconception: when a majority of agents initially converge on an incorrect answer, the debate process tends to amplify rather than correct the error. Existing methods primarily address peer skew but leave the agents' inherently biased concept priors unaddressed. To mitigate this systematic weakness, we propose R$^2$-MAD (Remember and Reweight for Multi-Agent Debate), a framework that equips agents with an experience memory accumulated from past debates. R$^2$-MAD intervenes on both failure modes through two complementary mechanisms: A debate-state-aware retrieval policy dynamically calibrates the concept prior by retrieving relevant historical evidence based on the current consensus level. Then these retrieved experiences provide a basis for estimating per-agent reliability, yielding confidence weights to modulate peer influence. Experiments on various benchmarks show that R$^2$-MAD achieves consistent improvements over existing single-agent and MAD baselines.",
+      "authors": [
+        "Xuanfa Jin",
+        "Zhijian Ma",
+        "Yongcheng Zeng",
+        "Xinyu Cui",
+        "Haifeng Zhang",
+        "Jun Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-03T10:05:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.03619v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Experience memory from previous debates is stored and used in later decision making",
+      "llm_evidence_cn": "保存并利用以往辩论经验记忆辅助后续决策",
+      "llm_evidence": "保存并利用以往辩论经验记忆辅助后续决策",
+      "canonical_evidence": "保存并利用以往辩论经验记忆辅助后续决策",
+      "llm_tldr_en": "R²-MAD equips multi-agent debate with an experience memory accumulated from past debates; agents use stored experiences and confidence estimates to reweight responses, countering shared misconception. Results show retaining and exploiting past debate experience improves reasoning, demonstrating a strong memory/retrieval mechanism for agents.",
+      "llm_tldr_cn": "多智能体辩论会因共享错误概念而难以自我纠错。论文提出R²-MAD，让每个智能体维护从历史辩论中获得经验记忆，并在新一轮辩论中结合记忆与置信度估计对响应进行重加权。由此可干预多数智能体一开始错判的情况，减少错误被辩论过程放大的风险，提升大模型推理效果。这表明经验记忆和检索机制对智能体决策具有重要意义。",
+      "llm_tldr": "多智能体辩论会因共享错误概念而难以自我纠错。论文提出R²-MAD，让每个智能体维护从历史辩论中获得经验记忆，并在新一轮辩论中结合记忆与置信度估计对响应进行重加权。由此可干预多数智能体一开始错判的情况，减少错误被辩论过程放大的风险，提升大模型推理效果。这表明经验记忆和检索机制对智能体决策具有重要意义。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04105v1",
+      "source": "arxiv",
+      "title": "Hardware-Aware FP4 FlashAttention-4",
+      "abstract": "Blackwell's 4-bit floating-point (FP4) tensor cores do not automatically make attention faster because softmax conversion and on-chip dependencies dominate once its matrix products shrink. We address this with \\emph{Direct-P} for noncausal inference and a causal path that passes the forward quantization directly into backward. Direct-P maps scores directly to FP4 probabilities and reaches up to 2.13$\\times$ the bfloat16 (BF16) forward throughput on an NVIDIA GB200. The causal path reconstructs probabilities from saved quantized queries and keys and uses 8-bit floating-point (FP8) gradient operands, accelerating a complete single-GPU 8-billion-parameter update by up to 1.14$\\times$. Matched distributed training retains FP8 probabilities and values; every tested MXFP4 probability/value training trajectory diverges.",
+      "authors": [
+        "Robert Hu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-03T17:12:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.04105v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Optimizes GPU kernel execution for FP4 attention on Blackwell hardware",
+      "llm_evidence_cn": "针对NVIDIA GB200优化FP4注意力GPU核函数的执行性能",
+      "llm_evidence": "针对NVIDIA GB200优化FP4注意力GPU核函数的执行性能",
+      "canonical_evidence": "针对NVIDIA GB200优化FP4注意力GPU核函数的执行性能",
+      "llm_tldr_en": "Hardware-Aware FP4 FlashAttention-4 overcomes softmax and dependency bottlenecks of FP4 attention by mapping scores directly to FP4 probabilities and quantizing the backward path, achieving 2.13x forward and 1.14x training speedups on GB200.",
+      "llm_tldr_cn": "在NVIDIA GB200上，FP4张量核心并不会自动让注意力变快，softmax转换与片上依赖成为瓶颈。本文提出硬件感知的FlashAttention-4：非因果推理采用Direct-P将分数直接映射为FP4概率，因果训练路径则利用量化Q/K重构并配合FP8梯度。实验相比BF16实现最高2.13倍前向吞吐提升，端到端8B参数更新提升1.14倍。这表明对注意力数据流做硬件感知的量化设计能够充分发挥低精度GPU算力。",
+      "llm_tldr": "在NVIDIA GB200上，FP4张量核心并不会自动让注意力变快，softmax转换与片上依赖成为瓶颈。本文提出硬件感知的FlashAttention-4：非因果推理采用Direct-P将分数直接映射为FP4概率，因果训练路径则利用量化Q/K重构并配合FP8梯度。实验相比BF16实现最高2.13倍前向吞吐提升，端到端8B参数更新提升1.14倍。这表明对注意力数据流做硬件感知的量化设计能够充分发挥低精度GPU算力。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04523v1",
+      "source": "arxiv",
+      "title": "MaxKernel: Agentic Kernel Generation for TPUs",
+      "abstract": "Designing and authoring high-performance custom kernels for accelerators is a complex task that requires deep hardware-level expertise. Large Language Models (LLM) can be leveraged together with real-time compiler feedback to build agentic systems for kernel generation. In this work, we present MaxKernel, a multi-agent system that implements three distinct paradigms for TPU kernel development: (1) a Human-in-the-Loop (HITL) agent for collaborative, step-by-step design; (2) an Autonomous (Auto) agent that executes a fully automated, metric/trace-driven optimization loop; and (3) a Graph-Based Autonomous Search that scales the Auto agent for global exploration of the design space. All three paradigms leverage a shared pool of specialized sub-agents to handle planning, implementation, self-debugging, testing, and hardware profiling. We evaluate MaxKernel on JaxBench, a comprehensive suite of 50 diverse kernel tasks for TPUs, alongside complex, real-world workloads from state-of-the-art open-source models. We demonstrate that MaxKernel consistently generates highly optimized implementations, matching expert hand-tuned baselines and delivering significant performance across the benchmark. Our agent is open-sourced and available https://github.com/AI-Hypercomputer/accelerator-agents/tree/main/MaxKernel.",
+      "authors": [
+        "Shangkun Wang",
+        "Nina Cai",
+        "Charles Hoong",
+        "Julian Walker",
+        "Gerson Kroiz",
+        "George Vanica",
+        "Deepak Patil",
+        "Andi Gavrilescu",
+        "Hassan Sipra",
+        "Sethu Sankaran"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.PF",
+        "cs.PL"
+      ],
+      "published": "2026-09-03T22:22:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.04523v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "LLM-driven agentic kernel generation tuned via compiler feedback",
+      "llm_evidence_cn": "利用大语言模型智能体生成内核，并通过编译反馈进行性能调优",
+      "llm_evidence": "利用大语言模型智能体生成内核，并通过编译反馈进行性能调优",
+      "canonical_evidence": "利用大语言模型智能体生成内核，并通过编译反馈进行性能调优",
+      "llm_tldr_en": "MaxKernel builds agentic kernel generation for TPUs using LLM sub-agents with real-time compiler feedback, supporting human-in-the-loop, autonomous, and graph-search paradigms for efficient custom kernels.",
+      "llm_tldr_cn": "面向TPU等加速器编写高性能内核需要深厚硬件知识。本文提出MaxKernel，一个结合大语言模型与实时编译器反馈的多智能体系统。它提供人机协同、全自动优化和图搜索三种内核开发范式，并共享规划、实现等子智能体来完成设计循环。实验表明该系统可以高效生成并自动调优内核，为智能体驱动的算子级代码生成与调优提供了可迁移的系统范式。",
+      "llm_tldr": "面向TPU等加速器编写高性能内核需要深厚硬件知识。本文提出MaxKernel，一个结合大语言模型与实时编译器反馈的多智能体系统。它提供人机协同、全自动优化和图搜索三种内核开发范式，并共享规划、实现等子智能体来完成设计循环。实验表明该系统可以高效生成并自动调优内核，为智能体驱动的算子级代码生成与调优提供了可迁移的系统范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04531v1",
+      "source": "arxiv",
+      "title": "Distilled Continuous Diffusion Language Models Can Write Code in Few Steps---or One",
+      "abstract": "Language generation is almost universally treated as a sequential process: autoregressive models emit one token at a time, while diffusion language models replace token-level seriality with a long trajectory of iterative refinement. In this work, we introduce PlaidQ, a 0.7B continuous diffusion language model for code generation, and show that its trajectory can be aggressively distilled into only a few denoising steps---or even one, enabling efficient code generation. PlaidQ repurposes a pretrained autoregressive model as a bidirectional denoiser over continuous token embeddings. We distill PlaidQ with distribution matching for few-step generation and paired-trajectory supervision for one-step generation. At matched model scale, PlaidQ is competitive with discrete diffusion language models on code generation. Distillation then shifts the quality--compute frontier: a 16-step student reaches 31.78 and 40.49 pass@10 on HumanEval and MBPP+, surpassing the same PlaidQ teacher sampled for 512 steps. At the extreme, paired-trajectory distillation achieves 7.07 pass@1 on HumanEval with a single denoising step, producing functionally correct programs. Together, these results establish continuous diffusion as a viable path to few-step and one-step code generation. Broadly, continuous diffusion is not merely another representation for language: it provides an interface through which language models can inherit the acceleration and distillation machinery of continuous diffusion modeling. Training and inference code and model checkpoints are available at https://github.com/pengzhangzhi/plaidq.",
+      "authors": [
+        "Fred Zhangzhi Peng",
+        "Kaiwen Zheng",
+        "Anru R. Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-03T22:42:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.04531v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Language model based code generation, distilling a diffusion LM to few or one denoising steps",
+      "llm_evidence_cn": "用语言模型生成源代码，将连续扩散语言模型蒸馏为少步甚至单步高效代码生成",
+      "llm_evidence": "用语言模型生成源代码，将连续扩散语言模型蒸馏为少步甚至单步高效代码生成",
+      "canonical_evidence": "用语言模型生成源代码，将连续扩散语言模型蒸馏为少步甚至单步高效代码生成",
+      "llm_tldr_en": "PlaidQ is a continuous diffusion language model for code generation derived from a pretrained autoregressive model; distribution matching and paired-trajectory supervision compress the reverse trajectory into a few or one step, enabling efficient code writing at 0.7B scale.",
+      "llm_tldr_cn": "代码生成通常依赖自回归逐token生成或扩散模型的多步迭代，速度较慢。该文提出PlaidQ，一个0.7B连续扩散语言模型，将预训练自回归模型重构为连续词嵌入上的双向去噪器，并通过分布匹配和成对轨迹监督将其逆向轨迹蒸馏为少步甚至一步。在同等规模条件下，PlaidQ能以极少去噪步骤完成代码生成，同时保持较强的代码质量，为语言模型高效写码提供了新路径。",
+      "llm_tldr": "代码生成通常依赖自回归逐token生成或扩散模型的多步迭代，速度较慢。该文提出PlaidQ，一个0.7B连续扩散语言模型，将预训练自回归模型重构为连续词嵌入上的双向去噪器，并通过分布匹配和成对轨迹监督将其逆向轨迹蒸馏为少步甚至一步。在同等规模条件下，PlaidQ能以极少去噪步骤完成代码生成，同时保持较强的代码质量，为语言模型高效写码提供了新路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04852v1",
+      "source": "arxiv",
+      "title": "KVMem: Virtualizing Million-Token Agent Workspaces on a Consumer GPU",
+      "abstract": "Modern LLM agents operate in persistent workspaces whose accumulated history can exceed both GPU KV capacity and the model's native context window. Existing systems typically compact older context into summaries or retrieve it later as text, either losing fine-grained execution evidence or repeatedly prefilling content that the model has already processed. We present KVMem, a KV-context virtualization system that preserves overflowed workspace history as paged KV state across GPU memory, host memory, and NVMe. KVMem uses lightweight, model-native attention-space indexes to select relevant historical blocks and materializes a query-dependent execution view bounded by the model's native context window. Extensive evaluations on long-context agent benchmarks spanning histories up to one million tokens, including LongMemEval, MemoryAgentBench, and AgentLongBench, show that KVMem generally achieves higher task utility and greater inference efficiency than compaction-based approaches, the de facto standard for handling context overflow. In the DeepSWE long-context test with Qwen3.8-27B, KVMem improves task success from 43.8% with compaction-only context management to 48.4%.   In our local-deployment evaluation, KVMem runs Qwen3.6/3.8-27B NVFP4 with MTP on an off-the-shelf laptop equipped with a 24\\,GB RTX 5090 Laptop GPU, virtualizing agent workspaces of up to 1M tokens-four times the model's native 256K-token context window. In a single-session setting, KVMem generates $\\sim$50 tokens/s, providing interactive responsiveness for local agent execution. More broadly, by decoupling addressable workspace size from the LLM's native context window, KVMem provides a practical path toward long-running agents whose workspaces can grow beyond that window.",
+      "authors": [
+        "Di Chai",
+        "Leye Wang",
+        "Zeshen Su",
+        "Zhiguo Xia",
+        "Zhihang Yu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-04T08:09:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.04852v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "KV-state virtual memory with attention-space indexing retrieves relevant workspace history for agents",
+      "llm_evidence_cn": "将Agent历史KV状态虚拟化并基于注意力索引检索有用信息，支撑长期记忆与决策",
+      "llm_evidence": "将Agent历史KV状态虚拟化并基于注意力索引检索有用信息，支撑长期记忆与决策",
+      "canonical_evidence": "将Agent历史KV状态虚拟化并基于注意力索引检索有用信息，支撑长期记忆与决策",
+      "llm_tldr_en": "KVMem virtualizes overflowed agent workspace history as paged KV state across GPU, CPU memory, and NVMe, using attention-space indexes to select relevant blocks and reconstruct a bounded query-dependent view, enabling million-token workspaces on a consumer GPU.",
+      "llm_tldr_cn": "现代LLM智能体的持续工作区历史很容易超出GPU的KV容量和上下文窗口，而摘要/文本检索会丢失细粒度证据或重复预填充。提出KVMem，把溢出历史作为分页KV状态跨越GPU显存、主机内存和NVMe保存，用模型原生注意力索引挑选相关历史块并物化大小受限的查询相关视图。在长上下文Agent基准上支持百万Token工作区且开销显著降低，为消费级GPU上长时Agent运行提供系统方案。",
+      "llm_tldr": "现代LLM智能体的持续工作区历史很容易超出GPU的KV容量和上下文窗口，而摘要/文本检索会丢失细粒度证据或重复预填充。提出KVMem，把溢出历史作为分页KV状态跨越GPU显存、主机内存和NVMe保存，用模型原生注意力索引挑选相关历史块并物化大小受限的查询相关视图。在长上下文Agent基准上支持百万Token工作区且开销显著降低，为消费级GPU上长时Agent运行提供系统方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04865v1",
+      "source": "arxiv",
+      "title": "CoSkill: Joint Reinforcement Learning of Reasoning and Meta-Skill Agents for Hierarchical Skill Evolution",
+      "abstract": "Skill libraries improve the sample efficiency of agentic reinforcement learning (RL) by enabling large language model (LLM) agents to reuse procedural knowledge. Yet existing paradigms exhibit structural shortcomings: they either decouple skill evolution from policy optimization or instantiate meta-skills as fixed workflows. Both treat skills as passive objects to be managed, limiting the flexible evolution of skills and their co-adaptation with the reasoning agent. To address the limitations, we propose CoSkill, a unified multi-agent RL framework that recasts the static meta-skill workflow as a learnable Meta-Skill Agent and jointly trains it with a Reasoning Agent over a hierarchical skill library. By modeling the Reasoning and Meta-Skill Agents as a cooperative team sharing a single backbone, CoSkill enables end-to-end co-adaptation: the Reasoning Agent conditions its actions on a retrieved task skill and step skills selected from its child set, while its task performance guides the Meta-Skill Agent in refining those step skills. Experiments on ALFWorld and WebShop show that CoSkill substantially outperforms prior skill-based and RL baselines, achieving success rates of 98.4% and 90.6%, respectively (+3.5 and +6.2 pp). As shown in Figure 1, CoSkill achieves superior early-stage sample efficiency, asymptotic performance, and wall-clock efficiency. Our code is available at https://github.com/jinyuan-cookie/CoSkill.",
+      "authors": [
+        "Jinyuan Feng",
+        "Dongmin Li",
+        "Yiqun Chen",
+        "Yang Gao",
+        "Xing Chen",
+        "Huimu Wang",
+        "Zhiqiang Pu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-04T08:25:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.04865v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "CoSkill jointly trains reasoning and meta-skill agents over a hierarchical skill library, directly addressing self-evolving skills and policies.",
+      "llm_evidence_cn": "CoSkill将元技能建模为可学习智能体并与推理体在分层技能库上联合训练，直接面向无人工干预的技能与策略自进化。",
+      "llm_evidence": "CoSkill将元技能建模为可学习智能体并与推理体在分层技能库上联合训练，直接面向无人工干预的技能与策略自进化。",
+      "canonical_evidence": "CoSkill将元技能建模为可学习智能体并与推理体在分层技能库上联合训练，直接面向无人工干预的技能与策略自进化。",
+      "llm_tldr_en": "LLM agent RL skill libraries decouple skill evolution from policy or freeze meta-skills; CoSkill jointly trains Meta-Skill Agent and Reasoning Agent over a hierarchical skill library to enable flexible, self-evolving skills and co-adaptation.",
+      "llm_tldr_cn": "现有LLM智能体技能库方法要么将技能进化与策略优化分离，要么把元技能固定为工作流，导致技能被动且难以与推理体协同进化。CoSkill提出统一多智能体强化学习框架，将静态元技能流程转化为可学习的元技能体，并在分层技能库上与推理体联合训练。通过端到端联合优化，技能可以随策略持续演化并反哺推理，形成闭环自进化。该工作为稀缺人工干预条件下智能体技能和知识的持续改进提供了新范式。",
+      "llm_tldr": "现有LLM智能体技能库方法要么将技能进化与策略优化分离，要么把元技能固定为工作流，导致技能被动且难以与推理体协同进化。CoSkill提出统一多智能体强化学习框架，将静态元技能流程转化为可学习的元技能体，并在分层技能库上与推理体联合训练。通过端到端联合优化，技能可以随策略持续演化并反哺推理，形成闭环自进化。该工作为稀缺人工干预条件下智能体技能和知识的持续改进提供了新范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.04882v1",
+      "source": "arxiv",
+      "title": "AtomRec: Evolving Atomic Memory for Agentic Recommendation",
+      "abstract": "Agentic recommender systems use large language models to maintain semantic memory and support evidence-aware recommendation. However, existing memory mechanisms often compress user and item information into coarse summaries and connect them with scalar collaborative links, making it difficult to preserve fine-grained preference stages or retrieve interpretable evidence as user interests evolve. We propose \\textsc{AtomRec}, an agentic recommender with evolving atomic collaborative memory. \\textsc{AtomRec} represents user and item memories as structured atomic units, builds semantic links across related memories, and evolves related historical fields when new interactions arrive. During recommendation, it retrieves linked memories as multi-hop evidence paths rather than isolated neighbor summaries, allowing collaborative signals to support grounded ranking. Experiments on four public benchmarks show that \\textsc{AtomRec} consistently outperforms state-of-the-art agentic and memory-augmented baselines, with around 8.5\\% average relative improvement across metrics.",
+      "authors": [
+        "Peiyu Hu",
+        "Weihai Lu",
+        "Siying Gu",
+        "Zhuodong Liu",
+        "Zhaokai Luo",
+        "Yuean Niu",
+        "Zhiyong Wang",
+        "Jia Wang"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-09-04T08:38:48+00:00",
+      "link": "https://arxiv.org/pdf/2609.04882v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Agent memory represented as structured atomic units with semantic links and evolving updates; recommendation retrieves linked memories as multi-hop evidence paths",
+      "llm_evidence_cn": "将智能体记忆建模为结构化原子单元并构建语义关联，推荐时检索多跳证据路径",
+      "llm_evidence": "将智能体记忆建模为结构化原子单元并构建语义关联，推荐时检索多跳证据路径",
+      "canonical_evidence": "将智能体记忆建模为结构化原子单元并构建语义关联，推荐时检索多跳证据路径",
+      "llm_tldr_en": "AtomRec represents user/item memories as structured atomic units, builds semantic links, evolves historical fields when new interactions arrive, and retrieves linked memories as multi-hop evidence paths for evidence-aware recommendation.",
+      "llm_tldr_cn": "现有智能体推荐系统的记忆机制常把用户和物品压缩成粗糙摘要，难以保留细粒度偏好并提供可解释证据。AtomRec将用户和物品记忆表示为结构化原子单元，在相关记忆间建立语义链接，并在新交互到达时演进相应历史字段。推荐时不再依赖标量协同链接，而是检索关联记忆作为多跳证据路径。该方法为智能体提供更精细、可演化和可解释的记忆与检索机制。",
+      "llm_tldr": "现有智能体推荐系统的记忆机制常把用户和物品压缩成粗糙摘要，难以保留细粒度偏好并提供可解释证据。AtomRec将用户和物品记忆表示为结构化原子单元，在相关记忆间建立语义链接，并在新交互到达时演进相应历史字段。推荐时不再依赖标量协同链接，而是检索关联记忆作为多跳证据路径。该方法为智能体提供更精细、可演化和可解释的记忆与检索机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.02387v1",
+      "source": "arxiv",
+      "title": "Semantics-Guided Automatic Tensorization for Multiobjective Evolutionary Algorithms: A Multi-Agent Framework",
+      "abstract": "Multiobjective evolutionary algorithms (MOEAs) naturally expose population-level parallelism, but many mature implementations encode their computation in sequential program structures designed for central processing units. Exploiting modern tensor computing platforms therefore requires more than direct code translation: the implementation must be restructured without changing the defining optimization mechanism of the underlying MOEA. We formulate automatic tensorization for MOEAs as semantics-guided computational restructuring and develop Evolutionary Code Conversion (EvoCoCo), a multi-agent framework that realizes this formulation. EvoCoCo reconstructs algorithm-specific states, dependencies, operators, and update logic into a structured semantic representation and organizes them through a shared tensorization blueprint. Specialized transformation branches then explore alternative tensor realizations, while execution feedback guides validation, repair, and candidate selection. Experiments on a benchmark of 48 MOEAs evaluate migration reliability, optimization fidelity, and computational scalability. Under matched large language model backends, EvoCoCo attains higher migration reliability than direct one-shot translation. Across the benchmark suites, 88.2% of valid comparisons satisfy the predefined optimization-fidelity criterion. The tensorized implementations also exhibit increasing acceleration on graphics processing units as population size or decision dimension grows, with median measured speedups ranging from $22.6\\times$ under population scaling to $80.2\\times$ under decision-dimension scaling. External-source and ablation studies further assess transfer beyond the main benchmark and the roles of the major framework components.",
+      "authors": [
+        "Zhenyu Liang",
+        "Beichen Huang",
+        "Bowen Zheng",
+        "Ran Cheng"
+      ],
+      "primary_category": "cs.NE",
+      "categories": [
+        "cs.NE"
+      ],
+      "published": "2026-09-02T10:00:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.02387v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Semantics-guided automatic tensorization through a multi-agent framework converts sequential CPU-oriented algorithm implementations into tensorized code for parallel platforms",
+      "llm_evidence_cn": "通过多智能体语义引导框架将面向CPU顺序结构的算法实现自动张量化",
+      "llm_evidence": "通过多智能体语义引导框架将面向CPU顺序结构的算法实现自动张量化",
+      "canonical_evidence": "通过多智能体语义引导框架将面向CPU顺序结构的算法实现自动张量化",
+      "llm_tldr_en": "Evolutionary algorithms with population-level parallelism cannot be exploited by direct translation to tensor platforms. EvoCoCo is a multi-agent framework that restructures algorithm states, dependencies, operators, and updates via semantics-guided computation conversion while preserving the optimization mechanism.",
+      "llm_tldr_cn": "多目标进化算法天然具有群体并行性，但现有实现多为面向CPU的顺序结构，无法直接利用张量计算平台。本文将自动张量化建模为语义引导的计算重构，并开发EvoCoCo多智能体框架。该框架在保持MOEA优化机制不变的前提下，重构算法状态、依赖、算子与更新逻辑。这一工作为算法级代码自动转换与张量化提供了可复用的多智能体重构方案。",
+      "llm_tldr": "多目标进化算法天然具有群体并行性，但现有实现多为面向CPU的顺序结构，无法直接利用张量计算平台。本文将自动张量化建模为语义引导的计算重构，并开发EvoCoCo多智能体框架。该框架在保持MOEA优化机制不变的前提下，重构算法状态、依赖、算子与更新逻辑。这一工作为算法级代码自动转换与张量化提供了可复用的多智能体重构方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.00549v1",
+      "source": "arxiv",
+      "title": "Skill Following: Evaluating Actual Skill Use in Retrieval-Enabled LLM Agents",
+      "abstract": "Large Language Model (LLM) agents increasingly rely on external skills, yet standard evaluations obscure whether retrieving these skills actually helps. Aggregate metrics often compare retrieved versus non-retrieved tasks, introducing severe selection bias and failing to isolate the true effect of skill use. To measure this actual-use capability-which we formalize as Skill Following (SF)-we introduce the Retrieval-Invoked Actual-Use Effect (RAE). RAE computes the same-task outcome difference between matched skill-enabled and skill-disabled executions, conditioned exclusively on tasks where the agent actively retrieved a skill. Evaluating 17 LLMs across coding and mathematical domains, we uncover a stark evaluation paradox: models frequently show positive aggregate retrieval lift but negative RAE. On MBPP+, multiple models that appear to benefit system-wide actually harm their own performance on the exact tasks where retrieval occurred. These findings demonstrate that aggregate averages can create a misleading illusion of tool-use proficiency, whereas RAE directly measures whether the retrieval-to-answer pipeline genuinely rescues more outcomes than it harms.",
+      "authors": [
+        "Seonghyeon Cho",
+        "Chanjun Park"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-01T01:33:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.00549v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Introduces RAE to isolate whether retrieving external skills actually improves LLM agent task outcomes",
+      "llm_evidence_cn": "提出RAE指标来度量检索外部技能是否真正提升LLM智能体的任务表现",
+      "llm_evidence": "提出RAE指标来度量检索外部技能是否真正提升LLM智能体的任务表现",
+      "canonical_evidence": "提出RAE指标来度量检索外部技能是否真正提升LLM智能体的任务表现",
+      "llm_tldr_en": "Retrieval-enabled LLM agents rely on external skills but standard evaluations cannot isolate whether retrieving actually helps. The paper formalizes Skill Following and uses RAE to compare matched skill-enabled and skill-disabled executions across 17 LLMs, revealing an evaluation paradox in coding and mathematical domains.",
+      "llm_tldr_cn": "检索增强的大语言模型智能体依赖外部技能，但传统评测无法判断技能是否真正生效。作者提出Skill Following概念与RAE指标，仅针对智能体主动检索技能的任务，比较技能启用与禁用两种执行结果，以剔除选择偏差。在17个大语言模型的代码与数学评测中发现明显评测悖论。该研究为评估技能检索的实际效用提供了更严谨的方法。",
+      "llm_tldr": "检索增强的大语言模型智能体依赖外部技能，但传统评测无法判断技能是否真正生效。作者提出Skill Following概念与RAE指标，仅针对智能体主动检索技能的任务，比较技能启用与禁用两种执行结果，以剔除选择偏差。在17个大语言模型的代码与数学评测中发现明显评测悖论。该研究为评估技能检索的实际效用提供了更严谨的方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.31022v1",
+      "source": "arxiv",
+      "title": "MNIST-PRO: MNIST is Back as a Partially Observable World for AI Agents",
+      "abstract": "AI agents in partially observable environments need to coordinate active sensing with working memory to maintain an evolving perceptual state. However, existing benchmarks struggle to isolate this perceptual-state construction and interpretation capability because they introduce physical and control complexities. We address this with MNIST-PRO, a benchmark that isolates agentic perception by converting MNIST digit recognition into a sequential, glimpse-based search task with lookback constraints. We evaluate ten multimodal models across four memory representations, including raw visual history, textual states, structured metric grid maps, and a consolidated visual canvas. While models excel under full observability, partial observability exposes a clear performance gap. We identify three distinct bottlenecks. First, perceptual-state construction and interpretation present a challenge, as agents struggle to integrate fragmented glimpses. Second, agents often stop exploring before they see the full sequence. Third, models often fail to revise early, incorrect beliefs even when faced with subsequent contradictory evidence. These results show that simply acquiring visual evidence is not enough. Agents must also be able to build and update a reliable perceptual state.",
+      "authors": [
+        "Vernon Toh",
+        "Navonil Majumder",
+        "Zhengyuan Liu",
+        "Nancy F. Chen",
+        "Soujanya Poria"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-08-31T16:05:39+00:00",
+      "link": "https://arxiv.org/pdf/2608.31022v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Benchmark isolates partial-observability perception and compares four agent memory representations, directly probing memory storage and retrieval capabilities.",
+      "llm_evidence_cn": "用部分可观测的MNIST搜索任务比较多种智能体记忆表征，考察记忆存储与利用能力。",
+      "llm_evidence": "用部分可观测的MNIST搜索任务比较多种智能体记忆表征，考察记忆存储与利用能力。",
+      "canonical_evidence": "用部分可观测的MNIST搜索任务比较多种智能体记忆表征，考察记忆存储与利用能力。",
+      "llm_tldr_en": "MNIST-PRO converts digit recognition into a partial-observable glimpse search to benchmark agent memory and perception; it compares raw visual history, textual states, metric grids, and visual canvases across ten multimodal models, exposing partial-observability deficits.",
+      "llm_tldr_cn": "现有基准难以把智能体的部分可观测感知状态构建能力从物理和控制复杂度中分离出来。MNIST-PRO将MNIST数字识别改造成带回溯限制的连续小窗口搜索任务，从而隔离考验感知状态构建。作者在四种记忆表征下评测十个多模态模型，包括原始视觉历史、文本状态、结构化的度量网格地图与综合视觉画布。结果显示全观测下模型表现优秀，但在部分观测下其记忆表征利用能力出现明显短板，说明该基准能有效暴露工作记忆和感知融合问题。",
+      "llm_tldr": "现有基准难以把智能体的部分可观测感知状态构建能力从物理和控制复杂度中分离出来。MNIST-PRO将MNIST数字识别改造成带回溯限制的连续小窗口搜索任务，从而隔离考验感知状态构建。作者在四种记忆表征下评测十个多模态模型，包括原始视觉历史、文本状态、结构化的度量网格地图与综合视觉画布。结果显示全观测下模型表现优秀，但在部分观测下其记忆表征利用能力出现明显短板，说明该基准能有效暴露工作记忆和感知融合问题。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.03459v1",
+      "source": "arxiv",
+      "title": "FlowTT: Exploiting Computation Flow Reuse in Irregular Tensor-Train Embedding",
+      "abstract": "Tensor-Train (TT) decomposition effectively compresses large embedding tables in recommendation models, but TT-based embedding lookup remains inefficient because partially shared computation flows across input indices are not fully reused and intermediate results are repeatedly materialized off-chip between sequential TT-core contractions. We present FlowTT, a flow-aware GPU execution framework that reformulates TT gather as a set of prefix-shared irregular computation flows. FlowTT combines flow-aligned prefix-based index grouping, a fused TT-embedding execution path with on-chip intermediate retention, and persistent-thread scheduling with chunk-based work stealing and L2 checkpointing to preserve reuse under skewed workloads. By co-designing task formation, data buffering, and scheduling with the structure of TT gather, FlowTT reduces redundant TT-core operations, global-memory traffic, and load imbalance. On Meta's synthetic recommendation benchmarks (Meta-240, Meta-480, and Meta-788), FlowTT consistently achieves the lowest latency compared to existing methods. At batch size 32,768, it reduces latency by up to 42.2% in inference and 49.2% in training relative to EcoRec, while also achieving the lowest inference peak memory usage. These results show that exposing prefix-shared computation is key to efficient TT-based embedding execution.",
+      "authors": [
+        "Jongmin Seok",
+        "Chae Eun Rhee"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AR"
+      ],
+      "published": "2026-09-03T07:17:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.03459v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "GPU execution framework exploiting computation flow reuse in irregular tensor-train embedding kernels",
+      "llm_evidence_cn": "面向GPU执行性能优化，提出计算流复用框架以提升不规则张量列车嵌入内核效率",
+      "llm_evidence": "面向GPU执行性能优化，提出计算流复用框架以提升不规则张量列车嵌入内核效率",
+      "canonical_evidence": "面向GPU执行性能优化，提出计算流复用框架以提升不规则张量列车嵌入内核效率",
+      "llm_tldr_en": "FlowTT reforms TT embedding lookup as prefix-shared irregular computation flows, combining index grouping, fused execution with on-chip retention, and persistent-thread chunk stealing to preserve reuse and improve GPU kernel performance.",
+      "llm_tldr_cn": "针对张量列车分解的嵌入查找在GPU上中间结果反复落盘、计算流复用不足的问题，FlowTT将查找重构为前缀共享的不规则计算流，结合索引分组、融合执行路径与片上中间结果保留，并采用持久线程调度和基于块的窃取来保持负载均衡。实验表明，该框架能显著提升不平衡负载下GPU嵌入计算的性能，为不规则GPU内核优化提供了可借鉴的系统化方法。",
+      "llm_tldr": "针对张量列车分解的嵌入查找在GPU上中间结果反复落盘、计算流复用不足的问题，FlowTT将查找重构为前缀共享的不规则计算流，结合索引分组、融合执行路径与片上中间结果保留，并采用持久线程调度和基于块的窃取来保持负载均衡。实验表明，该框架能显著提升不平衡负载下GPU嵌入计算的性能，为不规则GPU内核优化提供了可借鉴的系统化方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.00749v1",
+      "source": "arxiv",
+      "title": "ContextPipe: Database-Inspired Context Assembly for Long-Horizon Agents",
+      "abstract": "Long-horizon large language model (LLM) agents require context assembly: the runtime must decide what to include in each prompt, in what order, and when to compact history under a hard context-window budget and a byte-sensitive prompt cache. In production agentic systems, this logic is scattered across prompt builders, ad hoc compaction routines, cache-break workarounds, and per-provider shims. We argue that context assembly is structurally isomorphic to query execution in a relational database: both execute under a hard budget, exploit a tiered cache, and leverage statistics. We adopt this discipline in ContextPipe: a five-phase pipeline (Plan Bind Optimize Execute Feedback) backed by a structured data-source catalog, a deterministic cache-aware optimizer, and an EXPLAIN ANALYZE trace. We show that context in ContextPipe is auditable, replayable, and failure-isolated. A preliminary evaluation using the SWE-bench Pro Qutebrowser subset shows that, compared with the append-only context construction policy, ContextPipe reduces total token volume by 31%, LLM calls by 23%, and response time by 9%, at the cost of a lower KV cache-hit ratio.",
+      "authors": [
+        "Peng Xu",
+        "Zuyu Zhang",
+        "Yuze Sun",
+        "Feng Tian",
+        "Long Wang",
+        "Chen Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.DB"
+      ],
+      "published": "2026-09-01T05:27:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.00749v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "ContextPipe manages long-horizon agent context selection, ordering and compaction via a database-inspired pipeline; relevant to agent memory and retrieval processes.",
+      "llm_evidence_cn": "用数据库式流程管理智能体上下文选取、排序与压缩，直接关注长程智能体信息的保留与取用。",
+      "llm_evidence": "用数据库式流程管理智能体上下文选取、排序与压缩，直接关注长程智能体信息的保留与取用。",
+      "canonical_evidence": "用数据库式流程管理智能体上下文选取、排序与压缩，直接关注长程智能体信息的保留与取用。",
+      "llm_tldr_en": "Long-horizon LLM agents need context assembly under window/cache budgets; ContextPipe reframes it as database query execution with Plan-Bind-Optimize-Execute-Feedback, using a data-source catalog and cache-aware optimization.",
+      "llm_tldr_cn": "长时段LLM智能体必须在上下文窗口预算与字节敏感缓存约束下决定提示中包含哪些内容、按什么顺序以及何时压缩历史，现有实现零散而低效。该文提出ContextPipe，将上下文组装视为与关系数据库查询执行同构的问题，设计出计划、绑定、优化、执行、反馈五阶段流水线，并配套结构化数据源目录与缓存感知优化器。此方法把临时补丁式的上下文管理转化为可优化、可复用的工程范式，能够提高长程智能体运行的稳定性与成本可控性。",
+      "llm_tldr": "长时段LLM智能体必须在上下文窗口预算与字节敏感缓存约束下决定提示中包含哪些内容、按什么顺序以及何时压缩历史，现有实现零散而低效。该文提出ContextPipe，将上下文组装视为与关系数据库查询执行同构的问题，设计出计划、绑定、优化、执行、反馈五阶段流水线，并配套结构化数据源目录与缓存感知优化器。此方法把临时补丁式的上下文管理转化为可优化、可复用的工程范式，能够提高长程智能体运行的稳定性与成本可控性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.01975v1",
+      "source": "arxiv",
+      "title": "RT-HiSS: Ray Tracing Accelerated High Dimensional Vector Similarity Searches",
+      "abstract": "Recent GPU generations include special-purpose ray tracing (RT) cores for graphics applications. While RT cores are primarily used for rendering, recent works show they can be leveraged for general-purpose tasks, including similarity searches. However, existing approaches do not support datasets exceeding three dimensions. In this work, we propose RT-HiSS, the first exact GPU RT-core-based similarity search algorithm for high-dimensional datasets. GPU similarity search often scales poorly for large datasets with substantial search distances. To address this, RT-HiSS uses RT cores for fast index construction and searches, followed by candidate refinement on CUDA cores. We introduce a two-pass approach to estimate an upper bound on result size, enabling efficient batching under GPU memory constraints with near-perfect load balancing. Additionally, we examine shared memory tiling and compressed result masks to improve GPU resource utilization. RT-HiSS yields speedups up to 8.37$\\times$ over competitive state-of-the-art GPU algorithms and up to 2,368.26$\\times$ relative to the brute-force algorithm across six real-world datasets.",
+      "authors": [
+        "Revanth Reddy Munugala",
+        "Michael Gowanlock"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.DB"
+      ],
+      "published": "2026-09-02T01:17:22+00:00",
+      "link": "https://arxiv.org/pdf/2609.01975v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU RT-core accelerated exact high-dimensional vector similarity search as an enabling retrieval technology for knowledge access",
+      "llm_evidence_cn": "提出GPU光线追踪加速的高维精确向量检索技术，可用于知识获取后端",
+      "llm_evidence": "提出GPU光线追踪加速的高维精确向量检索技术，可用于知识获取后端",
+      "canonical_evidence": "提出GPU光线追踪加速的高维精确向量检索技术，可用于知识获取后端",
+      "llm_tldr_en": "GPU ray tracing cores can accelerate similarity search but earlier methods only support low-dimensional data. RT-HiSS introduces the first exact RT-core-based high-dimensional similarity search algorithm, using RT cores for index and search plus CUDA-core refinement and a two-pass result-size bound.",
+      "llm_tldr_cn": "GPU相似度搜索在大数据集或大搜索范围内扩展性差，已有RT核方法也无法支持三维以上数据。本文提出RT-HiSS，首个基于GPU光线追踪核心的精确高维向量相似度搜索算法，用RT核加速索引构建与搜索，再由CUDA核心对候选结果精化。算法引入两遍估计流程来界定结果规模上界。该工作把专用图形硬件引入通用检索，为大规模知识向量的快速存取提供底层支撑。",
+      "llm_tldr": "GPU相似度搜索在大数据集或大搜索范围内扩展性差，已有RT核方法也无法支持三维以上数据。本文提出RT-HiSS，首个基于GPU光线追踪核心的精确高维向量相似度搜索算法，用RT核加速索引构建与搜索，再由CUDA核心对候选结果精化。算法引入两遍估计流程来界定结果规模上界。该工作把专用图形硬件引入通用检索，为大规模知识向量的快速存取提供底层支撑。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.04869v1",
+      "source": "arxiv",
+      "title": "From Interaction Traces to Persistent Skills: Online Evolution for Computer-Use Agents",
+      "abstract": "Computer-use agents can execute increasingly complex tasks in graphical interfaces, but their interaction experience is typically transient: procedural knowledge acquired from one rollout is not systematically retained, refined, and reused in later tasks. Existing skill libraries provide external procedural knowledge, yet their incremental value over the same agent operating without skills, as well as their longitudinal dynamics under repeated interaction, remain insufficiently characterized. We present an online skill-evolution framework that converts interaction trajectories and evaluator feedback into a persistent, versioned library of reusable procedures. Each iteration executes against a frozen library snapshot, and evidence-guided skill updates become available in subsequent iterations without changing model parameters. We compare the full evolving-library system with a configuration-matched empty-library control across four OSWorld application domains under the same fixed action-generation and GUI-grounding stack, task sets, and iteration horizons. Following a five-iteration empty-library warm-up, Full attains a higher post-warm-up mean evaluator score in all four observed domain runs, with mean differences ranging from 5.7 to 18.6 percentage points and domain-dependent temporal stability. In GIMP, provenance-aware analysis reveals retrieval across task-of-origin boundaries and revision churn, where repeated accepted edits fail to recover the originating task. These findings characterize evolving skill libraries as auditable, shared procedural memory that can improve a fixed computer-use stack, while showing that their benefits are conditional and repeated revision does not guarantee recovery. Code is released at https://github.com/LongtaoHu/Skill-Evo4GUI.",
+      "authors": [
+        "Longtao Hu",
+        "Xiao Liang",
+        "Linchao Zhu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-04T08:29:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.04869v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "online skill-evolution framework lets agents retain, refine and reuse procedural knowledge across iterations",
+      "llm_evidence_cn": "将交互轨迹与反馈转化为持久技能库的在线进化机制，持续改善代理技能",
+      "llm_evidence": "将交互轨迹与反馈转化为持久技能库的在线进化机制，持续改善代理技能",
+      "canonical_evidence": "将交互轨迹与反馈转化为持久技能库的在线进化机制，持续改善代理技能",
+      "llm_tldr_en": "An online skill-evolution framework converts interaction traces and evaluator feedback into a persistent versioned skill library; each iteration runs on a frozen snapshot and improves via an evidence-guided loop, letting computer-use agents systematically retain and reuse procedural knowledge.",
+      "llm_tldr_cn": "计算机使用代理的交互知识往往随轮次消失，难以系统保留和复用。论文提出在线技能进化框架，将交互轨迹与评估反馈转化为带版本号的持久技能库；每一轮在冻结库快照上执行，并通过证据驱动的循环不断改进既有技能。通过纵向设置与无技能代理对比，该框架能明确技能库在重复交互中带来的增量价值，支撑代理可持续地自我进化。",
+      "llm_tldr": "计算机使用代理的交互知识往往随轮次消失，难以系统保留和复用。论文提出在线技能进化框架，将交互轨迹与评估反馈转化为带版本号的持久技能库；每一轮在冻结库快照上执行，并通过证据驱动的循环不断改进既有技能。通过纵向设置与无技能代理对比，该框架能明确技能库在重复交互中带来的增量价值，支撑代理可持续地自我进化。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.01597v1",
+      "source": "arxiv",
+      "title": "The Rise of Verbal Reinforcement Learning",
+      "abstract": "Natural language is emerging as a primary feedback channel for improving language agents, capable of conveying intent, preferences, and causal structure in forms interpretable by both humans and modern language models. We call this paradigm Verbal Reinforcement Learning (VRL) and offer the first unified account of it. We organize the field around a single axis, \\textit{when} verbal feedback takes effect in an agent's lifecycle and \\textit{what} it modifies, yielding three pillars: (1) \\textbf{Language as Grounding Signal}, where language defines the task itself by specifying goals, states, and reward structures; (2) \\textbf{Language as Deliberative Feedback}, where natural language guides reasoning at test time without the need to update model parameters; (3) \\textbf{Language as Learning Signal}, where language-based feedback shapes model parameters through training. Within each pillar, we synthesize representative work, distinguish key subcategories of approaches, and outline the distinct role language plays in shaping agent behavior. Together, this taxonomy shows how verbal reinforcement is reshaping agent development, while also defining the challenges and opportunities for building more capable and aligned agents.",
+      "authors": [
+        "Kshitij Tayal",
+        "Arun Sharma",
+        "Genta Indra Winata",
+        "Anirban Das",
+        "Sambit Sahu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-01T17:58:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.01597v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Unifies Verbal Reinforcement Learning as a framework in which natural-language feedback iteratively improves language agents",
+      "llm_evidence_cn": "统一阐释语言强化学习，让自然语言反馈迭代改进语言智能体",
+      "llm_evidence": "统一阐释语言强化学习，让自然语言反馈迭代改进语言智能体",
+      "canonical_evidence": "统一阐释语言强化学习，让自然语言反馈迭代改进语言智能体",
+      "llm_tldr_en": "Natural language is becoming a primary feedback channel that can convey intent, preferences, and causal structure for language agents. The paper introduces the verbal reinforcement learning paradigm and organizes the field around when feedback acts and what it modifies, covering grounding, deliberative feedback, and parameter updates.",
+      "llm_tldr_cn": "自然语言正成为改进语言智能体的重要反馈通道，能够表达意图、偏好与因果结构，但领域缺少统一框架。作者提出Verbal Reinforcement Learning范式，从语言作为目标设定信号、测试时推理反馈信号以及参数更新信号三个支柱进行系统归纳。该框架按反馈生效时间和修改对象来组织已有方法，为设计可迭代改进的语言智能体提供统一视角。",
+      "llm_tldr": "自然语言正成为改进语言智能体的重要反馈通道，能够表达意图、偏好与因果结构，但领域缺少统一框架。作者提出Verbal Reinforcement Learning范式，从语言作为目标设定信号、测试时推理反馈信号以及参数更新信号三个支柱进行系统归纳。该框架按反馈生效时间和修改对象来组织已有方法，为设计可迭代改进的语言智能体提供统一视角。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.03905v1",
+      "source": "arxiv",
+      "title": "Every Kernel Is a Join: Automatic Multi-GPU Parallelism for AI Computations in Einsummable",
+      "abstract": "Distributing an AI computation across the GPUs of a multi-GPU server is one of the central problems in systems-for-AI. We present Einsummable, a prototype system that accepts a PyTorch-like description of an AI computation and automatically distributes it across a multi-GPU server, with no device assignments, sharding annotations, or communication operations written by the programmer. Einsummable models every operation as a relational join followed by an aggregation over tensor relations, in which the tuples contain sub-tensors. Each operation exposes its possible decompositions through what we call \"join-agg specs\". An optimizer then selects decompositions across the whole computation to minimize a communication-cost proxy. Because it searches decompositions rather than a menu of named strategies, Einsummable discovers plans that mesh-based auto-parallelizers cannot. Each decomposed operation is implemented by synthesizing an exchange program, which is a topology-aware generalization of Volcano's exchange operator. Einsummable invokes no canned collectives: all communication and aggregation is special-purpose, derived at compile time. Despite being fully automatic, Einsummable can outperform custom-designed implementations. For example, on LLaMA transformer blocks on an eight-GPU A100 server, Einsummable achieves a geometric-mean runtime of 8.97 ms, versus 13.80 ms for hand-tuned PyTorch and 15.90 ms for vLLM.",
+      "authors": [
+        "Zhimin Ding",
+        "Chen-Kuan Liao",
+        "Chima Adiole",
+        "Brianna Barrow",
+        "Fangzhou Du",
+        "Yu Hsiao",
+        "Ge Huang",
+        "Yicheng Jin",
+        "Ismail Syed",
+        "Chris Jermaine"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-03T14:24:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.03905v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "automatic system models GPU kernels as join-agg specs and selects communication-minimizing multi-GPU decompositions",
+      "llm_evidence_cn": "将GPU端算子建模为join-agg规格并自动选择通信开销最小的多GPU并行方案",
+      "llm_evidence": "将GPU端算子建模为join-agg规格并自动选择通信开销最小的多GPU并行方案",
+      "canonical_evidence": "将GPU端算子建模为join-agg规格并自动选择通信开销最小的多GPU并行方案",
+      "llm_tldr_en": "Einsummable automatically maps high-level AI computations onto multi-GPU servers. Modeling each operation as a relational join plus aggregation over tensor relations, an optimizer chooses communication-minimizing decompositions, removing the need for device assignments, sharding annotations, and explicit communication code.",
+      "llm_tldr_cn": "多GPU服务器上的AI计算分布通常需要人工设定设备与通信方式，工程负担高。Einsummable将每个AI算子建模为关系连接加聚合，并通过join-agg specs把可拆分方式暴露给优化器；优化器以通信开销近似为代价自动选择整个计算的拆分方案。结果使高层PyTorch风格描述能够无需手写设备分配、分片注释或通信操作即可自动跑在多GPU上，为自动化GPU并行优化提供了新抽象。",
+      "llm_tldr": "多GPU服务器上的AI计算分布通常需要人工设定设备与通信方式，工程负担高。Einsummable将每个AI算子建模为关系连接加聚合，并通过join-agg specs把可拆分方式暴露给优化器；优化器以通信开销近似为代价自动选择整个计算的拆分方案。结果使高层PyTorch风格描述能够无需手写设备分配、分片注释或通信操作即可自动跑在多GPU上，为自动化GPU并行优化提供了新抽象。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.05232v1",
+      "source": "arxiv",
+      "title": "Substrate-Aware AI Agents: Execution Context as a First-Class Input",
+      "abstract": "Autonomous AI agents increasingly select actions in environments whose memory, execution-time, runtime, compute, and operational constraints determine what counts as a suitable plan. We call the absence of this execution context from an agent's planning state substrate blindness. We test this general proposition through numerical code generation, where selected implementation choices and operational consequences are directly observable. Three frontier model configurations--Anthropic Claude Opus 5, OpenAI GPT-5.6-Sol, and Google Gemini 3.7 Flash--generate code for a high-dimensional pairwise Euclidean-distance task either from the task alone or with a 128 MB RAM and 10.0 s wall-time contract. Contract disclosure reduced measured peak process memory in 13 of 14 executable index-aligned task-only versus contract-disclosed comparisons and reduced mean wall time in all three cohorts, making execution up to 3.1x faster. Across the audited corpus, disclosure produced structural code changes including bounded blocking, float32 retention, upper-triangle traversal, and in-place or memory-mapped buffers. At a tighter 96 MB contract, independently sampled contract-disclosed cohorts achieved correct-and-within-budget outcomes of 4/5 for Claude Opus 5, 5/5 for GPT-5.6-Sol, and 3/5 for Gemini 3.7 Flash, compared with task-only outcomes of 0/5, 1/5, and 0/5; cohort mean MaxRSS and wall time were 49-74% and 35-64% lower than their task-only references. These results establish a controlled proof of concept for substrate-aware agent planning: a minimal execution contract induces proactive structural adaptation in generated programs, shifting computation away from unconstrained allocations and substantially improving observed resource-time profiles before execution.",
+      "authors": [
+        "Manu Agrawal"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-04T14:57:17+00:00",
+      "link": "https://arxiv.org/pdf/2609.05232v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Frontier LLMs generate numerical compute code with and without explicit RAM/wall-time contracts, showing execution-context-driven performance tuning",
+      "llm_evidence_cn": "给大模型显式内存与运行时限契约来生成数值算子代码，实现基于执行上下文的性能调优",
+      "llm_evidence": "给大模型显式内存与运行时限契约来生成数值算子代码，实现基于执行上下文的性能调优",
+      "canonical_evidence": "给大模型显式内存与运行时限契约来生成数值算子代码，实现基于执行上下文的性能调优",
+      "llm_tldr_en": "Proposes substrate-aware LLM code generation: giving explicit RAM/wall-time contracts lowers peak process memory of frontier models on numeric kernel tasks. Shows execution context as first-class input produces efficient compute kernels, useful for constrained GPU kernel generation.",
+      "llm_tldr_cn": "论文指出自主AI智能体在规划时忽略内存、运行时限等执行上下文会造成“衬底盲”。通过在三维边界框数值任务中让Claude、GPT和Gemini三款前沿模型生成代码时显式给定128MB内存和10秒墙钟时间契约，发现披露契约能降低实测峰值内存。该结果表明把执行约束作为一等输入，可以让大模型生成更高效的算子代码，对生成受资源约束的GPU内核具有参考价值。",
+      "llm_tldr": "论文指出自主AI智能体在规划时忽略内存、运行时限等执行上下文会造成“衬底盲”。通过在三维边界框数值任务中让Claude、GPT和Gemini三款前沿模型生成代码时显式给定128MB内存和10秒墙钟时间契约，发现披露契约能降低实测峰值内存。该结果表明把执行约束作为一等输入，可以让大模型生成更高效的算子代码，对生成受资源约束的GPU内核具有参考价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Large model based generation of compute kernels with performance tuning",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.03114v1",
+      "source": "arxiv",
+      "title": "Enhancing the Power of Polyhedral-Based Optimizations with Coordinate-Based Hill Climbing",
+      "abstract": "This paper describes our experience extending the polyhedral compiler Pluto with a lightweight, coordinate-wise hill-climbing tuner that adjusts numeric transformation parameters, such as tile sizes and thread-block dimensions, after Pluto selects the kernel's loop structure. To ensure fast convergence and escape local minima, hill climbing is augmented with two techniques: expanded neighborhood exploration and a shortest-hop refinement phase. On x86 and ARM CPUs, tuned kernels outperform Pluto's default configuration (1.06-1.28x geometric mean speedup across 11 benchmarks) and static optimizers (Clang -O3, Polly, IOOpt), reaching performance competitive with the AutoTVM autotuner at substantially lower search cost. Applying the same technique to GPU thread-block allocation on an NVIDIA A100 yields 5.5-8.5% improvement over default configurations. These results position post-optimization parameter tuning as a practical middle ground between fixed-cost-model polyhedral compilation and full autotuning.",
+      "authors": [
+        "Gaurav Verma",
+        "Michael Canesche",
+        "Fernando Magno Quintão Pereira"
+      ],
+      "primary_category": "cs.PL",
+      "categories": [
+        "cs.PL"
+      ],
+      "published": "2026-09-02T19:50:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.03114v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Automated kernel parameter tuning (tile sizes and thread-block dimensions) to improve execution performance",
+      "llm_evidence_cn": "对多面体生成内核的平铺尺寸与线程块维度做自动调优以提升性能",
+      "llm_evidence": "对多面体生成内核的平铺尺寸与线程块维度做自动调优以提升性能",
+      "canonical_evidence": "对多面体生成内核的平铺尺寸与线程块维度做自动调优以提升性能",
+      "llm_tldr_en": "A lightweight coordinate-wise hill-climbing tuner after Pluto adjusts numeric kernel parameters, helped by expanded neighborhood exploration and shortest-hop refinement. On 11 CPU benchmarks it beats Pluto defaults by 1.06-1.28x, nearly matches AutoTVM, and is a useful automated kernel-optimization technique.",
+      "llm_tldr_cn": "本文针对多面体编译器Pluto在内核结构确定后数值参数难以最优的问题，在Pluto之后引入基于坐标的轻量级爬山调优器，并通过扩展邻域探索与最短跳精化避免局部最优。实验在x86和ARM CPU上对11个基准进行调优，获得相对Pluto默认配置1.06-1.28倍的几何平均加速，性能接近AutoTVM且搜索成本明显更低。该工作表明轻量级参数自动调优可作为自动化内核优化和代码生成的有力补充技术。",
+      "llm_tldr": "本文针对多面体编译器Pluto在内核结构确定后数值参数难以最优的问题，在Pluto之后引入基于坐标的轻量级爬山调优器，并通过扩展邻域探索与最短跳精化避免局部最优。实验在x86和ARM CPU上对11个基准进行调优，获得相对Pluto默认配置1.06-1.28倍的几何平均加速，性能接近AutoTVM且搜索成本明显更低。该工作表明轻量级参数自动调优可作为自动化内核优化和代码生成的有力补充技术。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
