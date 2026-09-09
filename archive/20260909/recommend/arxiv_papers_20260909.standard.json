@@ -1,0 +1,797 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-09T21:57:39.831724+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 11,
+    "deep_cap": 6,
+    "deep_selected": 9,
+    "quick_candidates": 9,
+    "quick_skim_target": 11,
+    "quick_selected": 9
+  },
+  "deep_dive": [
+    {
+      "id": "2609.03915v1",
+      "source": "arxiv",
+      "title": "RuleMem: Active Rule Memory for Long-Term Conversational Agents",
+      "abstract": "Question answering agents in long-term conversations must reason over massive, temporally dispersed dialogue histories. However, existing memory mechanisms primarily treat past information as \\textit{passively} stored facts, leading to semantic gaps and unreliable reasoning. To address this limitation, we propose RuleMem, a rule-based memory framework that induces reusable logical rules from historical interactions to \\textit{actively} guide both evidence retrieval and reasoning. Specifically, RuleMem constructs natural-language Horn clauses from conversations and validates them via a Rule Perplexity Consistency (RPC) mechanism. These induced rules enable the retrieval of semantically distant evidence while providing an explicit logical structure for answer generation. We conducted a comprehensive evaluation of RuleMem on two long-term conversational benchmarks, LoCoMo and LongMemEval_s*. In a rigorous comparison against 14 baselines on LoCoMo, RuleMem achieved the highest accuracy, exceeding the baseline average by 27.47 points (a 54.3% relative improvement).",
+      "authors": [
+        "Xingyuan Zeng",
+        "Zuohan Wu",
+        "Quanming Yao",
+        "Yue Wang",
+        "Wei Liu",
+        "Libin Zheng",
+        "Jiuke Wang",
+        "Jian Yin"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.IR"
+      ],
+      "published": "2026-09-03T14:30:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.03915v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "rule-based active memory framework that stores and retrieves conversation history to support long-term reasoning",
+      "llm_evidence_cn": "面向长期对话构建可检索规则记忆，在需要时主动提取历史证据并辅助推理",
+      "llm_evidence": "面向长期对话构建可检索规则记忆，在需要时主动提取历史证据并辅助推理",
+      "canonical_evidence": "面向长期对话构建可检索规则记忆，在需要时主动提取历史证据并辅助推理",
+      "llm_tldr_en": "Proposes RuleMem, a rule memory framework that induces reusable Horn-clause-style rules from long-term conversations and validates them with RPC to actively guide evidence retrieval and reasoning.",
+      "llm_tldr_cn": "长期对话问答需要处理海量且时间分散的历史，但现有记忆机制只做被动事实存储，导致语义跨度大的证据难以检索、推理不稳定。RuleMem从历史交互归纳出可复用的自然语言Horn规则，并通过规则困惑度一致性机制验证。诱导出的规则既能回忆语义距离较远的证据，又为答案生成提供显式逻辑结构。该框架表明将记忆整理为主动规则可显著改善长期对话智能体的推理可靠性。",
+      "llm_tldr": "长期对话问答需要处理海量且时间分散的历史，但现有记忆机制只做被动事实存储，导致语义跨度大的证据难以检索、推理不稳定。RuleMem从历史交互归纳出可复用的自然语言Horn规则，并通过规则困惑度一致性机制验证。诱导出的规则既能回忆语义距离较远的证据，又为答案生成提供显式逻辑结构。该框架表明将记忆整理为主动规则可显著改善长期对话智能体的推理可靠性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.05553v1",
+      "source": "arxiv",
+      "title": "EdgeMem: LLM-Free Agent Memory Construction and Retrieval via Evidence-Preserving Multi-Anchor Hypergraph",
+      "abstract": "Agent memory allows LLM agents to use earlier interactions when answering new queries. Existing methods often compress interaction histories into summaries or other LLM-generated representations. Repeated generation adds cost and can discard answer-bearing details before the system knows what a future query will require. We propose EdgeMem, an agent-memory method built around a simple principle: preserve original interaction turns and organize them through complementary content, temporal, and episodic cues. EdgeMem realizes this principle with a multi-anchor hypergraph constructed by lightweight local processing. Retrieval directly returns source evidence and reserves LLM use for final answer generation, combining structured access to multi-session histories with faithful retention of the original conversation. Experiments on LoCoMo and LongMemEval-S show strong retrieval and memory-grounded question answering; on LoCoMo, EdgeMem achieves the highest strict-judge score among seven reproduced systems under a shared prompt (61.01 versus 58.70), while construction and retrieval require no generative-LLM calls. Overall, EdgeMem shows that preserving and organizing source evidence provides an effective and efficient foundation for agent memory without generative memory management.",
+      "authors": [
+        "Zeyang Cui",
+        "Jiannong Cao",
+        "Zhiyuan Wen",
+        "Bo Yuan",
+        "Junlan Feng",
+        "Shengyuan Chen"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-09-03T11:17:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.05553v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Agent memory construction and retrieval that preserves original interaction evidence with a multi-anchor hypergraph",
+      "llm_evidence_cn": "构建多锚点超图来组织和检索智能体原始交互记忆并直接返回证据",
+      "llm_evidence": "构建多锚点超图来组织和检索智能体原始交互记忆并直接返回证据",
+      "canonical_evidence": "构建多锚点超图来组织和检索智能体原始交互记忆并直接返回证据",
+      "llm_tldr_en": "EdgeMem preserves original interaction turns rather than summarizing, organizing them with content, temporal, and episodic cues in a lightweight multi-anchor hypergraph. Retrieval returns source evidence directly, cutting repeated LLM generation while retaining details needed by future queries.",
+      "llm_tldr_cn": "现有智能体记忆方法通常将历史交互压缩成摘要，可能丢失未来查询所需的关键细节，还增加大模型重复生成的开销。EdgeMem 提出保留原始交互回合，用内容、时间与情景线索构造多锚点超图，通过轻量局部处理完成记忆组织与检索。检索时直接将源证据返回给最终答案生成，既保留答案证据又降低对大模型的依赖。",
+      "llm_tldr": "现有智能体记忆方法通常将历史交互压缩成摘要，可能丢失未来查询所需的关键细节，还增加大模型重复生成的开销。EdgeMem 提出保留原始交互回合，用内容、时间与情景线索构造多锚点超图，通过轻量局部处理完成记忆组织与检索。检索时直接将源证据返回给最终答案生成，既保留答案证据又降低对大模型的依赖。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08183v1",
+      "source": "arxiv",
+      "title": "NeoHorse-1: Towards Recursive Self-Improvement via Agentic Post-Training with Routing Harness",
+      "abstract": "Recursive self-improvement (RSI) requires a concrete mechanism through which an AI system observes its capabilities and converts that evidence into the next round of learning. We present NeoHorse-1, a family of agent-native models developed to explore this path through agentic post-training. Our system combines a heterogeneous model pool with intelligent routing, recording the predicted capability demand, selected service tier, and subsequent interaction for each user turn. These records are converted into training examples that preserve interleaved reasoning, tool calls, and harness context, and are admitted through structural validation, six-dimensional semantic evaluation, and subscene-level labeling. Routing signals organize supervised fine-tuning into a three-stage curriculum and extend to routing-guided on-policy distillation, where a teacher supervises student-generated responses under the same progression. Capability-guided allocation then converts evaluation feedback into the next training mixture, closing an evaluation-selection-update loop in which what the system learns to do shapes what it learns from next. Across eleven benchmarks covering harness-based agents, tool use, coding, and instruction following, post-training raises the macro-average from 58.94 to 64.87 at 4B and from 65.60 to 69.04 at 9B, substantially narrowing the aggregate gap between the post-trained 4B model and the 9B base model. NeoHorse-1 provides an initial prototype of this feedback-driven process and a path toward harness-mediated RSI across successive iterations.",
+      "authors": [
+        "NeoHorse Team",
+        "Guoliang Cao",
+        "Guohao Dai",
+        "Tianyu Guo",
+        "Kai Han",
+        "Hailin Hu",
+        "Zihan Jiang",
+        "Xiang Kuang",
+        "Boxun Li",
+        "Yulong Li",
+        "Zehua Pei",
+        "Yuchuan Tian",
+        "Jiamin Wang",
+        "Yu Wang",
+        "Yunhe Wang",
+        "Yihong Wu",
+        "Haiyang Xu",
+        "Shuo Zhang",
+        "Hang Zhou",
+        "Siyang Cheng",
+        "Jiayu Fan",
+        "Wei He",
+        "Qingrui Jiao",
+        "Hongguang Li",
+        "Zhiyuan Li",
+        "Runke Liu",
+        "Xi Liu",
+        "Xinchen Liu",
+        "Sinno Jialin Pan",
+        "Yi Ren",
+        "Liuyang Song",
+        "Chenyu Wang",
+        "Bei Yu",
+        "Quanlu Zhang",
+        "Xiangyu Zhang",
+        "Mengyu Zheng",
+        "Yingjie Zong"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-08T03:14:54+00:00",
+      "link": "https://arxiv.org/pdf/2609.08183v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Recursive self-improvement model family trained from routed interaction records; matches iterative self-improvement without human intervention",
+      "llm_evidence_cn": "NeoHorse-1通过路由交互日志与后训练实现递归自我改进,契合无人工迭代改进要求",
+      "llm_evidence": "NeoHorse-1通过路由交互日志与后训练实现递归自我改进,契合无人工迭代改进要求",
+      "canonical_evidence": "NeoHorse-1通过路由交互日志与后训练实现递归自我改进,契合无人工迭代改进要求",
+      "llm_tldr_en": "NeoHorse-1 is an agent-native model family that implements recursive self-improvement by routing across a heterogeneous model pool, recording interactions, and converting them into post-training examples for continuous learning.",
+      "llm_tldr_cn": "递归自我改进需要把系统观察到的自身能力转化为下一轮学习信号。NeoHorse-1面向agent任务设计,通过异构模型池与智能路由将每次交互中的能力需求、服务层和上下文记录下来,经结构验证与多维语义评价后重组成训练样本。该过程在保留推理和工具调用链条的同时使模型从自身真实行为中后训练,逐步闭环提升能力,为无人工干预的迭代式自改进提供实现框架。",
+      "llm_tldr": "递归自我改进需要把系统观察到的自身能力转化为下一轮学习信号。NeoHorse-1面向agent任务设计,通过异构模型池与智能路由将每次交互中的能力需求、服务层和上下文记录下来,经结构验证与多维语义评价后重组成训练样本。该过程在保留推理和工具调用链条的同时使模型从自身真实行为中后训练,逐步闭环提升能力,为无人工干预的迭代式自改进提供实现框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08228v1",
+      "source": "arxiv",
+      "title": "SE-GoS: Self-Evolving Graph-of-Skills for Skill Library at Scale",
+      "abstract": "Modern LLM agents increasingly rely on reusable skills, yet as skill libraries scale to thousands of entries, effective retrieval becomes a bottleneck. Graph-of-Skills (GoS) addresses this challenge by exploiting dependency-aware graph structure for scalable skill retrieval, while SkillDAG further demonstrates that skill graphs can accumulate execution-backed structure online. However, these approaches leave open whether historical execution traces can be systematically distilled into a better retrieval graph that generalizes to unseen tasks. We present Self-Evolving Graph-of-Skills (SE-GoS), a training-free framework that evolves an existing GoS graph from execution traces while preserving the original retrieval pipeline. SE-GoS performs three complementary updates: topology evolution that discovers and prunes skill relationships from execution evidence, edge-weight evolution that reinforces retrieval-relevant relationships based on historical effectiveness, and description evolution that optimizes retrieval-facing skill descriptions using execution feedback. Across three LLMs on SkillsBench, SE-GoS consistently improves task reward while reducing input tokens relative to full skill loading, with gains varying across model families. In a representative setting, one evolution round improves reward from 52.4\\% to 59.4\\% while reducing input tokens by approximately one-third relative to full skill loading, and the resulting graph transfers to a disjoint held-out split with a 5.4-point improvement over the static GoS baseline. These results show that skill graphs can be improved from execution experience without model training, changes to the retrieval algorithm, or modifications to skill content, turning a static retrieval graph into an evolving retrieval infrastructure.",
+      "authors": [
+        "Dawei Fu",
+        "Cheng Jiang",
+        "Sitian Qian",
+        "Huainan Wang",
+        "Zhongkai Hao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-08T04:20:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.08228v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Self-evolving skill graph improves retrieval from execution traces; addresses how self-evolving agents improve over time",
+      "llm_evidence_cn": "从执行轨迹自进化技能图以改进记忆/检索,回应自我进化智能体提升机制",
+      "llm_evidence": "从执行轨迹自进化技能图以改进记忆/检索,回应自我进化智能体提升机制",
+      "canonical_evidence": "从执行轨迹自进化技能图以改进记忆/检索,回应自我进化智能体提升机制",
+      "llm_tldr_en": "SE-GoS is a training-free framework that evolves a skill-retrieval graph from historical execution traces, preserving the original retrieval pipeline while distilling traces into a better graph that generalizes to unseen tasks.",
+      "llm_tldr_cn": "在大规模技能库中,LLM智能体如何高效检索可复用技能成为关键瓶颈。GoS等结构利用依赖感知图提高检索扩展性,但未系统利用历史执行轨迹。SE-GoS提出无需训练的自我进化框架,从执行轨迹中蒸馏出更优的技能图,并在保留原检索流程的同时泛化到未见任务。三种互补操作实现了图结构的持续优化,为智能体无需人工干预地改进记忆存储与检索系统提供了具体路径。",
+      "llm_tldr": "在大规模技能库中,LLM智能体如何高效检索可复用技能成为关键瓶颈。GoS等结构利用依赖感知图提高检索扩展性,但未系统利用历史执行轨迹。SE-GoS提出无需训练的自我进化框架,从执行轨迹中蒸馏出更优的技能图,并在保留原检索流程的同时泛化到未见任务。三种互补操作实现了图结构的持续优化,为智能体无需人工干预地改进记忆存储与检索系统提供了具体路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08273v1",
+      "source": "arxiv",
+      "title": "MemForest: Efficient Agent Memory Management via EventTree Partitioning and Progressive Merging",
+      "abstract": "Agent memory systems have demonstrated significant potential in long-term dialogue, personalized assistants, and video understanding. However, continuously accumulated memory introduces substantial storage and retrieval costs during inference. To address this issue, we propose \\textbf{MemForest}, a general memory compression framework adaptable to various agent memory systems. Specifically, MemForest partitions historical memory into event-centric units by leveraging global semantic similarity and local temporal continuity. For each unit, it constructs a maximum spanning tree, termed an EventTree, and progressively merges redundant memory nodes by selecting high-weight edges, reducing storage overhead. Furthermore, we introduce an anchor-guided propagation retrieval mechanism that retrieves relevant memory nodes from the temporal neighborhoods of key nodes, improving retrieval accuracy. Extensive experiments demonstrate the effectiveness of MemForest. Under the unimodal Mem0 framework, MemForest retains \\textbf{97.1%} of the original performance while compressing \\textbf{50%} of historical memory across three benchmarks (LoCoMo, LongMemEval, and PersonaMem), achieving a \\textbf{1.89x} retrieval speedup. Under the multimodal M3-Agent framework, it preserves \\textbf{99.7%} of the original performance with a \\textbf{50%} compression ratio across two benchmarks (M3-Bench-robot and M3-Bench-web), achieving a \\textbf{2.24x} retrieval speedup. \\textcolor{RoyalBlue}{\\textit{Our code is available at [https://github.com/Celina-love-sweet/MemForest.}}](https://github.com/Celina-love-sweet/MemForest.}})",
+      "authors": [
+        "Junxi Wang",
+        "Te Sun",
+        "Jiayi Zhu",
+        "Chen Zhang",
+        "Siyuan Li",
+        "Xuyang Liu",
+        "Zichen Wen",
+        "Xiaobing Tu",
+        "Jinkui Ren",
+        "Xiantao Zhang",
+        "Ziqi Yuan",
+        "Linfeng Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-08T05:30:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.08273v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "agent memory storage and retrieval compression via event-tree partitioning and progressive merging",
+      "llm_evidence_cn": "面向智能体的记忆存储与检索成本管理；基于事件树划分与渐进合并的记忆压缩",
+      "llm_evidence": "面向智能体的记忆存储与检索成本管理；基于事件树划分与渐进合并的记忆压缩",
+      "canonical_evidence": "面向智能体的记忆存储与检索成本管理；基于事件树划分与渐进合并的记忆压缩",
+      "llm_tldr_en": "MemForest compresses agent memory by partitioning history into event-centric units and building maximum spanning trees with progressive merging, reducing storage and retrieval overhead for long-term memory systems.",
+      "llm_tldr_cn": "智能体长期记忆在持续对话、个人助理等场景中效果显著，但不断累积的记忆导致推理时存储和检索开销巨大。为此提出MemForest，一种通用的智能体记忆压缩框架，依据全局语义相似度和局部时间连续性将历史记忆划分为事件中心单元，并为每个单元构建最大生成树EventTree，通过选择高权重边渐进合并冗余记忆节点以降低存储开销。在多种智能体记忆系统上的实验表明，该框架可有效减少记忆存储成本并缓解检索代价，为长期记忆智能体的高效部署提供了通用压缩方案。",
+      "llm_tldr": "智能体长期记忆在持续对话、个人助理等场景中效果显著，但不断累积的记忆导致推理时存储和检索开销巨大。为此提出MemForest，一种通用的智能体记忆压缩框架，依据全局语义相似度和局部时间连续性将历史记忆划分为事件中心单元，并为每个单元构建最大生成树EventTree，通过选择高权重边渐进合并冗余记忆节点以降低存储开销。在多种智能体记忆系统上的实验表明，该框架可有效减少记忆存储成本并缓解检索代价，为长期记忆智能体的高效部署提供了通用压缩方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08404v1",
+      "source": "arxiv",
+      "title": "Environments as Scaffold: Enriching Feedback to Bootstrap Self-Evolving Agents in Long-Horizon Tasks",
+      "abstract": "Large Language Models demonstrate remarkable proficiency in static reasoning, yet training them as autonomous agents through Reinforcement Learning (RL) for long-horizon tasks is often hindered by severe reward sparsity. While conventional \\textit{agent-side warming} up via supervised fine-tuning (SFT) can alleviate this, it is frequently limited by data scarcity and constrained exploration. To address this, we propose a paradigm shift to \\textit{environment-side adaptation} by constructing \\textbf{F}eedback-\\textbf{E}nriched \\textbf{E}nvironments (\\textbf{FEEs}). Through a pilot study, we establish a feedback design strategy that reformulates environments by transitioning from action guidance to observation enrichment during the later stages of both intra-episode exploration and inter-episode evolution. Large-scale experiments on SciWorld and BFCL benchmarks using various Qwen3 model scales and RL algorithms such as GRPO, GSPO, and DAPO demonstrate that FEEs consistently yield performance improvements over standard settings. Furthermore, our analysis reveals that training with FEEs \\textbf{(1)} stabilizes training dynamics by reducing entropy volatility, \\textbf{(2)} facilitates proactive state-space exploration in difficult tasks, \\textbf{(3) }ensures the internalization of environmental guidance into policy weights rather than acting as a mere inference-time prior, and \\textbf{(4) }identifies intra-group feedback consistency as a critical boundary for stable optimization.",
+      "authors": [
+        "Hongbang Yuan",
+        "Zhuoran Jin",
+        "Yixin Cao"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-08T08:14:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.08404v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Feedback-enriched environments bootstrap self-evolving agents in long-horizon RL tasks with sparse rewards",
+      "llm_evidence_cn": "通过构造反馈丰富环境来引导自主智能体在稀疏奖励长程任务中自我进化",
+      "llm_evidence": "通过构造反馈丰富环境来引导自主智能体在稀疏奖励长程任务中自我进化",
+      "canonical_evidence": "通过构造反馈丰富环境来引导自主智能体在稀疏奖励长程任务中自我进化",
+      "llm_tldr_en": "Long-horizon RL for self-evolving agents suffers reward sparsity. Instead of agent-side SFT warming, Environments as Scaffold constructs feedback-enriched environments that shift from action guidance to observation enrichment, providing a new direction to bootstrap autonomous agents.",
+      "llm_tldr_cn": "用强化学习训练自主智能体处理长程任务时奖励稀疏是主要障碍，基于SFT的智能体侧预热又受数据稀缺和探索受限制约。为破解这一瓶颈，论文提出环境侧适应，构造反馈丰富环境(FEE)，把引导动作转为丰富观测。先导试验验证了该反馈设计策略，说明改善环境提供的反馈信号可以更有效地引导智能体自我进化。",
+      "llm_tldr": "用强化学习训练自主智能体处理长程任务时奖励稀疏是主要障碍，基于SFT的智能体侧预热又受数据稀缺和探索受限制约。为破解这一瓶颈，论文提出环境侧适应，构造反馈丰富环境(FEE)，把引导动作转为丰富观测。先导试验验证了该反馈设计策略，说明改善环境提供的反馈信号可以更有效地引导智能体自我进化。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08832v1",
+      "source": "arxiv",
+      "title": "Closing the Consistency Gap: Self-Evolving Agents That Learn to Stay on Course",
+      "abstract": "Large language model (LLM)-powered agents can be accurate on average yet unreliable in production, a discrepancy that has been observed but remains largely unaddressed. When given the same task five times, a ReAct agent on the AppWorld benchmark using GPT-4.1 succeeds in all five runs only 53% of the time, even though its per-run pass rate averages 77%. We call this 24-point shortfall the consistency gap, and we argue that addressing it is a precondition for trustworthy AI agent deployment. We present a self-evolving agent framework that reduces this gap by identifying unstable, low-consistency steps in agent trajectories and converting them into episodic memory the agent can draw on in future runs. At its core is a Consistency Analyzer that pinpoints where and why a trajectory is likely to flip across executions, and a Guideline Generator that converts the diagnosis into targeted guidelines, committed to memory and injected into future agent executions on similar tasks. On AppWorld with ReAct/GPT-4.1, our framework raises the fraction of tasks that succeed in all five runs by +16 points on same-task evaluation and +13 points on similar-task generalization.",
+      "authors": [
+        "Evelyn Duesterwald",
+        "Benjamin Elder",
+        "Lilian Ngweta",
+        "Shashanka Ubaru",
+        "Malgorzata Zimon"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-08T14:53:43+00:00",
+      "link": "https://arxiv.org/pdf/2609.08832v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "self-evolving agent framework that turns unstable steps into episodic memory to improve future consistency without human intervention",
+      "llm_evidence_cn": "自进化智能体框架，将不稳定步骤转为情节记忆以无人工干预地提升未来一致性",
+      "llm_evidence": "自进化智能体框架，将不稳定步骤转为情节记忆以无人工干预地提升未来一致性",
+      "canonical_evidence": "自进化智能体框架，将不稳定步骤转为情节记忆以无人工干预地提升未来一致性",
+      "llm_tldr_en": "Addresses consistency gap of LLM agents by proposing a self-evolving framework; a Consistency Analyzer identifies unstable steps and converts them into episodic memory for more reliable future performance.",
+      "llm_tldr_cn": "LLM智能体平均表现良好但生产环境不可靠，同一任务多次运行时往往出现结果不一致。本文定义了一致性差距，并提出自进化智能体框架：由一致性分析器识别轨迹中的低稳定性步骤，将其转化为情节记忆，供后续运行参考。在AppWorld基准上，该方法有效缩小了多次执行间的差距，提升了智能体的可靠性。这一机制展示了智能体利用自身经验持续改进和保持生产可用性的新路径。",
+      "llm_tldr": "LLM智能体平均表现良好但生产环境不可靠，同一任务多次运行时往往出现结果不一致。本文定义了一致性差距，并提出自进化智能体框架：由一致性分析器识别轨迹中的低稳定性步骤，将其转化为情节记忆，供后续运行参考。在AppWorld基准上，该方法有效缩小了多次执行间的差距，提升了智能体的可靠性。这一机制展示了智能体利用自身经验持续改进和保持生产可用性的新路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.08919v1",
+      "source": "arxiv",
+      "title": "Experience Funnel: A State-Policy Alternating Loop for Self-Evolving Agents",
+      "abstract": "Autonomous agents powered by large language models (LLMs) continuously accumulate experience through interaction, creating an opportunity to improve future behavior through self-evolution. A fundamental challenge is how to transform abundant, task-specific interaction experience into reusable model competence without sacrificing the ability to adapt rapidly to newly observed evidence. Explicit textual states, such as skills and agent harnesses, provide fast, human-readable and editable adaptation, but incur persistent dependence on external context; parametric policies provide compact and reusable competence, but are substantially slower to update. We present \\textit{Experience Funnel}, a self-evolving framework that couples fast state adaptation with slow policy consolidation in an alternating loop. Interaction trajectories are first distilled into an explicit textual state, where newly acquired experience can be rapidly incorporated and validated. The framework then selectively identifies state-enabled behavior that remains useful across state revisions and consolidates it into the policy through transition-aware distillation. The updated state--policy pair subsequently generates new rollouts, providing fresh evidence for the next round of state adaptation and policy consolidation. Experiments across diverse agent benchmarks show that \\textit{Experience Funnel} consistently improves agent capability over state-only evolution and policy-internalization approaches, while progressively converting useful explicit experience into autonomous policy competence.",
+      "authors": [
+        "Wenbo Gao",
+        "Zhaomou Song",
+        "Zhiyuan Ji",
+        "Renxi Liu",
+        "Xing Li",
+        "Xianzhi Yu",
+        "Xiaoguang Li",
+        "James Chung-wai Cheung",
+        "Weizhe Lin",
+        "Yaoyuan Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-08T15:48:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.08919v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Directly proposes a self-evolving agent framework that couples fast state adaptation and parametric policy updates to improve from interaction experience",
+      "llm_evidence_cn": "提出自进化智能体框架，通过状态-策略交替循环将交互经验转化为可复用能力",
+      "llm_evidence": "提出自进化智能体框架，通过状态-策略交替循环将交互经验转化为可复用能力",
+      "canonical_evidence": "提出自进化智能体框架，通过状态-策略交替循环将交互经验转化为可复用能力",
+      "llm_tldr_en": "Autonomous LLM agents need self-evolution from interaction experience, yet fast state adaptation versus reusable competence is hard. Experience Funnel couples fast state adaptation and parametric policy updates in an alternating loop to improve behavior.",
+      "llm_tldr_cn": "自主智能体在与环境交互中持续积累经验，理想情况下应通过自我进化提升未来行为。核心挑战是如何把任务特定的交互经验转化为可复用能力，同时不失去对新证据的快速适应。论文提出Experience Funnel框架，在快速文本状态适应与可复用的参数化策略更新之间建立交替循环，兼顾即时适应与长期沉淀，为自进化智能体的性能提升提供了系统化结构。",
+      "llm_tldr": "自主智能体在与环境交互中持续积累经验，理想情况下应通过自我进化提升未来行为。核心挑战是如何把任务特定的交互经验转化为可复用能力，同时不失去对新证据的快速适应。论文提出Experience Funnel框架，在快速文本状态适应与可复用的参数化策略更新之间建立交替循环，兼顾即时适应与长期沉淀，为自进化智能体的性能提升提供了系统化结构。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.09115v1",
+      "source": "arxiv",
+      "title": "MeClear: Cooperative Game-Theoretic Attribution and Risk-Aware Memory Clearance for Long-Horizon LLM Agents",
+      "abstract": "Long horizon Large Language Model (LLM) agents rely on external memory systems to preserve user preferences and task knowledge across extended interactions. Conventional retrieval mechanisms optimize semantic compatibility rather than downstream utility, frequently introducing outdated, misleading, or conflicting evidence into the active context. We present MeClear, a task conditioned memory clearance framework that identifies memories featuring negative downstream utility through cooperative attribution and selectively suppresses them from agent execution. MeClear combines Leave One Out screening with sampled cooperative Shapley attribution to distribute utility across interacting evidence, effectively resolving redundant conflict masking where single removal evaluations fail. Utilizing attribution rankings, MeClear executes a query scoped minimal clearance strategy over a nested filtration, verifying task recovery on the cleared context without permanently altering the persistent memory bank. Comprehensive experimental evaluations across ten long dialogue memory pools demonstrate that MeClear achieves a target recall of 85.9% and an overall task recovery rate of 82.3%, representing a 25.5 percentage point improvement over Leave One Out (LOO) baselines.",
+      "authors": [
+        "Boyu Yang",
+        "Jiazheng Sun",
+        "Zilong Lu",
+        "Zhi Qiu",
+        "Xin Peng",
+        "Jun Zheng"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.SE"
+      ],
+      "published": "2026-09-08T17:46:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.09115v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Strong match to decision-time memory relevance in LLM agents via utility-based memory clearance",
+      "llm_evidence_cn": "基于效用归因的记忆清除方法可显著改善LLM智能体决策时的记忆相关性",
+      "llm_evidence": "基于效用归因的记忆清除方法可显著改善LLM智能体决策时的记忆相关性",
+      "canonical_evidence": "基于效用归因的记忆清除方法可显著改善LLM智能体决策时的记忆相关性",
+      "llm_tldr_en": "The paper proposes MeClear, a task-conditioned memory clearance framework for long-horizon LLM agents that uses cooperative Shapley attribution to identify low-utility memories and suppress them from agent execution, improving decision-relevant retrieval.",
+      "llm_tldr_cn": "长时程LLM智能体依赖外部记忆保存偏好和任务知识，但现有检索往往只看语义相关性，导致过时或冲突证据进入上下文。MeClear通过Leave-One-Out筛选和采样合作Shapley归因估计互动证据各自的效用，并在执行前清除具有负下游效用的记忆。该方法实现了任务条件下的记忆风险管理，可显著提高智能体长期决策所用知识的相关性。",
+      "llm_tldr": "长时程LLM智能体依赖外部记忆保存偏好和任务知识，但现有检索往往只看语义相关性，导致过时或冲突证据进入上下文。MeClear通过Leave-One-Out筛选和采样合作Shapley归因估计互动证据各自的效用，并在执行前清除具有负下游效用的记忆。该方法实现了任务条件下的记忆风险管理，可显著提高智能体长期决策所用知识的相关性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.07357v1",
+      "source": "arxiv",
+      "title": "EnvPilot: Systematic Design and Evaluation of an Experience-Augmented Agent for Software Environment Setup",
+      "abstract": "Environment Setup is a critical yet complex task in software engineering that relies heavily on expert knowledge. Existing automated environment setup methods lack the ability to accumulate experience from past execution trajectories and to evolve over time. As a result, their performance is limited because they often perform redundant exploration, ignore useful past solutions, and fail to generalize across diverse software ecosystems. We present the systematic design and empirical validation of EnvPilot, an experience-augmented agent that operationalizes trajectory-derived experience reuse for software environment setup. EnvPilot maintains an expandable Trajectory-Derived Memory (TDM), initialized with 667 high-quality experiences. It systematically transforms implicit knowledge from historical execution trajectories into structured experience and retrieves the most relevant guidance during task execution through the Context-aware Retrieval mechanism. This enables EnvPilot to combine multiple validated setup strategies, providing more precise and detailed guidance than methods that rely solely on static project files or web retrieval. To evaluate EnvPilot, we construct AES-Bench, a multilingual benchmark of 112 real-world GitHub instances across 9 programming languages. Experiments show that EnvPilot achieves a new state-of-the-art (SOTA) with a 75.00% Pass@1 success rate while reducing reasoning costs. Our empirical study shows that both the structured experience representation and the Context-aware Retrieval mechanism are essential.",
+      "authors": [
+        "Hanwu Chen",
+        "Hanyu Lin",
+        "Zhanjiang Yang",
+        "Linhao Zhang",
+        "Aoyan Li",
+        "Jinxi Li",
+        "Meng Li",
+        "Yin Chen",
+        "Daoguang Zan"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE"
+      ],
+      "published": "2026-09-07T11:24:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.07357v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Trajectory-Derived Memory stores and reuses past execution trajectories for agent decision-making",
+      "llm_evidence_cn": "通过轨迹派生记忆存储并复用历史执行经验，直接体现智能体记忆的积累与应用",
+      "llm_evidence": "通过轨迹派生记忆存储并复用历史执行经验，直接体现智能体记忆的积累与应用",
+      "canonical_evidence": "通过轨迹派生记忆存储并复用历史执行经验，直接体现智能体记忆的积累与应用",
+      "llm_tldr_en": "Environment-setup agents lack memory of past trajectories, causing redundant exploration. EnvPilot maintains an expandable Trajectory-Derived Memory initialized with high-quality trajectories and reuses this experience during setup. Experiments show reduced redundant exploration and improved generalization, demonstrating effective agent memory and retrieval.",
+      "llm_tldr_cn": "软件环境配置任务依赖专家经验，但现有自动化工具很少能从以往执行轨迹中积累与复用经验。EnvPilot构建可扩展的轨迹派生记忆，以高质量轨迹初始化，并在新环境配置中检索利用这些经验。实验表明该经验增强智能体能减少重复探索，更好地推广到不同的软件生态，体现了一种可用的智能体记忆与检索范式。",
+      "llm_tldr": "软件环境配置任务依赖专家经验，但现有自动化工具很少能从以往执行轨迹中积累与复用经验。EnvPilot构建可扩展的轨迹派生记忆，以高质量轨迹初始化，并在新环境配置中检索利用这些经验。实验表明该经验增强智能体能减少重复探索，更好地推广到不同的软件生态，体现了一种可用的智能体记忆与检索范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.00523v1",
+      "source": "arxiv",
+      "title": "Transferable End-to-End Optimization for Indirect Long-Term Memory Poisoning in LLM Agents",
+      "abstract": "Long-term memory can turn untrusted external content into persistent influence over an LLM agent's future decisions, creating the threat of indirect memory poisoning. A successful attack must survive a multi-stage pipeline comprising memory writing, retrieval, and utilization. Existing attacks largely rely on intra-stage optimization, optimizing individual stages in isolation while overlooking inter-stage coupling. Specifically, these stages impose different requirements on the same poisoning content, and each stage operates on the transformed output of its predecessor. Consequently, optimizing one stage may undermine the effectiveness of other stages, while upstream transformations may erase improvements intended for downstream stages. Indirect memory poisoning should therefore be viewed as an end-to-end optimization problem. Based on this insight, we present \\textsc{PipePoison}, which collects fine-grained stage feedback from local shadow systems, uses chain-structured losses to identify and optimize the stage bottlenecking end-to-end success, and applies stability-calibrated stage and configuration weights to improve transferability. Across three agent frameworks and four memory mechanisms, \\textsc{PipePoison} improves attack utilization rate by 19.1 percentage points. Even on fully unseen victim configurations, it outperforms the strongest baseline by 16 percentage points and remains effective under eight representative defenses.",
+      "authors": [
+        "Chuanchao Zang",
+        "Jianing Wang",
+        "Wenyu Chen",
+        "Xiangtao Meng",
+        "Li Wang",
+        "Xinyu Gao",
+        "Zheng Li",
+        "Shanqing Guo"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-09-01T00:41:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.00523v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Attack study of the full long-term memory write-retrieve-use pipeline reveals memory storage and retrieval coupling in LLM agents",
+      "llm_evidence_cn": "从对抗视角研究智能体长期记忆的写入、检索与使用全流程，揭示其存储检索环节的耦合弱点",
+      "llm_evidence": "从对抗视角研究智能体长期记忆的写入、检索与使用全流程，揭示其存储检索环节的耦合弱点",
+      "canonical_evidence": "从对抗视角研究智能体长期记忆的写入、检索与使用全流程，揭示其存储检索环节的耦合弱点",
+      "llm_tldr_en": "Poisoning an LLM agent's long-term memory requires content that survives writing, retrieval, and utilization. Because stage-wise optimization ignores coupling, the paper proposes transferable end-to-end optimization across the full memory pipeline. Experiments show stronger attacks than isolated stage optimization, highlighting the need for coupled, robust memory and retrieval design.",
+      "llm_tldr_cn": "大模型智能体的长期记忆可能被不可信外部内容持续污染，而现有记忆投毒攻击常将写入、检索与利用分开优化，忽视了各阶段对同一内容的不同约束。该文提出可迁移的端到端投毒优化方法，整体设计投毒内容使其能穿过完整记忆流水线，并缓解上游变换对下游效果的破坏。实验证明该方法比单阶段优化更有效，也说明构建可靠智能体记忆需要考虑阶段间的耦合与对抗风险。",
+      "llm_tldr": "大模型智能体的长期记忆可能被不可信外部内容持续污染，而现有记忆投毒攻击常将写入、检索与利用分开优化，忽视了各阶段对同一内容的不同约束。该文提出可迁移的端到端投毒优化方法，整体设计投毒内容使其能穿过完整记忆流水线，并缓解上游变换对下游效果的破坏。实验证明该方法比单阶段优化更有效，也说明构建可靠智能体记忆需要考虑阶段间的耦合与对抗风险。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.05019v1",
+      "source": "arxiv",
+      "title": "TROVE: Adaptive Agent Skill Orchestration via Trace-Grounded Route Validation and Editing",
+      "abstract": "Agents tend to optimize, select, or constrain execution structures before decisive runtime outcomes are observed. However, such pre-execution commitment creates an orchestration bottleneck: when intermediate evidence invalidates the pending continuation, agents must either execute stale steps or replan broadly, compounding errors, wasting computation, and discarding progress. We thus propose Trace-grounded Route Orchestration via Validation and Editing (TROVE), which revises only what runtime evidence invalidates. Offline, TROVE distills evaluated workflow-search traces into atomic and composite skills and an outcome-conditioned transition graph, preserving stable fragments while exposing outcome-dependent decisions. Online, it treats a planned route as provisional: after committing one top-level skill, the controller retains a valid continuation, inserts a trace-supported local response, or replaces only the invalid suffix. Evaluation across code-generation, question-answering, and math reasoning benchmarks with different LLM backbones show that TROVE delivers a stronger quality-efficiency trade-off than existing baselines of dataset-level optimization, query-level architecture selection, and graph-constrained scheduling. Quality gains are largest when outcomes change the appropriate continuation, whereas early termination yields substantial efficiency gains on near-saturated tasks. Ablations further show that composite skills capture most offline benefits, insertion enables local correction, and suffix replacement primarily improves efficiency. These findings establish selective route editing as a general principle for adaptive agent orchestration.",
+      "authors": [
+        "Tianxing Wang",
+        "Mingming Zhao",
+        "Shuai Huang",
+        "Huiyang Xu",
+        "Chaoyue Niu",
+        "Shengzhong Liu",
+        "Fan Wu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-04T11:38:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.05019v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Trace-grounded route validation and editing lets agents revise execution skills based on runtime evidence",
+      "llm_evidence_cn": "基于运行证据的路径校验与编辑，使智能体能够自适应修正技能编排决策",
+      "llm_evidence": "基于运行证据的路径校验与编辑，使智能体能够自适应修正技能编排决策",
+      "canonical_evidence": "基于运行证据的路径校验与编辑，使智能体能够自适应修正技能编排决策",
+      "llm_tldr_en": "TROVE reduces orchestration bottlenecks by distilling evaluated workflow search traces into atomic/composite skills and an outcome-conditioned transition graph, then online editing only the route segments invalidated by runtime evidence instead of broadly replanning.",
+      "llm_tldr_cn": "自主智能体常在执行前就固化完整技能或路径，遇到中途证据使后续步骤失效时只能整段重规划，浪费大量计算。TROVE 先把已评估的工作流搜索轨迹提炼为原子技能、复合技能及结果条件化转移图，再在线上只修改被运行时证据判定无效的路径片段。这样能够保留可复用执行片段并降低大规模重规划的代价。该方法可作为自进化智能体证据驱动技能更新的支撑组件。",
+      "llm_tldr": "自主智能体常在执行前就固化完整技能或路径，遇到中途证据使后续步骤失效时只能整段重规划，浪费大量计算。TROVE 先把已评估的工作流搜索轨迹提炼为原子技能、复合技能及结果条件化转移图，再在线上只修改被运行时证据判定无效的路径片段。这样能够保留可复用执行片段并降低大规模重规划的代价。该方法可作为自进化智能体证据驱动技能更新的支撑组件。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.09153v1",
+      "source": "arxiv",
+      "title": "Procedural Graphs: Self-Evolving Execution Structures for LLM Agents",
+      "abstract": "Large language models are increasingly deployed as agents that plan over long horizons and act through external tools. Most agents select actions through unconstrained generation over an accumulating history, leaving implicit the procedural knowledge of what to do, in what order, and under which conditions. As trajectories lengthen, agents can lose track of their objectives, invoke tools out of order, and repeat unproductive actions. We introduce the Procedural Graph: just as a knowledge graph organizes factual knowledge into (entity, relation, entity) triplets for what-is questions, a Procedural Graph organizes procedural knowledge into (procedure, relation, procedure) triplets for what-to-do questions. At each decision step, the framework localizes the agent's active node, and a guidance model translates the surrounding subgraph into step-level situational guidance that biases the solver's next action without dictating it. The graph is self-evolving: an LLM refiner contrasts failed trajectories with successful ones and edits the graph's topology and attributes, committing edits that preserve or improve held-out validation performance while retaining rejected ones to discourage repetition. Starting from a minimal skeleton, the loop builds graphs that match or surpass hand-designed ones. It can also repair a flawed expert prior. Across multiple datasets, task types, and LLMs, the Procedural Graph delivers consistent gains over memory-based baselines, and self-evolution further improves performance without manual engineering.",
+      "authors": [
+        "Yuxing Lu",
+        "Yicheng Chen",
+        "Shanchan Wu",
+        "Sercan Ö. Arık"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.MA"
+      ],
+      "published": "2026-09-08T17:59:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.09153v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Procedural graph structures how-to knowledge as triplets for storing and locating information during agent decisions",
+      "llm_evidence_cn": "用程序化知识图谱组织智能体所需程序记忆并在决策时定位检索",
+      "llm_evidence": "用程序化知识图谱组织智能体所需程序记忆并在决策时定位检索",
+      "canonical_evidence": "用程序化知识图谱组织智能体所需程序记忆并在决策时定位检索",
+      "llm_tldr_en": "Procedural Graphs organize agent procedural knowledge as graph triplets; the framework localizes relevant procedures at each decision step to keep long-horizon LLM agents on track and reduce unproductive repeated actions.",
+      "llm_tldr_cn": "现有多数LLM智能体在长程任务中把程序性知识隐式累积在轨迹历史里，容易丢失目标、乱序调用工具并重复无效动作。本文提出程序化图(Procedural Graph)，把该做什么的知识组织成(程序,关系,程序)三元图结构，并使其随执行不断演化。在每步决策时，框架会定位并检索相关程序，以构成更可靠的动作结构。该方法有助于智能体进行长期规划与程序性记忆复用，提升任务完成质量。",
+      "llm_tldr": "现有多数LLM智能体在长程任务中把程序性知识隐式累积在轨迹历史里，容易丢失目标、乱序调用工具并重复无效动作。本文提出程序化图(Procedural Graph)，把该做什么的知识组织成(程序,关系,程序)三元图结构，并使其随执行不断演化。在每步决策时，框架会定位并检索相关程序，以构成更可靠的动作结构。该方法有助于智能体进行长期规划与程序性记忆复用，提升任务完成质量。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.04476v1",
+      "source": "arxiv",
+      "title": "PerfReasoning: How Well Do LLMs Reason on Hardware Performance?",
+      "abstract": "Performance modeling is central to hardware design and software optimization, yet constructing these models requires structured reasoning about computation, data reuse, storage, and movement. We introduce PerfReasoning, a benchmark that evaluates LLMs both as direct performance reasoners and as generators of analytical performance-model code. Given workload, architecture, and mapping specifications, models compare mappings and predict off-chip traffic and buffer requirements. The strongest closed-source models exceed 90% on reasoning-based Q&A, and the best open-weight model reaches 82.4%. However, model construction is substantially harder: while GPT-5.6 Sol exceeds 80% pass rate, all other model configurations average below 15% and vary markedly across runs. Task-specific RL raises a 4B model's mapping-reasoning accuracy by 15.7 points, whereas feedback-free multi-round self-revision prompting is not reliably effective. PerfReasoning exposes the gap between plausible architectural reasoning and reliable performance-model construction. We will publicly release the benchmark to support reproducible evaluation and track future progress.",
+      "authors": [
+        "Dan Zhao",
+        "Karthikeyan Sankaralingam",
+        "Christos Kozyrakis",
+        "Qijing Huang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.PF"
+      ],
+      "published": "2026-09-03T21:00:06+00:00",
+      "link": "https://arxiv.org/pdf/2609.04476v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Introduces a benchmark evaluating LLMs as generators of analytical performance-model code from workload and mapping specs",
+      "llm_evidence_cn": "提出评测LLM生成性能模型源代码能力的基准，属于用大模型生成代码的研究方向",
+      "llm_evidence": "提出评测LLM生成性能模型源代码能力的基准，属于用大模型生成代码的研究方向",
+      "canonical_evidence": "提出评测LLM生成性能模型源代码能力的基准，属于用大模型生成代码的研究方向",
+      "llm_tldr_en": "Performance modeling requires structured reasoning about computation, data reuse, storage, and movement. PerfReasoning introduces a benchmark that tests LLMs as direct performance reasoners and as generators of analytical performance-model code, showing strong reasoning accuracy but low code-generation pass rates for most configurations.",
+      "llm_tldr_cn": "性能建模贯穿硬件设计与软件优化，需要关于计算、数据复用、存储和访存的结构化推理。该文提出PerfReasoning基准，让LLM在给定工作负载、架构与映射规格后既作为性能推理者回答问题，也作为性能模型代码生成器构造分析模型。最强闭源模型在推理问答上超过90%，最佳开源权重为82.4%；但代码生成更困难，除GPT-5.6 Sol外各配置平均通过率低于15%，且运行间差异显著。",
+      "llm_tldr": "性能建模贯穿硬件设计与软件优化，需要关于计算、数据复用、存储和访存的结构化推理。该文提出PerfReasoning基准，让LLM在给定工作负载、架构与映射规格后既作为性能推理者回答问题，也作为性能模型代码生成器构造分析模型。最强闭源模型在推理问答上超过90%，最佳开源权重为82.4%；但代码生成更困难，除GPT-5.6 Sol外各配置平均通过率低于15%，且运行间差异显著。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.05824v1",
+      "source": "arxiv",
+      "title": "Beyond Top-$k$ Skill Retrieval: Diversity-Aware Skill Routing for LLM Agents",
+      "abstract": "Large language model (LLM) agents increasingly rely on external skills, but routing user requests over large skill registries is difficult because many skills are functionally redundant while complex tasks often require complementary skill sets. Existing skill routers typically rank candidates independently by query relevance, which can waste context budget on redundant skills. We propose Diverse Skill Routing (DSR), a diversity-aware reranking framework that uses a Determinantal Point Process to balance relevance and non-redundancy. DSR introduces a query-residual diversity kernel that penalizes redundant skill overlap while reducing penalties caused only by shared query relevance. On the SkillRouter benchmark, DSR improves recall and full coverage over a strong pointwise reranking baseline, with larger gains on multi-skill queries. These results suggest that skill routing should be treated not only as relevance ranking, but also as complementary set selection.",
+      "authors": [
+        "Wang Wei",
+        "Tiankai Yang",
+        "Samyadeep Basu",
+        "Hongjie Chen",
+        "Yue Zhao",
+        "Zhengzhong Tu",
+        "Xiyang Hu",
+        "Franck Dernoncourt",
+        "Ryan A. Rossi",
+        "Hoda Eldardiry"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-05T02:39:28+00:00",
+      "link": "https://arxiv.org/pdf/2609.05824v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Diversity-aware reranking of skill retrieval for LLM agents to avoid redundant knowledge when deciding actions",
+      "llm_evidence_cn": "面向LLM智能体的技能检索路由，用多样性重排在决策时选择互补且非冗余的相关技能",
+      "llm_evidence": "面向LLM智能体的技能检索路由，用多样性重排在决策时选择互补且非冗余的相关技能",
+      "canonical_evidence": "面向LLM智能体的技能检索路由，用多样性重排在决策时选择互补且非冗余的相关技能",
+      "llm_tldr_en": "LLM agents with large skill registries often select redundant skills. DSR applies a determinantal point process with a query-residual diversity kernel to balance relevance and non-redundancy in skill routing, improving recall and full coverage on the SkillRouter benchmark.",
+      "llm_tldr_cn": "大型技能库让LLM智能体路由时经常选到功能冗余的技能，而复杂任务其实需要互补的多项能力。论文提出技能多样性路由DSR，用行列式点过程权衡相关性与非冗余性，并设计查询残差多样性核来消除共享查询相关性带来的伪冗余。在SkillRouter基准上，该方法提升了召回率和全覆盖率。这为智能体在决策时从经验知识库中进行多样化检索提供了一个通用组件。",
+      "llm_tldr": "大型技能库让LLM智能体路由时经常选到功能冗余的技能，而复杂任务其实需要互补的多项能力。论文提出技能多样性路由DSR，用行列式点过程权衡相关性与非冗余性，并设计查询残差多样性核来消除共享查询相关性带来的伪冗余。在SkillRouter基准上，该方法提升了召回率和全覆盖率。这为智能体在决策时从经验知识库中进行多样化检索提供了一个通用组件。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.06027v1",
+      "source": "arxiv",
+      "title": "Evaluating Deep-Search Agents under Hierarchical Web Evidence Poisoning",
+      "abstract": "Search-augmented LLM agents are increasingly used for consumer decisions, making them vulnerable to Generative Engine Optimization (GEO) poisoning. Existing benchmarks largely measure whether manipulated content is retrieved or endorsed, but do not track whether an agent verifies suspicious evidence, revises adopted claims, or recovers before producing its final recommendation. We introduce HAE-GEO, a benchmark that tracks the full trajectory from exposure to recovery under progressively more persuasive Web poisoning. Agents interact via a multi-turn Search-Scrape interface across three attack levels (L1 direct assertion, L2 contextual camouflage, and L3 apparent corroboration), supported by a controlled corpus of 72,039 clean pages and 770 poisoned pages per level spanning 8 product categories and 154 brands. Evaluation combines deterministic behavioral measures with six semantic rubric dimensions. Evaluating 10 agents, we find three recurring patterns: evidence recognition degrades under the corroboration trap; agentic search improves final resistance without improving evidence recognition or utility; and defense prompting increases verification, yet rarely converts verification into recovery.",
+      "authors": [
+        "Zhongan Bi",
+        "Qiwen Wang",
+        "Jianrong Jiang",
+        "Jigang Ding",
+        "Wenwen Xiong",
+        "Changhua Meng",
+        "Xuanang Gao",
+        "Kepeng Lin",
+        "Changjiang Jiang",
+        "Yiang Chen",
+        "Huan Yao",
+        "Wei Wang",
+        "Zhenyu Ma",
+        "Wenhui Dong"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.IR"
+      ],
+      "published": "2026-09-05T11:05:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.06027v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Benchmarks deep-search agents on whether they verify evidence, revise adopted claims, and recover during retrieval-based decisions under hierarchical web poisoning",
+      "llm_evidence_cn": "该基准追踪搜索增强型LLM智能体在层级化网页证据投毒下的证据核实、声明修订与恢复过程，直接关系检索决策",
+      "llm_evidence": "该基准追踪搜索增强型LLM智能体在层级化网页证据投毒下的证据核实、声明修订与恢复过程，直接关系检索决策",
+      "canonical_evidence": "该基准追踪搜索增强型LLM智能体在层级化网页证据投毒下的证据核实、声明修订与恢复过程，直接关系检索决策",
+      "llm_tldr_en": "Search-augmented LLM agents are vulnerable to web evidence poisoning. HAE-GEO tracks whether agents verify suspicious evidence, revise adopted claims, and recover through a multi-turn search-scrape benchmark with three attack tiers. Results expose failures in agent retrieval-based decision making and recovery.",
+      "llm_tldr_cn": "现有基准只判断被操纵内容是否被检索或认可，没有追踪智能体是否核实可疑证据、修订已采纳说法并在给最终推荐前恢复。作者提出HAE-GEO基准，以多轮搜索—抓取接口和三级渐强投毒（直接断言、上下文伪装、表象佐证）施加攻击，并使用含72,039张干净页面与770张投毒页面的受控语料。实验追踪从暴露到恢复的完整轨迹，揭示深度搜索智能体在基于证据决策时的脆弱性。该工作为改善智能体的检索、验证和自我纠错能力提供了评测基础。",
+      "llm_tldr": "现有基准只判断被操纵内容是否被检索或认可，没有追踪智能体是否核实可疑证据、修订已采纳说法并在给最终推荐前恢复。作者提出HAE-GEO基准，以多轮搜索—抓取接口和三级渐强投毒（直接断言、上下文伪装、表象佐证）施加攻击，并使用含72,039张干净页面与770张投毒页面的受控语料。实验追踪从暴露到恢复的完整轨迹，揭示深度搜索智能体在基于证据决策时的脆弱性。该工作为改善智能体的检索、验证和自我纠错能力提供了评测基础。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08025v1",
+      "source": "arxiv",
+      "title": "Eliciting Self-Verification in Multimodal Reasoning Agents with Reinforcement Learning",
+      "abstract": "Reasoning agents increasingly rely on external tools such as web search to answer complex queries. Reinforcement learning (RL) finetuning algorithms such as GRPO have improved long-form reasoning in text-only language models, particularly for coding and mathematics. Reliable tool use in multimodal agents, however, remains challenging because models must interpret text and images while integrating noisy retrieved evidence, often under sparse outcome-level supervision without explicit verification signals. We present Self-Verification via Reinforcement Learning (SVRL), an RL-only finetuning framework that trains multimodal agents to verify and filter retrieved evidence within their own reasoning traces, reducing reliance on external verifiers at inference time. SVRL also introduces a search-aware penalty that discourages unnecessary tool calls and a query-diversity reward that encourages diverse, well-formed search queries, providing fine-grained feedback on when and what to search. Finetuning Qwen-2.5-VL-7B with SVRL on only 5{,}000 visual question answering examples yields consistent gains in multi-hop VQA generalization and tool efficiency across benchmarks. Overall, SVRL narrows the gap between compact agents and much larger proprietary models while requiring substantially lower training and inference cost.",
+      "authors": [
+        "Vishwas Sathish",
+        "Viresh Ranjan",
+        "Xinliang Zhu",
+        "Arnab Dhua",
+        "Douglas Gray"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.CV"
+      ],
+      "published": "2026-09-07T22:15:47+00:00",
+      "link": "https://arxiv.org/pdf/2609.08025v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Trains multimodal agents with RL to self-verify and filter noisy retrieved evidence in reasoning, improving evidence-aware decision making",
+      "llm_evidence_cn": "面向检索证据噪声，训练智能体在推理中自我验证并过滤检索内容，提高决策可靠性",
+      "llm_evidence": "面向检索证据噪声，训练智能体在推理中自我验证并过滤检索内容，提高决策可靠性",
+      "canonical_evidence": "面向检索证据噪声，训练智能体在推理中自我验证并过滤检索内容，提高决策可靠性",
+      "llm_tldr_en": "Multimodal agents that use web search face noisy retrieved evidence and sparse outcome supervision. SVRL is an RL-only finetuning framework that trains agents to verify and filter retrieved evidence within their own reasoning traces, improving tool-use reliability.",
+      "llm_tldr_cn": "多模态推理智能体依赖网页搜索等外部工具时会收到噪声证据，在仅有结果级稀疏监督条件下难以判断证据可靠性。论文提出SVRL框架，仅使用强化学习微调便让智能体在自身推理轨迹中执行验证与过滤，主动筛选检索证据。实验表明该方法可降低对外部验证器的依赖，提升多模态工具调用与长程推理的可靠性。",
+      "llm_tldr": "多模态推理智能体依赖网页搜索等外部工具时会收到噪声证据，在仅有结果级稀疏监督条件下难以判断证据可靠性。论文提出SVRL框架，仅使用强化学习微调便让智能体在自身推理轨迹中执行验证与过滤，主动筛选检索证据。实验表明该方法可降低对外部验证器的依赖，提升多模态工具调用与长程推理的可靠性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.09134v1",
+      "source": "arxiv",
+      "title": "Co-Evolving Harnesses and Models: On-Policy Correction Helps Weaker Models Catch Up Where Imitation Fails",
+      "abstract": "Agent harnesses (the system prompt, tool set, execution hooks, and context-management scaffolding around a model) are a critical determinant of agentic task success. Automated harness evolution can enable smaller models to perform well on domain-specific tasks at a fraction of frontier-model cost. Since both the harness and model weights shape behavior, we ask how harness evolution and lightweight fine-tuning should be combined. Across seven enterprise agent tasks, we first evolve a harness with the weaker model, then find that a stronger expert often uses it more effectively, suggesting expert supervision could close the remaining gap. However, training the weaker model on the expert's complete trajectories under the evolved harness backfires: performance regresses on all seven tasks by 4 to 30 points across Qwen3-Coder and Gemma 4, even though the same procedure helps under the unevolved harness. Our analysis shows that imitation transfers knowledge and increases scaffold usage, but disrupts model-harness fit: the weaker model adopts the expert's planning strategy without the competence to execute it and no longer matches the harness evolved around its native planning style. We therefore develop an on-policy expert-correction pipeline, automated by a meta-level MLE agent, that localizes the failing turn in the weaker model's own rollout and asks the expert to rewrite only that turn. This preserves the model's planning style and combines the gains of harness evolution and model adaptation. Our results identify and resolve a source of contention between harness and weight updates, yielding a compatibility-preserving recipe for economical co-evolution on domain-specific enterprise tasks.",
+      "authors": [
+        "Zhou Yu",
+        "Bin Bi",
+        "Shiva Kumar Pentyala",
+        "Shubham Mehrotra",
+        "Sougata Chaudhuri",
+        "Shilpa Bhagavath",
+        "Zeyuan Chen",
+        "Ran Xu",
+        "Phil Mui",
+        "James Zhu",
+        "Sitaram Asur"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-08T17:53:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.09134v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "co-evolution of agent harness and model weights with on-policy correction as a self-improvement mechanism",
+      "llm_evidence_cn": "智能体套装与模型权重的自动协同演化，配合在线策略校正实现自我提升",
+      "llm_evidence": "智能体套装与模型权重的自动协同演化，配合在线策略校正实现自我提升",
+      "canonical_evidence": "智能体套装与模型权重的自动协同演化，配合在线策略校正实现自我提升",
+      "llm_tldr_en": "Studies how agent harness evolution and lightweight fine-tuning should be combined; automated harness evolution plus on-policy correction helps weaker models reach strong performance on seven enterprise agent tasks.",
+      "llm_tldr_cn": "智能体套装与模型权重共同决定智能体任务表现，但两者的自动联合优化尚未被充分研究。本文提出协同演化思路：在七项企业级任务上先自动演化弱模型的套装，再利用在线策略校正和轻量微调更新模型，使较弱模型在模仿失效场景下也能追赶专家水平。结果表明自动演化能低成本地提升小模型任务能力，展现出智能体在资源受限下自改进的潜力。",
+      "llm_tldr": "智能体套装与模型权重共同决定智能体任务表现，但两者的自动联合优化尚未被充分研究。本文提出协同演化思路：在七项企业级任务上先自动演化弱模型的套装，再利用在线策略校正和轻量微调更新模型，使较弱模型在模仿失效场景下也能追赶专家水平。结果表明自动演化能低成本地提升小模型任务能力，展现出智能体在资源受限下自改进的潜力。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

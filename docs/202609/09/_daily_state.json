@@ -1,0 +1,297 @@
+{
+  "date": "20260909",
+  "date_label": "",
+  "generated_at": "2026-09-09 22:11:32 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.03915v1",
+      "route": "202609/09/2609.03915v1-rulemem-active-rule-memory-for-long-term-conversational-agents",
+      "title": "RuleMem: Active Rule Memory for Long-Term Conversational Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向长期对话构建可检索规则记忆，在需要时主动提取历史证据并辅助推理",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.05553v1",
+      "route": "202609/09/2609.05553v1-edgemem-llm-free-agent-memory-construction-and-retrieval-via-evidence-preserving-multi-anchor-hypergraph",
+      "title": "EdgeMem: LLM-Free Agent Memory Construction and Retrieval via Evidence-Preserving Multi-Anchor Hypergraph",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "构建多锚点超图来组织和检索智能体原始交互记忆并直接返回证据",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08183v1",
+      "route": "202609/09/2609.08183v1-neohorse-1-towards-recursive-self-improvement-via-agentic-post-training-with-routing-harness",
+      "title": "NeoHorse-1: Towards Recursive Self-Improvement via Agentic Post-Training with Routing Harness",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "NeoHorse-1通过路由交互日志与后训练实现递归自我改进,契合无人工迭代改进要求",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08228v1",
+      "route": "202609/09/2609.08228v1-se-gos-self-evolving-graph-of-skills-for-skill-library-at-scale",
+      "title": "SE-GoS: Self-Evolving Graph-of-Skills for Skill Library at Scale",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "从执行轨迹自进化技能图以改进记忆/检索,回应自我进化智能体提升机制",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08273v1",
+      "route": "202609/09/2609.08273v1-memforest-efficient-agent-memory-management-via-eventtree-partitioning-and-progressive-merging",
+      "title": "MemForest: Efficient Agent Memory Management via EventTree Partitioning and Progressive Merging",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向智能体的记忆存储与检索成本管理；基于事件树划分与渐进合并的记忆压缩",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08404v1",
+      "route": "202609/09/2609.08404v1-environments-as-scaffold-enriching-feedback-to-bootstrap-self-evolving-agents-in-long-horizon-tasks",
+      "title": "Environments as Scaffold: Enriching Feedback to Bootstrap Self-Evolving Agents in Long-Horizon Tasks",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "通过构造反馈丰富环境来引导自主智能体在稀疏奖励长程任务中自我进化",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08832v1",
+      "route": "202609/09/2609.08832v1-closing-the-consistency-gap-self-evolving-agents-that-learn-to-stay-on-course",
+      "title": "Closing the Consistency Gap: Self-Evolving Agents That Learn to Stay on Course",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "自进化智能体框架，将不稳定步骤转为情节记忆以无人工干预地提升未来一致性",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08919v1",
+      "route": "202609/09/2609.08919v1-experience-funnel-a-state-policy-alternating-loop-for-self-evolving-agents",
+      "title": "Experience Funnel: A State-Policy Alternating Loop for Self-Evolving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "提出自进化智能体框架，通过状态-策略交替循环将交互经验转化为可复用能力",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.09115v1",
+      "route": "202609/09/2609.09115v1-meclear-cooperative-game-theoretic-attribution-and-risk-aware-memory-clearance-for-long-horizon-llm-agents",
+      "title": "MeClear: Cooperative Game-Theoretic Attribution and Risk-Aware Memory Clearance for Long-Horizon LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "基于效用归因的记忆清除方法可显著改善LLM智能体决策时的记忆相关性",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.07357v1",
+      "route": "202609/09/2609.07357v1-envpilot-systematic-design-and-evaluation-of-an-experience-augmented-agent-for-software-environment-setup",
+      "title": "EnvPilot: Systematic Design and Evaluation of an Experience-Augmented Agent for Software Environment Setup",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "通过轨迹派生记忆存储并复用历史执行经验，直接体现智能体记忆的积累与应用",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.09153v1",
+      "route": "202609/09/2609.09153v1-procedural-graphs-self-evolving-execution-structures-for-llm-agents",
+      "title": "Procedural Graphs: Self-Evolving Execution Structures for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "用程序化知识图谱组织智能体所需程序记忆并在决策时定位检索",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.00523v1",
+      "route": "202609/09/2609.00523v1-transferable-end-to-end-optimization-for-indirect-long-term-memory-poisoning-in-llm-agents",
+      "title": "Transferable End-to-End Optimization for Indirect Long-Term Memory Poisoning in LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "从对抗视角研究智能体长期记忆的写入、检索与使用全流程，揭示其存储检索环节的耦合弱点",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.04476v1",
+      "route": "202609/09/2609.04476v1-perfreasoning-how-well-do-llms-reason-on-hardware-performance",
+      "title": "PerfReasoning: How Well Do LLMs Reason on Hardware Performance?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "提出评测LLM生成性能模型源代码能力的基准，属于用大模型生成代码的研究方向",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.05824v1",
+      "route": "202609/09/2609.05824v1-beyond-top-k-skill-retrieval-diversity-aware-skill-routing-for-llm-agents",
+      "title": "Beyond Top-$k$ Skill Retrieval: Diversity-Aware Skill Routing for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向LLM智能体的技能检索路由，用多样性重排在决策时选择互补且非冗余的相关技能",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.06027v1",
+      "route": "202609/09/2609.06027v1-evaluating-deep-search-agents-under-hierarchical-web-evidence-poisoning",
+      "title": "Evaluating Deep-Search Agents under Hierarchical Web Evidence Poisoning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "该基准追踪搜索增强型LLM智能体在层级化网页证据投毒下的证据核实、声明修订与恢复过程，直接关系检索决策",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.08025v1",
+      "route": "202609/09/2609.08025v1-eliciting-self-verification-in-multimodal-reasoning-agents-with-reinforcement-learning",
+      "title": "Eliciting Self-Verification in Multimodal Reasoning Agents with Reinforcement Learning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向检索证据噪声，训练智能体在推理中自我验证并过滤检索内容，提高决策可靠性",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.09134v1",
+      "route": "202609/09/2609.09134v1-co-evolving-harnesses-and-models-on-policy-correction-helps-weaker-models-catch-up-where-imitation-fails",
+      "title": "Co-Evolving Harnesses and Models: On-Policy Correction Helps Weaker Models Catch Up Where Imitation Fails",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体套装与模型权重的自动协同演化，配合在线策略校正实现自我提升",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    },
+    {
+      "paper_id": "2609.05019v1",
+      "route": "202609/09/2609.05019v1-trove-adaptive-agent-skill-orchestration-via-trace-grounded-route-validation-and-editing",
+      "title": "TROVE: Adaptive Agent Skill Orchestration via Trace-Grounded Route Validation and Editing",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于运行证据的路径校验与编辑，使智能体能够自适应修正技能编排决策",
+      "first_seen_at": "2026-09-09 22:11:32 UTC",
+      "updated_at": "2026-09-09 22:11:32 UTC"
+    }
+  ]
+}
