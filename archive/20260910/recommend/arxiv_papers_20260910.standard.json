@@ -1,0 +1,435 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-10T22:08:03.772904+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2609.10144v1",
+      "source": "arxiv",
+      "title": "Kernel-Managed Shared Memory for System-Wide Personalization",
+      "abstract": "AI systems become more useful when they can adapt to the people using them, but in multi-agent systems, useful context learned by one agent often remains unavailable to others. We present kernel-managed shared memory, a system-level abstraction in which specialized agents write structured, tagged memories while the agent-system kernel, not individual agents, governs retrieval, privacy enforcement, and prompt injection. We implement and evaluate this design on AIOS and compare it against three alternatives across three assistant models (GPT-4o, Llama-3.1:8B, Qwen-2.5:7B) and 1,800 total trials. Against an unmanaged external memory backend (Mem0) using identical underlying storage, kernel-managed retrieval and injection improve personalization scores by 2.4-4.0 points on a 5-point scale (e.g., 1.05 to 4.69 profile usage on GPT-4o), with every comparison significant at p < 10^-18. Against standard retrieval-augmented injection, gains are similarly large and consistent across all three models. Against full, unfiltered context concatenation, a soft ceiling on available context rather than on response quality, kernel-managed injection statistically matches performance on two of three models and shows a small, model-specific deficit on the third, while using substantially shorter prompts: end-to-end latency is 15-61% lower across all three models, with corresponding reductions in per-call token usage and inference cost. These results indicate that centralizing memory management in the agent-system kernel, rather than leaving retrieval and privacy enforcement to individual agents, delivers most of the personalization benefit of unconstrained context at a fraction of its cost.",
+      "authors": [
+        "Ryan Lum",
+        "Yongfeng Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-09T13:20:47+00:00",
+      "link": "https://arxiv.org/pdf/2609.10144v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agent memory storage and retrieval governed by system kernel",
+      "llm_evidence_cn": "由系统内核统一管理的智能体记忆存储与检索",
+      "llm_evidence": "由系统内核统一管理的智能体记忆存储与检索",
+      "canonical_evidence": "由系统内核统一管理的智能体记忆存储与检索",
+      "llm_tldr_en": "Multi-agent systems fail to share learned context. Kernel-managed shared memory lets specialized agents write tagged memories while the agent-system kernel governs retrieval, privacy and prompt injection, improving personalization scores by 2.4-4.0 points over Mem0.",
+      "llm_tldr_cn": "多智能体系统中，单个智能体学到的有用上下文往往无法被其他智能体共享，导致个性化能力受限。本文提出内核管理的共享内存抽象，由专门智能体写入带标签的结构化记忆，而由智能体系统内核统一负责检索、隐私保护与提示注入。在AIOS上对三种助手模型开展1800次试验，相比Mem0等基线，个性化得分提升2.4至4.0分。该设计为多智能体记忆的共享、存储与检索提供了系统级方案。",
+      "llm_tldr": "多智能体系统中，单个智能体学到的有用上下文往往无法被其他智能体共享，导致个性化能力受限。本文提出内核管理的共享内存抽象，由专门智能体写入带标签的结构化记忆，而由智能体系统内核统一负责检索、隐私保护与提示注入。在AIOS上对三种助手模型开展1800次试验，相比Mem0等基线，个性化得分提升2.4至4.0分。该设计为多智能体记忆的共享、存储与检索提供了系统级方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.10226v1",
+      "source": "arxiv",
+      "title": "$Φ$-Bench: Can Large Language Models Engineer the Infrastructure That Powers Them?",
+      "abstract": "Large language models (LLMs) have demonstrated remarkable capabilities in reasoning and code generation, raising the prospect that they could assist in developing and optimizing the very infrastructure that powers them. However, existing benchmarks mainly focus on isolated kernels, predefined operators, or pre-specified optimization targets, and therefore fail to evaluate the ability of LLMs to perform open-ended, long-horizon LLM infrastructure engineering. To address this gap, we present $Φ$-Bench, a benchmark for systematically evaluating LLMs on engineering the LLM infrastructure stack. Derived from optimization problems studied in frontier research and grounded in real-world code repositories, $Φ$-Bench provides broad coverage of the LLM infrastructure stack and spans tasks of varying complexity, ranging from localized kernel-level function completion to long-horizon implementation and end-to-end system optimization. Extensive experiments on frontier LLMs reveal their current capabilities and limitations in engineering complex LLM infrastructure, offering insights into the challenges that remain on the path toward autonomous optimization of future AI infrastructure.",
+      "authors": [
+        "Leilei Ding",
+        "Shumin Wang",
+        "Yuting Huang",
+        "Fanqi Wan",
+        "Yinmin Zhang",
+        "Qi Han",
+        "Yiming Xu",
+        "Feiyuan Zhang",
+        "Xiaomeng Chu",
+        "Guoliang You",
+        "Wuyang Zhang",
+        "Daxin Jiang",
+        "Yanyong Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-09T14:23:47+00:00",
+      "link": "https://arxiv.org/pdf/2609.10226v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "benchmark for LLMs performing open-ended kernel and infrastructure optimization and code generation",
+      "llm_evidence_cn": "评测LLM进行开放式内核与基础设施优化及代码生成的基准",
+      "llm_evidence": "评测LLM进行开放式内核与基础设施优化及代码生成的基准",
+      "canonical_evidence": "评测LLM进行开放式内核与基础设施优化及代码生成的基准",
+      "llm_tldr_en": "Phi-Bench evaluates whether LLMs can engineer the infrastructure powering them, covering open-ended, long-horizon kernel and operator optimization beyond isolated kernels or predefined targets.",
+      "llm_tldr_cn": "该文针对现有基准多局限于孤立内核、预设算子或固定优化目标，无法评估LLM进行开放式、长周期基础设施工程能力的问题，提出Φ-Bench基准。该基准源自前沿研究中的优化问题并以真实代码库为基础，系统评测LLM在LLM基础设施栈上的优化与代码生成能力，覆盖内核、算子及系统级任务。它为衡量大模型自动优化底层GPU算子与基础设施的能力提供了统一评测框架，对LLM驱动代码生成与内核优化研究具有直接价值。",
+      "llm_tldr": "该文针对现有基准多局限于孤立内核、预设算子或固定优化目标，无法评估LLM进行开放式、长周期基础设施工程能力的问题，提出Φ-Bench基准。该基准源自前沿研究中的优化问题并以真实代码库为基础，系统评测LLM在LLM基础设施栈上的优化与代码生成能力，覆盖内核、算子及系统级任务。它为衡量大模型自动优化底层GPU算子与基础设施的能力提供了统一评测框架，对LLM驱动代码生成与内核优化研究具有直接价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.04280v1",
+      "source": "arxiv",
+      "title": "EVOHARNESSBENCH: Can Your Agents Keep Pace with an Evolving Harness?",
+      "abstract": "Modern LLM-based agents operate through a harness of tools, reusable skills, and specialist agents that shapes what they observe and what they can do. In practice, this harness continually evolves as new capabilities are added. We introduce EVOHARNESSBENCH, a benchmark for evaluating agents under controlled harness evolution across three axes (tools, skills, and agents). Unlike existing continual-learning benchmarks for agents, which typically place non-stationarity (i.e., what changes over time) in the task stream while keeping the harness fixed, EVOHARNESSBENCH places non-stationarity in the externally supplied harness itself. It contains 17 multi-stage harness streams constructed deterministically from verifier-based benchmarks, comprising 802 tasks, 520 tools, 42 skills, and 62 agents. We evaluate two complementary settings corresponding to the central challenges of harness evolution: deployment evaluation, which isolates retention of previously accessible competence as the harness expands, and self-evolving adaptation evaluation, which tests whether accumulated experience remains useful as new capabilities are introduced. Our results reveal three persistent gaps. First, harness expansion alone can degrade performance on previously solved tasks, producing harness-induced forgetting. Second, gains from self-evolving adaptation remain inconsistent across stages of harness evolution, capability axes, and environments. Third, retention and adaptation can pull in different directions: preserving earlier competence does not necessarily improve adaptation to newly introduced capabilities, and vice versa. These results establish harness evolution as a distinct challenge for building agents that can keep pace with an evolving harness while preserving previously effective behavior.",
+      "authors": [
+        "Zixuan Ke",
+        "Vaidehi Patil",
+        "Haizhou Shi",
+        "Yang Li",
+        "Ye Liu",
+        "Sarath Shekkizhar",
+        "Anurag Koul",
+        "Jiayu Wang",
+        "Xuan Phi Nguyen",
+        "Semih Yavuz",
+        "Mohit Bansal",
+        "Shafiq Joty"
+      ],
+      "primary_category": "cs.MA",
+      "categories": [
+        "cs.MA",
+        "cs.CL"
+      ],
+      "published": "2026-09-03T03:24:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.04280v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "benchmark for agents adapting as their tool and skill harness evolves",
+      "llm_evidence_cn": "评测智能体在工具与技能框架演化下适应能力的基准",
+      "llm_evidence": "评测智能体在工具与技能框架演化下适应能力的基准",
+      "canonical_evidence": "评测智能体在工具与技能框架演化下适应能力的基准",
+      "llm_tldr_en": "Introduces EVOHARNESSBENCH, a benchmark placing non-stationarity in the agent harness itself to test whether agents keep pace with evolving tools and skills.",
+      "llm_tldr_cn": "针对现有智能体持续学习基准通常把变化放在任务流而固定工具与技能框架的问题，本文提出 EVOHARNESSBENCH，把非平稳性置于外部提供的 harness 本身。基准沿工具、技能与专家智能体三条轴构建 17 条多阶段 harness 演化流，共 802 个任务，并基于可验证基准确定性生成。实验评估智能体能否跟上框架的持续演化。该工作为智能体记忆、技能检索与无人工干预自进化研究提供了标准化评测平台。",
+      "llm_tldr": "针对现有智能体持续学习基准通常把变化放在任务流而固定工具与技能框架的问题，本文提出 EVOHARNESSBENCH，把非平稳性置于外部提供的 harness 本身。基准沿工具、技能与专家智能体三条轴构建 17 条多阶段 harness 演化流，共 802 个任务，并基于可验证基准确定性生成。实验评估智能体能否跟上框架的持续演化。该工作为智能体记忆、技能检索与无人工干预自进化研究提供了标准化评测平台。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.02309v1",
+      "source": "arxiv",
+      "title": "Efficient GUI Agents: A Systems Survey of Observation, Memory, Action, and Runtime Optimization",
+      "abstract": "GUI agents increasingly operate across websites, mobile apps, and desktop environments, yet the field still reports progress primarily through task success. We argue that practical deployment depends equally on efficiency: how much context, computation, action budget, and runtime overhead an agent consumes while succeeding. This survey studies efficient GUI agents through an end-to-end systems lens that preserves the current technical axes of observation efficiency, context and memory efficiency, action efficiency, and planner-side/system efficiency. For each subsection, we expand the seed literature through targeted search plus backward and forward citation chaining, then synthesize the dominant mechanisms, reported efficiency signals, and new overheads they introduce. Across the literature, recent progress converges on a small set of recurring ideas: selective reading instead of full-context ingestion, global-to-local visual allocation, recoverable memory rather than raw history replay, verification-aware control, and hybrid runtimes that can switch between GUI and non-GUI execution. We conclude by identifying the main open problems, including honest accounting of verifier cost, cross-benchmark comparability, and co-design of observation, memory, and execution layers under real latency and privacy constraints.",
+      "authors": [
+        "Bizhe Bai",
+        "Jiakang Yuan",
+        "Hongming Wu",
+        "Xinyue Wang",
+        "Jie Ren",
+        "Siyao Chen",
+        "Yuchen Ya",
+        "Fan Bai",
+        "Pai Peng",
+        "Huafeng Qin",
+        "Tao Chen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-02T08:54:58+00:00",
+      "link": "https://arxiv.org/pdf/2609.02309v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "survey of context and memory efficiency mechanisms for GUI agents",
+      "llm_evidence_cn": "综述GUI智能体的上下文与记忆效率机制",
+      "llm_evidence": "综述GUI智能体的上下文与记忆效率机制",
+      "canonical_evidence": "综述GUI智能体的上下文与记忆效率机制",
+      "llm_tldr_en": "GUI agent progress is usually measured only by task success, ignoring context, computation and runtime overhead. This systems survey reviews observation, context and memory, action, and planner-side efficiency, synthesising dominant mechanisms and reported efficiency data for deployable GUI agents.",
+      "llm_tldr_cn": "现有GUI智能体研究主要用任务成功率衡量进展，但实际部署还取决于上下文、算力、动作预算与运行时开销等效率因素。论文以端到端系统视角综述高效GUI智能体，沿观测效率、上下文与记忆效率、动作效率以及规划器与系统效率四条主线梳理文献，并通过检索与前后向引文追踪扩展相关工作。综述归纳了主导机制与报告的效率数据，为构建兼顾成功率与开销的GUI智能体提供了统一分析框架。",
+      "llm_tldr": "现有GUI智能体研究主要用任务成功率衡量进展，但实际部署还取决于上下文、算力、动作预算与运行时开销等效率因素。论文以端到端系统视角综述高效GUI智能体，沿观测效率、上下文与记忆效率、动作效率以及规划器与系统效率四条主线梳理文献，并通过检索与前后向引文追踪扩展相关工作。综述归纳了主导机制与报告的效率数据，为构建兼顾成功率与开销的GUI智能体提供了统一分析框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.05571v1",
+      "source": "arxiv",
+      "title": "Grounded Skill Synthesis from Code at Scale for Agentic Intelligence",
+      "abstract": "Reusable skills give agents transferable procedural knowledge, making scalable acquisition essential for extending agents beyond prior experience. Existing methods face two limitations: trajectory-based synthesis requires interactions with specific environments, while document-derived skills may lack executable evidence and verification. Source code offers a complementary path: it requires no prior agent experience yet provides executable evidence for grounding abstractions. We present Code2Skill, a fully automated pipeline that transforms selected code units into implementation-anchored records of atomic operations, composite workflows, and recurring patterns, then verifies each record through source-body-blind reconstruction and source-aware comparison. Applied to 19,769 popular, actively maintained GitHub repositories, Code2Skill produces CodeSkillBank, a grounded bank of 1,006,822 accepted records with workflow, boundary, provenance, and source-evidence metadata. Across 72 protocol-matched evaluations covering nine model settings and eight benchmarks, models augmented with retrieved CodeSkillBank skills improve by 11.7% on average over matched baselines and outperform them in 57 cases. Under a unified downstream interface, Code2Skill also outperforms trajectory-derived skill banks on all seven shared benchmarks, showing that repository-derived skills can provide useful procedural knowledge before agents accumulate sufficient interaction experience. Skills synthesized from tested AI-generated code achieve a 93.50% pass rate, compared with 93.00% for human-written code, providing initial evidence that the pipeline can expand with the growing volume of AI-generated software. Overall, Code2Skill transforms procedural knowledge embedded in repositories into grounded, verifiable, and transferable agent skills.",
+      "authors": [
+        "Yongqi Tong",
+        "Pan Wang",
+        "Hang Wang",
+        "Jianshe Li",
+        "Xin Zhang",
+        "Jiang-Ming Yang",
+        "Wei Wu"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE",
+        "cs.CL"
+      ],
+      "published": "2026-09-04T03:37:06+00:00",
+      "link": "https://arxiv.org/pdf/2609.05571v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "automated synthesis of reusable agent skills from source code for knowledge retrieval",
+      "llm_evidence_cn": "从源代码自动合成可复用智能体技能以供知识检索",
+      "llm_evidence": "从源代码自动合成可复用智能体技能以供知识检索",
+      "canonical_evidence": "从源代码自动合成可复用智能体技能以供知识检索",
+      "llm_tldr_en": "Reusable skills give agents transferable procedural knowledge, but trajectory-based synthesis needs specific environments and document-derived skills lack executable evidence. Code2Skill automatically transforms code units into implementation-anchored records and verifies them via blind reconstruction.",
+      "llm_tldr_cn": "可复用技能为智能体提供可迁移的过程性知识，但基于轨迹的合成依赖特定环境交互，文档衍生的技能又缺乏可执行证据。本文提出Code2Skill全自动流水线，将代码单元转化为以实现为锚的原子操作、复合工作流与重复模式记录，并通过源码盲重建与源码感知比对进行验证。该工作为智能体规模化获取并检索可验证知识提供了新途径。",
+      "llm_tldr": "可复用技能为智能体提供可迁移的过程性知识，但基于轨迹的合成依赖特定环境交互，文档衍生的技能又缺乏可执行证据。本文提出Code2Skill全自动流水线，将代码单元转化为以实现为锚的原子操作、复合工作流与重复模式记录，并通过源码盲重建与源码感知比对进行验证。该工作为智能体规模化获取并检索可验证知识提供了新途径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.03141v1",
+      "source": "arxiv",
+      "title": "What Happens When the Model Eats the Stack? Rethinking the Research Agenda for Data Agents to Withstand the Bitter Lesson",
+      "abstract": "The bitter lesson poses an existential question for the data systems community, whereby large language models (LLMs) trained end-to-end are rapidly internalizing new capabilities that previously required carefully engineered data agents. Guided by empirical insights, we argue that as models continue to improve, many proposed system layers designed to compensate for model limitations on a given task will increasingly be subsumed by the model itself. We instead identify enduring research opportunities, which lie in supporting data agents across many queries with curated contextual information about the data environment, which we call persistent semantic context. We find that these context layers demonstrate strong promise for improving data agent performance, but they also raise significant system challenges. Thus, a key requirement for future data systems will lie in natively serving persistent semantic contexts as a first-class abstraction in order to enable capable data agents working over huge, complex knowledge corpora. Towards this vision, we outline exciting new research opportunities, including designing efficient context data structures, storage methods, compression techniques, and semantic consistency protocols, to ensure integrity and correctness of the stored contextual knowledge.",
+      "authors": [
+        "Liana Patel",
+        "Siddharth Jha",
+        "Negar Arabzadeh",
+        "Carlos Guestrin",
+        "Ion Stoica",
+        "Matei Zaharia"
+      ],
+      "primary_category": "cs.DB",
+      "categories": [
+        "cs.DB"
+      ],
+      "published": "2026-09-02T20:25:15+00:00",
+      "link": "https://arxiv.org/pdf/2609.03141v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "persistent semantic context for data agents across queries",
+      "llm_evidence_cn": "面向数据智能体的持久语义上下文",
+      "llm_evidence": "面向数据智能体的持久语义上下文",
+      "canonical_evidence": "面向数据智能体的持久语义上下文",
+      "llm_tldr_en": "As LLMs internalize capabilities, data-agent system layers may be subsumed; the authors argue for persistent semantic context layers that give agents curated information about the data environment across many queries.",
+      "llm_tldr_cn": "论文针对端到端训练的大模型不断内化原本需要精心设计数据智能体的能力、使许多系统层面临被模型吞并风险的问题。作者基于实证观察提出，持久语义上下文层——为数据智能体跨多次查询提供数据环境的精选上下文——是更具生命力的研究方向。分析表明，随模型能力提升，用于弥补模型缺陷的系统层会被逐步取代，而上下文层则能持续发挥价值。该工作呼吁数据系统研究转向构建持久语义上下文，以应对苦训教训带来的冲击。",
+      "llm_tldr": "论文针对端到端训练的大模型不断内化原本需要精心设计数据智能体的能力、使许多系统层面临被模型吞并风险的问题。作者基于实证观察提出，持久语义上下文层——为数据智能体跨多次查询提供数据环境的精选上下文——是更具生命力的研究方向。分析表明，随模型能力提升，用于弥补模型缺陷的系统层会被逐步取代，而上下文层则能持续发挥价值。该工作呼吁数据系统研究转向构建持久语义上下文，以应对苦训教训带来的冲击。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.09233v1",
+      "source": "arxiv",
+      "title": "Subagents vs Agent Skills: Executing Reusable Knowledge for Long-Horizon Agentic Tasks",
+      "abstract": "How can language model agents effectively leverage libraries of reusable knowledge to solve long-horizon tasks? Recent work has increasingly focused on agent skills: reusable capabilities represented as skill packages, i.e., multi-file bundles containing instructions, scripts, and other resources that help agents perform specific tasks. Agent skills are typically executed by loading their skill instructions into an agent's context and relying on the agent to follow them. As task horizons grow, however, this approach becomes increasingly brittle, because reasoning quality degrades as more information accumulates in the context window. We investigate an alternative approach in which skill packages are instead invoked as subagents. Rather than loading skill instructions into the main context, subagent execution spawns fresh context windows dedicated to solving individual subtasks. We show that subagent execution outperforms agent-skill execution when skill packages expose clear input-output contracts and their instructions encode the procedural knowledge needed to fulfill those contracts. The tradeoff is additional communication overhead, as extra tokens are required to coordinate between the main agent and its subagents. Our results show that the benefit of reusable knowledge depends not only on its content, but also on how it is organized and invoked.",
+      "authors": [
+        "Wasu Top Piriyakulkij",
+        "Rachel Lawrence",
+        "Alicia Curth",
+        "Sushrut Karmalkar",
+        "Niranjani Prasad"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-09-07T20:14:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.09233v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "invoking reusable agent skill packages as subagents to retrieve knowledge for long-horizon tasks",
+      "llm_evidence_cn": "将可复用技能包作为子智能体调用以支撑长程任务知识检索",
+      "llm_evidence": "将可复用技能包作为子智能体调用以支撑长程任务知识检索",
+      "canonical_evidence": "将可复用技能包作为子智能体调用以支撑长程任务知识检索",
+      "llm_tldr_en": "Language model agents must leverage libraries of reusable skills for long-horizon tasks, but loading skill instructions into context becomes brittle as information accumulates. This paper instead invokes skill packages as subagents, avoiding context bloat and improving knowledge reuse.",
+      "llm_tldr_cn": "语言模型智能体如何有效利用可复用知识库解决长程任务？现有技能通常以技能包形式将指令加载进上下文并依赖智能体遵循，但任务越长上下文积累越多，推理质量越易下降。本文研究将技能包作为子智能体调用的替代方案，避免上下文膨胀。该工作为长程任务中可复用知识的组织、检索与执行提供了更稳健的机制。",
+      "llm_tldr": "语言模型智能体如何有效利用可复用知识库解决长程任务？现有技能通常以技能包形式将指令加载进上下文并依赖智能体遵循，但任务越长上下文积累越多，推理质量越易下降。本文研究将技能包作为子智能体调用的替代方案，避免上下文膨胀。该工作为长程任务中可复用知识的组织、检索与执行提供了更稳健的机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.05960v1",
+      "source": "arxiv",
+      "title": "GPU-Accelerated Gate-Level Time-Based Power Analysis via Event-Density-Aware Partitioning and Kernel Fusion",
+      "abstract": "Power analysis is crucial in modern chip design flow. Particularly, time-based power analysis can provide fine-grained power consumption information to facilitate the diagnosis of power issues and guide power optimization accordingly. However, it may take tens of hours to conduct time-based power analysis on modern large-scale circuits, which greatly slows down the power optimization flow. In this paper, we present the first GPU-accelerated gate-level time-based power analysis framework. We propose a novel data structure to enable efficient state-dependent power retrieval. To accommodate the imbalanced event distribution across gates, we propose an event-density-aware partitioning strategy that allocates GPU threads based on gate event density. Finally, we fuse the power computation into a single kernel invocation to reduce redundant work in separate kernels. Experimental results show that our proposed framework achieves high accuracy while delivering up to 37.63x end-to-end speedup compared to multi-threaded Synopsys PrimeTime PX.",
+      "authors": [
+        "Weihao Wang",
+        "Yikang Ouyang",
+        "Hongyuan Liu",
+        "Yuzhe Ma"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-05T07:53:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.05960v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU kernel fusion and event-density-aware partitioning",
+      "llm_evidence_cn": "GPU内核融合与分区优化",
+      "llm_evidence": "GPU内核融合与分区优化",
+      "canonical_evidence": "GPU内核融合与分区优化",
+      "llm_tldr_en": "Gate-level time-based power analysis takes tens of hours; this framework uses a new data structure plus event-density-aware GPU partitioning and kernel fusion to accelerate it.",
+      "llm_tldr_cn": "论文针对现代大规模电路的基于时间的门级功耗分析耗时数十小时、严重拖慢功耗优化流程的问题。作者提出首个GPU加速的门级时间功耗分析框架，设计支持状态相关功耗高效检索的新数据结构，并采用事件密度感知的线程划分与内核融合策略来应对门间事件分布不均。实验表明，该框架显著加速了大规模电路的功耗分析过程。其贡献在于把GPU内核级优化手段引入EDA功耗分析，有效缓解计算瓶颈。",
+      "llm_tldr": "论文针对现代大规模电路的基于时间的门级功耗分析耗时数十小时、严重拖慢功耗优化流程的问题。作者提出首个GPU加速的门级时间功耗分析框架，设计支持状态相关功耗高效检索的新数据结构，并采用事件密度感知的线程划分与内核融合策略来应对门间事件分布不均。实验表明，该框架显著加速了大规模电路的功耗分析过程。其贡献在于把GPU内核级优化手段引入EDA功耗分析，有效缓解计算瓶颈。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.10263v1",
+      "source": "arxiv",
+      "title": "What Should an Agent Forget? Separating What Is Stored from What Is Used",
+      "abstract": "Persistent language agents need stored experience to remain available across time, while each answer requires evidence suited to a particular question. A superseded fact can mislead a current-state answer and still be essential for a historical query. We present RD-Forget, a training-free framework that separates what an agent stores from what it uses. A retained source archive preserves observations, and a query-conditioned memory view controls their influence on the current answer. A frozen language-model curator extracts relevant evidence, groups facts into semantic slots, and preserves the relations needed for multi-hop reasoning. Same-slot replacement links suppress superseded values in current-state contexts, while intent-aware retrieval makes earlier evidence eligible again. A rate-distortion formulation guides construction of the answer-time view within a memory budget. Experiments span conversational memory, knowledge updating, fact consolidation, long-context reasoning, and personalization under a shared answering pipeline. The results associate accurate answers with both query-relevant evidence construction and control over obsolete alternatives. Configurations without forgetting or query conditioning have the largest score deficits, while slot grouping, historical access, and relation preservation contribute complementary functions. Retaining history while selectively controlling its use offers a practical way to accommodate changing facts and future questions.",
+      "authors": [
+        "Yuhang Li",
+        "Yuchen Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-09T14:48:09+00:00",
+      "link": "https://arxiv.org/pdf/2609.10263v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agent memory separating what is stored from what is used for retrieval",
+      "llm_evidence_cn": "分离存储与使用的智能体记忆与检索机制",
+      "llm_evidence": "分离存储与使用的智能体记忆与检索机制",
+      "canonical_evidence": "分离存储与使用的智能体记忆与检索机制",
+      "llm_tldr_en": "Persistent agents must keep past experience available while using evidence suited to each query. RD-Forget is a training-free framework separating storage from use, with a frozen LM curator extracting evidence and intent-aware retrieval suppressing superseded facts.",
+      "llm_tldr_cn": "持久语言智能体需长期保存经验，但每个回答又需要契合当前问题的证据，被取代的旧事实可能误导现状回答却对历史查询必要。论文提出RD-Forget免训练框架，将智能体存储内容与使用内容分离：保留源档案，查询条件化记忆视图控制其影响。冻结的语言模型策展器抽取相关证据并按语义槽分组。该方法在现状与历史查询间取得平衡，提升多跳推理准确性。",
+      "llm_tldr": "持久语言智能体需长期保存经验，但每个回答又需要契合当前问题的证据，被取代的旧事实可能误导现状回答却对历史查询必要。论文提出RD-Forget免训练框架，将智能体存储内容与使用内容分离：保留源档案，查询条件化记忆视图控制其影响。冻结的语言模型策展器抽取相关证据并按语义槽分组。该方法在现状与历史查询间取得平衡，提升多跳推理准确性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.09646v1",
+      "source": "arxiv",
+      "title": "RobustSGPO: Search-Space Control for Agent Harness Evolution",
+      "abstract": "Semantic-gradient-based prompt optimization (SGPO) improves agent harnesses using execution feedback, but its local update rule leaves the choice of edit scope and operation unresolved. We introduce RobustSGPO, which specifies the requested edit, constructs and checks the patch, and continues search from either the incumbent or retained snapshots. We evaluate permission scheduling, cumulative controls, and task-family transfer in the AgentX brainstorming workflow using 120 tasks, 95 runs, and 7,350 candidate attempts. Periodic $1\\to2\\to3$ scheduling exceeds fixed maximum permission by 0.28 test-score points. RobustSGPO increases completion on 30 held-out tasks from 60.0% to 80.0% and improves test quality from 3.77 to 4.14 under a 20-million-token budget. Category retention reduces source-task degradation after a shift, whereas random retention reaches a higher destination endpoint. Search-space control benefits quality through executable edits and alternative starting points, with measurable retention overhead.",
+      "authors": [
+        "Zibo Zhao",
+        "Jijun Shi",
+        "Mo Zhou",
+        "Zhongyuan Wang",
+        "Shifu Bie",
+        "Yunfei Zhang",
+        "Xuanting Zhou",
+        "Xiangyu Wu",
+        "Bin Liu",
+        "Ruiming Tang",
+        "Wenwu Ou",
+        "Kun Gai"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-09T03:00:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.09646v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agent harness evolution via search-space control and execution feedback",
+      "llm_evidence_cn": "通过搜索空间控制与执行反馈演化智能体框架",
+      "llm_evidence": "通过搜索空间控制与执行反馈演化智能体框架",
+      "canonical_evidence": "通过搜索空间控制与执行反馈演化智能体框架",
+      "llm_tldr_en": "Semantic-gradient prompt optimization improves agent harnesses but leaves edit scope unresolved. RobustSGPO specifies requested edits, checks patches, and continues search from incumbent or retained snapshots, raising held-out task completion from 60.0% to 80.0% in the AgentX workflow.",
+      "llm_tldr_cn": "语义梯度提示优化可借助执行反馈改进智能体框架，但局部更新规则未解决编辑范围与操作选择问题。论文提出RobustSGPO，明确请求的编辑、构建并检查补丁，并从当前或保留快照继续搜索。在AgentX头脑风暴流程上用120个任务、95次运行与7350次候选尝试评估。结果显示保留任务完成率从60.0%提升至80.0%，测试质量从3.77升至4.14。为智能体框架自演化提供更稳健的搜索控制。",
+      "llm_tldr": "语义梯度提示优化可借助执行反馈改进智能体框架，但局部更新规则未解决编辑范围与操作选择问题。论文提出RobustSGPO，明确请求的编辑、构建并检查补丁，并从当前或保留快照继续搜索。在AgentX头脑风暴流程上用120个任务、95次运行与7350次候选尝试评估。结果显示保留任务完成率从60.0%提升至80.0%，测试质量从3.77升至4.14。为智能体框架自演化提供更稳健的搜索控制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

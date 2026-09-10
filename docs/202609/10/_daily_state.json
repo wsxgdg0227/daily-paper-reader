@@ -1,0 +1,169 @@
+{
+  "date": "20260910",
+  "date_label": "",
+  "generated_at": "2026-09-10 22:14:51 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.10144v1",
+      "route": "202609/10/2609.10144v1-kernel-managed-shared-memory-for-system-wide-personalization",
+      "title": "Kernel-Managed Shared Memory for System-Wide Personalization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "由系统内核统一管理的智能体记忆存储与检索",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.10226v1",
+      "route": "202609/10/2609.10226v1--bench-can-large-language-models-engineer-the-infrastructure-that-powers-them",
+      "title": "$Φ$-Bench: Can Large Language Models Engineer the Infrastructure That Powers Them?",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "评测LLM进行开放式内核与基础设施优化及代码生成的基准",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.04280v1",
+      "route": "202609/10/2609.04280v1-evoharnessbench-can-your-agents-keep-pace-with-an-evolving-harness",
+      "title": "EVOHARNESSBENCH: Can Your Agents Keep Pace with an Evolving Harness?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "评测智能体在工具与技能框架演化下适应能力的基准",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.05571v1",
+      "route": "202609/10/2609.05571v1-grounded-skill-synthesis-from-code-at-scale-for-agentic-intelligence",
+      "title": "Grounded Skill Synthesis from Code at Scale for Agentic Intelligence",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "从源代码自动合成可复用智能体技能以供知识检索",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.09233v1",
+      "route": "202609/10/2609.09233v1-subagents-vs-agent-skills-executing-reusable-knowledge-for-long-horizon-agentic-tasks",
+      "title": "Subagents vs Agent Skills: Executing Reusable Knowledge for Long-Horizon Agentic Tasks",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "将可复用技能包作为子智能体调用以支撑长程任务知识检索",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.10263v1",
+      "route": "202609/10/2609.10263v1-what-should-an-agent-forget-separating-what-is-stored-from-what-is-used",
+      "title": "What Should an Agent Forget? Separating What Is Stored from What Is Used",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "分离存储与使用的智能体记忆与检索机制",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.02309v1",
+      "route": "202609/10/2609.02309v1-efficient-gui-agents-a-systems-survey-of-observation-memory-action-and-runtime-optimization",
+      "title": "Efficient GUI Agents: A Systems Survey of Observation, Memory, Action, and Runtime Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "综述GUI智能体的上下文与记忆效率机制",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.03141v1",
+      "route": "202609/10/2609.03141v1-what-happens-when-the-model-eats-the-stack-rethinking-the-research-agenda-for-data-agents-to-withstand-the-bitter-lesson",
+      "title": "What Happens When the Model Eats the Stack? Rethinking the Research Agenda for Data Agents to Withstand the Bitter Lesson",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向数据智能体的持久语义上下文",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.05960v1",
+      "route": "202609/10/2609.05960v1-gpu-accelerated-gate-level-time-based-power-analysis-via-event-density-aware-partitioning-and-kernel-fusion",
+      "title": "GPU-Accelerated Gate-Level Time-Based Power Analysis via Event-Density-Aware Partitioning and Kernel Fusion",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "GPU内核融合与分区优化",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    },
+    {
+      "paper_id": "2609.09646v1",
+      "route": "202609/10/2609.09646v1-robustsgpo-search-space-control-for-agent-harness-evolution",
+      "title": "RobustSGPO: Search-Space Control for Agent Harness Evolution",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "通过搜索空间控制与执行反馈演化智能体框架",
+      "first_seen_at": "2026-09-10 22:14:51 UTC",
+      "updated_at": "2026-09-10 22:14:51 UTC"
+    }
+  ]
+}
