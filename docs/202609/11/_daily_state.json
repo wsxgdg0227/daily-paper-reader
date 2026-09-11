@@ -1,0 +1,217 @@
+{
+  "date": "20260911",
+  "date_label": "",
+  "generated_at": "2026-09-11 21:32:05 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.10937v1",
+      "route": "202609/11/2609.10937v1-the-art-of-closed-formula-defaults-search-free-code-generation-for-tensor-operators",
+      "title": "The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "从算子规格逐级生成到GPU指令的分层代码生成",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.03753v2",
+      "route": "202609/11/2609.03753v2-simskill-a-self-evolving-llm-agent-for-skill-and-knowledge-accumulation-in-traffic-simulation",
+      "title": "SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化LLM智能体通过情景、程序与语义记忆积累技能知识",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.09778v1",
+      "route": "202609/11/2609.09778v1-roam-robust-organization-of-atomic-memories-for-agents-through-semantic-relations",
+      "title": "ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向智能体的原子记忆组织与精确检索",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11060v1",
+      "route": "202609/11/2609.11060v1-grounding-agent-memory-environment-probing-curation-for-enterprise-agents",
+      "title": "Grounding Agent Memory: Environment-Probing Curation for Enterprise Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向智能体的持久记忆整理与跨会话检索",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11562v1",
+      "route": "202609/11/2609.11562v1-entwine-coordinating-tiled-computation-and-fine-grained-communication-across-gpus",
+      "title": "Entwine: Coordinating Tiled Computation and Fine-Grained Communication across GPUs",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "协调GPU分块计算与通信以提升性能",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11677v1",
+      "route": "202609/11/2609.11677v1-ecdysis-efficient-and-effective-training-of-runtime-harnesses-for-llm-agents",
+      "title": "Ecdysis: Efficient and Effective Training of Runtime Harnesses for LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向LLM智能体的自演化运行时框架无需人工干预即可改进",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11873v1",
+      "route": "202609/11/2609.11873v1-the-last-ai-built-by-humans-toward-genuine-recursive-self-improvement",
+      "title": "The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "递归自我改进将经验转化为持久能力提升",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.10515v1",
+      "route": "202609/11/2609.10515v1-pascal-a-phase-aware-shared-cache-model-for-parallel-scans",
+      "title": "PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "降低注意力与GEMM等GPU算子缓存缺失与访存的共享缓存模型",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.08682v1",
+      "route": "202609/11/2609.08682v1-hda-moe-hybrid-parallelism-and-dynamic-adaptive-scheduling-for-mixture-of-experts-with-3d-near-memory-processing",
+      "title": "HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "混合并行与自适应调度加速MoE的GPU执行",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.10922v1",
+      "route": "202609/11/2609.10922v1-auto-recsys-harnessing-autonomous-research-agents-for-industry-scale-recommender-system",
+      "title": "Auto-RecSys: Harnessing Autonomous Research Agents for Industry-Scale Recommender System",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "具备迭代优化能力的自主研究智能体",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11356v1",
+      "route": "202609/11/2609.11356v1-taming-bitwise-behavior-in-gpu-kernels-with-tensor-core-black-box-reconstruction-compiler-enforcement-and-static-verification",
+      "title": "Taming Bitwise Behavior in GPU Kernels with Tensor Core: Black-Box Reconstruction, Compiler Enforcement, and Static Verification",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "张量核GPU内核的位级行为与自动调优",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11515v1",
+      "route": "202609/11/2609.11515v1-churnbench-a-drift-aware-benchmark-demonstrating-that-refresh-scheduling-not-cache-age-governs-staleness-in-agentic-ai",
+      "title": "ChurnBench: A Drift-Aware Benchmark Demonstrating That Refresh Scheduling, Not Cache Age, Governs Staleness in Agentic AI",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向智能体检索新鲜度与陈旧性的基准",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    },
+    {
+      "paper_id": "2609.11923v1",
+      "route": "202609/11/2609.11923v1-gpu-cfr-80x-faster-counterfactual-regret-minimization-by-compiling-the-game-to-static-dataflow-and-cuda-graph-replay",
+      "title": "GPU-CFR: 80x Faster Counterfactual Regret Minimization by Compiling the Game to Static Dataflow and CUDA Graph Replay",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将博弈编译为静态数据流与CUDA图重放以削减内核启动开销",
+      "first_seen_at": "2026-09-11 21:32:05 UTC",
+      "updated_at": "2026-09-11 21:32:05 UTC"
+    }
+  ]
+}

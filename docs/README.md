@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-10</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-11</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 10 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 13 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>8</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>6</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-10 22:14:51 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-11 21:32:05 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>2026-09-10 日报精选 10 篇：2 篇精读聚焦系统级个性化共享内存与「LLM 能否构建支撑自身的基础设施」，8 篇速读覆盖 Agent 评测、技能合成与长程任务。最值得看的是 Kernel-Managed Shared Memory 如何让个性化下沉到系统层，以及 Φ-Bench 对 LLM 工程能力的拷问。普通读者可优先读这两篇精读，再按兴趣挑 Agent 相关的速读。</p>
+<p>今天筛选13篇AI论文，精读6篇、速读7篇，重点落在张量算子代码生成与交通仿真智能体两条线。</p>
+<p>最值得看的是9.0分的《The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators》，以及8.0分的《SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation》，速读中另有8.0分的递归自我改进讨论。</p>
+<p>普通读者可先读这两篇精读的摘要与结论，再按兴趣跟进速读里的递归自我改进和并行扫描优化。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">2 篇</strong>
+    <strong class="dpr-home-dashboard-count">6 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Kernel-Managed Shared Memory for System-Wide Personalization">Kernel-Managed Shared Memory for System-Wide Personalization</span></li><li><span class="dpr-home-dashboard-paper-title" title="$Φ$-Bench: Can Large Language Models Engineer the Infrastructure That Powers Them?">$Φ$-Bench: Can Large Language Models Engineer the Infrastructure That Powers Them?</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators">The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators</span></li><li><span class="dpr-home-dashboard-paper-title" title="SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation">SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation</span></li><li><span class="dpr-home-dashboard-paper-title" title="ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations">ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">8 篇</strong>
+    <strong class="dpr-home-dashboard-count">7 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EVOHARNESSBENCH: Can Your Agents Keep Pace with an Evolving Harness?">EVOHARNESSBENCH: Can Your Agents Keep Pace with an Evolving Harness?</span></li><li><span class="dpr-home-dashboard-paper-title" title="Grounded Skill Synthesis from Code at Scale for Agentic Intelligence">Grounded Skill Synthesis from Code at Scale for Agentic Intelligence</span></li><li><span class="dpr-home-dashboard-paper-title" title="Subagents vs Agent Skills: Executing Reusable Knowledge for Long-Horizon Agentic Tasks">Subagents vs Agent Skills: Executing Reusable Knowledge for Long-Horizon Agentic Tasks</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement">The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement</span></li><li><span class="dpr-home-dashboard-paper-title" title="PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans">PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans</span></li><li><span class="dpr-home-dashboard-paper-title" title="HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing">HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>8</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
 </section>
 </div>
 

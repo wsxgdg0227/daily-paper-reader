@@ -1,0 +1,574 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-11T21:19:39.235297+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 7,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2609.10937v1",
+      "source": "arxiv",
+      "title": "The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators",
+      "abstract": "Agentic search and automated optimization of GPU kernels are powerful tools for large language model inference. Their effectiveness, however, depends not on the sophistication of the search itself, but on the clarity of the optimization problem being solved. We provide an application-first approach that drives a hierarchical code generation tool from operator specifi cation down to GPU instructions, and show that a clearly defined computational model makes the optimization problem tractable.",
+      "authors": [
+        "Paolo D'Alberto",
+        "Ashish Sirasao"
+      ],
+      "primary_category": "cs.MS",
+      "categories": [
+        "cs.MS"
+      ],
+      "published": "2026-09-10T00:55:11+00:00",
+      "link": "https://arxiv.org/pdf/2609.10937v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "hierarchical code generation from operator spec down to GPU instructions",
+      "llm_evidence_cn": "从算子规格逐级生成到GPU指令的分层代码生成",
+      "llm_evidence": "从算子规格逐级生成到GPU指令的分层代码生成",
+      "canonical_evidence": "从算子规格逐级生成到GPU指令的分层代码生成",
+      "llm_tldr_en": "Agentic search and automated optimization of GPU kernels depend more on clear problem definition than search sophistication. This work drives hierarchical code generation from operator specification to GPU instructions, showing closed-form defaults make optimization search-free and tractable.",
+      "llm_tldr_cn": "针对GPU算子自动化搜索与优化效率受限于问题定义不清的问题，本文提出一种面向应用的分层代码生成工具，从算子规格逐级下降直至生成GPU指令，并强调清晰的计算模型是优化可解的前提。作者展示闭式默认公式可替代繁重搜索，实现无需搜索的张量算子代码生成，为LLM推理算子优化提供了新路径。",
+      "llm_tldr": "针对GPU算子自动化搜索与优化效率受限于问题定义不清的问题，本文提出一种面向应用的分层代码生成工具，从算子规格逐级下降直至生成GPU指令，并强调清晰的计算模型是优化可解的前提。作者展示闭式默认公式可替代繁重搜索，实现无需搜索的张量算子代码生成，为LLM推理算子优化提供了新路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How to generate optimized GPU kernels using large language models?",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.03753v2",
+      "source": "arxiv",
+      "title": "SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation",
+      "abstract": "Cumulative culture enables humans to preserve, reuse, and extend knowledge and skills across experiences and generations. Inspired by this principle, we introduce \\textit{SimSkill}, a self-evolving agent built around the Simulation of Urban MObility (SUMO) traffic simulator. SimSkill continually identifies capability gaps, generates and solves environment-grounded tasks, verifies solutions through an action--critic loop, and consolidates experience into episodic, procedural, and semantic memory. Through autonomous exploration, it builds a library of reusable skills and knowledge spanning major stages of the traffic-simulation workflow. We evaluate SimSkill on two held-out benchmarks across three backbone LLMs, with each result independently verified. It improves verified success by up to 25 percentage points, and ablations show complementary contributions from procedural and semantic memory. Its benefits remain backbone- and budget-dependent, as memory does not improve every model or uniformly reduce inference cost. More broadly, SimSkill illustrates a natural-language-centered design paradigm for LLM-based agent systems. Its high-level control logic, operating principles, and accumulated knowledge are expressed in natural language, while an LLM integrates them with executable tools and code to realize precise and reproducible execution. All code and experimental data are publicly available at https://github.com/qiliuchn/SimSkill-V1.",
+      "authors": [
+        "Qi Liu",
+        "Qinzheng Wang",
+        "Can Li",
+        "Yiming Bie",
+        "Wanjng Ma"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-09-03T12:23:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.03753v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving LLM agent accumulates skills and knowledge via episodic, procedural, semantic memory",
+      "llm_evidence_cn": "自进化LLM智能体通过情景、程序与语义记忆积累技能知识",
+      "llm_evidence": "自进化LLM智能体通过情景、程序与语义记忆积累技能知识",
+      "canonical_evidence": "自进化LLM智能体通过情景、程序与语义记忆积累技能知识",
+      "llm_tldr_en": "SimSkill is a self-evolving LLM agent that identifies capability gaps, generates and verifies environment-grounded tasks, and consolidates experience into episodic, procedural and semantic memory to build reusable skills.",
+      "llm_tldr_cn": "针对智能体难以像人类一样跨经验积累并复用知识的问题，本文提出SimSkill自进化LLM智能体，围绕交通仿真环境持续识别能力缺口、生成并求解任务，经行动-评论循环验证后将经验整合为情景、程序与语义记忆。在两个留出基准和三种骨干模型上评估，智能体通过自主探索构建了覆盖仿真流程的可复用技能与知识库。该工作展示了记忆机制与自进化循环对长期知识积累的价值。",
+      "llm_tldr": "针对智能体难以像人类一样跨经验积累并复用知识的问题，本文提出SimSkill自进化LLM智能体，围绕交通仿真环境持续识别能力缺口、生成并求解任务，经行动-评论循环验证后将经验整合为情景、程序与语义记忆。在两个留出基准和三种骨干模型上评估，智能体通过自主探索构建了覆盖仿真流程的可复用技能与知识库。该工作展示了记忆机制与自进化循环对长期知识积累的价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.09778v1",
+      "source": "arxiv",
+      "title": "ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations",
+      "abstract": "Long-term language-model agents rely on external memory across interactions. Atomic memories are particularly useful: their fine-grained semantic boundaries enable precise retrieval and direct comparison between observations. Yet accumulating atoms inevitably become redundant, overlapping, or conflicting. Existing methods often ask an LLM manager to add, update, delete, or rewrite memories directly, coupling semantic interpretation, storage decisions, and content generation in one error-prone operation. We introduce ROAM, a relation-guided framework that uses atomicity for management while allowing richer answer-time representations. ROAM classifies incoming--stored atom pairs as independent, equivalent, directionally subsuming, or conflicting, then organizes observations into active Primary and supporting Evidence roles. Fusion subsequently combines complementary details and temporal changes into compact, potentially non-atomic views. Only Primary views are retrieved for answering, preventing redundant or outdated atoms from competing independently. Across models and evaluation settings, ROAM improves answer accuracy by up to 29.8 percentage points. Ablations show complementary benefits from different relations and consistent gains from fusion beyond role organization. Mechanism analysis further finds 15.6-point higher answer-critical source recall and an 11.5-point lower confounder-token share. ROAM remains robust across manager scales.",
+      "authors": [
+        "Jianjie Zheng",
+        "Peng Lai",
+        "Sijie Cheng",
+        "Jiehui Zhao",
+        "Lei Yang",
+        "Guanhua Chen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-09T06:29:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.09778v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "relation-guided atomic agent memory organization for precise retrieval",
+      "llm_evidence_cn": "面向智能体的原子记忆组织与精确检索",
+      "llm_evidence": "面向智能体的原子记忆组织与精确检索",
+      "canonical_evidence": "面向智能体的原子记忆组织与精确检索",
+      "llm_tldr_en": "Long-term LLM agents accumulate redundant or conflicting atomic memories. ROAM is a relation-guided framework that classifies incoming-stored atom pairs as independent, equivalent, subsuming or conflicting, decoupling semantic interpretation from storage decisions. This yields more precise retrieval and richer answer-time representations.",
+      "llm_tldr_cn": "长期语言模型智能体依赖外部记忆，但原子记忆不断累积后会出现冗余、重叠与冲突，现有方法让LLM管理器直接增删改记忆，把语义理解与存储决策耦合在一起，容易出错。本文提出ROAM，一种关系引导的记忆管理框架，将新入记忆与已存记忆对分类为独立、等价、包含或冲突等语义关系，从而分离语义解释与存储决策，同时保留更丰富的答案时表示。该框架在保持原子粒度精确检索优势的同时，显著提升了记忆管理的鲁棒性与一致性，为智能体长期记忆组织提供了新范式。",
+      "llm_tldr": "长期语言模型智能体依赖外部记忆，但原子记忆不断累积后会出现冗余、重叠与冲突，现有方法让LLM管理器直接增删改记忆，把语义理解与存储决策耦合在一起，容易出错。本文提出ROAM，一种关系引导的记忆管理框架，将新入记忆与已存记忆对分类为独立、等价、包含或冲突等语义关系，从而分离语义解释与存储决策，同时保留更丰富的答案时表示。该框架在保持原子粒度精确检索优势的同时，显著提升了记忆管理的鲁棒性与一致性，为智能体长期记忆组织提供了新范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.11060v1",
+      "source": "arxiv",
+      "title": "Grounding Agent Memory: Environment-Probing Curation for Enterprise Agents",
+      "abstract": "Persistent memory is entering production-oriented agent platforms to help long-horizon agents accumulate experience across sessions. Yet a post-task curator agent restricted to completed trajectories can preserve errors, overgeneralize partial evidence, or retain stale knowledge. We introduce environment-probing curation, a deployment-compatible extension that gives an existing asynchronous curator agent least-privilege, read-only world tools to check, scope, and refresh candidate memories. It requires no model retraining and leaves the task agent, retriever, memory representation, and production write authority unchanged. In a production-like GitHub Copilot (GHCP) harness built on its SDK, we compare stateless execution, full in-context learning, GHCP + Mem, and GHCP + Mem (w/ Env Probing) on CLBench database exploration and 90 adapted APEX management-consulting tasks. On CLBench, probing raises pass rate from 39% to 73% and pass-discounted reward from 8.60 to 22.60 while reducing queries from 8.8 to 4.7 per question and task-agent cost from \\$3.38 to \\$1.68. Across six APEX worlds, all 18 memory-versus-baseline mean reward comparisons are positive and task-agent tool calls fall by 16--75%; probing gives the best task-agent reward gain per dollar in five worlds. Probing also attains higher mean reward than GHCP + Mem on both Sonnet 4.6 and Opus 4.7 without schema drift. Environment probing therefore turns existing agent-memory curation into an environment-informed, auditable process while preserving a compact task-time interface.",
+      "authors": [
+        "Susheel Suresh",
+        "Hazel Mak",
+        "Sahil Bhatnagar",
+        "Chhaya Methani",
+        "Alejandro Gutierrez Munoz"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.SE"
+      ],
+      "published": "2026-09-10T04:06:16+00:00",
+      "link": "https://arxiv.org/pdf/2609.11060v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "persistent agent memory curation and retrieval across sessions",
+      "llm_evidence_cn": "面向智能体的持久记忆整理与跨会话检索",
+      "llm_evidence": "面向智能体的持久记忆整理与跨会话检索",
+      "canonical_evidence": "面向智能体的持久记忆整理与跨会话检索",
+      "llm_tldr_en": "Environment-probing curation gives an asynchronous curator agent read-only world tools to verify and refresh persistent memories, reducing stale knowledge in long-horizon enterprise agents.",
+      "llm_tldr_cn": "持久记忆正被引入生产级智能体平台以跨会话积累经验，但仅依赖已完成轨迹的整理智能体容易保留错误、过度泛化或保留过时知识。本文提出环境探测式整理，为异步整理智能体提供只读世界工具以核查、限定和刷新候选记忆，且无需重训练。在类生产的GitHub Copilot环境中与无状态执行和完整上下文学习对比。该工作提升了长期智能体记忆的可靠性。",
+      "llm_tldr": "持久记忆正被引入生产级智能体平台以跨会话积累经验，但仅依赖已完成轨迹的整理智能体容易保留错误、过度泛化或保留过时知识。本文提出环境探测式整理，为异步整理智能体提供只读世界工具以核查、限定和刷新候选记忆，且无需重训练。在类生产的GitHub Copilot环境中与无状态执行和完整上下文学习对比。该工作提升了长期智能体记忆的可靠性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.11562v1",
+      "source": "arxiv",
+      "title": "Entwine: Coordinating Tiled Computation and Fine-Grained Communication across GPUs",
+      "abstract": "Modern high-performance GPU computations partition tensors into tiles to exploit data reuse and parallelism. Individual tile computations complete earlier than the full tensor computation, creating opportunities to overlap computation and communication. However, a mismatch between computation and communication progress can limit these opportunities. Communication stalls when no data is ready, and may lag when data arrives in bursts. Communication can also slow computation by consuming shared resources, offsetting the benefits of overlap.   We present Entwine, which coordinates tile computation order, fine-grained communication, and SM resource allocation to minimize overall completion time. Entwine reorders tile computation to produce data for communication at a more regular pace. Entwine couples this schedule with fine-grained SM-based communication to process tile results with low latency and low overhead. Since the communication kernel also consumes SM resources, Entwine coordinates their allocation to balance communication progress against computation slowdown. Across representative tensor-parallel LLM workloads, Entwine achieves a geomean speedup of 1.232x (up to 1.433x) over cuBLAS+NCCL, and outperforms state-of-the-art overlap baselines by 3.1-9.8% in geomean. We will open-source our implementation upon publication.",
+      "authors": [
+        "Kai Ma",
+        "Quanfeng Lv",
+        "Jingguo Ge",
+        "Bowei Dai",
+        "Kefan Ruan"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AR"
+      ],
+      "published": "2026-09-10T13:53:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.11562v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "coordinating tiled GPU computation and communication for performance",
+      "llm_evidence_cn": "协调GPU分块计算与通信以提升性能",
+      "llm_evidence": "协调GPU分块计算与通信以提升性能",
+      "canonical_evidence": "协调GPU分块计算与通信以提升性能",
+      "llm_tldr_en": "Entwine coordinates tile computation order, fine-grained communication, and SM resource allocation to overlap compute and communication and minimize GPU completion time.",
+      "llm_tldr_cn": "高性能GPU计算将张量分块以利用数据复用与并行，但计算与通信进度不匹配会限制重叠机会，通信可能停顿或抢占共享资源。本文提出Entwine，协调分块计算顺序、细粒度通信与SM资源分配，重排计算以尽早产出数据。该方法可最小化整体完成时间。它为多GPU负载的执行性能优化提供了调度思路。",
+      "llm_tldr": "高性能GPU计算将张量分块以利用数据复用与并行，但计算与通信进度不匹配会限制重叠机会，通信可能停顿或抢占共享资源。本文提出Entwine，协调分块计算顺序、细粒度通信与SM资源分配，重排计算以尽早产出数据。该方法可最小化整体完成时间。它为多GPU负载的执行性能优化提供了调度思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.11677v1",
+      "source": "arxiv",
+      "title": "Ecdysis: Efficient and Effective Training of Runtime Harnesses for LLM Agents",
+      "abstract": "Self-evolving runtime harnesses can substantially improve the capabilities of large language model (LLM) agents and provide a promising paradigm for optimizing agent execution. Existing harness evolution methods typically rely on iterative search, repeatedly evaluating and revising candidate harnesses based on execution feedback from task instances. While this paradigm enables continuous harness optimization, it incurs substantial time overhead due to repeated agent executions and code modifications, and may overfit to observed tasks and specific failure patterns, resulting in degraded generalization to unseen tasks. We identify the lack of principled failure diagnosis as a key bottleneck in harness evolution: an observed failure can reflect either model-specific deficiencies or systematic harness deficiencies, and directly optimizing against individual failures can lead to unnecessary model-specific accommodation. We therefore propose Ecdysis, an efficient and effective framework that distinguishes model-specific accommodation from harness-level repair and biases adaptation toward systematic harness deficiencies by identifying recurring cross-task failure patterns. Ecdysis adopts a batch-level cross-instance failure aggregation paradigm to jointly analyze failure evidence from multiple task instances and further introduces Failure-Driven Collaborative Refinement to diagnose failure causes and iteratively refine harness modification specifications. By combining cross-instance failure analysis with multi-role diagnosis, Ecdysis enables more effective harness evolution with lower training time. Experiments show that Ecdysis achieves up to a 1.84x speedup in harness training compared with existing harness evolution methods, while improving the reasoning accuracy of the resulting harnesses by 18.56%.",
+      "authors": [
+        "Ruiqing Yue",
+        "Yu Cui",
+        "Zhuoyu Sun",
+        "Sicheng Pan",
+        "Xianhong Xue",
+        "Tingyu Li",
+        "Ting Li",
+        "Wenzhuo Zhu",
+        "Yi Chen",
+        "Yifei Liu",
+        "Baohan Huang",
+        "Zhe Cui",
+        "Haibin Zhang",
+        "Cong Zuo"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE",
+        "cs.AI"
+      ],
+      "published": "2026-09-10T15:09:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.11677v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Self-evolving runtime harnesses for LLM agents improved without human intervention",
+      "llm_evidence_cn": "面向LLM智能体的自演化运行时框架无需人工干预即可改进",
+      "llm_evidence": "面向LLM智能体的自演化运行时框架无需人工干预即可改进",
+      "canonical_evidence": "面向LLM智能体的自演化运行时框架无需人工干预即可改进",
+      "llm_tldr_en": "Self-evolving runtime harnesses can improve LLM agents but existing iterative-search evolution is slow and overfits observed tasks. Ecdysis attributes this to weak failure diagnosis and trains harnesses more efficiently and generally.",
+      "llm_tldr_cn": "针对自演化运行时框架虽能提升LLM智能体能力，但现有方法依赖迭代搜索反复执行与修改、开销大且易过拟合已见任务与失败模式的问题，本文将缺乏有原则的失败诊断视为关键瓶颈，提出Ecdysis以更高效有效地训练运行时框架。方法通过诊断失败成因指导框架演化，减少重复执行与代码改动，并提升对未见任务的泛化。工作为智能体自进化机制提供了更高效、泛化更好的范式。",
+      "llm_tldr": "针对自演化运行时框架虽能提升LLM智能体能力，但现有方法依赖迭代搜索反复执行与修改、开销大且易过拟合已见任务与失败模式的问题，本文将缺乏有原则的失败诊断视为关键瓶颈，提出Ecdysis以更高效有效地训练运行时框架。方法通过诊断失败成因指导框架演化，减少重复执行与代码改动，并提升对未见任务的泛化。工作为智能体自进化机制提供了更高效、泛化更好的范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.11873v1",
+      "source": "arxiv",
+      "title": "The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement",
+      "abstract": "Recursive self-improvement (RSI) enables AI systems to turn experience and feedback into persistent changes that improve both their capabilities and the process of future improvement. We first use the Headroom-Closed Index (HCI) to reveal the problems of existing LLMs, then introduce the RSI concept and its development roadmap: from improvement-execution autonomy, improvement-strategy autonomy, experience-acquisition autonomy, and environment-adaptation autonomy, to recursive meta-improvement. Next we examine RSI across scenarios (e.g., scientific discovery, embodied intelligence, software engineering), highlighting their distinct requirements and development speeds. Drawing on diverse industry practices and preliminary empirical evidence, we connect RSI research with practical systems and identify key challenges to achieving genuine RSI.",
+      "authors": [
+        "Yi Duan",
+        "Ying Liu",
+        "Zirui Tang",
+        "Haodong Chen",
+        "Jun Zhou",
+        "Yumou Liu",
+        "Bangrui Xu",
+        "Yukai Wu",
+        "Sidi Chen",
+        "Yuhan Zhou",
+        "Haoyu Wang",
+        "Xiaoyou Yu",
+        "Shaokun Han",
+        "Xuzhou Zhu",
+        "Le Zhou",
+        "Bolin Lu",
+        "Wei Zhou",
+        "Jiachen Liu",
+        "Nuozhou Fang",
+        "Jiaxin Tian",
+        "Ruoyu Chen",
+        "Yuxuan Li",
+        "Kai Zuo",
+        "Kaiyan Zhang",
+        "Jiantao Qiu",
+        "Conghui He",
+        "Guoliang Li",
+        "Bowen Zhou",
+        "Zhiyuan Liu",
+        "Zhoufutu Wen",
+        "Jihua Kang",
+        "Xuanhe Zhou",
+        "Fan Wu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-10T17:44:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.11873v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "recursive self-improvement turning experience into persistent capability gains",
+      "llm_evidence_cn": "递归自我改进将经验转化为持久能力提升",
+      "llm_evidence": "递归自我改进将经验转化为持久能力提升",
+      "canonical_evidence": "递归自我改进将经验转化为持久能力提升",
+      "llm_tldr_en": "Recursive self-improvement (RSI) lets AI turn experience and feedback into persistent improvements of both capability and the improvement process. Using the Headroom-Closed Index, the paper diagnoses LLM limits, proposes an RSI roadmap across autonomy levels, and examines scenarios from scientific discovery to software engineering.",
+      "llm_tldr_cn": "递归自我改进旨在让AI系统把经验与反馈转化为持久改变，既提升自身能力又改进未来的改进过程，是实现真正自进化的关键。本文先用余量封闭指数（HCI）揭示现有大模型的局限，继而提出RSI概念及其发展路线图，从改进执行自主、改进策略自主、经验获取自主、环境适应自主，直至递归元改进，逐级递进。随后论文考察RSI在科学发现、具身智能、软件工程等场景中的不同需求与发展速度，并结合产业实践与初步实证证据，勾勒出通往由AI自身构建下一代AI的路径。",
+      "llm_tldr": "递归自我改进旨在让AI系统把经验与反馈转化为持久改变，既提升自身能力又改进未来的改进过程，是实现真正自进化的关键。本文先用余量封闭指数（HCI）揭示现有大模型的局限，继而提出RSI概念及其发展路线图，从改进执行自主、改进策略自主、经验获取自主、环境适应自主，直至递归元改进，逐级递进。随后论文考察RSI在科学发现、具身智能、软件工程等场景中的不同需求与发展速度，并结合产业实践与初步实证证据，勾勒出通往由AI自身构建下一代AI的路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.10515v1",
+      "source": "arxiv",
+      "title": "PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans",
+      "abstract": "In modern AI Accelerators and GPGPUs, many concurrent cores repeatedly access the same shared data. This pattern occurs in attention, where different query tiles share the same K/V block, GEMM, where every tile in a row reads the same panel, and many other operators. We name this pattern parallel scan. Due to a significant amount of data reuse in this pattern, the cache is expected to capture as much data reuse as possible and largely reduce requests sent to the main memory for both performance and energy consumption concerns. However, in reality, because of the intrinsic asynchrony of multi-cores, the actual cache miss rate and DRAM traffic can be much higher compared to ideal cases. In this paper, we propose PASCAL, a shared-cache model for parallel scans. It is aware of the dynamic feature of progress divergence across multi-cores, correlate the divergence with the combination of different factors such as occupancy, and predicts the cache miss rate before execution. Because prediction needs no target trace, timing, or counters, PASCAL supports design-space exploration at scales where cycle-accurate simulation is impractical, and its policy-independent bound states how much traffic no replacement policy can avoid. A MAPE of 13.84% is achieved in a 60-configuration dataset with various software pipeline depths, occupancies, and memory access data paths on an NVIDIA GB10 GPU, against 44.79% for physical-wave TileSight and 54.16% for exact symbolic SDCM.",
+      "authors": [
+        "Zhongchun Zhou",
+        "Chengtao Lai",
+        "Songtao Mao"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF",
+        "cs.AR",
+        "cs.DC"
+      ],
+      "published": "2026-09-09T17:48:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.10515v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "shared-cache model reducing cache misses and DRAM traffic for GPU operators like attention and GEMM",
+      "llm_evidence_cn": "降低注意力与GEMM等GPU算子缓存缺失与访存的共享缓存模型",
+      "llm_evidence": "降低注意力与GEMM等GPU算子缓存缺失与访存的共享缓存模型",
+      "canonical_evidence": "降低注意力与GEMM等GPU算子缓存缺失与访存的共享缓存模型",
+      "llm_tldr_en": "PASCAL is a phase-aware shared-cache model for parallel scans in GPUs, addressing high cache miss rates and DRAM traffic caused by multi-core asynchrony in attention and GEMM-style data reuse patterns.",
+      "llm_tldr_cn": "在AI加速器与GPGPU中，注意力、GEMM等算子存在多核反复访问同一共享数据的并行扫描模式，理论上缓存应能捕获大量数据重用，但多核异步使实际缺失率与DRAM流量远高于理想情况。本文提出相位感知共享缓存模型PASCAL，用于刻画并改善该模式下的缓存行为。其目标是提升数据重用、减少主存访问，从而在性能与能耗两方面受益，为GPU算子执行性能优化提供建模思路。",
+      "llm_tldr": "在AI加速器与GPGPU中，注意力、GEMM等算子存在多核反复访问同一共享数据的并行扫描模式，理论上缓存应能捕获大量数据重用，但多核异步使实际缺失率与DRAM流量远高于理想情况。本文提出相位感知共享缓存模型PASCAL，用于刻画并改善该模式下的缓存行为。其目标是提升数据重用、减少主存访问，从而在性能与能耗两方面受益，为GPU算子执行性能优化提供建模思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08682v1",
+      "source": "arxiv",
+      "title": "HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing",
+      "abstract": "Mixture-of-Experts (MoE) architectures have become a key technique for scaling Large Language Models (LLMs), enabling high model capacity with reduced computational cost. However, this efficiency comes at the expense of increased memory capacity and bandwidth demands. Recent 3D Near-Memory Processing (NMP) architectures, which vertically integrate memory and compute through hybrid bonding, provide high internal bandwidth and energy efficiency, making them attractive for accelerating MoE inference. Nevertheless, the distributed memory and compute organization of NMP systems introduces new challenges for mapping MoE workloads. Existing parallelization strategies, such as Tensor Parallelism (TP) and Expert Parallelism (EP), suffer from either high communication costs or unbalanced computation utilization, leading to inferior efficiency. In addition, the dynamic routing behavior of MoE models further complicates efficient deployment. To address these challenges, we present HDA-MoE, a framework that optimizes MoE execution on NMP architectures through hybrid parallel deployment and runtime scheduling. HDA-MoE integrates an offline hybrid parallel mapping algorithm with an online dynamic and adaptive scheduling mechanism to reduce communication overhead while improving computation utilization. Experimental results show that HDA-MoE achieves a speedup of 1.1x--3.4x over TP, 1.1x--1.5x over EP, 1.1x--3.7x over the Hybrid TP-EP compute-balanced baseline, and 1.1x--1.3x over HD-MoE. Source code is available at https://github.com/PKU-SEC-Lab/HDA-MoE-TCAD26.",
+      "authors": [
+        "Haochen Huang",
+        "Shuzhang Zhong",
+        "Shengxuan Qiu",
+        "Zhe Zhang",
+        "Shuangchen Li",
+        "Cong Li",
+        "Dimin Niu",
+        "Hongzhong Zheng",
+        "Guangyu Sun",
+        "Runsheng Wang",
+        "Meng Li"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-08T12:51:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.08682v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hybrid parallelism and adaptive scheduling to accelerate MoE GPU execution",
+      "llm_evidence_cn": "混合并行与自适应调度加速MoE的GPU执行",
+      "llm_evidence": "混合并行与自适应调度加速MoE的GPU执行",
+      "canonical_evidence": "混合并行与自适应调度加速MoE的GPU执行",
+      "llm_tldr_en": "HDA-MoE proposes hybrid parallelism and dynamic adaptive scheduling to map MoE workloads efficiently onto 3D near-memory-processing architectures with distributed memory and compute.",
+      "llm_tldr_cn": "MoE架构在降低计算成本的同时大幅提升显存容量与带宽需求，3D近内存处理架构虽提供高内部带宽，但其分布式存储与计算组织给MoE负载映射带来挑战。本文提出HDA-MoE，结合混合并行与动态自适应调度来映射MoE工作负载。该方法提升了近内存处理架构上MoE推理的效率。它为新型硬件上的算子调度优化提供了方案。",
+      "llm_tldr": "MoE架构在降低计算成本的同时大幅提升显存容量与带宽需求，3D近内存处理架构虽提供高内部带宽，但其分布式存储与计算组织给MoE负载映射带来挑战。本文提出HDA-MoE，结合混合并行与动态自适应调度来映射MoE工作负载。该方法提升了近内存处理架构上MoE推理的效率。它为新型硬件上的算子调度优化提供了方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.10922v1",
+      "source": "arxiv",
+      "title": "Auto-RecSys: Harnessing Autonomous Research Agents for Industry-Scale Recommender System",
+      "abstract": "Auto-research agents have shown the potential to automate hypothesis generation, experiment execution, and iterative refinement. However, scaling this paradigm to industry-scale recommendation models introduces two challenges: (1) long feedback loops, where model training can take days, making serial iteration prohibitively slow and requiring parallel exploration across multiple research directions; and (2) system complexity, where large configurations, fragile infrastructure dependencies, and multi-day GPU jobs require robust and recoverable execution. We present Auto-RecSys, an autonomous research system for long-horizon experimentation on industry-scale recommendation models. Auto-RecSys addresses these challenges through three harness designs: (1) distributed asynchronous execution for running multiple experiments in parallel across servers, (2) centralized cross-server memory for persistent and recoverable execution across sessions and failures, and (3) cognitive-procedural separation, where natural-language skill files guide LLM reasoning while deterministic scripts enforce operational correctness. Auto-RecSys further employs a dual-loop self-evolving architecture: an Execution Evolution Loop in which model-specific playbooks accumulate operational knowledge by recording failed attempts and crystallizing successful pipelines, and an Idea Evolution Loop in which experimental outcomes inform subsequent ideation. Evaluated on recommendation models, Auto-RecSys significantly reduces the human time required per experiment cycle and improves execution reliability as its playbooks mature.",
+      "authors": [
+        "Ming Li",
+        "Dai Li",
+        "Xuying Ning",
+        "Bo Sun",
+        "Rui Li",
+        "Yi Zhang",
+        "Silvia Gong",
+        "Xuan Cao",
+        "Rui Li",
+        "Cornelia Carapcea",
+        "Qunshu Zhang",
+        "Zhigang Wang",
+        "Yinglong Xia",
+        "Andy Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-10T00:09:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.10922v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "autonomous research agents with iterative refinement",
+      "llm_evidence_cn": "具备迭代优化能力的自主研究智能体",
+      "llm_evidence": "具备迭代优化能力的自主研究智能体",
+      "canonical_evidence": "具备迭代优化能力的自主研究智能体",
+      "llm_tldr_en": "Auto-RecSys is an autonomous research system for industry-scale recommender models, addressing long feedback loops and system complexity via parallel exploration and robust, recoverable execution of multi-day GPU experiments.",
+      "llm_tldr_cn": "自主研究智能体可自动完成假设生成、实验执行与迭代优化，但扩展到工业级推荐模型时面临反馈周期长与系统复杂度高的挑战。本文提出Auto-RecSys自主研究系统，通过并行探索多个研究方向、支持稳健可恢复执行等机制应对长周期大规模实验。结果显示其能在工业级推荐模型上实现稳健可恢复的自动化迭代，缓解串行迭代过慢的问题，展示自主研究智能体范式可扩展到工业级系统。",
+      "llm_tldr": "自主研究智能体可自动完成假设生成、实验执行与迭代优化，但扩展到工业级推荐模型时面临反馈周期长与系统复杂度高的挑战。本文提出Auto-RecSys自主研究系统，通过并行探索多个研究方向、支持稳健可恢复执行等机制应对长周期大规模实验。结果显示其能在工业级推荐模型上实现稳健可恢复的自动化迭代，缓解串行迭代过慢的问题，展示自主研究智能体范式可扩展到工业级系统。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.11356v1",
+      "source": "arxiv",
+      "title": "Taming Bitwise Behavior in GPU Kernels with Tensor Core: Black-Box Reconstruction, Compiler Enforcement, and Static Verification",
+      "abstract": "Determinism and numerical reproducibility are increasingly required of GPU kernels in machine learning systems, yet deterministic implementations of the same kernel can still differ bit for bit. Floating-point reduction order is the primary cause, alongside partial-sum precision, fused multiply-add operations, and rounding placement. These choices may be hand-coded, selected by a block-level language such as Triton, or hidden inside a closed-source library such as cuBLAS or rocBLAS. A tile shape chosen for performance therefore also determines the arithmetic, potentially breaking batch invariance. Preserving a fixed order can cost up to 20 percent, while an autotuner cannot identify which configurations are bitwise equivalent.   We characterize the factors determining the bitwise behavior of reductions and general matrix multiplication (GEMM). First, we introduce a descriptor of GEMM reduction order, including the partitioning of K in split-K GEMM. Using it, we perform the first black-box reconstruction of a closed-source library's arithmetic for bit-level correctness. Our family of Triton GEMMs matches NVIDIA cuBLAS in all tested cases on Blackwell and Hopper. For realistic LLM shapes with fused epilogues, it matches or exceeds torch.compile performance. Second, we enforce balanced-tree reduction during Triton lowering and introduce a data-layout optimization that brings 19 of 27 kernels on GB300 and H100 within 10 percent of free-order performance. Third, we develop sound static checkers for bitwise equivalence between compiled GPU kernels, including the first checker spanning NVIDIA PTX and AMD GCN. Integrated into Triton's autotuner, the checker restricts search to a single bit-equivalence class.",
+      "authors": [
+        "Ziteng Yang",
+        "Nicholas J. Riasanovsky",
+        "Warren Deng",
+        "Vivek Sarkar"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.PF",
+        "cs.PL"
+      ],
+      "published": "2026-09-10T10:39:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.11356v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "bitwise behavior and autotuning of GPU kernels with tensor cores",
+      "llm_evidence_cn": "张量核GPU内核的位级行为与自动调优",
+      "llm_evidence": "张量核GPU内核的位级行为与自动调优",
+      "canonical_evidence": "张量核GPU内核的位级行为与自动调优",
+      "llm_tldr_en": "Deterministic GPU kernels still differ bit for bit due to floating-point reduction order and tile shapes chosen for performance. This work reconstructs, enforces, and statically verifies bitwise behavior, noting fixed order can cost up to 20 percent.",
+      "llm_tldr_cn": "机器学习系统日益要求GPU内核具备确定性与数值可复现性，但同一内核的确定性实现仍可能逐位不同，主因是浮点归约顺序以及为性能选择的瓦片形状同时决定了算术行为。作者围绕张量核GPU内核的位级行为展开研究，通过黑盒重建、编译器强制与静态验证来驯服这一现象，并指出保持固定归约顺序可能带来高达20%的性能开销。该工作揭示了性能调优与数值确定性之间的权衡，为可靠内核优化提供方法。",
+      "llm_tldr": "机器学习系统日益要求GPU内核具备确定性与数值可复现性，但同一内核的确定性实现仍可能逐位不同，主因是浮点归约顺序以及为性能选择的瓦片形状同时决定了算术行为。作者围绕张量核GPU内核的位级行为展开研究，通过黑盒重建、编译器强制与静态验证来驯服这一现象，并指出保持固定归约顺序可能带来高达20%的性能开销。该工作揭示了性能调优与数值确定性之间的权衡，为可靠内核优化提供方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.11515v1",
+      "source": "arxiv",
+      "title": "ChurnBench: A Drift-Aware Benchmark Demonstrating That Refresh Scheduling, Not Cache Age, Governs Staleness in Agentic AI",
+      "abstract": "In production, agentic systems answer questions over data that lives in several places and keeps changing: licenses are reassigned, users offboarded, prices changed, contracts renewed. Existing retrieval benchmarks freeze the data, so they cannot ask whether an agent's answer is still true, only whether it found the right passage. We present ChurnBench, an open-source benchmark that generates a four-source enterprise data fabric as a timeline rather than a snapshot. Every change is written to an append-only ground-truth ledger, and gold answers are computed from that ledger, never from the live stores. An answer that was correct when its data was retrieved but wrong when evaluated is therefore detected and labeled a freshness error, distinct from a reasoning error; we validate this by resolving ground truth at both timestamps for every case reported. Using the instrument, we find that when a system refreshes on a schedule, cache age does not predict staleness. Across cache ages of 1, 14, and 28 days, freshness errors were 7, 4, and 4, because scheduled refresh bounds staleness by time-to-live, and no TTL lapse was observed in any window. A controlled ablation confirms the mechanism: disabling tiered refresh raises freshness errors from 4 to 45 at 28 days and leaves them identical at one day. The variable a drift benchmark should sweep is therefore TTL configuration against each entity's rate of change, not drift-window length. ChurnBench, the evaluation harness, and all per-error data are released open source.",
+      "authors": [
+        "Vivek Kumar Singh",
+        "Preeti Priyam"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE"
+      ],
+      "published": "2026-09-10T13:19:29+00:00",
+      "link": "https://arxiv.org/pdf/2609.11515v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "benchmark for retrieval freshness and staleness in agentic AI memory",
+      "llm_evidence_cn": "面向智能体检索新鲜度与陈旧性的基准",
+      "llm_evidence": "面向智能体检索新鲜度与陈旧性的基准",
+      "canonical_evidence": "面向智能体检索新鲜度与陈旧性的基准",
+      "llm_tldr_en": "Existing retrieval benchmarks freeze data and cannot test whether an agent answer is still true. ChurnBench builds a changing enterprise data fabric as a timeline, revealing refresh scheduling governs staleness.",
+      "llm_tldr_cn": "生产环境中的智能体需要回答不断变化的数据，但现有检索基准冻结数据，只能检验是否找到正确段落，无法判断答案是否仍然为真。作者提出ChurnBench，以时间线方式生成四源企业数据织物，所有变更写入仅追加的真相账本，并由账本计算标准答案。实验表明陈旧性由刷新调度而非缓存年龄决定。该工作为智能体记忆与检索的时效性评估提供了动态基准。",
+      "llm_tldr": "生产环境中的智能体需要回答不断变化的数据，但现有检索基准冻结数据，只能检验是否找到正确段落，无法判断答案是否仍然为真。作者提出ChurnBench，以时间线方式生成四源企业数据织物，所有变更写入仅追加的真相账本，并由账本计算标准答案。实验表明陈旧性由刷新调度而非缓存年龄决定。该工作为智能体记忆与检索的时效性评估提供了动态基准。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.11923v1",
+      "source": "arxiv",
+      "title": "GPU-CFR: 80x Faster Counterfactual Regret Minimization by Compiling the Game to Static Dataflow and CUDA Graph Replay",
+      "abstract": "Counterfactual regret minimization (CFR) is one of the few large numerical workloads that still runs faster on CPUs than on GPUs. Each iteration sweeps a game tree with up to billions of states in millions of small, interdependent gather and scatter steps issued through a generic tree interface. On a GPU every kernel finishes in microseconds, so kernel launches and framework dispatch dominate the run time, and prior GPU implementations have lost to optimized CPU code. We observe that for a fixed game, everything about a CFR iteration except the numerical values is known before the first iteration runs. We propose GPU-CFR, a compiler and runtime built on this observation. It compiles any game once into static dataflow: flat edge and information-set arrays, precomputed indices, and depth-level batched passes fix the entire operation sequence, and only solver state changes between iterations. Static chance folding, depth-level execution blocks, and a dual-lane reach buffer cut the number of framework operations by up to 18.1x. Because shapes, indices, and buffer addresses never change, CUDA Graph Replay records the iteration once and replays it with a single graph launch. On one A100, across an eight-game suite that spans card games, dice games, and board games, GPU-CFR runs 29.8--80.4x faster than the fastest prior GPU CFR on the same accelerator, and 14--258x faster than LiteEFG, one of the fastest open-source CPU implementations, on the four largest games. The compiled representation carries most of that margin: on eight CPU threads with no accelerator it is already 2.2--51.1x faster than the GPU baseline. On the CPU the optimized path reproduces the reference iterates bitwise, and tree construction and graph capture pay for themselves within the first solve. GPU-CFR beats every CPU and GPU baseline on the mid-to-large games of the suite without changing the update rule.",
+      "authors": [
+        "Boning Li",
+        "Longbo Huang"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AI",
+        "cs.GT",
+        "cs.MS",
+        "cs.PL"
+      ],
+      "published": "2026-09-10T17:58:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.11923v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "compiles game to static dataflow and CUDA graph replay to cut kernel launch overhead",
+      "llm_evidence_cn": "将博弈编译为静态数据流与CUDA图重放以削减内核启动开销",
+      "llm_evidence": "将博弈编译为静态数据流与CUDA图重放以削减内核启动开销",
+      "canonical_evidence": "将博弈编译为静态数据流与CUDA图重放以削减内核启动开销",
+      "llm_tldr_en": "GPU-CFR compiles a fixed game once into static dataflow executed via CUDA graph replay, eliminating millions of tiny kernel launches and making GPU counterfactual regret minimization about 80x faster than CPU.",
+      "llm_tldr_cn": "针对反事实遗憾最小化在GPU上因数百万微秒级小内核启动与框架调度开销而慢于CPU的问题，本文观察到固定博弈每次迭代除数值外结构均已知，据此提出GPU-CFR编译器与运行时，将博弈一次性编译为静态数据流并借助CUDA图重放执行。实验表明该方案消除了内核启动与调度开销，实现约80倍加速。该工作为GPU上大规模细粒度数值工作负载提供了编译式执行优化范式。",
+      "llm_tldr": "针对反事实遗憾最小化在GPU上因数百万微秒级小内核启动与框架调度开销而慢于CPU的问题，本文观察到固定博弈每次迭代除数值外结构均已知，据此提出GPU-CFR编译器与运行时，将博弈一次性编译为静态数据流并借助CUDA图重放执行。实验表明该方案消除了内核启动与调度开销，实现约80倍加速。该工作为GPU上大规模细粒度数值工作负载提供了编译式执行优化范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
