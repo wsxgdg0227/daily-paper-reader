@@ -1,0 +1,73 @@
+{
+  "date": "20260912",
+  "date_label": "",
+  "generated_at": "2026-09-12 20:57:22 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.08599v1",
+      "route": "202609/12/2609.08599v1-graph-based-personalized-memory-for-llm-agents-representation-evolution-retrieval-and-evaluation",
+      "title": "Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向决策的图式智能体记忆表示、演化与检索",
+      "first_seen_at": "2026-09-12 20:57:22 UTC",
+      "updated_at": "2026-09-12 20:57:22 UTC"
+    },
+    {
+      "paper_id": "2609.10750v1",
+      "route": "202609/12/2609.10750v1-when-synthetic-data-hurts-on-catastrophic-forgetting-in-skill-retrieval-for-llm-agents",
+      "title": "When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向LLM智能体的三万四千技能检索路由器",
+      "first_seen_at": "2026-09-12 20:57:22 UTC",
+      "updated_at": "2026-09-12 20:57:22 UTC"
+    },
+    {
+      "paper_id": "2609.11682v1",
+      "route": "202609/12/2609.11682v1-cobra-skills-contextual-bandit-guided-evolution-for-agent-skill-optimization",
+      "title": "COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "基于反馈持续进化技能种群",
+      "first_seen_at": "2026-09-12 20:57:22 UTC",
+      "updated_at": "2026-09-12 20:57:22 UTC"
+    },
+    {
+      "paper_id": "2609.04910v1",
+      "route": "202609/12/2609.04910v1-fast-gauss-sums-via-flash-attention",
+      "title": "Fast Gauss Sums via Flash Attention",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "借助flash attention的GPU内核加速高斯核求和",
+      "first_seen_at": "2026-09-12 20:57:22 UTC",
+      "updated_at": "2026-09-12 20:57:22 UTC"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-12",
+  "date": "2026-09-12",
+  "generated_at": "2026-09-12T20:57:23",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/12/2609.08599v1-graph-based-personalized-memory-for-llm-agents-representation-evolution-retrieval-and-evaluation",
+      "section": "deep",
+      "title_en": "Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation",
+      "authors": "Dac Duy Anh Nguyen, Zhangchi Qiu, Shigeng Chen, Alan Wee-Chung Liew",
+      "date": "2026-09-08",
+      "pdf": "https://arxiv.org/pdf/2609.08599v1",
+      "score": "8.0",
+      "evidence": "面向决策的图式智能体记忆表示、演化与检索",
+      "tldr": "LLM 智能体正从单会话工具转向长期个人助理，记忆成为跨任务、跨交互个性化的核心，但用户偏好、目标与经历会持续累积和变化。图结构个性化记忆通过显式关系、时间上下文与证据链建模用户信息，支持记忆的连接、修正和检索。本文以生命周期视角综述记忆表示、演化、检索与评估，比较关键设计并梳理评测实践。该工作厘清图记忆如何支撑自适应、可控且以用户为中心的长期智能体。",
+      "tags": "query:gkg",
+      "abstract_en": "Large Language Model (LLM) agents are evolving from single-session tools toward long-term personal assistants that must adapt to individual users across tasks, contexts, and interactions. This shift makes memory a core requirement for personalization, since user preferences, goals, constraints, relationships, and past experiences are accumulated gradually and often change over time. Graph-based personalized memory provides a structured way to model such user information through explicit relations, temporal context, and evidence links. Such representations can model not only what an agent remembers about a user but also how memories are connected, revised, and retrieved to support personalized decisions. However, existing work remains fragmented across personalized agents and generic graph memory frameworks, making it difficult to understand the design space as a whole. This survey develops a lifecycle-oriented view of graph-based personalized memory for LLM agents. We organize existing studies around memory representation, memory evolution, memory retrieval, and memory evaluation. We further compare key design choices, discuss current evaluation practices, and open challenges in building reliable long-term personalized agents. This survey aims to clarify how graph-based memory can support adaptive, controllable, and user-centric LLM agents.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/12/2609.10750v1-when-synthetic-data-hurts-on-catastrophic-forgetting-in-skill-retrieval-for-llm-agents",
+      "section": "quick",
+      "title_en": "When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents",
+      "authors": "Syed Shariyar Murtaza, Yifan Nie, Utkarsh Soni, Eugene Wen, Arvid Frydenlund",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.10750v1",
+      "score": "7.0",
+      "evidence": "面向LLM智能体的三万四千技能检索路由器",
+      "tldr": "针对LLM智能体从超3.4万技能库中检索技能时，真实监督稀缺且合成数据微调会导致灾难性遗忘的问题，本文构建生产级技能路由并开展大规模检索研究。作者比较嵌入锚正则、LwF、EWC与L2初始化等持续学习式缓解方法。结果表明这些方法在保持OOD技能检索的同时，将0.6B Qwen检索器与重排器的合成分布内检索提升13.98%。工作提供了实用基准与稀缺多正例监督下的稳健微调方案。",
+      "tags": "query:gkg",
+      "abstract_en": "LLM agents increasingly rely on external skills retrieved at runtime, making skill selection from large repositories a critical challenge. We present a production skill router over 34,396 skills and a large-scale study of skill retrieval using limited real supervision and synthetic data. We found that the synthetic-data fine-tuning improves in-distribution retrieval but it causes catastrophic forgetting on real and out-of-distribution (OOD) data. We evaluate several forgetting mitigation fine-tuning approaches inspired by continual learning, including embedding-anchor regularization, Learning without Forgetting (LwF), Elastic Weight Consolidation (EWC), and L2-initialization. The results show that these approaches not only retain the performance on OOD skills retrieval but also improve the retrieval on synthetic in-distribution skills by 13.98\\% for 0.6B Qwen retriever and reranker. Our results provide a practical benchmark and a robust fine-tuning recipe for scarce, multi-positive supervision.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/12/2609.11682v1-cobra-skills-contextual-bandit-guided-evolution-for-agent-skill-optimization",
+      "section": "quick",
+      "title_en": "COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization",
+      "authors": "Pingchen Lu, Xiangyi Wang, Xiang Li, Jie Mao, Zikun Qu, Junfeng Luo, Yao Shu, Bryan Kian Hsiang Low, Zhongxiang Dai",
+      "date": "2026-09-10",
+      "pdf": "https://arxiv.org/pdf/2609.11682v1",
+      "score": "7.0",
+      "evidence": "基于反馈持续进化技能种群",
+      "tldr": "LLM智能体可从历史经验中提炼可复用技能，但现有技能优化方法依赖昂贵的执行评估与大量任务数据。COBRA-Skills将技能优化建模为动态候选空间上的预算化序贯优化，用上下文老虎机引导候选评估优先级，并以执行反馈驱动技能进化。在六个异构智能体基准与三个目标模型上，它取得最强平均性能，同时相较SkillOpt降低55–58%优化成本，每个基准仅用50个独特优化样例。该框架为低成本、可迁移的智能体技能优化提供了新范式。",
+      "tags": "query:gkg",
+      "abstract_en": "Large language model (LLM) agents can benefit from reusable skills distilled from prior task experience, yet existing skill optimization methods often rely on costly execution-based evaluation and substantial task data. We introduce \\textbf{COBRA-Skills}, an efficient framework that formulates skill optimization as budgeted sequential optimization over a dynamically evolving candidate space. COBRA-Skills couples contextual-bandit-guided prioritization with evidence-grounded skill evolution, selectively allocating evaluations to promising or informative candidates while continually refining the skill population from execution feedback. Across six heterogeneous agent benchmarks and three target models, COBRA-Skills consistently achieves the strongest average performance among compared methods, while reducing optimization cost by 55--58\\% relative to SkillOpt and using only 50 unique optimization examples per benchmark. Further analyses show that COBRA-Skills remains robust to changes in the agent harness and performs effectively when the target model itself is used for skill generation and refinement.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/12/2609.04910v1-fast-gauss-sums-via-flash-attention",
+      "section": "quick",
+      "title_en": "Fast Gauss Sums via Flash Attention",
+      "authors": "Nicolaj Rux, Sebastian Neumayer",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.04910v1",
+      "score": "6.0",
+      "evidence": "借助flash attention的GPU内核加速高斯核求和",
+      "tldr": "高斯核求和是MMD、核梯度流与SVGD等核方法的核心计算，但现有实现常需定制GPU代码。本文发现，只需对输入做两次小增强，就能把flash attention的归一化softmax归约转化为带任意有符号权重的非归一化高斯核求和，无需编写任何定制CUDA内核。在fp16且特征维度D>8时，该方法在速度、显存开销与精度上常显著优于编译版PyTorch和PyKeOps，且显存保持线性扩展。",
+      "tags": "query:gkg",
+      "abstract_en": "Gaussian kernel sums are the computational core of maximum mean discrepancies (MMDs), kernel gradient flows, Stein variational gradient descent (SVGD), and many other kernel methods. At the same time, softmax attention has received an extraordinary amount of hardware-aware code engineering, culminating in flash attention. We show that Gauss kernel sums with arbitrary, signed weights can be evaluated via flash attention: two small input augmentations turn the normalized softmax reduction into the unnormalized Gauss sum, without writing a single line of custom GPU code. For feature dimension D>8 in fp16, this approach beats compiled PyTorch code as well as PyKeOps kernels (often significantly) in speed, memory-overhead and accuracy. Indeed, its memory scaling remains linear.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-11</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-12</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 13 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 4 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>6</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>3</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-11 21:32:05 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-12 20:57:22 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今天筛选13篇AI论文，精读6篇、速读7篇，重点落在张量算子代码生成与交通仿真智能体两条线。</p>
-<p>最值得看的是9.0分的《The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators》，以及8.0分的《SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation》，速读中另有8.0分的递归自我改进讨论。</p>
-<p>普通读者可先读这两篇精读的摘要与结论，再按兴趣跟进速读里的递归自我改进和并行扫描优化。</p>
+<p>今日精读1篇、速读3篇，聚焦LLM Agent的记忆、技能检索与优化。最值得看的是Graph-Based Personalized Memory（8.0分）如何用图结构管理Agent个性化记忆，以及合成数据可能导致技能检索灾难性遗忘的警示。普通读者可先读精读篇，再按兴趣选读速读两篇Agent技能方向论文。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">6 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators">The Art of Closed-Formula Defaults: Search-Free Code Generation for Tensor Operators</span></li><li><span class="dpr-home-dashboard-paper-title" title="SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation">SimSkill: A Self-Evolving LLM Agent for Skill and Knowledge Accumulation in Traffic Simulation</span></li><li><span class="dpr-home-dashboard-paper-title" title="ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations">ROAM: Robust Organization of Atomic Memories for Agents through Semantic Relations</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation">Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">7 篇</strong>
+    <strong class="dpr-home-dashboard-count">3 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement">The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement</span></li><li><span class="dpr-home-dashboard-paper-title" title="PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans">PASCAL: A Phase-Aware Shared-Cache Model for Parallel Scans</span></li><li><span class="dpr-home-dashboard-paper-title" title="HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing">HDA-MoE: Hybrid Parallelism and Dynamic, Adaptive Scheduling for Mixture-of-Experts with 3D Near-Memory Processing</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents">When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization">COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="Fast Gauss Sums via Flash Attention">Fast Gauss Sums via Flash Attention</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
 </section>
 </div>
 
