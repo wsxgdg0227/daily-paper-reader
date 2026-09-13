@@ -1,0 +1,174 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-13T21:37:49.235428+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.06702v1",
+      "source": "arxiv",
+      "title": "PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents",
+      "abstract": "Sequential memory agents process long documents by reading chunks one after another while maintaining a compact memory state, coupling document traversal to reasoning depth. This coupling introduces sensitivity to evidence placement and ties inference latency linearly to document length. We introduce PARSER, which decouples reading from reasoning. A bank of lightweight subagents each bound to a single chunk read the entire document in parallel, while a lead agent reasons in depth through iterative scatter--gather rounds: at each round it broadcasts a query to all subagents, aggregates the returned evidence, and formulates a deeper follow-up query conditioned on what has been found so far. This decoupled design concentrates all learnable behavior in the lead agent, which is optimized with reinforcement learning, while the subagents remain frozen off-the-shelf models. On multi-hop QA with contexts ranging from 7K to 896K tokens, PARSER with a 4B backbone outperforms the strongest sequential memory baseline by 5.7 points on average and by 12.0 points at 896K tokens. Scaling to a 9B backbone, PARSER surpasses DeepSeek-V4-Pro by 6.3 points. Controlled experiments confirm that PARSER is robust to perturbations in evidence position, order, and distance, conditions that cause large accuracy swings in sequential methods, while reducing inference latency by up to 11x.",
+      "authors": [
+        "Kun Li",
+        "Zexuan Qiu",
+        "Tianhua Zhang",
+        "Irwin King",
+        "Helen Meng"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-06T16:19:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.06702v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "long-context LLM agents retrieve and aggregate relevant evidence via iterative scatter-gather",
+      "llm_evidence_cn": "长上下文LLM智能体通过迭代散射-聚合检索并汇聚相关证据",
+      "llm_evidence": "长上下文LLM智能体通过迭代散射-聚合检索并汇聚相关证据",
+      "canonical_evidence": "长上下文LLM智能体通过迭代散射-聚合检索并汇聚相关证据",
+      "llm_tldr_en": "PARSER decouples reading from reasoning for long-context LLM agents, using chunk-bound subagents to read in parallel while a lead agent iteratively queries and aggregates evidence.",
+      "llm_tldr_cn": "顺序记忆智能体逐块读取长文档并维护紧凑记忆状态，使文档遍历与推理深度耦合，导致对证据位置敏感、推理延迟随文档长度线性增长。本文提出PARSER，将读取与推理解耦：多个轻量子智能体各自绑定一个块并行读取全文，主导智能体通过迭代散射-聚合轮次广播查询并聚合证据、形成更深追问。该设计为长上下文智能体的记忆组织与知识检索提供了并行化方案。",
+      "llm_tldr": "顺序记忆智能体逐块读取长文档并维护紧凑记忆状态，使文档遍历与推理深度耦合，导致对证据位置敏感、推理延迟随文档长度线性增长。本文提出PARSER，将读取与推理解耦：多个轻量子智能体各自绑定一个块并行读取全文，主导智能体通过迭代散射-聚合轮次广播查询并聚合证据、形成更深追问。该设计为长上下文智能体的记忆组织与知识检索提供了并行化方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08572v1",
+      "source": "arxiv",
+      "title": "AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems",
+      "abstract": "Large language model (LLM)-based multi-agent systems (MAS) achieve strong performance by employing specialized multiple agents, yet their performance depends on the prompt design of each agent. For MAS prompt optimization, textual gradient methods that guide prompt updates using natural-language feedback have emerged as a leading paradigm. In this paper, we identify limitations in two stages of existing textual gradient approaches: gradient extraction and gradient aggregation. In gradient extraction, previous works select a target prompt without verifying whether modifying it resolves the failure, and derive gradients without agent-level supervision over the corresponding agent's intermediate output. In gradient aggregation, individual gradients are randomly grouped and concatenated, often mixing unrelated failure modes and producing prompts that fail to generalize. To address these limitations, we propose \\textbf{AgentGrad}, a prompt optimization framework for multi-agent systems based on sequential intervention and semantic textual gradient abstraction. For each failure, sequential intervention modifies the behavior of one agent at a time to identify the target agent whose modification resolves the failure. The modified output of the target agent then serves as agent-level supervision for extracting a fine-grained gradient. Semantic textual gradient abstraction clusters semantically similar gradients to prevent mixing unrelated failure modes, and abstracts each cluster into a generalized gradient that captures the shared corrective pattern. Experimental results show that AgentGrad achieves state-of-the-art performance across five MAS benchmarks and reduces wall-clock optimization time by $2.5\\times$ on average compared to the next-fastest baseline.",
+      "authors": [
+        "Jaewon Chu",
+        "Jinwoo Seo",
+        "Jaewon Cho",
+        "Jeehye Na",
+        "Yunyang Xiong",
+        "Youngdae Kim",
+        "Hyunwoo J. Kim"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-08T11:07:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.08572v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "textual gradient prompt optimization lets LLM multi-agent systems iteratively improve prompts",
+      "llm_evidence_cn": "文本梯度提示优化使多智能体系统迭代改进提示",
+      "llm_evidence": "文本梯度提示优化使多智能体系统迭代改进提示",
+      "canonical_evidence": "文本梯度提示优化使多智能体系统迭代改进提示",
+      "llm_tldr_en": "AgentGrad addresses limitations in textual-gradient prompt optimization for LLM multi-agent systems, proposing intervention-guided gradient extraction and agent-level gradient aggregation to improve automatic prompt updates.",
+      "llm_tldr_cn": "针对LLM多智能体系统中提示设计依赖人工、现有文本梯度方法在梯度提取与聚合两阶段存在目标选择未经验证、缺乏智能体级监督等局限，本文提出AgentGrad干预引导的提示优化框架，通过干预验证与智能体级梯度聚合改进提示更新。该方法在多智能体任务上验证了优化效果，为多智能体系统的自动提示迭代提供了更可靠的范式。",
+      "llm_tldr": "针对LLM多智能体系统中提示设计依赖人工、现有文本梯度方法在梯度提取与聚合两阶段存在目标选择未经验证、缺乏智能体级监督等局限，本文提出AgentGrad干预引导的提示优化框架，通过干预验证与智能体级梯度聚合改进提示更新。该方法在多智能体任务上验证了优化效果，为多智能体系统的自动提示迭代提供了更可靠的范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.07255v1",
+      "source": "arxiv",
+      "title": "SkillAlign: Aligning Skill Interfaces for LLM-based Agents",
+      "abstract": "Language-model agents increasingly rely on skills: reusable procedural knowledge for reasoning, tool use, and interaction. Existing work studies how skills are acquired, retrieved, compressed, or composed, but often assumes that once a skill is selected, its interface to the agent is fixed. We argue that this overlooks a key source of skill utility: the same skill can help, distract, or mislead depending on how it is exposed. We propose SkillAlign, a provider-agnostic framework that represents candidate skills as multi-view procedural cards and renders them through alternative exposure interfaces, including full instructions, hints, compressed summaries, workflows, or no exposure. This enables counterfactual evaluation where the task, agent, and candidate skills are fixed while only the exposure interface varies. Across ALFWorld and SkillsBench, we show that exposure form substantially affects task success and rendered context cost, and that compact top-k exposure can outperform full-library injection. We further conduct a replay-based policy-learning analysis on ALFWorld, showing that adaptive exposure contains learnable signal but remains far from oracle selection. Our results suggest that skill-augmented agents should optimize not only which skills to use, but also how those skills are presented.",
+      "authors": [
+        "Shuo Ren",
+        "Xiaomian Kang",
+        "Jiajun Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-07T09:11:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.07255v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "skills retrieved and exposed to LLM agents at decision time",
+      "llm_evidence_cn": "面向LLM智能体的技能检索与呈现接口",
+      "llm_evidence": "面向LLM智能体的技能检索与呈现接口",
+      "canonical_evidence": "面向LLM智能体的技能检索与呈现接口",
+      "llm_tldr_en": "SkillAlign studies how the same procedural skill helps or misleads an LLM agent depending on how it is exposed, proposing multi-view procedural cards and counterfactual interface evaluation.",
+      "llm_tldr_cn": "现有LLM智能体研究关注技能的获取、检索、压缩与组合，却默认技能一旦被选中其呈现接口就是固定的，忽略了同一技能在不同暴露方式下可能帮助、干扰或误导智能体。为此作者提出SkillAlign框架，将候选技能表示为多视角过程卡片，并通过完整指令、提示、压缩摘要、工作流或不暴露等多种接口进行渲染，从而支持反事实评估。实验在保持任务、智能体与候选技能不变的情况下对比不同接口的效果，揭示了技能暴露方式对最终表现的显著影响。该工作为智能体技能检索与接口设计提供了通用工具。",
+      "llm_tldr": "现有LLM智能体研究关注技能的获取、检索、压缩与组合，却默认技能一旦被选中其呈现接口就是固定的，忽略了同一技能在不同暴露方式下可能帮助、干扰或误导智能体。为此作者提出SkillAlign框架，将候选技能表示为多视角过程卡片，并通过完整指令、提示、压缩摘要、工作流或不暴露等多种接口进行渲染，从而支持反事实评估。实验在保持任务、智能体与候选技能不变的情况下对比不同接口的效果，揭示了技能暴露方式对最终表现的显著影响。该工作为智能体技能检索与接口设计提供了通用工具。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.09823v1",
+      "source": "arxiv",
+      "title": "AMEND: Audited Margins Enable Nonblocking Drops in GPU-PIM LLM Decoding",
+      "abstract": "Autoregressive large language model (LLM) decoding re-reads a growing key-value (KV) cache at every step, so long-context attention is bound by graphics processing unit (GPU) memory bandwidth. Block-sparse attention skips low-contribution KV blocks, but a selector that decides after the current query-key (QK) product, such as max-relative block thresholding (BLASST), still reads every K block, and a processing-in-memory (PIM) filter that decides from the current query places a serial PIM stage on the critical path. We present AMEND, a GPU-PIM attention design that removes both dependencies. AMEND predicts each block's BLASST verdict from margins audited at earlier steps, so the GPU fetches only predicted survivors while near-bank PIM units in high-bandwidth memory (HBM) concurrently score the omitted complement. A stack-level controller merges both observations, updates the predictor, and eagerly generates the next step's mask, so every predicted drop is re-observed without blocking the current token. Operating points are selected offline by constrained Bayesian optimization under a false-drop budget. Across LongBench and RULER runs, AMEND preserves near-baseline task quality; in simulation at batch size 8, it achieves $1.40$-$3.63\\times$ end-to-end decode speedup and 28-66% lower dynamic decode energy than dense attention across 8K-64K contexts.",
+      "authors": [
+        "Zuxiong Tan",
+        "Will Wei-Jen Wang",
+        "Wei Shao",
+        "Ali Karkehabadi",
+        "Houman Homayoun",
+        "Avesta Sasan"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-09T07:25:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.09823v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU-PIM attention design optimizing decoding bandwidth",
+      "llm_evidence_cn": "优化解码带宽的GPU-PIM注意力设计",
+      "llm_evidence": "优化解码带宽的GPU-PIM注意力设计",
+      "canonical_evidence": "优化解码带宽的GPU-PIM注意力设计",
+      "llm_tldr_en": "Long-context LLM decoding is memory-bandwidth bound and existing block-sparse selectors still read all K blocks or add a serial PIM stage; AMEND predicts each block sparsity verdict from audited margins so the GPU fetches only predicted survivors.",
+      "llm_tldr_cn": "长上下文大模型解码因反复读取不断增长的KV缓存而受GPU内存带宽限制。现有块稀疏注意力选择器需读取全部K块或引入串行PIM阶段，成为瓶颈。作者提出AMEND，用先前步骤审计出的边界预测每个KV块的BLASST判定，使GPU只取预测幸存块，由近存PIM单元完成过滤。该设计去除了相关依赖，提升了解码阶段的执行效率，属于GPU执行性能优化方向。",
+      "llm_tldr": "长上下文大模型解码因反复读取不断增长的KV缓存而受GPU内存带宽限制。现有块稀疏注意力选择器需读取全部K块或引入串行PIM阶段，成为瓶颈。作者提出AMEND，用先前步骤审计出的边界预测每个KV块的BLASST判定，使GPU只取预测幸存块，由近存PIM单元完成过滤。该设计去除了相关依赖，提升了解码阶段的执行效率，属于GPU执行性能优化方向。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

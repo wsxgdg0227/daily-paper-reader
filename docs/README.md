@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-12</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-13</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
     <strong class="dpr-home-dashboard-count">共 4 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>3</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-12 20:57:22 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-13 21:39:33 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读1篇、速读3篇，聚焦LLM Agent的记忆、技能检索与优化。最值得看的是Graph-Based Personalized Memory（8.0分）如何用图结构管理Agent个性化记忆，以及合成数据可能导致技能检索灾难性遗忘的警示。普通读者可先读精读篇，再按兴趣选读速读两篇Agent技能方向论文。</p>
+<p>今日速读4篇LLM智能体研究，聚焦长上下文推理、技能接口对齐与多智能体提示优化。最值得关注PARSER的&quot;并行读取+深度推理&quot;长上下文方案，以及SkillAlign对智能体技能接口的对齐思路（均7.0分）。普通读者可先了解长上下文智能体如何兼顾速度与深度，再关注提示优化的落地效果。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">0 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation">Graph-Based Personalized Memory for LLM Agents: Representation, Evolution, Retrieval, and Evaluation</span></li></ul>
+<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
+
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">3 篇</strong>
+    <strong class="dpr-home-dashboard-count">4 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents">When Synthetic Data Hurts: On Catastrophic Forgetting in Skill Retrieval for LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization">COBRA-Skills: Contextual Bandit-Guided Evolution for Agent Skill Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="Fast Gauss Sums via Flash Attention">Fast Gauss Sums via Flash Attention</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents">PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="SkillAlign: Aligning Skill Interfaces for LLM-based Agents">SkillAlign: Aligning Skill Interfaces for LLM-based Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems">AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
 </section>
 </div>
 

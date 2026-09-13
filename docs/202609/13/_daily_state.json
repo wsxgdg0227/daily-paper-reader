@@ -1,0 +1,73 @@
+{
+  "date": "20260913",
+  "date_label": "",
+  "generated_at": "2026-09-13 21:39:33 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.06702v1",
+      "route": "202609/13/2609.06702v1-parser-read-in-parallel-reason-in-depth-for-long-context-llm-agents",
+      "title": "PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "长上下文LLM智能体通过迭代散射-聚合检索并汇聚相关证据",
+      "first_seen_at": "2026-09-13 21:39:33 UTC",
+      "updated_at": "2026-09-13 21:39:33 UTC"
+    },
+    {
+      "paper_id": "2609.07255v1",
+      "route": "202609/13/2609.07255v1-skillalign-aligning-skill-interfaces-for-llm-based-agents",
+      "title": "SkillAlign: Aligning Skill Interfaces for LLM-based Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向LLM智能体的技能检索与呈现接口",
+      "first_seen_at": "2026-09-13 21:39:33 UTC",
+      "updated_at": "2026-09-13 21:39:33 UTC"
+    },
+    {
+      "paper_id": "2609.08572v1",
+      "route": "202609/13/2609.08572v1-agentgrad-intervention-guided-prompt-optimization-for-multi-agent-systems",
+      "title": "AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "文本梯度提示优化使多智能体系统迭代改进提示",
+      "first_seen_at": "2026-09-13 21:39:33 UTC",
+      "updated_at": "2026-09-13 21:39:33 UTC"
+    },
+    {
+      "paper_id": "2609.09823v1",
+      "route": "202609/13/2609.09823v1-amend-audited-margins-enable-nonblocking-drops-in-gpu-pim-llm-decoding",
+      "title": "AMEND: Audited Margins Enable Nonblocking Drops in GPU-PIM LLM Decoding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "优化解码带宽的GPU-PIM注意力设计",
+      "first_seen_at": "2026-09-13 21:39:33 UTC",
+      "updated_at": "2026-09-13 21:39:33 UTC"
+    }
+  ]
+}
