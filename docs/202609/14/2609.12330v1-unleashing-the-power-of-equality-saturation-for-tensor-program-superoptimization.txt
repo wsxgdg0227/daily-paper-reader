@@ -1,0 +1,796 @@
+Title: Unleashing the Power of Equality Saturation for Tensor Program Superoptimization
+
+URL Source: https://arxiv.org/pdf/2609.12330v1
+
+Published Time: Mon, 14 Sep 2026 00:24:31 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# Unleashing the Power of Equality Saturation for Tensor Program Superoptimization 
+
+## Qi Zhan 
+
+Zhejiang University Hangzhou, China qizhan@zju.edu.cn 
+
+## Xing Hu ∗
+
+Zhejiang University Hangzhou, China xinghu@zju.edu.cn 
+
+## Xin Xia 
+
+Zhejiang University Hangzhou, China Hangzhou High-Tech Zone (Binjiang) Institute of Blockchain and Data Security Hangzhou, China xin.xia@acm.org 
+
+## Shanping Li 
+
+Zhejiang University Hangzhou, China shan@zju.edu.cn 
+
+## Abstract 
+
+Efficient GPU implementations of tensor programs often require joint optimization of high-level algebraic formula-tions and low-level execution strategies. However, the result-ing search space grows rapidly as transformations combine across operators, making joint optimization difficult to scale. We present EqiForge, a tensor program superoptimizer based on equality saturation. Its unified IR represents high-level tensor expressions and tiled computations in a single ex-pression language. By composing equality rules, EqiForge derives fused implementations such as FlashAttention-style kernels directly from tensor expressions. Early compaction prunes redundant partial programs before completion, while subgraph composition extends the search to larger graphs. Across tensor-program benchmarks, EqiForge achieves a geometric mean speedup of 1 .32 × and a maximum of 2.74 × over the fastest available baseline per configuration. Its attention kernels outperform FlashAttention by up to 1.87 × in decode and approach its performance in prefill. EqiForge also discovers new implementations that out-perform torch.compile on various Transformer layers, in-cluding QK-normalized MLA (3 .16 ×) and mHC (5 .84 ×). 
+
+## 1 Introduction 
+
+Efficient GPU execution is essential to the training and infer-ence of large language models. Tensor compilers translate high-level tensor computations into efficient GPU programs through operator fusion, tiling, and parallelization [1, 2, 6]. The same tensor computation can have many equivalent implementations with substantially different performance. Achieving high performance often requires rethinking both a computation’s mathematical formulation and its ex-ecution strategy. For example, a key idea in FlashAtten-tion [3, 4] is to combine an online reformulation of softmax 
+
+> ∗Corresponding author.
+
+Input tensor program   
+
+> Partition (§5.2)
+> Subgraph 1 Subgraph 2 Subgraph 3
+
+Equality saturation (§3–4)      
+
+> E-graph 𝐺 1E-graph 𝐺 2E-graph 𝐺 3
+
+Extraction with compaction (§5.1)   
+
+> Candidate 1 Candidate 2 Candidate 3
+
+Compose subgraph implementations   
+
+> Candidate 1 Candidate 2 Candidate 3
+
+Code generation and tuning (§6) 
+
+Optimized tensor program 
+
+Figure 1. Overview of EqiForge. with tiled implementations of attention’s two matrix multi-plications. Together, these transformations allow attention to be computed incrementally within a fused kernel, without storing the full score and probability matrices in global mem-ory. This example illustrates how algebraic reformulation can expose new opportunities for fusion and parallelization. Prior work has explored both algebraic rewriting [11] and execution optimization through operator scheduling [2] and fusion [28]. Neptune [36] derives algebraic repairs that en-able the fusion of dependent reductions. To explore combina-tions of transformations, equality saturation [21, 27] has been applied to tensor graph and GPU kernel optimization [17, 32]. It represents equivalent expressions in an e-graph, where 
+
+> 1arXiv:2609.12330v1 [cs.DC] 11 Sep 2026 Zhan et al.
+
+successive rewrites can expose further optimization oppor-tunities before an implementation is selected. Prism [29] also uses e-graph rewriting to verify candidate equivalence during symbolic program enumeration. Scaling this exploration to larger programs requires bal-ancing optimization coverage against search cost. Compos-able rewrite rules allow optimizations to combine across operators, creating a large space of possible implementa-tions. Although e-graphs represent equivalent expressions compactly, constructing and evaluating complete candidates becomes increasingly expensive as programs grow. Limiting the scope of each search reduces this cost, but can separate operations that would benefit from joint optimization. TEN-SAT [32] searches tensor-graph rewrites without exploring the low-level GPU implementations of individual operators. Trinity [17] explores loop and memory transformations, but selects loop structures by kernel count, potentially missing profitable combinations. The challenge is to preserve these optimization opportunities while keeping implementation search tractable. We present EqiForge, a tensor program superoptimizer that generates implementation structures through equality saturation. We jointly design its IR, equality rules, and ex-traction procedure to make this search practical. As shown in Figure 1, our approach explores graph partitions and gen-erates candidates for each subgraph through equality satura-tion and extraction with compaction. It then composes these candidates into complete programs and applies code gener-ation and tuning to produce an optimized implementation. EqiForge is organized around three key designs. 
+
+Define the space. We introduce a pure expression language that represents high-level tensor expressions and tiled com-putations. Both forms coexist in the same e-graph, allowing subexpressions to be refined while the rest of the computa-tion remains available for algebraic rewriting. The IR’s types track logical tensor shapes and parallel state, constraining how tiled computations are constructed and combined. 
+
+Search the space. We develop composable equality rules for transforming tensor expressions and their implementations. Parallel refinement introduces tiling at individual operators. Fusion rules combine reductions over a shared domain, di-rectly for independent reductions and with repair functions for dependent reductions. Propagation rules extend the tiling through connected operations, allowing these transforma-tions to compose into complex implementations. EqiForge derives fused implementations, including FlashAttention-style kernels, directly from tensor expressions. 
+
+Compact the space. Equality search produces many candi-dates whose differences are unlikely to affect performance, yet constructing and evaluating them separately is costly. We group such candidates into equivalence classes and search the resulting quotient space. Early pruning identifies equiva-lent partial programs and selects one representative, avoiding redundant construction of complete candidates.                 
+
+> Initial e-graph After factoring
+> Exp
+> +
+> 𝑐
+> MatMul MatMul
+> 𝐴 𝐵 𝐶
+> Exp
+> 𝑐
+> +MatMul MatMul MatMul +
+> 𝐴 𝐵 𝐶
+> Exp (𝐴𝐵 +𝐴𝐶 )Exp (𝐴 (𝐵 +𝐶 ) )
+
+Figure 2. Factoring 𝐴𝐵 + 𝐴𝐶 within an e-graph. Dashed boxes denote e-classes; solid nodes denote e-nodes. We implement EqiForge as a compiler from PyTorch [1] programs to Triton [22] kernels, using egg [27] for equality saturation. Across a range of tensor programs, EqiForge achieves a 1 .32 × geometric mean speedup over the fastest available baseline, with speedups up to 2 .74 ×. For attention, EqiForge achieves up to a 1 .87 × speedup over FlashAtten-tion in decode, with similar performance in prefill. We further explore optimizations for various Transformer layers and present five case studies, including QK-normalized MLA and mHC implementations with 3 .16 × and 5 .84 × speedups over 
+
+torch.compile , respectively. Early compaction reduces the number of expanded states by up to a factor of 2 ,465 com-pared with deduplication after completion. 
+
+## 2 Equality Saturation 
+
+An e-graph compactly represents expressions and known equalities between them [27]. An e-node records an oper-ator and references to child e-classes . Each e-class groups e-nodes representing equivalent expressions. For the tensor expression Exp (𝐴𝐵 + 𝐴𝐶 ) in Figure 2, the Exp e-node points to e-class 𝑐 representing its argument 𝐴𝐵 + 𝐴𝐶 .Equality saturation repeatedly applies valid equalities to this representation [21]. Factoring out 𝐴 adds 𝐴 (𝐵 +𝐶 ) along-side 𝐴𝐵 + 𝐴𝐶 in 𝑐 . The Exp node continues to reference this class, so the e-graph represents both Exp (𝐴𝐵 + 𝐴𝐶 ) and Exp (𝐴 (𝐵 + 𝐶 )) without duplicating the Exp node. The e-graph maintains congruence : applying the same operator to equivalent children produces equivalent expressions. New expressions can expose further matches, allowing rules to compose. Rewriting continues until the e-graph is saturated or a resource limit is reached. 
+
+Extraction selects a finite expression or program from the e-graph, even if the e-graph contains cycles. Starting from the result e-class, it chooses an e-node and continues resolv-ing choices in its child e-classes until a complete program is formed. In the example, choosing the factored MatMul in 𝑐 
+
+still requires selecting an expression for its 𝐵 + 𝐶 operand. The two forms have the same value but use different numbers 
+
+> 2Unleashing the Power of Equality Saturation for Tensor Program Superoptimization
+
+Expressions 
+
+𝑒 :: = Input (𝑥 ) | Constant (𝑐 )| Tuple (𝑒 1, . . . , 𝑒 𝑛 ) | Get 𝑗 (𝑒 )| Partition 𝑖,𝑝 (𝑒 ) | Replicate 𝑝 (𝑒 )| Combination 𝑖,𝑝 (𝑒 )| Exp (𝑒 ) | 𝑒 + 𝑒 | 𝑒 × 𝑒 | · · · | MatMul (𝑒, 𝑒 ) | TileMatMul (𝑒, 𝑒 )| Reduce 𝜌 (𝑒 ; 𝛼 )| Collection 𝑝 (𝑒 )
+
+Types 
+
+𝑡 :: = Tensor (dtype , shape , 𝛿 ) | Tuple (𝑡 1, . . . , 𝑡 𝑛 )
+
+𝛿 :: = {𝑑 1, . . . , 𝑑 𝑛 }
+
+𝑑 :: = partition (𝑖, 𝑝 ) | replicate (𝑝 ) | partial (𝑝 )
+
+Reduction axes 
+
+𝛼 :: = axis (𝑖 ) | parallel (𝑝 )
+
+Figure 3. Core expressions and parallel-state types. of matrix multiplications, so their execution costs can differ. Extractors may select programs by minimizing AST size [27] or by solving an integer linear program [7]. EqiForge ap-plies equality saturation to a unified IR of high-level tensor expressions and tiled computations. Algebraic rewrites and parallel refinements add equivalent expressions to the same e-graph, from which extraction selects complete programs for performance evaluation. 
+
+## 3 A Unified IR for Tensor Programs 
+
+We use a single expression language to describe tensor com-putations and their parallel implementations. Figure 3 presents the core syntax of our IR. Alongside tensor operators, it in-cludes primitives that define parallel operand views, express reductions, and store intermediate results. Expressions are pure and produce tensor or tuple values, with Tuple group-ing tensor values and Get selecting individual fields. Here, 𝑥 
+
+names a function argument, 𝑐 is a scalar literal, and 𝜌 denotes a reducer function. 
+
+3.1 Parallelism 
+
+We first introduce our representation of parallel tensor com-putations. Parallel state describes how a tensor expression is represented by values indexed by a logical parallel axis 
+
+𝑝 . Sharing a parallel axis aligns operand views and results at corresponding coordinates. Figure 4 illustrates parallel decomposition and the combination of results. 
+
+Partition defines how a tensor is divided among parallel computations. Partition 𝑖,𝑝 maps each coordinate of 𝑝 to a dis-tinct slice along dimension 𝑖 . It records partition (𝑖, 𝑝 ) while preserving the tensor’s logical shape and dtype. Combina-tion 𝑖,𝑝 joins these slices along 𝑖 to form the complete tensor. It requires the matching state and removes 𝑝 .    
+
+> (a) Partition and Combination
+> Tensor [𝑀, 𝑁 ]
+> Partition 𝑀,𝑝
+> 𝑝 =0
+> 𝑝 =1
+> partition (𝑀, 𝑝 )
+> Combination 𝑀,𝑝
+> Tensor [𝑀, 𝑁 ]
+> (b) Replicate
+> 𝑋
+> Tensor [𝑀, 𝑁 ]
+> Replicate 𝑝
+> 𝑋 𝑝 =0
+> =𝑋 𝑝 =1
+> replicate (𝑝 )
+> (c) Reduction
+> Tensor [𝑀, 𝐾 ]
+> Partition 𝐾,𝑝
+> 𝑝 =0
+> 𝑝 =1
+> partition (𝐾, 𝑝 )
+> Reduce axis (𝐾 )
+> 𝑐 0
+> 𝑐 1
+> partial (𝑝 )
+> Reduce parallel (𝑝 )
+> 𝑐
+> Tensor [𝑀 ]
+
+Figure 4. Parallelism transitions: (a) partition and combina-tion, (b) replication, and (c) reduction. 
+
+Replicate 𝑝 supplies the same operand to every computa-tion across 𝑝 . It records replicate (𝑝 ), preserving logical and per-coordinate shapes without storing extra copies. Partial results express a parallel decomposition of a reduc-tion: each coordinate computes a contribution to the same output elements. The state partial (𝑝 ) records that these con-tributions still need to be combined across 𝑝 . A parallel Re-duce combines them into the complete result and removes 𝑝 
+
+from the state. By including parallel state in tensor type, we can distin-guish slices, replicas, and partial contributions even when their logical shapes and dtypes match. Each e-class has a single value type, so its equivalent expressions can be used interchangeably by the operations that reference it. 
+
+3.2 Computation on Tiles 
+
+The parallel views introduced above provide the local operands for tile computations. Pointwise operations act indepen-dently on each tile and can be fused into tile computations. We therefore use the same pointwise operators in tensor-level and tiled expressions. Matrix multiplication and reduc-tions aggregate values along tensor dimensions, so their tiled forms express how local results are computed and combined. For matrix multiplication, we use distinct tensor-level and tile-level operators. MatMul represents matrix multiplica-tion as a high-level tensor operation. The high-level form allows algebraic rewrites, such as associativity, to compose with parallel refinement. TileMatMul computes the local product at each parallel coordinate, producing an output tile depending on the partitioned dimensions. Refinement rules relate MatMul to equivalent tiled expressions in the e-graph. For example, the following two forms compute a matrix product followed by a pointwise exponential. The tiled form uses row tiles along M, indexed by 𝑝 :
+
+> 3Zhan et al.
+
+q: tensor<QxD,bf16> = input 
+
+k: tensor<KxD,bf16> = input 
+
+v: tensor<KxD,bf16> = input 
+
+scale: tensor<1,f32> = constant 
+
+k_t = transpose [1,0](k) score = matmul (q,k_t) acc=f32 scaled = multiply (score,scale) maximum = reduce scaled axis=K reducer=@max weights = exp (subtract (scaled,maximum)) normalizer = reduce weights axis=K reducer=@add prob = divide (weights,normalizer) output = matmul (prob,v) acc=f32 q_tile = replicate [p]( partition [Q,m](q)) k_tile = partition [K,p]( replicate [m](k)) v_tile = partition [K,p]( replicate [m](v)) scale_tile = replicate [p]( replicate [m](scale)) k_t_tile = transpose [1,0](k_tile) score = tile_matmul (q_tile,k_t_tile) acc=f32 scaled = multiply (score,scale_tile) block_max = reduce scaled axis=K reducer=@max item = tuple (block_max,scaled,v_tile) 
+
+rolling (state=<max,sum,value>, item=<block_max,scaled,v_tile>) { next_max = maximum (max,block_max) rescale = exp (max-next_max) weights = exp (scaled-next_max) tile_sum = reduce weights axis=K reducer=@add next_sum = rescale*sum + tile_sum tile_value = tile_matmul (weights,v_tile) next_value = rescale*value + tile_value 
+
+return tuple (next_max,next_sum,next_value) }summary = reduce item parallel=p reducer=@rolling normalizer = get (summary,sum) numerator = get (summary,value) 
+
+M2: tiled rolling attention 
+
+scaled_tile = partition [K,p](scaled) v_tile = partition [K,p](v) block_max = reduce scaled_tile axis=K reducer=@max maximum = reduce block_max parallel=p reducer=@max maximum_tile = replicate [p](maximum) weights = exp (scaled_tile-maximum_tile) tile_sum = reduce weights axis=K reducer=@add tile_value = tile_matmul (weights,v_tile) normalizer = reduce tile_sum parallel=p reducer=@add numerator = reduce tile_value parallel=p reducer=@add 
+
+M1: dependent reductions 
+
+output = numerator / normalizer output = numerator / normalizer result = combination [Q,m](output) 
+
+M0: vanilla attention 
+
+> factor motion + K refinement Q/K refinement + propagation repair fusion
+> ℎsum , ℎ value
+> propagation + combination
+
+Figure 5. Composing repair, refinement, and propagation rules from vanilla (M0) to tiled rolling attention (M2). Parallel axes 
+
+𝑚 and 𝑝 index tiles along the query dimension Q and key dimension K, respectively. 
+
+// Tensor-level form a: tensor<MxK,bf16> = input 
+
+b: tensor<KxN,bf16> = input 
+
+product = matmul (a,b) output = exp (product) // Equivalent tiled form a_tile = partition [M,p](a) b_tile = replicate [p](b) product_tile = tile_matmul (a_tile,b_tile) output_tile = exp (product_tile) output = combination [M,p](output_tile) 
+
+At each coordinate of 𝑝 , TileMatMul multiplies a row tile of a
+
+by the replicated b. The same Exp operator applies to the local product and preserves its partitioned state. Combination 
+
+then joins the output tiles. 
+
+3.3 Reduction State and Intermediate Storage 
+
+Reduce 𝜌 (𝑒 ; 𝛼 ) applies reducer function 𝜌 to the values of 𝑒 
+
+along the axis specified by 𝛼 . The reducer takes the current state and an input value, and uses IR operations to com-pute the updated state. With 𝛼 = axis (𝑖 ), it reduces tensor dimension 𝑖 , operating within each tile when the input is partitioned. With 𝛼 = parallel (𝑝 ), it combines values across the coordinates of 𝑝 . The reduction state can be a tensor or a tuple of tensors. The following example computes a row-wise sum of an 
+
+𝑀 × 𝐾 tensor. In the tiled form, axis=K computes partial row sums with state partial (𝑝 ), and parallel=p combines them: 
+
+// Tensor-level form x: tensor<MxK,f32> = input 
+
+output = reduce x axis=K reducer=@add // Equivalent tiled form x_tile = partition [K,p](x) partial = reduce x_tile axis=K reducer=@add output = reduce partial parallel=p reducer=@add 
+
+Partial products from K-partitioned TileMatMul are com-bined by a reduction over 𝑝 .Keeping intermediate values within a kernel avoids inter-mediate memory traffic but can limit parallelism. Storing these values in global memory allows independent thread blocks to produce inputs for a later reduction kernel. To express this choice in our IR, we introduce Collection . It converts a parallel axis 𝑝 into a leading tensor dimension of extent |𝑝 |, preserving one slice per coordinate and removing 
+
+𝑝 from the parallel state. For tuple inputs, this transformation applies to each field. In the row-sum example, the partial sums can be stored before the final reduction: 
+
+stored = collection [p](partial) output = reduce stored axis=0 reducer=@add 
+
+The tensor stored has shape |𝑝 | × 𝑀 , and reducing axis 0 yields the same row sums. With Collection , we can express 
+
+> 4Unleashing the Power of Equality Saturation for Tensor Program Superoptimization
+
+Table 1. Core equality rules for tensor programs. 
+
+Rule Equality 
+
+Algebraic equalities 
+
+Assoc. and comm. (𝑎 ◦ 𝑏 ) ◦ 𝑐 ≡ 𝑎 ◦ ( 𝑏 ◦ 𝑐 ) (◦ ∈ {+ , ×}) 𝑎 ★ 𝑏 ≡ 𝑏 ★ 𝑎 (★ ∈ {+ , ×, max , min }) 
+
+Reassociate MatMul MatMul (MatMul (𝐴, 𝐵 ), 𝐶 ) ≡ MatMul (𝐴, MatMul (𝐵, 𝐶 )) 
+
+Factor motion ∗ MatMul (𝑋 ◦ 𝑎,𝑊 ) ≡ MatMul (𝑋,𝑊 ) ◦ 𝑎 MatMul (𝑋,𝑊 ◦ 𝑎 ) ≡ MatMul (𝑋,𝑊 ) ◦ 𝑎 
+
+Parallel refinement §4.1 
+
+MatMul (𝐴, 𝐵 ) ≡ Result; 𝐴 : · · · × 𝑀 × 𝐾, 𝐵 : · · · × 𝐾 × 𝑁 ; 𝑇 = TileMatMul (𝐴 ′, 𝐵 ′).
+
+Axes Operand 𝐴 ′ Operand 𝐵 ′ Result 
+
+None 𝐴 𝐵 𝑇 
+
+M Partition 𝑀,𝑝 𝑀 (𝐴 ) Replicate 𝑝 𝑀 (𝐵 ) Combination 𝑀,𝑝 𝑀 (𝑇 )
+
+N Replicate 𝑝 𝑁 (𝐴 ) Partition 𝑁 ,𝑝 𝑁 (𝐵 ) Combination 𝑁 ,𝑝 𝑁 (𝑇 )
+
+MN Replicate 𝑝 𝑁 (Partition 𝑀,𝑝 𝑀 (𝐴 )) Partition 𝑁 ,𝑝 𝑁 (Replicate 𝑝 𝑀 (𝐵 )) Combination 𝑀,𝑝 𝑀 (Combination 𝑁 ,𝑝 𝑁 (𝑇 )) 
+
+MK Partition 𝐾,𝑝 𝐾 (Partition 𝑀,𝑝 𝑀 (𝐴 )) Partition 𝐾,𝑝 𝐾 (Replicate 𝑝 𝑀 (𝐵 )) Combination 𝑀,𝑝 𝑀 (Reduce + (𝑇 ; parallel (𝑝 𝐾 ))) 
+
+NK Partition 𝐾,𝑝 𝐾 (Replicate 𝑝 𝑁 (𝐴 )) Partition 𝐾,𝑝 𝐾 (Partition 𝑁 ,𝑝 𝑁 (𝐵 )) Combination 𝑁 ,𝑝 𝑁 (Reduce + (𝑇 ; parallel (𝑝 𝐾 ))) 
+
+MNK Partition 𝐾,𝑝 𝐾 (Replicate 𝑝 𝑁 (
+
+Partition 𝑀,𝑝 𝑀 (𝐴 ))) 
+
+Partition 𝐾,𝑝 𝐾 (Partition 𝑁 ,𝑝 𝑁 (
+
+Replicate 𝑝 𝑀 (𝐵 ))) 
+
+Combination 𝑀,𝑝 𝑀 (Combination 𝑁 ,𝑝 𝑁 (
+
+Reduce + (𝑇 ; parallel (𝑝 𝐾 )))) 
+
+Batch 𝑏 Partition 𝑏,𝑝 𝑏 (𝐴 ) Partition 𝑏,𝑝 𝑏 (𝐵 ) Combination 𝑏,𝑝 𝑏 (MatMul (𝐴 ′, 𝐵 ′)) 
+
+Reduce 𝜌 (𝑋 ; axis (𝐾 )) ≡ Result; 𝑋 :𝑀 × 𝐾 .M Combination 𝑀,𝑝 
+
+ Reduce 𝜌 (Partition 𝑀,𝑝 (𝑋 ); axis (𝐾 )) 
+
+K Reduce 𝜌 
+
+ Reduce 𝜌 (Partition 𝐾,𝑝 (𝑋 ); axis (𝐾 )) ; parallel (𝑝 )
+
+Reduction fusion §4.2 Product fusion ⟨Reduce 𝜌 𝐴 (𝑋 ; 𝛼 ), Reduce 𝜌 𝐵 (𝑌 ; 𝛼 )⟩ ≡ Reduce 𝜌 𝐴 ×𝜌 𝐵 (⟨ 𝑋, 𝑌 ⟩; 𝛼 )
+
+Repair fusion 𝑠 = Reduce 𝜌 𝑃 (𝑋 ; 𝛼 ) : ⟨𝑠, Reduce 𝜌 𝐶 (𝑔 (𝑌, 𝑠 ); 𝛼 )⟩ ≡ Reduce 𝜌 ℎ (⟨ 𝑋, 𝑌 ⟩; 𝛼 )
+
+Propagating parallelism §4.3 Pointwise 𝑓 (Combination 𝑖,𝑝 (𝑥 )) ≡ Combination 𝑖,𝑝 (𝑓 (𝑥 )) 
+
+Partition 𝑖,𝑝 (𝑓 (𝑥 )) ≡ 𝑓 (Partition 𝑖,𝑝 (𝑥 )) Replicate 𝑝 (𝑓 (𝑥 )) ≡ 𝑓 (Replicate 𝑝 (𝑥 )) 
+
+Replication across reduction Replicate 𝑞 
+
+ Reduce 𝜌 (𝑋 ; parallel (𝑃 ))  ≡ Reduce 𝜌 
+
+ Replicate 𝑞 (𝑋 ); parallel (𝑃 ), 𝑞 ∉ 𝑃 
+
+Intermediate storage Reduce 𝜌 (𝑋 ; parallel (𝑝 )) ≡ Reduce 𝜌 
+
+ Collection 𝑝 (𝑋 ); axis (0) §4.4  
+
+> ∗
+
+◦ ∈ {× , /} . The factor 𝑎 is invariant along K and broadcasts compatibly. Division requires 𝑎 ≠ 0. fused and multi-kernel implementations as alternatives in equality search. Our type system records the different shapes and parallel states of their intermediate values, while both forms return the same result type. 
+
+## 4 Equality Rules for Tensor Programs 
+
+We now introduce the equality rules that EqiForge uses to explore equivalent formulations and implementations of ten-sor programs. Our algebraic rewrites assume real arithmetic. Floating-point implementations may differ due to reassocia-tion and internal precision choices. Figure 5 illustrates the derivation of tiled rolling attention (M2) from its tensor-level formulation (M0). An algebraic rewrite moves division by the normalizer after the value matrix multiplication, expos-ing a weighted-sum numerator. Refinement and propagation express the computation on tiles, but dependencies between the reductions prevent direct fusion. Repair fusion combines these dependent reductions into one, rescaling the accumu-lated normalizer and weighted sum as the running maximum changes. Table 1 summarizes the core equality rules. 
+
+4.1 Constructing Parallel Implementations 
+
+Parallel refinement expresses tensor-level operators as com-putations on tiles together with the operations that combine their results. For MatMul , Table 1 specifies the operand views 
+
+𝐴 ′, 𝐵 ′ supplied to TileMatMul for each choice of partitioned dimensions. Partitioning M or N produces disjoint output tiles joined by Combination . Partitioning K produces partial products combined by Reduce . Multiple dimensions can be partitioned together. 
+
+> 5Zhan et al.
+
+Batch refinement partitions each operand along the batch dimension corresponding to 𝑏 , using Replicate when that operand is broadcast along 𝑏 . The refined expression contains a tensor-level MatMul inside Combination , allowing batch partitioning to compose with the M/N/K refinements. Reductions can likewise be refined along an output di-mension or a reduction dimension. For an 𝑀 × 𝐾 tensor reduced along K, partitioning M produces complete row re-sults joined by Combination . Partitioning K instead produces partial row results combined by a parallel Reduce . This sec-ond rule requires an associative reducer that can combine its own partial results, with both local and final reductions initialized to the identity. In Figure 5, refinement creates tiles along the query di-mension Q and key dimension K, indexed by 𝑚 and 𝑝 , re-spectively. M1 shows three reductions over 𝑝 , combining tile maxima, partial normalizers, and partial weighted sums. The normalizer and weighted sum still depend on the maximum over all key tiles. 
+
+4.2 Composing Reduction State 
+
+Reduction fusion combines reductions over the same domain into one reduction with a tuple of their states. Two reductions are independent if neither uses the other’s result. Their state updates can then be combined without modification. When one reduction’s contributions depend on another reduction’s result, fusion requires a repair that adjusts the accumulated consumer state as the producer state changes. 
+
+Independent state. Product fusion pairs the initial states of the two reductions. For each input pair (𝑥, 𝑦 ), the product reducer 𝜌 𝐴 × 𝜌 𝐵 updates the first component using 𝜌 𝐴 and 
+
+𝑥 , and the second using 𝜌 𝐵 and 𝑦 . The final tuple contains the results of both original reductions. 
+
+Dependent state. Neptune’s repair method [36] lets a con-sumer accumulate contributions using the producer’s current state. When the producer state changes from 𝑠 to 𝑠 ′, the re-pair function ℎ(𝑐, 𝑠, 𝑠 ′) adjusts the accumulated consumer state 𝑐 to reflect the new producer state. For each input 𝑦 in 𝑌 ,
+
+𝑔 (𝑦, 𝑠 ) computes its contribution to the consumer reduction under producer state 𝑠 . 𝑔 (𝑌, 𝑠 ) denotes all such contributions. The repair must update each contribution and distribute over the consumer reducer 𝜌 𝐶 :
+
+ℎ(𝑔 (𝑦, 𝑠 ), 𝑠, 𝑠 ′) = 𝑔 (𝑦, 𝑠 ′),ℎ(𝜌 𝐶 (𝑎, 𝑏 ), 𝑠, 𝑠 ′) = 𝜌 𝐶 (ℎ(𝑎, 𝑠, 𝑠 ′), ℎ (𝑏, 𝑠, 𝑠 ′)) .
+
+The fused reducer 𝜌 ℎ maps state ⟨𝑠, 𝑐 ⟩ and input ⟨𝑥, 𝑦 ⟩ to 
+
+⟨𝑠 ′, 𝑐 ′⟩:
+
+𝑠 ′ = 𝜌 𝑃 (𝑠, 𝑥 ), 𝑐 ′ = 𝜌 𝐶 (ℎ(𝑐, 𝑠, 𝑠 ′), 𝑔 (𝑦, 𝑠 ′)) .
+
+We represent the fused computation as one Reduce over a tuple of producer and consumer states. Its reducer shares the producer update and applies each consumer’s repair, while 
+
+Get projects the results. Because Reduce ranges over either tensor dimensions or parallel axes, the same representation handles tensor-level and tiled expressions. In Figure 5, the producer state is the running maximum, which is invariant along K. The repair ℎ(𝑐, 𝑠, 𝑠 ′) = 𝑐 exp (𝑠 −
+
+𝑠 ′) therefore applies to both the accumulated normalizer and weighted sum. Combined with refinement and propagation, this produces the online softmax update [16] in M2. 
+
+4.3 Propagating Parallelism 
+
+To combine the preceding transformations into a tiled im-plementation, their producer and consumer operations must use compatible tile views. Propagation rules extend a chosen decomposition through these operations, avoiding a special-ized rewrite for every operator sequence. For pointwise operations, the equalities in Table 1 move 
+
+Partition and Replicate to the operation’s inputs, or move 
+
+Combination after the operation. Multiple-input operations pair tiles at the same parallel coordinate, and broadcast operands use Replicate . Replication can also move across a reduction when the replicated axis is not reduced. In Figure 5, these equalities propagate the query and key decompositions through scaling, exponentiation, and trans-pose. Together with matrix-multiplication refinement, they express score tiles directly in terms of query and key tiles, providing inputs to the rolling reduction in M2. The final di-vision likewise computes each normalized output tile before 
+
+Combination joins the results. 
+
+4.4 Storing Reduction Inputs 
+
+The storage choice introduced in §3.3 can increase paral-lelism when a fused kernel has few output tiles, as in decod-ing with small batches. It lets more thread blocks produce the reduction inputs independently, at the cost of interme-diate memory traffic and a separate reduction kernel. The rule in Table 1 inserts Collection before Reduce , replacing a parallel-axis reduction with a tensor-axis reduction while preserving the input sequence and reducer. In M2 of Figure 5, these inputs are tuples containing scores, local maxima, and value tiles. A subsequent kernel consumes the stored tuples using the same rolling reducer. 
+
+## 5 Scalable Program Extraction 
+
+The equality rules in the previous section define a space of functionally equivalent implementations. EqiForge ex-tracts complete programs from this space for performance evaluation, fixing their computation and kernel boundaries while leaving scheduling parameters symbolic. During ex-traction, we skip tensor-level MatMul nodes and select their tiled implementations for code generation. Each program selects one e-node for every reachable e-class and forms a finite acyclic graph. We first describe how compaction avoids redundant extraction, then show how subgraph implemen-tations are combined to handle larger graphs.                         
+
+> 6Unleashing the Power of Equality Saturation for Tensor Program Superoptimization
+> Output e-class
+> 𝑆 1𝑆 2𝑆 3
+> MatMul (𝐴, 𝑅 )𝑃 +𝑄 𝑄 +𝑃
+> 𝑅 𝐵 +𝐶
+> · · ·
+> 𝑃
+> MatMul (𝐴, 𝐵 )· · ·
+> 𝑄
+> MatMul (𝐴, 𝐶 )· · ·
+> Extract
+> 𝑆 1𝑆 2𝑆 3
+> MatMul (𝐴, □𝑅 )□𝑃 +□𝑄 □𝑄 +□𝑃 ≈𝑝
+> ............
+
+Figure 6. Early pruning of equivalent partial programs. 
+
+5.1 Compacting the Search Space 
+
+Extracting and evaluating candidate programs separately can be costly even when they are expected to perform simi-larly. We express this redundancy through an equivalence relation ≈ on candidate programs and explore the result-ing quotient space, evaluating one representative per class. We group candidates that differ in commutative pointwise operand order or in how they express the same parallel views. Candidates with different matrix-multiplication structures, reduction organizations, or intermediate storage remain dis-tinct. Figure 6 groups 𝑆 2 = 𝐴𝐵 + 𝐴𝐶 with 𝑆 3 = 𝐴𝐶 + 𝐴𝐵 ,while keeping 𝑆 1 = 𝐴 (𝐵 + 𝐶 ) distinct because it uses one matrix multiplication instead of two. A straightforward approach is to enumerate complete programs and then group them into equivalence classes. Al-though this reduces the number of performance evaluations, extraction must still construct every candidate. Independent implementation choices can generate exponentially many candidates, making extraction prohibitively expensive. To prune redundant branches early, we compare partial programs containing selected operations and named holes 
+
+□𝑐 for unresolved e-classes 𝑐 . We write 𝑆 ≈𝑝 𝑇 when the two partial programs allow the same valid assignments to their holes and each assignment produces complete programs equivalent under ≈. For this comparison, we canonicalize pointwise expressions and parallel views. For example, in Figure 6, completing □𝑃 + □𝑄 and □𝑄 + □𝑃 with the same choices for 𝑃 and 𝑄 produces programs that differ only in the addition’s operand order. One branch can therefore be pruned before either choice is resolved. Algorithm 1 prunes redundant partial programs before ex-pansion and emits complete representatives for performance evaluation. Since 𝑆 ≈𝑝 𝑇 implies that exploring 𝑇 covers ev-ery candidate class reachable through 𝑆 , pruning 𝑆 is sound and preserves quotient-space coverage when enumeration completes. A conservative test may miss redundant branches but does not remove candidate classes. 
+
+Algorithm 1: Extraction with early compaction 
+
+Input: Typed e-graph 𝐺 , result e-classes 𝑅 , relation ≈
+
+Output: Representative parameterized programs  
+
+> 1
+
+worklist ← { Initialize (𝐺, 𝑅 )}  
+
+> 2
+
+seen ← ∅  
+
+> 3
+
+while worklist ≠ ∅ do  
+
+> 4
+
+𝑆 ← Take (worklist ) 
+
+> 5
+
+if ∃𝑇 ∈ seen : 𝑆 ≈𝑝 𝑇 then  
+
+> 6
+
+continue  
+
+> 7
+
+seen ← seen ∪ { 𝑆 } 
+
+> 8
+
+if 𝑆 is complete then  
+
+> 9
+
+output Reconstruct (𝑆 ) 
+
+> 10
+
+else  
+
+> 11
+
+choose an unresolved e-class 𝑐 in 𝑆  
+
+> 12
+
+foreach valid e-node 𝑛 ∈ 𝑐 do  
+
+> 13
+
+worklist ← worklist ∪ { 𝑆 [𝑐 ↦ → 𝑛 ]} 
+
+5.2 Searching Larger Graphs 
+
+For larger graphs, EqiForge explores partitions with dif-ferent subgraph sizes. Larger subgraphs allow more joint transformations, while smaller ones reduce search cost but may require more intermediate storage. We rank partitions by estimated subgraph work and data transferred across boundaries. Each subgraph is connected, and no dependency path may leave it and later re-enter it. We apply equality saturation and extraction to each dis-tinct subgraph, preserving its input/output interface. Candi-dates may contain multiple kernels and are reused whenever the subgraph appears in another partition. We combine them lazily through their typed interfaces, storing intermediate results between subgraphs without enumerating the full Cartesian product. 
+
+## 6 Code Generation and Tuning 
+
+Each extracted program and its legal schedule domain form an implementation family. We canonicalize execution struc-tures and discard a family when another with the same struc-ture covers its entire schedule domain. For each remaining family, the backend constructs a kernel graph, generates ex-ecutable kernels under a legal schedule, and measures their end-to-end latency. 
+
+6.1 Execution Families and Code Generation 
+
+Code generation maps the IR’s parallel structure to GPU execution. Parallel axes that index output tiles determine the thread-block grid, while parallel reduction axes are tra-versed by loops within each block. The reducer body defines how the accumulated state is updated, and operand views determine the tensor elements loaded and stored. When in-termediate results are materialized, producer kernels write                                            
+
+> 7Zhan et al. B=1 B=8 B=16
+> 0.25 .5 .75 11.25 1.23× 1.16× 1.17×
+> nGPT
+> ××××××
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 2.29× 2.74× 1.63×
+> RMSNorm–MLP
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 1.11× 1.11× 1.07×
+> RMSNorm–SwiGLU
+> ×××
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 1.16× 1.15× 1.17×
+> GatedMLP
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 1.56× 1.43× 1.19×
+> RMSNorm+GEMM
+> ××
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 1.77× 1.86× 1.51×
+> LoRA
+> B=1 B=8 B=16
+> 0.25 .5 .75 11.25 0.90× 0.90× 0.95×
+> LayerNorm+GEMM
+> ××
+> PyTorch eager torch.compile Mirage TVM 0.26 (MetaSchedule) Trinity EquiForge
+> Relative performance
+
+Figure 7. Performance across diverse tensor programs, normalized to EqiForge. Higher is better. Labels show geometric mean speedups over the fastest valid baseline. ×: search timeout or numerically invalid result. them to global memory for subsequent kernels to consume. Kernel launches follow the program’s data dependencies. In M2 of Figure 5, the backend maps axis 𝑚 to the thread-block grid and axis 𝑝 to a loop over key/value tiles within each block. The fused reduction state becomes loop-carried variables in the generated kernel. For each candidate, the backend still needs to choose tile sizes, the number of warps, pipeline stages, and implemen-tations of matrix multiplication and reductions. Once these choices are fixed, it emits Triton [22] kernels. Since different schedules can yield different performance for the same can-didate, comparing candidates requires tuning and measuring their implementations. 
+
+6.2 Static Family Ranking 
+
+Exhaustively tuning every candidate is expensive because each has many possible schedules. We first rank candidates using an optimistic estimate of the latency each could achieve under a suitable schedule. This ranking determines which candidates to profile first. Measurements then determine which candidates to tune further. For each candidate, we estimate computation and global-memory traffic as functions of its schedule parameters. Divid-ing these quantities by the corresponding hardware through-put or bandwidth gives an optimistic execution time. We take the maximum across resources to capture the bottle-neck, then minimize over legal schedules: ˆ𝑇 = min   
+
+> 𝜃 ∈ S
+
+max  
+
+> 𝑟 ∈ R
+
+𝑊 𝑟 (𝜃 )
+
+𝑃 𝑟 
+
+.
+
+Here S is the set of legal schedules, R is the set of modeled hardware resources, 𝑊 𝑟 (𝜃 ) is the work or data movement for resource 𝑟 , and 𝑃 𝑟 is its throughput or bandwidth. We use a linear programming relaxation to rank candi-dates without enumerating every schedule. We then round the solution to obtain an initial schedule for tuning. 
+
+6.3 Progressive Schedule Tuning 
+
+We tune shortlisted candidates in rounds, using successive halving [10] to give faster candidates larger measurement budgets while keeping some candidates with low estimated latency. For each candidate, we explore schedules through lo-cal changes, evolutionary mutations, and random sampling. For multi-kernel programs, we fix the parameters that de-termine intermediate buffer shapes and tune one kernel at a time, validating and timing the complete program at each step. We return the fastest validated implementation found. 
+
+## 7 Evaluation 
+
+We evaluate EqiForge’s effectiveness and search efficiency on tensor programs and Transformer layers. 
+
+7.1 Experimental Setup Implementation. Our frontend captures PyTorch 2.10 pro-grams with torch.export [1] and translates them into our IR. It expands composite operators such as attention and RM-SNorm into matrix multiplications, reductions, and point-wise operations, allowing equality saturation to optimize their internal computations. We use egg 0.11 [27] for satura-tion and extraction, and Triton 3.6 [22] for code generation. Our IR supports 18 pointwise operators plus reshape, trans-pose, and tensor construction. We implement 120 rewrite rules: 21 algebraic, 10 refinement, 73 propagation, 9 reduction fusion, 6 structural, and 1 for intermediate storage. We use SymPy [15] to synthesize repair functions and check their algebraic identities. We use a four-hour budget per configuration for search and tuning. 
+
+Workloads. Our workloads cover normalization, MLPs, low-rank adaptation, and causal multi-head attention (MHA) in decode and prefill, with batch sizes 𝐵 ∈ { 1, 8, 16 }. We use Mirage [28] and Prism [29] benchmarks with Llama 2 [23]         
+
+> 8Unleashing the Power of Equality Saturation for Tensor Program Superoptimization B=1 B=8 B=16
+> 0.0 0.4 0.8 1.2
+> MHA decode
+> 1.04× 1.03× 1.03×
+> B=1 B=8 B=16
+> MHA prefill
+> 0.98× 0.96× 0.94×
+> Relative performance
+> Trinity FlashAttention FlashInfer Neptune EquiForge
+
+Figure 8. MHA performance in decode and prefill, normal-ized to EqiForge. Higher is better. Labels show geometric mean speedups over the fastest valid baseline. and BERT [5] configurations. We explore various Trans-former layers and highlight five cases: QK-normalized multi-head latent attention (MLA) [8], mHC [31], sliding-window GQA [12], attention sinks [30], and differential attention [33]. 
+
+Baselines. For the non-attention workloads, we compare against PyTorch eager and torch.compile [1], the tensor compiler TVM [2, 6], and the tensor program superopti-mizers Mirage [28] and Trinity [17]. 1 TVM receives 1,000 MetaSchedule trials per shape. We use Trinity’s default sat-uration and profiling budgets and give Mirage the same four-hour search limit as EqiForge. For attention, we com-pare against the compilers Trinity and Neptune [36] and the specialized FlashAttention [3, 4] and FlashInfer [34] kernels. Transformer-layer baselines use PyTorch eager execution and torch.compile , with SDPA dispatching to FlashAtten-tion. 
+
+Hardware and measurement. All experiments run on NVIDIA A100 80GB PCIe and RTX 5090 GPUs. We mea-sure median tensor-program latency using CUDA Graphs, normalize each system to EqiForge on the same GPU, and report geometric means across GPUs. Outputs are checked against PyTorch with a relative 𝐿 2 error tolerance of 0 .01. 
+
+7.2 Tensor Program Performance Diverse tensor programs. Figure 7 compares performance on the tensor-program benchmarks. EqiForge outperforms the fastest baseline in 18 of 21 configurations, achieving a geometric mean speedup of 1 .32 × and a maximum of 2 .74 ×.For example, on RMSNorm–MLP at 𝐵 = 8, EqiForge moves the per-row normalization factors 𝑠 after each pro-jection using (𝑠 ⊙ 𝑋 )𝑊 ≡ 𝑠 ⊙ ( 𝑋𝑊 ). It then fuses both projections with the final elementwise product, avoiding in-termediate writes to global memory and achieving a 2 .74 ×
+
+> 1We omit Prism because its implementation was not publicly available at the time of evaluation.
+
+speedup over torch.compile . The 𝐵 = 1 winner also ap-plies normalization after both projections and keeps their reductions in one kernel. At 𝐵 = 8, Mirage also selects a single kernel for RMSNorm– MLP, but normalizes the input before the projections. Trinity uses three kernels, materializing the normalization statis-tics and normalized activations. LoRA at 𝐵 = 1 illustrates a different tradeoff. Trinity’s selected kernel recomputes the low-rank projection for each output tile. EqiForge uses two kernels, storing partial low-rank products for reuse across output tiles. In our search, this two-kernel candidate is 1 .28 ×
+
+faster than the single-kernel candidate compiled with the same backend. LayerNorm–GEMM remains the exception, running 6%– 12% slower than the fastest baseline. The selected imple-mentations use two, three, and four kernels at 𝐵 = 1, 8, 16, respectively, computing normalization statistics before the projection and incurring additional launches and intermedi-ate memory traffic. 
+
+Attention. As shown in Figure 8, EqiForge outperforms all compared baselines in the three decode cases. At 𝐵 = 1, the selected implementation splits the output channels across two blocks per head. Each block computes the same scores and softmax but produces a different part of the output. This trades repeated computation for greater parallelism without requiring a separate merge kernel. In prefill, EqiForge approaches FlashAttention’s perfor-mance, with a latency gap of 3–6%. The generated kernels combine tiled matrix multiplications with an online softmax, incrementally updating the normalization and attention out-put without storing the full score and probability matrices. We use Triton for code generation, and its reference attention kernel shows a similar gap to FlashAttention. This suggests that the remaining gap may partly arise from scheduling and code generation, including tile selection and the overlap of memory accesses with computation. 
+
+7.3 Transformer Layer Optimization 
+
+We highlight five Transformer layers where EqiForge dis-covers substantial speedups. Each case uses one query token. Sizes below give (batch size, hidden width, history length). 
+
+QK-normalized MLA [8] (1, 4096 , 16K ). EqiForge moves the key projection onto the query path and the value pro-jection after attention (Figure 9(a)). This avoids expanding historical keys and values from the latent cache, replacing projections over cached tokens with operations on a single query and an aggregated context. Cached inverse-RMS fac-tors move from the expanded keys to the attention logits, preserving key normalization in the transformed compu-tation. The resulting implementation achieves speedups of 3.53 × over PyTorch eager and 3 .16 × over torch.compile .
+
+mHC [31] (16 , 512 , 1K ). The layer maintains four residual streams, with separate connections around attention and the MLP. As shown in Figure 9(b), EqiForge combines the first 
+
+> 9Zhan et al.
+
+(a) QK-normalized MLA        
+
+> Before
+> x
+> RMSNorm Q proj. + norm Cache C, ρ C:L×r
+> Attention Context
+> 1×dv
+> O proj.
+
++
+
+> Norm + MLP
+
++            
+
+> y
+> K proj.
+> WK
+> V proj.
+> WV
+> KL×dk
+> VL×dv
+> ×ρ
+> After (EquiForge)
+> x
+> RMSNorm Q proj. + norm Cache C, ρ C:L×r
+> Latent attention Logits ×ρ
+> Latent context
+> 1×r
+> O proj.
+
++
+
+> Norm + MLP
+
++   
+
+> y
+> K map W⊤
+> K
+> V proj. WV
+> C, ρ
+
+3.16 × speedup 
+
+(b) mHC Before                                      
+
+> X0
+> Flat. + Norm Pre proj. Post proj. Res. proj.
+> σ2σExp+SK 20
+> P1X0R1X0
+> Norm+attn. Q/SDPA/O Q⊤
+> 1A
+> +
+> Flat. + Norm
+> AX0X0
+> X1
+> Pre proj. Post proj. Res. proj.
+> σ2σExp+SK 20
+> P2X1R2X1
+> SwiGLU Down Q⊤
+> 2M
+> +
+> X2
+> MX1X1
+> Norm Gate Up
+> After (EquiForge)
+> X0
+> Flat. + Norm Pre proj. Post proj. Res. proj.
+> σ2σExp+SK 20
+> P1X0R1X0
+> Norm+attn. Q/SDPA/O Q⊤
+> 1A
+> +
+> Flat. + Norm
+> AX0X0
+> X1BF16 FP32
+> Pre proj. Post proj. Res. proj.
+> σ2σExp+SK 20
+> P2X1R2X1
+> SwiGLU Down Q⊤
+> 2M
+> +
+> X2
+> MX1X1
+> Norm Norm Gate Up
+> Single kernel
+
+5.84 × speedup 
+
+Figure 9. Layer structures found by EqiForge: (a) QK-normalized MLA and (b) mHC. Each dashed blue box encloses one kernel. SK 20 denotes 20 Sinkhorn iterations. Panel (a) shows logical dataflow: cached inverse-RMS key statistics 𝜌 scale keys before rewriting and logits afterward; auxiliary state outputs and tiled partial reductions are omitted. residual update with the next connection’s normalization in one kernel, allowing fusion across the model’s component boundaries. The normalization reuses the updated residual within the kernel, avoiding an additional read of that inter-mediate. The selected whole-layer implementation achieves speedups of approximately 7 .5× over PyTorch eager and 5.84 × over torch.compile .
+
+Sliding-window GQA [12] (1, 4096 , 16K ). EqiForge com-bines score computation, an online normalizer, and value accumulation in one attention kernel. The normalizer pro-cesses only the 4096-token window. Value accumulation still scans the full history and recomputes score tiles, avoiding global score and probability matrices at the cost of additional arithmetic. This implementation achieves speedups of 1 .12 ×
+
+over PyTorch eager and 1 .06 × over torch.compile .
+
+Attention sinks [30] (1, 1024 , 32K ). EqiForge fuses score computation, online normalization, and value accumulation into one attention kernel. It visits only the tiles covering four initial sink tokens and the most recent 4096 tokens, skipping the masked middle without materializing score or probabil-ity matrices. Both ranges contribute to one online reduction, so the sink and recent tokens share the same softmax nor-malization. The seven-kernel layer runs 2 .18 × faster than PyTorch eager and 1 .48 × faster than torch.compile .
+
+Differential attention [33] (1, 1024 , 32K ). The two atten-tion branches share a value tensor. Their learned weighted difference feeds per-head RMSNorm. EqiForge evaluates the mixing weight, subtracts the attention outputs, and nor-malizes each head in one kernel. The mixed output is con-sumed directly by normalization, avoiding an intermediate tensor and separate launches for these operations. This im-plementation achieves speedups of 1 .66 × over PyTorch eager and 1 .51 × over torch.compile .
+
+7.4 Search Cost Search overhead. Table 2 reports e-graph sizes and the time spent in saturation and extraction at 𝐵 = 16. Most non-attention workloads produce fewer than 1,200 e-nodes and complete these stages within tens of seconds. Attention produces much larger e-graphs, with over 22,000 e-nodes in decode and 65,000 in prefill. Its two matrix multiplica-tions and dependent softmax reductions expose interacting choices in tiling, fusion, and intermediate storage. Combin-ing these choices creates many equivalent implementations, increasing both saturation and extraction costs. These results highlight the cost of exploring transformations jointly and motivate early compaction to avoid repeatedly constructing redundant candidates. 
+
+Extraction compaction. We compare three strategies. 
+
+• No compaction enumerates every complete candidate. 
+
+• Compaction after completion constructs all candi-dates and then selects one per equivalence class. 
+
+> 10 Unleashing the Power of Equality Saturation for Tensor Program Superoptimization
+
+Table 2. EqiForge e-graph size and search cost at 𝐵 = 16.                                     
+
+> Time (s) Workload E-classes/E-nodes Sat. Extract. nGPT 100/296 0.09 1.30 RMSNorm–MLP 346/949 8.72 4.34 RMSNorm–SwiGLU 411/1,179 0.89 21.37 GatedMLP 256/645 0.04 0.91 RMSNorm+GEMM 204/590 0.02 0.51 LoRA 284/870 0.07 4.06 LayerNorm+GEMM 1,057/5,388 151.6 117.4 MHA decode 5,223/22,339 395.3 272.4 MHA prefill 5,286/65,283 1741.9 910.7 0.1 110 100 1,000 2 h
+> Enumeration time (s, log scale) nGPT RMSNorm–MLP RMSNorm–SwiGLU GatedMLP RMSNorm+GEMM LoRA LayerNorm+GEMM
+> 1.107M → 66 69.96M → 126 53.53M → 72 69.06k → 29 2.077M → 22 212.0k → 44 62.86M → 478
+> Early compaction Deduplication after completion
+
+Figure 10. Enumeration time and candidate counts at 𝐵 = 16. Labels show complete candidates constructed → distinct candidates after deduplication. 
+
+• Early compaction prunes equivalent partial programs before completing them. Figure 10 reports candidate counts and enumeration time. Compaction after completion and early compaction use the same e-graph and compaction equivalence relation. Across the four workloads where both strategies finish, early com-paction reduces the number of expanded states by factors of 128–2 ,465 while returning the same number of distinct can-didates. For nGPT, it reduces enumeration time from 106 s to 0 .47 s. For RMSNorm–SwiGLU, early compaction finishes with 330 candidates in 16 .97 s, whereas compaction after completion times out after two hours with only 72. This shows that early compaction reduces extraction cost and can return more distinct candidates within a fixed time budget. 
+
+## 8 Related Work 
+
+We review prior work on tensor program optimization and equality saturation. 
+
+Tensor compilers and optimization. Halide [18] separates algorithms from schedules. TVM [2] combines graph opti-mization with automated operator code generation, while TensorIR [6] integrates tensorization into scheduling. An-sor [39] uses evolutionary schedule search and a learned cost model. ROLLER [40] constructs hardware-aware tiles, while Felix [37] uses continuous relaxation and a differentiable la-tency model to guide search. EqiForge complements sched-ule optimization with joint search over algebraic forms and parallel decompositions. 
+
+Tensor program superoptimization. TASO [11] searches tensor graphs using automatically generated and verified sub-stitutions. PET [25] permits partially equivalent transforma-tions with generated corrections that restore full equivalence. TENSAT [32] and SPORES [26] optimize tensor expressions through equality saturation. Unity [24] jointly optimizes graph rewrites and distributed parallelization strategies. Mirage [28] and Prism [29] are enumeration-based super-optimizers. Mirage enumerates concrete programs across kernel, thread-block, and thread levels and uses probabilistic verification. Prism enumerates symbolic program families and verifies them through e-graph rewriting. EqiForge generates equivalent implementations through equality sat-uration and applies early compaction during extraction. Trinity [17] applies equality saturation to a tile-level IR with explicit loops and memory operations. This represen-tation requires expression propagation to expose algebraic rewrites across loads and stores, and sequence canonical-ization to control e-graph growth. Its two-pass extractor selects loop structures before their bodies. EqiForge uses a pure expression IR in which tensor-level algebraic rewrites compose with parallel refinement. 
+
+Operator fusion. Welder [19] balances data reuse with tile graphs, while Korch [9] decomposes operators to op-timize kernel orchestration. Neptune [36] derives algebraic repairs for fusion of dependent reductions, and Nautilus [38] combines these transformations with automatic scheduling. Flashlight [35] generates fused kernels for attention variants through PyTorch compiler extensions. EqiForge expresses Neptune’s repair relation as an equality that composes with parallel refinement and tensor rewrites. 
+
+Equality saturation and extraction. Tate et al. [21] intro-duced equality saturation, and egg [27] supports efficient rewriting through rebuilding and e-class analyses. Guided equality saturation [13] uses program sketches to direct rewriting. Recent algorithms exploit e-graph structure to accelerate optimal extraction [7, 20]. Equality-constrained tree automata [14] support enumeration under shared con-straints. EqiForge enumerates candidates for performance measurement and prunes redundant partial programs. 
+
+> 11
+
+Zhan et al. 
+
+## 9 Conclusion 
+
+We presented EqiForge, a tensor program superoptimizer that brings algebraic reformulation and parallel implemen-tation generation into the same equality search. Its unified typed IR allows these transformations to compose through-out the search, while compaction prunes equivalent branches before candidate programs are complete. Composing equality rules yields fused implementations such as online attention directly from tensor expressions. Subgraph composition ex-tends the search to larger programs and enables optimization across Transformer-layer components. Our evaluation shows a 1 .32 × geometric mean speedup over the fastest baseline for each tensor-program configuration. Early compaction cuts the number of states expanded during extraction by a factor of up to 2 ,465. These results support a design in which equality reasoning determines program structure and controls redundant exploration. 
+
+## References 
+
+[1] Jason Ansel, Edward Yang, Horace He, Natalia Gimelshein, Animesh Jain, Michael Voznesensky, Bin Bao, Peter Bell, David Berard, Evgeni Burovski, Geeta Chauhan, Anjali Chourdia, Will Constable, Alban Desmaison, Zachary DeVito, Elias Ellison, Will Feng, Jiong Gong, Michael Gschwind, Brian Hirsh, Sherlock Huang, Kshiteej Kalam-barkar, Laurent Kirsch, Michael Lazos, Mario Lezcano, Yanbo Liang, Jason Liang, Yinghai Lu, C. K. Luk, Bert Maher, Yunjie Pan, Christian Puhrsch, Matthias Reso, Mark Saroufim, Marcos Yukio Siraichi, Helen Suk, Shunting Zhang, Michael Suo, Phil Tillet, Xu Zhao, Eikan Wang, Keren Zhou, Richard Zou, Xiaodong Wang, Ajit Mathews, William Wen, Gregory Chanan, Peng Wu, and Soumith Chintala. 2024. Py-Torch 2: Faster Machine Learning Through Dynamic Python Bytecode Transformation and Graph Compilation. In Proceedings of the 29th ACM International Conference on Architectural Support for Program-ming Languages and Operating Systems, Volume 2 . Association for Computing Machinery, 929–947. doi: 10.1145/3620665.3640366 
+
+[2] Tianqi Chen, Thierry Moreau, Ziheng Jiang, Lianmin Zheng, Ed-die Q. Yan, Haichen Shen, Meghan Cowan, Leyuan Wang, Yuwei Hu, Luis Ceze, Carlos Guestrin, and Arvind Krishnamurthy. 2018. TVM: An Automated End-to-End Optimizing Compiler for Deep Learning. In 13th USENIX Symposium on Operating Systems Design and Implementation (OSDI 18) . USENIX Association, 578–594. https: //www.usenix.org/conference/osdi18/presentation/chen 
+
+[3] Tri Dao. 2024. FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning. In The Twelfth International Conference on Learning Representations . https://proceedings.iclr.cc/ paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html 
+
+[4] Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, and Christo-pher Ré. 2022. FlashAttention: Fast and Memory-Efficient Ex-act Attention with IO-Awareness. In Advances in Neural Informa-tion Processing Systems , Vol. 35. Curran Associates, Inc., 16344– 16359. https://proceedings.neurips.cc/paper_files/paper/2022/hash/ 67d57c32e20fd0a7a302cb81d36e40d5-Abstract-Conference.html 
+
+[5] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT: Pre-training of Deep Bidirectional Transformers for Lan-guage Understanding. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Hu-man Language Technologies, Volume 1 (Long and Short Papers) . Associ-ation for Computational Linguistics, 4171–4186. doi: 10.18653/v1/N19-1423 
+
+[6] Siyuan Feng, Bohan Hou, Hongyi Jin, Wuwei Lin, Junru Shao, Ruihang Lai, Zihao Ye, Lianmin Zheng, Cody Hao Yu, Yong Yu, and Tianqi Chen. 2023. TensorIR: An Abstraction for Automatic Tensorized Program Optimization. In Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2 . Association for Computing Machinery, 804–817. doi: 10.1145/3575693.3576933 
+
+[7] Amir Kafshdar Goharshady, Chun Kit Lam, and Lionel Parreaux. 2024. Fast and Optimal Extraction for Sparse Equality Graphs. Proc. ACM Program. Lang. 8, OOPSLA2 (2024), 2551–2577. doi: 10.1145/3689801 
+
+[8] Yizhou Han, Yao Zhao, Jun Zhou, Longfei Li, and Ruoyu Sun. 2026. QK-Normed MLA: QK Normalization without Full Key Caching. arXiv preprint arXiv:2606.16310 (2026). https://arxiv.org/abs/2606.16310 
+
+[9] Muyan Hu, Ashwin Venkatram, Shreyashri Biswas, Balamurugan Marimuthu, Bohan Hou, Gabriele Oliaro, Haojie Wang, Liyan Zheng, Xupeng Miao, Jidong Zhai, and Zhihao Jia. 2024. Optimal Kernel Orchestration for Tensor Programs with Korch. In Proceedings of the 29th ACM International Conference on Architectural Support for Pro-gramming Languages and Operating Systems, Volume 3 . Association for Computing Machinery, 755–769. doi: 10.1145/3620666.3651383 
+
+[10] Kevin Jamieson and Ameet Talwalkar. 2016. Non-stochastic Best Arm Identification and Hyperparameter Optimization. In Proceedings of the 19th International Conference on Artificial Intelligence and Sta-tistics, AISTATS 2016, Cadiz, Spain, May 9-11, 2016 (JMLR Workshop and Conference Proceedings, Vol. 51) , Arthur Gretton and Christian C. Robert (Eds.). JMLR.org, 240–248. https://proceedings.mlr.press/v51/ jamieson16.html 
+
+[11] Zhihao Jia, Oded Padon, James Thomas, Todd Warszawski, Matei Za-haria, and Alex Aiken. 2019. TASO: Optimizing Deep Learning Compu-tation with Automatic Generation of Graph Substitutions. In Proceed-ings of the 27th ACM Symposium on Operating Systems Principles . Asso-ciation for Computing Machinery, 47–62. doi: 10.1145/3341301.3359630 
+
+[12] Albert Q. Jiang, Alexandre Sablayrolles, Arthur Mensch, Chris Bam-ford, Devendra Singh Chaplot, Diego de las Casas, Florian Bressand, Gianna Lengyel, Guillaume Lample, Lucile Saulnier, Lélio Renard Lavaud, Marie-Anne Lachaux, Pierre Stock, Teven Le Scao, Thibaut Lavril, Thomas Wang, Timothée Lacroix, and William El Sayed. 2023. Mistral 7B. arXiv:2310.06825 [cs.CL] https://arxiv.org/abs/2310.06825 
+
+[13] Thomas Koehler, Andrés Goens, Siddharth Bhat, Tobias Grosser, Phil Trinder, and Michel Steuwer. 2024. Guided Equality Saturation. Proc. ACM Program. Lang. 8, POPL (2024), 1727–1758. doi: 10.1145/3632900 
+
+[14] James Koppel, Zheng Guo, Edsko de Vries, Armando Solar-Lezama, and Nadia Polikarpova. 2022. Searching entangled program spaces. 
+
+Proc. ACM Program. Lang. 6, ICFP (2022), 23–51. doi: 10.1145/3547622 
+
+[15] Aaron Meurer, Christopher P. Smith, Mateusz Paprocki, Ondřej Čertík, Sergey B. Kirpichev, Matthew Rocklin, AMiT Kumar, Sergiu Ivanov, Jason K. Moore, Sartaj Singh, Thilina Rathnayake, Sean Vig, Brian E. Granger, Richard P. Muller, Francesco Bonazzi, Harsh Gupta, Shivam Vats, Fredrik Johansson, Fabian Pedregosa, Matthew J. Curry, Andy R. Terrel, Štěpán Roučka, Ashutosh Saboo, Isuru Fernando, Sumith Ku-lal, Robert Cimrman, and Anthony Scopatz. 2017. SymPy: Sym-bolic Computing in Python. PeerJ Computer Science 3 (2017), e103. doi: 10.7717/peerj-cs.103 
+
+[16] Maxim Milakov and Natalia Gimelshein. 2018. Online normalizer calculation for softmax. CoRR abs/1805.02867 (2018). arXiv:1805.02867 
+
+https://arxiv.org/abs/1805.02867 
+
+[17] Jaehyeong Park, Youngchan Kim, Haechan An, Gieun Jeong, Jeehoon Kang, and Dongsu Han. 2026. Trinity: Three-Dimensional Tensor Pro-gram Optimization via Tile-level Equality Saturation. In Proceedings of the 31st ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2, ASPLOS 2026 . ACM, 2079–2107. doi: 10.1145/3779212.3790240 
+
+12 Unleashing the Power of Equality Saturation for Tensor Program Superoptimization 
+
+[18] Jonathan Ragan-Kelley, Connelly Barnes, Andrew Adams, Sylvain Paris, Frédo Durand, and Saman Amarasinghe. 2013. Halide: A Lan-guage and Compiler for Optimizing Parallelism, Locality, and Re-computation in Image Processing Pipelines. In Proceedings of the 34th ACM SIGPLAN Conference on Programming Language Design and Implementation . Association for Computing Machinery, 519–530. doi: 10.1145/2491956.2462176 
+
+[19] Yining Shi, Zhi Yang, Jilong Xue, Lingxiao Ma, Yuqing Xia, Zim-ing Miao, Yuxiao Guo, Fan Yang, and Lidong Zhou. 2023. Welder: Scheduling Deep Learning Memory Access via Tile-graph. In 17th USENIX Symposium on Operating Systems Design and Implementa-tion, OSDI 2023, Boston, MA, USA, July 10-12, 2023 , Roxana Geambasu and Ed Nightingale (Eds.). USENIX Association, 701–718. https: //www.usenix.org/conference/osdi23/presentation/shi 
+
+[20] Glenn Sun, Yihong Zhang, and Haobin Ni. 2024. E-Graphs as Circuits, and Optimal Extraction via Treewidth. CoRR abs/2408.17042 (2024). arXiv:2408.17042 doi: 10.48550/ARXIV.2408.17042 
+
+[21] Ross Tate, Michael Stepp, Zachary Tatlock, and Sorin Lerner. 2009. Equality saturation: a new approach to optimization. In Proceedings of the 36th ACM SIGPLAN-SIGACT Symposium on Principles of Pro-gramming Languages, POPL 2009, Savannah, GA, USA, January 21-23, 2009 , Zhong Shao and Benjamin C. Pierce (Eds.). ACM, 264–276. doi: 10.1145/1480881.1480915 
+
+[22] Philippe Tillet, Hsiang-Tsung Kung, and David D. Cox. 2019. Tri-ton: an intermediate language and compiler for tiled neural net-work computations. In Proceedings of the 3rd ACM SIGPLAN Inter-national Workshop on Machine Learning and Programming Languages, MAPL@PLDI 2019, Phoenix, AZ, USA, June 22, 2019 , Tim Mattson, Abdullah Muzahid, and Armando Solar-Lezama (Eds.). ACM, 10–19. doi: 10.1145/3315508.3329973 
+
+[23] Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Alma-hairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Dan Bikel, Lukas Blecher, Cristian Canton-Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller, Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony Hartshorn, Saghar Hosseini, Rui Hou, Hakan Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel Kloumann, Artem Korenev, Punit Singh Koura, Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet, Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta, Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, Ranjan Subramanian, Xiaoqing Ellen Tan, Binh Tang, Ross Taylor, Adina Williams, Jian Xi-ang Kuan, Puxin Xu, Zheng Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melanie Kambadur, Sharan Narang, Aurélien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas Scialom. 2023. Llama 2: Open Foundation and Fine-Tuned Chat Models. CoRR abs/2307.09288 (2023). arXiv:2307.09288 doi: 10.48550/ARXIV.2307.09288 
+
+[24] Colin Unger, Zhihao Jia, Wei Wu, Sina Lin, Mandeep Baines, Carlos Efrain Quintero Narvaez, Vinay Ramakrishnaiah, Nirmal Prajapati, Pat McCormick, Jamaludin Mohd-Yusof, Xi Luo, Dheevatsa Mudigere, Jongsoo Park, Misha Smelyanskiy, and Alex Aiken. 2022. Unity: Ac-celerating DNN Training Through Joint Optimization of Algebraic Transformations and Parallelization. In 16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22) . USENIX Association, 267–284. https://www.usenix.org/conference/osdi22/ presentation/unger 
+
+[25] Haojie Wang, Jidong Zhai, Mingyu Gao, Zixuan Ma, Shizhi Tang, Liyan Zheng, Yuanzhi Li, Kaiyuan Rong, Yuanyong Chen, and Zhihao Jia. 2021. PET: Optimizing Tensor Programs with Partially Equiva-lent Transformations and Automated Corrections. In 15th USENIX Symposium on Operating Systems Design and Implementation (OSDI 21) . USENIX Association, 37–54. https://www.usenix.org/conference/ osdi21/presentation/wang 
+
+[26] Yisu Remy Wang, Shana Hutchison, Jonathan Leang, Bill Howe, and Dan Suciu. 2020. SPORES: Sum-Product Optimization via Relational Equality Saturation for Large Scale Linear Algebra. Proc. VLDB Endow. 
+
+13, 11 (2020), 1919–1932. doi: 10.14778/3407790.3407799 
+
+[27] Max Willsey, Chandrakana Nandi, Yisu Remy Wang, Oliver Flatt, Zachary Tatlock, and Pavel Panchekha. 2021. egg: Fast and Exten-sible Equality Saturation. Proceedings of the ACM on Programming Languages 5, POPL (2021), 1–29. doi: 10.1145/3434304 
+
+[28] Mengdi Wu, Xinhao Cheng, Shengyu Liu, Chunan Shi, Jianan Ji, Man Kit Ao, Praveen Velliengiri, Xupeng Miao, Oded Padon, and Zhihao Jia. 2025. Mirage: A Multi-Level Superoptimizer for Ten-sor Programs. In 19th USENIX Symposium on Operating Systems De-sign and Implementation, OSDI 2025 . USENIX Association, 21–38. 
+
+https://www.usenix.org/conference/osdi25/presentation/wu-mengdi 
+
+[29] Mengdi Wu, Xiaoyu Jiang, Oded Padon, and Zhihao Jia. 2026. Prism: Symbolic Superoptimization of Tensor Programs. CoRR abs/2604.15272 (2026). arXiv:2604.15272 doi: 10.48550/ARXIV.2604.15272 
+
+[30] Guangxuan Xiao, Yuandong Tian, Beidi Chen, Song Han, and Mike Lewis. 2024. Efficient Streaming Language Mod-els with Attention Sinks. In International Conference on Learning Representations , B. Kim, Y. Yue, S. Chaudhuri, K. Fragkiadaki, M. Khan, and Y. Sun (Eds.), Vol. 2024. 21875– 21895. https://proceedings.iclr.cc/paper_files/paper/2024/file/ 5e5fd18f863cbe6d8ae392a93fd271c9-Paper-Conference.pdf 
+
+[31] Zhenda Xie, Yixuan Wei, Huanqi Cao, Chenggang Zhao, Chengqi Deng, Jiashi Li, Damai Dai, Huazuo Gao, Jiang Chang, Kuai Yu, Liang Zhao, Shangyan Zhou, Zhean Xu, Zhengyan Zhang, Wangding Zeng, Shengding Hu, Yuqing Wang, Jingyang Yuan, Lean Wang, and Wen-feng Liang. 2025. mHC: Manifold-Constrained Hyper-Connections. 
+
+arXiv preprint arXiv:2512.24880 (2025). https://arxiv.org/abs/2512. 24880 
+
+[32] Yichen Yang, Phitchaya Mangpo Phothilimthana, Yisu Remy Wang, Max Willsey, Sudip Roy, and Jacques Pienaar. 2021. Equality Satura-tion for Tensor Graph Superoptimization. In Proceedings of Machine Learning and Systems , Vol. 3. 255–268. https://proceedings.mlsys.org/ paper/2021/hash/cc427d934a7f6c0663e5923f49eba531-Abstract.html 
+
+[33] Tianzhu Ye, Li Dong, Yuqing Xia, Yutao Sun, Yi Zhu, Gao Huang, and Furu Wei. 2025. Differential Transformer. In In-ternational Conference on Learning Representations , Y. Yue, A. Garg, N. Peng, F. Sha, and R. Yu (Eds.), Vol. 2025. 144– 164. https://proceedings.iclr.cc/paper_files/paper/2025/file/ 00b67df24009747e8bbed4c2c6f9c825-Paper-Conference.pdf 
+
+[34] Zihao Ye, Lequn Chen, Ruihang Lai, Wuwei Lin, Yineng Zhang, Stephanie Wang, Tianqi Chen, Baris Kasikci, Vinod Grover, Arvind Krishnamurthy, and Luis Ceze. 2025. FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serv-ing. In Proceedings of Machine Learning and Systems , Vol. 7. 
+
+https://proceedings.mlsys.org/paper_files/paper/2025/hash/ dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html 
+
+[35] Bozhi You, Irene Wang, Zelal Su Mustafaoglu, Abhinav Jangda, Angélica Moreira, Roshan Dathathri, Divya Mahajan, and Keshav Pin-gali. 2026. Flashlight: PyTorch Compiler Extensions to Accelerate At-tention Variants. In Proceedings of Machine Learning and Systems , Vol. 8. 874–891. https://proceedings.mlsys.org/paper_files/paper/2026/hash/ bc52716d13d2d72ea0f335667d86c0f8-Abstract-Conference.html 
+
+[36] Yifan Zhao, Egan Johnson, Prasanth Chatarasi, Vikram S. Adve, and Sasa Misailovic. 2026. Neptune: Advanced ML Operator Fusion for Locality and Parallelism on GPUs. Proceedings of the ACM on Program-ming Languages 10, PLDI (2026), 1278–1302. doi: 10.1145/3808298 
+
+[37] Yifan Zhao, Hashim Sharif, Vikram S. Adve, and Sasa Misailovic. 2024. Felix: Optimizing Tensor Programs with Gradient Descent. In Proceed-ings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 3 . ACM, 367–381. doi: 10.1145/3620666.3651348 
+
+13 Zhan et al. 
+
+[38] Yifan Zhao, Yuchen Yang, Matei Budiu, and Sasa Misailovic. 2026. Nautilus: An Auto-Scheduling Tensor Compiler for Efficient Tiled GPU Kernels. CoRR abs/2604.14825 (2026). arXiv:2604.14825 doi: 10. 48550/ARXIV.2604.14825 
+
+[39] Lianmin Zheng, Chengfan Jia, Minmin Sun, Zhao Wu, Cody Hao Yu, Ameer Haj-Ali, Yida Wang, Jun Yang, Danyang Zhuo, Koushik Sen, Joseph E. Gonzalez, and Ion Stoica. 2020. Ansor: Generating High-Performance Tensor Programs for Deep Learning. In 14th USENIX Symposium on Operating Systems Design and Implementation (OSDI 20) .USENIX Association, 863–879. https://www.usenix.org/conference/ osdi20/presentation/zheng 
+
+[40] Hongyu Zhu, Ruofan Wu, Yijia Diao, Shanbin Ke, Haoyu Li, Chen Zhang, Jilong Xue, Lingxiao Ma, Yuqing Xia, Wei Cui, Fan Yang, Mao Yang, Lidong Zhou, Asaf Cidon, and Gennady Pekhimenko. 2022. ROLLER: Fast and Efficient Tensor Compilation for Deep Learn-ing. In 16th USENIX Symposium on Operating Systems Design and Implementation, OSDI 2022 . USENIX Association, 233–248. https: //www.usenix.org/conference/osdi22/presentation/zhu 
+
+14

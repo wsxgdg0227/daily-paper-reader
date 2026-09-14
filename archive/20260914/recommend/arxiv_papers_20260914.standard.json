@@ -1,0 +1,490 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-14T22:13:56.023467+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2609.12379v1",
+      "source": "arxiv",
+      "title": "ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels",
+      "abstract": "Auto-regressive model decode is bandwidth-bound, since every weight and key/value-cache byte crosses high-bandwidth memory once per token. A megakernel is an ideal solution, but existing automatic megakernel generation approaches cannot achieve both generalization across models and correctness guarantees.   We present ForgeMegakernel, which generates a per-model high-performance decode megakernel using coding agents. ForgeMegakernel pairs a universal knowledge base of ten progressive milestones with an independent mid-state test oracle. The milestones provide the megakernel's structural properties: a fine-grained instruction stream for each SM, dependency counters replacing the global synchronization, and a shared-memory buffer pool for workload balance across SMs and greater parallelism. The test oracle derives the mid-states of the megakernel and checks the performance, error and precision during the generation process, guaranteeing a correct and trustworthy forged megakernel.   We evaluated ForgeMegakernel on 14 representative decoding operations across eight model families spanning 0.6B-13B parameters. The generated megakernels achieved 50.5-85.9% MBU and geometric mean speedups of 1.21x over SGLang 0.5.18 and 1.54x over a megakernel compiler under identical configurations. Inside SGLang, evaluated on GSM8K with ragged prompts, all 14 megakernels decoded faster than the SGLang engine at comparable answer accuracy.",
+      "authors": [
+        "Leshan Li",
+        "Zhui Zhu",
+        "Xianglong Deng",
+        "Yaojian Chen",
+        "Qingfeng He",
+        "Yuxuan Li",
+        "Rong Zhao",
+        "Xu Han",
+        "Zhiyuan Liu"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-11T02:52:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.12379v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "coding agents generate per-model high-performance decode megakernels for GPUs",
+      "llm_evidence_cn": "用编码智能体为GPU生成按模型定制的高性能解码巨核",
+      "llm_evidence": "用编码智能体为GPU生成按模型定制的高性能解码巨核",
+      "canonical_evidence": "用编码智能体为GPU生成按模型定制的高性能解码巨核",
+      "llm_tldr_en": "ForgeMegakernel uses coding agents plus a milestone knowledge base and a mid-state test oracle to auto-generate per-model high-performance decode megakernels with correctness guarantees.",
+      "llm_tldr_cn": "针对自回归解码受带宽限制、现有自动巨核生成难以兼顾跨模型泛化与正确性保证的问题，本文提出ForgeMegakernel框架。方法用编码智能体生成按模型定制的高性能解码巨核，结合十个渐进里程碑知识库与独立的中间态测试预言机提供结构属性与正确性验证。里程碑给出每个SM的细粒度指令流、以依赖计数器替代全局同步以及共享内存缓冲池等设计。该工作为自动生成高性能且可验证的解码巨核提供了通用框架。",
+      "llm_tldr": "针对自回归解码受带宽限制、现有自动巨核生成难以兼顾跨模型泛化与正确性保证的问题，本文提出ForgeMegakernel框架。方法用编码智能体生成按模型定制的高性能解码巨核，结合十个渐进里程碑知识库与独立的中间态测试预言机提供结构属性与正确性验证。里程碑给出每个SM的细粒度指令流、以依赖计数器替代全局同步以及共享内存缓冲池等设计。该工作为自动生成高性能且可验证的解码巨核提供了通用框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.12471v1",
+      "source": "arxiv",
+      "title": "AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization",
+      "abstract": "We introduce AMDKernelVault, an open HIP and Triton kernel corpus and training framework for recent AMD CDNA GPUs. Existing LLM-based kernel agents are largely CUDA/NVIDIA-centric and often depend on repeated frontier-LLM calls for generation, reflection, and optimization. To address this gap, we develop HIPKernelGen and TritonKernelGen, agent-driven pipelines that transform PyTorch references into HIP or Triton kernels, compile and validate candidates under ROCm, and latency-profile them on AMD hardware. The corpus contains 62,153 execution-verified HIP kernel samples, 2,377 production-grounded ROCm Libraries QA entries, and 39,893 Triton kernels. We further train Qwen3-8B with supervised fine-tuning and execution-aware reinforcement learning as a demonstration of the corpus's utility. Under fixed evaluation budgets, it achieves the highest correctness among the compared models on PyTorch-to-HIP (34.0% Pass@1), TritonBench-G (33.2% Corr@3), and ROCmBench (41.94% Corr@3), but does not uniformly lead compilation or speed metrics. The corpus and documentation are available at https://huggingface.co/datasets/amd/AIG-Datasets, and the associated training and kernel-generation code is available at https://github.com/AMD-AGI/hip_kernel_llm_lab.",
+      "authors": [
+        "Ji Liu",
+        "Saptarshi Majumder",
+        "Yiqing Huang",
+        "Wenwen Ouyang",
+        "Umang Pandey",
+        "Zeping Li",
+        "Chushi Chen",
+        "Zihao An",
+        "Puyuan Yang",
+        "Zekai Li",
+        "Sina Rafati",
+        "Ziqiong Liu",
+        "Pratik Prabhanjan Brahma",
+        "Dong Li",
+        "Zicheng Liu",
+        "Sharon Zhou",
+        "Emad Barsoum"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-11T06:14:05+00:00",
+      "link": "https://arxiv.org/pdf/2609.12471v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "LLM-based agentic GPU kernel generation and optimization",
+      "llm_evidence_cn": "基于LLM智能体的GPU算子生成与优化",
+      "llm_evidence": "基于LLM智能体的GPU算子生成与优化",
+      "canonical_evidence": "基于LLM智能体的GPU算子生成与优化",
+      "llm_tldr_en": "AMDKernelVault builds an open HIP and Triton kernel corpus plus agentic pipelines HIPKernelGen and TritonKernelGen that turn PyTorch references into validated, latency-profiled kernels on AMD GPUs, and trains Qwen3-8B with execution-aware reinforcement learning.",
+      "llm_tldr_cn": "针对现有LLM算子智能体多集中于CUDA/NVIDIA且依赖反复调用前沿模型的问题，论文构建面向AMD CDNA GPU的开放HIP与Triton算子语料及训练框架，提出HIPKernelGen与TritonKernelGen智能体流水线，将PyTorch参考实现转换为可编译验证并在硬件上测延迟的算子。语料含数万条执行验证样本，并用执行感知强化学习微调Qwen3-8B，为LLM驱动的算子自动生成与优化提供了数据与方法基础。",
+      "llm_tldr": "针对现有LLM算子智能体多集中于CUDA/NVIDIA且依赖反复调用前沿模型的问题，论文构建面向AMD CDNA GPU的开放HIP与Triton算子语料及训练框架，提出HIPKernelGen与TritonKernelGen智能体流水线，将PyTorch参考实现转换为可编译验证并在硬件上测延迟的算子。语料含数万条执行验证样本，并用执行感知强化学习微调Qwen3-8B，为LLM驱动的算子自动生成与优化提供了数据与方法基础。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.12655v1",
+      "source": "arxiv",
+      "title": "LifeMem: Enabling Lifelong Experience Reuse for LLM Agents",
+      "abstract": "Large language model agents are expected to continuously adapt to new tasks and environments over their lifetime by reusing past experience. However, existing memory-based agents struggle to transfer reusable experience across environments and suffer from catastrophic forgetting as experience accumulated. To address these challenges, we propose LifeMem, a lifelong learning framework that enables agents to transfer knowledge across multiple environments. During learning, LifeMem clusters accumulated interaction trajectories based on underlying workflows to extract reusable skills. When solving a new task at inference time, the agent recalls relevant skills and trajectories to guide actions. To validate our method, we conduct experiments across 10 environments and over 13k tasks with 2k newly annotated interaction trajectories. Results show that LifeMem enables effective experience reuse in lifelong learning, achieving both reduced forgetting on learned tasks and superior cross-task transfer. Further analysis reveals that task streaming impacts learning, while consolidating structurally similar trajectories within memory boosts performance.",
+      "authors": [
+        "Yuli Qiu",
+        "Yutong Li",
+        "Wei Su",
+        "Zeming Liu",
+        "Wanxiang Che",
+        "Heyan Huang",
+        "Haifeng Wang",
+        "Yuang Guo"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-11T10:00:43+00:00",
+      "link": "https://arxiv.org/pdf/2609.12655v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "memory-based LLM agents store and retrieve reusable skills and trajectories",
+      "llm_evidence_cn": "基于记忆的LLM智能体存储与检索可复用技能和轨迹",
+      "llm_evidence": "基于记忆的LLM智能体存储与检索可复用技能和轨迹",
+      "canonical_evidence": "基于记忆的LLM智能体存储与检索可复用技能和轨迹",
+      "llm_tldr_en": "LifeMem is a lifelong learning framework for LLM agents that clusters interaction trajectories to extract reusable skills and recalls relevant skills at inference, enabling cross-environment knowledge transfer and mitigating forgetting across 10 environments.",
+      "llm_tldr_cn": "现有基于记忆的LLM智能体难以在不同环境间迁移可复用经验，并随经验积累出现灾难性遗忘。为此提出LifeMem终身学习框架，对累积的交互轨迹按底层工作流聚类以提取可复用技能，推理时召回相关技能与轨迹来引导行动。在10个环境上的实验表明该方法能实现跨环境知识迁移并缓解遗忘。其意义在于为LLM智能体的长期经验复用提供了结构化的记忆与检索机制。",
+      "llm_tldr": "现有基于记忆的LLM智能体难以在不同环境间迁移可复用经验，并随经验积累出现灾难性遗忘。为此提出LifeMem终身学习框架，对累积的交互轨迹按底层工作流聚类以提取可复用技能，推理时召回相关技能与轨迹来引导行动。在10个环境上的实验表明该方法能实现跨环境知识迁移并缓解遗忘。其意义在于为LLM智能体的长期经验复用提供了结构化的记忆与检索机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.12299v1",
+      "source": "arxiv",
+      "title": "Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions",
+      "abstract": "GPU developers and automated optimizers need performance evidence for semantic code regions--such as neural-network operator implementations and pipeline stages--but this evidence is fragmented across profiling tools. Answering a region-level question can require manually constructing probes and program variants, isolating interfering measurements, and mapping evidence to regions and execution contexts. We present Argus, a region-centric measurement planner and runtime that automates this workflow. Clients identify regions with boundary markers and select signals and execution scopes. Argus preserves region identity across compilation, execution, and measurement variants, constructs interference-aware multi-run plans, and orchestrates transformations and profiling across backends. It joins compiler-, hardware-, and system-level evidence using region identity and dynamic execution context, producing reports that record measurement origins and attribution ambiguity.   We evaluate Argus across agentic kernel optimization, persistent megakernel optimization, and cross-level PGO. Across 44 persistent-GEMM and attention configurations, Argus improves 39/44 cases and raises AlphaEvolve's geometric-mean speedup from 5.4% to 8.9%. On a persistent TinyLlama-1.1B decode megakernel, an optimization agent reaches 1.65 ms/token with Argus versus 4.92 ms/token without it, producing a kernel $2.1\\times$ faster than PyTorch with CUDA Graphs. Finally, Argus-guided cross-level PGO improves compute--communication overlap, increasing throughput by 7% on average across five multi-GPU settings.",
+      "authors": [
+        "Jianzhu Yao",
+        "Yue Guan",
+        "Srivatsan Ramesh",
+        "Yuanwei Fang",
+        "Jian Jiao",
+        "Boda Li",
+        "Yueming Hao",
+        "Xinwei Qiang",
+        "Pramod Viswanath",
+        "Yufei Ding",
+        "Bill Yoshimi",
+        "Alexey Loginov",
+        "Shane Nay",
+        "Adnan Aziz"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.PF"
+      ],
+      "published": "2026-09-11T00:07:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.12299v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "region-centric GPU performance measurement for automated optimizers",
+      "llm_evidence_cn": "面向自动优化器的区域级GPU性能测量",
+      "llm_evidence": "面向自动优化器的区域级GPU性能测量",
+      "canonical_evidence": "面向自动优化器的区域级GPU性能测量",
+      "llm_tldr_en": "Argus automates region-level GPU performance measurement for operators and pipeline stages, preserving region identity and planning interference-aware runs, supporting automated kernel optimization.",
+      "llm_tldr_cn": "GPU开发者与自动优化器需要面向语义代码区域（如算子实现、流水线阶段）的性能证据，但这些证据分散于各类剖析工具，需人工构造探针与程序变体。本文提出Argus，一种以区域为中心的测量规划器与运行时，通过边界标记保持区域身份一致，构建干扰感知的多轮测量计划并自动编排测量。它能自动完成原本繁琐的性能证据收集工作流，为算子级性能优化提供系统化支撑。",
+      "llm_tldr": "GPU开发者与自动优化器需要面向语义代码区域（如算子实现、流水线阶段）的性能证据，但这些证据分散于各类剖析工具，需人工构造探针与程序变体。本文提出Argus，一种以区域为中心的测量规划器与运行时，通过边界标记保持区域身份一致，构建干扰感知的多轮测量计划并自动编排测量。它能自动完成原本繁琐的性能证据收集工作流，为算子级性能优化提供系统化支撑。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.08258v1",
+      "source": "arxiv",
+      "title": "Revoked but Still Authoritative: An Empirical Study of Revocation Enforcement in Agent-Memory Systems",
+      "abstract": "Long-running language-model agents depend on persistent memory. Many agent-memory systems preserve history through soft revocation: a contradicted fact is marked invalid and retained rather than deleted. However, whether that mark is enforced at retrieval time is unexamined. In this paper, we measure five such systems: we load each with a revoked policy and its replacement, track whether the revoked fact is returned at retrieval and whether the agent then acts on it across nine policy scenarios and nine models, and score every trial under six defense conditions. We find that no system enforces revocation by default: the revoked fact is returned wherever the revocation label is visible to the retrieval layer, outranks its replacement, and leads agents to the unsafe action. Based on these findings, we develop a guard that sits between the agent and any memory backend and withholds records that are revoked or conflict with their replacement.",
+      "authors": [
+        "Yi Ting Shen",
+        "Kentaroh Toyoda",
+        "Alex Leung"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CR"
+      ],
+      "published": "2026-09-08T05:03:09+00:00",
+      "link": "https://arxiv.org/pdf/2609.08258v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agent-memory systems store and retrieve facts, revocation enforcement",
+      "llm_evidence_cn": "智能体记忆系统的存取与撤销执行",
+      "llm_evidence": "智能体记忆系统的存取与撤销执行",
+      "canonical_evidence": "智能体记忆系统的存取与撤销执行",
+      "llm_tldr_en": "An empirical study of five agent-memory systems finds none enforce revocation by default: revoked facts are still returned at retrieval and can outrank their replacements, exposing a gap between soft revocation labels and retrieval-time enforcement.",
+      "llm_tldr_cn": "长期运行的LLM智能体依赖持久记忆，许多记忆系统采用软撤销，把矛盾事实标记为无效却仍保留，但其在检索时是否真正生效尚不清楚。论文对五种智能体记忆系统进行实证测量，向每个系统注入被撤销策略及其替代项，在九种策略场景和九个模型上追踪撤销事实是否被检索返回并影响行为。结果显示没有系统默认强制执行撤销，被撤销事实只要对检索层可见就会被返回，甚至优先于其替代项。该工作揭示了智能体记忆系统在撤销执行上的普遍缺陷。",
+      "llm_tldr": "长期运行的LLM智能体依赖持久记忆，许多记忆系统采用软撤销，把矛盾事实标记为无效却仍保留，但其在检索时是否真正生效尚不清楚。论文对五种智能体记忆系统进行实证测量，向每个系统注入被撤销策略及其替代项，在九种策略场景和九个模型上追踪撤销事实是否被检索返回并影响行为。结果显示没有系统默认强制执行撤销，被撤销事实只要对检索层可见就会被返回，甚至优先于其替代项。该工作揭示了智能体记忆系统在撤销执行上的普遍缺陷。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.12330v1",
+      "source": "arxiv",
+      "title": "Unleashing the Power of Equality Saturation for Tensor Program Superoptimization",
+      "abstract": "Efficient GPU implementations of tensor programs often require joint optimization of high-level algebraic formulations and low-level execution strategies. However, the resulting search space grows rapidly as transformations combine across operators, making joint optimization difficult to scale. We present EqiForge, a tensor program superoptimizer based on equality saturation. Its unified IR represents high-level tensor expressions and tiled computations in a single expression language. By composing equality rules, EqiForge derives fused implementations such as FlashAttention-style kernels directly from tensor expressions. Early compaction prunes redundant partial programs before completion, while subgraph composition extends the search to larger graphs. Across tensor-program benchmarks, EqiForge achieves a geometric mean speedup of 1.32x and a maximum of 2.74x over the fastest available baseline per configuration. Its attention kernels outperform FlashAttention by up to 1.87x in decode and approach its performance in prefill. EqiForge also discovers new implementations that outperform torch.compile on various Transformer layers, including QK-normalized MLA (3.16x) and mHC (5.84x).",
+      "authors": [
+        "Qi Zhan",
+        "Xing Hu",
+        "Xin Xia",
+        "Shanping Li"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-11T01:26:07+00:00",
+      "link": "https://arxiv.org/pdf/2609.12330v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "automatic superoptimization of GPU tensor programs via equality saturation",
+      "llm_evidence_cn": "基于等式饱和的GPU张量程序自动超优化",
+      "llm_evidence": "基于等式饱和的GPU张量程序自动超优化",
+      "canonical_evidence": "基于等式饱和的GPU张量程序自动超优化",
+      "llm_tldr_en": "EqiForge uses equality saturation to jointly optimize tensor expressions and tiling, deriving fused FlashAttention-style kernels and scaling the search via early compaction and subgraph composition.",
+      "llm_tldr_cn": "高效GPU张量程序往往需要联合优化高层代数表达与底层执行策略，但变换组合导致搜索空间急剧膨胀，难以扩展。本文提出EqiForge，一种基于等式饱和的张量程序超优化器，用统一中间表示同时表达高层张量表达式与分块计算，通过组合等式规则直接推导FlashAttention式融合内核。早期压缩剪枝冗余部分程序，子图组合扩展搜索范围，实现了可扩展的自动内核优化。",
+      "llm_tldr": "高效GPU张量程序往往需要联合优化高层代数表达与底层执行策略，但变换组合导致搜索空间急剧膨胀，难以扩展。本文提出EqiForge，一种基于等式饱和的张量程序超优化器，用统一中间表示同时表达高层张量表达式与分块计算，通过组合等式规则直接推导FlashAttention式融合内核。早期压缩剪枝冗余部分程序，子图组合扩展搜索范围，实现了可扩展的自动内核优化。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.12422v1",
+      "source": "arxiv",
+      "title": "Hierarchical Belief Modeling for Zero-Shot Opponent Adaptation in Partially Observable Multi-Agent Navigation",
+      "abstract": "Lux AI Season 3 requires agents to act under partial observability, randomized episode level dynamics, and a best of five match structure that rewards both tactical execution and fast adaptation. We present HORIZON, a hierarchical agent that combines symmetry aware spatial perception, dual memory belief tracking, relic centric graph attention, information gain driven exploration, and an opponent conditioned policy mixture. HORIZON separates short horizon control from cross match meta reasoning, while auxiliary belief and world model objectives stabilize learning. Trained with PPO in a large scale JAX simulator, the resulting agent explicitly infers hidden game parameters and opponent style. Experiments show consistent gains in match win rate, episode win rate, adaptation gain, and league rating over strong recurrent and feed forward baselines.",
+      "authors": [
+        "Kowei Shih",
+        "Lu Cheng",
+        "Zeyu Wang",
+        "Yeyun Xu",
+        "Kejian Tong"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-09-11T04:17:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.12422v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "dual memory belief tracking for agent adaptation",
+      "llm_evidence_cn": "双记忆信念追踪的智能体自适应",
+      "llm_evidence": "双记忆信念追踪的智能体自适应",
+      "canonical_evidence": "双记忆信念追踪的智能体自适应",
+      "llm_tldr_en": "HORIZON is a hierarchical agent for partially observable multi-agent navigation that combines dual memory belief tracking, graph attention and an opponent-conditioned policy mixture. It infers hidden parameters and opponent style, enabling fast cross-match adaptation.",
+      "llm_tldr_cn": "针对部分可观测多智能体导航中对手策略未知、需快速适应的问题，论文提出分层智能体HORIZON，结合对称感知、双记忆信念追踪、图注意力与对手条件策略混合，将短期控制与跨对局元推理分离。基于PPO在JAX大规模模拟器中训练，智能体能显式推断隐藏参数与对手风格，实验显示其适应能力稳定提升，为智能体记忆与经验驱动的决策适应提供了可借鉴方法。",
+      "llm_tldr": "针对部分可观测多智能体导航中对手策略未知、需快速适应的问题，论文提出分层智能体HORIZON，结合对称感知、双记忆信念追踪、图注意力与对手条件策略混合，将短期控制与跨对局元推理分离。基于PPO在JAX大规模模拟器中训练，智能体能显式推断隐藏参数与对手风格，实验显示其适应能力稳定提升，为智能体记忆与经验驱动的决策适应提供了可借鉴方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.12404v1",
+      "source": "arxiv",
+      "title": "VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets",
+      "abstract": "Learning from trial and error is a promising way to improve language agents on complex tasks such as computer control. Reflexion introduced verbal reinforcement learning, which turns failed trials into text that guides later attempts without updating model parameters. We introduce VRL-Bench, a harness for fair evaluation of trial-and-error learning under finite trial budgets. Across three models on MiniWoB and WebShop, we evaluate updates from several prominent verbal-memory methods spanning Reflexion and later work: each improves observed success over memory-free retry in some settings but reduces it in others. Replay experiments show that using reflection can reduce success rates, revealing a trade-off between exploiting experience and continued exploration. We propose VEX$^2$, a verbal exploration--exploitation scheduler that uses a language model to jointly select policies and allocate the remaining trial budget. VEX$^2$ is the only evaluated update to achieve positive observed success-rate gains over retry in all six settings.",
+      "authors": [
+        "Yu Bai",
+        "Yukai Miao",
+        "Dawei Wang",
+        "Li Chen",
+        "Yanyu Ren",
+        "Yuqian Shi",
+        "Dan Li",
+        "Ying Xiong",
+        "Chengqiu Tan",
+        "Run Zhou",
+        "Li Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-11T03:54:02+00:00",
+      "link": "https://arxiv.org/pdf/2609.12404v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "evaluates verbal-memory trial-and-error methods for agents",
+      "llm_evidence_cn": "评测智能体言语记忆与试错学习方法",
+      "llm_evidence": "评测智能体言语记忆与试错学习方法",
+      "canonical_evidence": "评测智能体言语记忆与试错学习方法",
+      "llm_tldr_en": "VRL-Bench fairly evaluates trial-and-error learning for language agents under finite trial budgets, comparing verbal-memory and reflection methods and revealing a trade-off where reusing experience can sometimes reduce success.",
+      "llm_tldr_cn": "语言智能体可通过试错与言语强化学习（如Reflexion）提升复杂任务表现，但缺乏在有限试错预算下的公平评测。论文提出VRL-Bench框架，在MiniWoB和WebShop上对多种言语记忆与反思方法的更新效果进行系统对比。结果显示这些方法在部分设置中提升成功率，在另一些设置中反而降低，重放实验表明使用反思甚至可能拉低成功率。该工作揭示了利用经验与探索之间的权衡，为智能体记忆与试错学习提供可靠评测基础。",
+      "llm_tldr": "语言智能体可通过试错与言语强化学习（如Reflexion）提升复杂任务表现，但缺乏在有限试错预算下的公平评测。论文提出VRL-Bench框架，在MiniWoB和WebShop上对多种言语记忆与反思方法的更新效果进行系统对比。结果显示这些方法在部分设置中提升成功率，在另一些设置中反而降低，重放实验表明使用反思甚至可能拉低成功率。该工作揭示了利用经验与探索之间的权衡，为智能体记忆与试错学习提供可靠评测基础。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.12551v1",
+      "source": "arxiv",
+      "title": "RoofLang: Enabling AI-Driven Architecting of LLM Inference Systems",
+      "abstract": "AI is beginning to make substantive contributions to LLM inference optimization. Existing AI optimizations are predominantly profiling-based. Profiling-bound feedback confines the search to the capabilities and performance of an existing software stack, preventing a fundamentally better architecture of LLM inference systems from being identified. To enable the AI-driven LLM inference system architecting loop, we argue that a general workload representation, a verifiable mutation space, and an implementation-independent evaluator are required. We present the RoofLang domain-specific language (DSL) that provides these features. In our evaluation, RoofLang reveals that DeepSeek V4-series models could achieve 3.5-39.5$\\times$ higher peak decode throughput than other representative models. This gap is disproportionate to their total parameter counts and arises largely from compact KV-cache designs that support larger batches and reduce memory traffic. A persistent optimizer agent further discovered several new architectures that improved both throughput and interactivity of DeepSeek V4 Pro on NVIDIA B300 by 6.23-50.1%.",
+      "authors": [
+        "Ziyue Yang",
+        "Yuting Jiang",
+        "Lei Qu",
+        "Peng Cheng"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AI"
+      ],
+      "published": "2026-09-11T07:57:28+00:00",
+      "link": "https://arxiv.org/pdf/2609.12551v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "AI-driven automated search over LLM inference system designs",
+      "llm_evidence_cn": "AI驱动的LLM推理系统自动化设计搜索",
+      "llm_evidence": "AI驱动的LLM推理系统自动化设计搜索",
+      "canonical_evidence": "AI驱动的LLM推理系统自动化设计搜索",
+      "llm_tldr_en": "RoofLang argues profiling-bound AI optimization limits architectural search, and proposes a DSL providing workload representation, verifiable mutation space and implementation-independent evaluator to enable AI-driven LLM inference system architecting, revealing large potential throughput gains.",
+      "llm_tldr_cn": "针对现有AI优化多依赖性能剖析、将搜索局限在已有软件栈内、难以发现更优系统架构的问题，论文提出RoofLang领域特定语言，提供通用工作负载表示、可验证变异空间与实现无关的评估器，从而支撑AI驱动的推理系统架构搜索。评估显示该方法揭示DeepSeek V4系列模型可获得数倍峰值解码吞吐提升，为自动化系统级性能优化提供了可迁移范式。",
+      "llm_tldr": "针对现有AI优化多依赖性能剖析、将搜索局限在已有软件栈内、难以发现更优系统架构的问题，论文提出RoofLang领域特定语言，提供通用工作负载表示、可验证变异空间与实现无关的评估器，从而支撑AI驱动的推理系统架构搜索。评估显示该方法揭示DeepSeek V4系列模型可获得数倍峰值解码吞吐提升，为自动化系统级性能优化提供了可迁移范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.12459v1",
+      "source": "arxiv",
+      "title": "EvoRS: On-Policy Self-Evolution of Reward Systems for Open-Ended Reinforcement Learning",
+      "abstract": "Open-ended reinforcement learning often relies on rubric-based rewards for tasks without directly verifiable answers. Yet the policy and reward system form a dynamic feedback loop: as the policy optimizes the current reward, an initially useful reward system may become unreliable due to reward hacking or reduced response discriminability. The reward system should therefore evolve rather than remain fixed during training. Existing dynamic-rubric methods adapt evaluation criteria, but reward failures can also arise from scoring mechanisms or signal composition. We introduce EvoRS, a self-evolving RL framework that evolves the reward system from on-policy experience, representing it as an executable Reward-DAG. Specifically, an agentic designer updates this system from on-policy rollouts and reward traces to maintain train-time reliability. Across writing and roleplay, EvoRS achieves the best quality under all three judges, outperforming the policy by \\(2.107\\) and \\(4.767\\) points, respectively, while reducing reward hacking and coverage failures and preserving reward informativeness. Ablations confirm that a comprehensive fixed reward system cannot remain reliable in open-ended tasks and must evolve throughout training.",
+      "authors": [
+        "Weiyuan Li",
+        "Aili Chen",
+        "Xintao Wang",
+        "Yikai Zhang",
+        "Qingqing Dong",
+        "Jinghan Xu",
+        "Hongru Hou",
+        "Wenxuan Zhao",
+        "Chengkun Lang",
+        "Jun Gao",
+        "Yuanli Guo",
+        "Hongcheng Guo",
+        "Yanghua Xiao",
+        "Deqing Yang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-11T05:40:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.12459v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "self-evolving RL framework that evolves the reward system from on-policy experience without human intervention",
+      "llm_evidence_cn": "自进化强化学习框架，基于在策略经验演化奖励系统",
+      "llm_evidence": "自进化强化学习框架，基于在策略经验演化奖励系统",
+      "canonical_evidence": "自进化强化学习框架，基于在策略经验演化奖励系统",
+      "llm_tldr_en": "EvoRS is a self-evolving RL framework that evolves the reward system from on-policy experience, representing it as an executable Reward-DAG to counter reward hacking and declining discriminability in open-ended RL.",
+      "llm_tldr_cn": "开放式强化学习常依赖基于评分标准的奖励，但策略与奖励系统构成动态反馈回路：策略优化当前奖励后，原奖励可能因奖励黑客或区分度下降而失效。本文提出EvoRS，一种自进化强化学习框架，将在策略经验中演化奖励系统并表示为可执行的Reward-DAG，由智能体式设计器驱动更新。该工作强调奖励系统应随训练演化而非固定，为智能体在无人工干预下持续改进评价与策略提供了机制，对自进化智能体研究有直接借鉴意义。",
+      "llm_tldr": "开放式强化学习常依赖基于评分标准的奖励，但策略与奖励系统构成动态反馈回路：策略优化当前奖励后，原奖励可能因奖励黑客或区分度下降而失效。本文提出EvoRS，一种自进化强化学习框架，将在策略经验中演化奖励系统并表示为可执行的Reward-DAG，由智能体式设计器驱动更新。该工作强调奖励系统应随训练演化而非固定，为智能体在无人工干预下持续改进评价与策略提供了机制，对自进化智能体研究有直接借鉴意义。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.12746v1",
+      "source": "arxiv",
+      "title": "What Drives Recovery in Agentic Text-to-Cypher? LAST-CQ: An LLM Agent Self-Refinement Framework",
+      "abstract": "Agentic pipelines for structured-query generation are rapidly expanding, but it is unclear which part of the loop produces the gain. We use LAST-CQ -- a five-agent, training-free, execution-grounded Text-to-Cypher framework -- as an instrumented testbed, running three counterfactuals over 2,471 live-database queries and six backbones spanning three vendor scale tiers. Removing correction is worth between 3.1% aggregate execution-BLEU against the single-pass system and 12.3% against a no-refinement counterfactual (up to 80.7% for the weakest backbone). Replacing schema-grounded, LLM-synthesised feedback with raw database error strings costs almost nothing (20.9% vs. 19.9% naive exact match; <0.2% end-to-end; equivalent within $\\pm 0.075$ set-F1 by two one-sided tests). Spending the same call budget on parallel sampling degrades quality by 10-11%. What works is detecting failure and routing it to a retry, not the feedback sophistication or number of samples. LAST-CQ itself recovers 91.7% of queries that fail under single-pass generation, while a query that succeeds first time still costs exactly one LLM call. We also show that n-gram overlap on serialised results is not a bound in either direction: it over-scores against set equivalence on 65.9% of results while under-scoring against judged semantics. Finally, we calibrate our LLM judge against blind human labels and find it optimistic by 9 points.",
+      "authors": [
+        "Ioannis Prokopiou",
+        "Athanasios Aidinis",
+        "Panagiotis-Christos Kyrmpatsos",
+        "Pantelis Vikatos"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG",
+        "cs.MA",
+        "cs.SE"
+      ],
+      "published": "2026-09-11T11:47:42+00:00",
+      "link": "https://arxiv.org/pdf/2609.12746v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free LLM agent self-refinement framework with execution-grounded correction loop",
+      "llm_evidence_cn": "免训练、带执行接地纠错循环的LLM智能体自精炼框架",
+      "llm_evidence": "免训练、带执行接地纠错循环的LLM智能体自精炼框架",
+      "canonical_evidence": "免训练、带执行接地纠错循环的LLM智能体自精炼框架",
+      "llm_tldr_en": "Agentic Text-to-Cypher pipelines gain from self-refinement, but which loop component matters is unclear. Using the LAST-CQ five-agent framework as a testbed, counterfactuals show correction removal costs 3.1-12.3% execution-BLEU.",
+      "llm_tldr_cn": "面向结构化查询生成的智能体流水线迅速增多，但循环中究竟是纠错还是反馈带来增益并不清楚。作者以LAST-CQ（五智能体、免训练、执行接地的Text-to-Cypher框架）作为可插拔测试平台，在2471条真实数据库查询与六个骨干模型上运行三种反事实实验。结果显示移除纠错会带来3.1%至12.3%的执行BLEU损失，而用原始数据库错误串替换模式接地反馈代价很小，从而定量揭示自精炼智能体性能提升的关键来源。",
+      "llm_tldr": "面向结构化查询生成的智能体流水线迅速增多，但循环中究竟是纠错还是反馈带来增益并不清楚。作者以LAST-CQ（五智能体、免训练、执行接地的Text-to-Cypher框架）作为可插拔测试平台，在2471条真实数据库查询与六个骨干模型上运行三种反事实实验。结果显示移除纠错会带来3.1%至12.3%的执行BLEU损失，而用原始数据库错误串替换模式接地反馈代价很小，从而定量揭示自精炼智能体性能提升的关键来源。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

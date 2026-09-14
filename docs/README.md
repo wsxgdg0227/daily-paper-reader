@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-13</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-14</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 4 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 11 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>3</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>8</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-13 21:39:33 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-14 22:22:33 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日速读4篇LLM智能体研究，聚焦长上下文推理、技能接口对齐与多智能体提示优化。最值得关注PARSER的&quot;并行读取+深度推理&quot;长上下文方案，以及SkillAlign对智能体技能接口的对齐思路（均7.0分）。普通读者可先了解长上下文智能体如何兼顾速度与深度，再关注提示优化的落地效果。</p>
+<p>今天筛完11篇论文：精读3篇、速读8篇，已列出的两篇精读均拿下9.0分，聚焦GPU内核优化与自回归解码加速。</p>
+<p>最值得看的是ForgeMegakernel的高效解码megakernel，以及AMDKernelVault的大规模数据集与智能体训练，速读还可关注GPU跨层性能测量、张量程序超优化和有限试错预算下的计算机控制评测。</p>
+<p>普通读者建议先读两篇9.0分精读，再按兴趣挑速读，重点看GPU内核自动优化如何落地。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">0 篇</strong>
+    <strong class="dpr-home-dashboard-count">3 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels">ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels</span></li><li><span class="dpr-home-dashboard-paper-title" title="AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization">AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="LifeMem: Enabling Lifelong Experience Reuse for LLM Agents">LifeMem: Enabling Lifelong Experience Reuse for LLM Agents</span></li></ul>
   </div>
-
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">4 篇</strong>
+    <strong class="dpr-home-dashboard-count">8 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents">PARSER: Read in Parallel, Reason in Depth for Long-Context LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="SkillAlign: Aligning Skill Interfaces for LLM-based Agents">SkillAlign: Aligning Skill Interfaces for LLM-based Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems">AgentGrad: Intervention-guided Prompt Optimization for Multi Agent Systems</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions">Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions</span></li><li><span class="dpr-home-dashboard-paper-title" title="Unleashing the Power of Equality Saturation for Tensor Program Superoptimization">Unleashing the Power of Equality Saturation for Tensor Program Superoptimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets">VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>8</strong></span></div>
 </section>
 </div>
 

@@ -1,0 +1,185 @@
+{
+  "date": "20260914",
+  "date_label": "",
+  "generated_at": "2026-09-14 22:22:33 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.12379v1",
+      "route": "202609/14/2609.12379v1-forgemegakernel-a-general-framework-for-efficient-auto-regressive-model-decode-megakernels",
+      "title": "ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "用编码智能体为GPU生成按模型定制的高性能解码巨核",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12471v1",
+      "route": "202609/14/2609.12471v1-amdkernelvault-large-scale-datasets-and-agentic-training-for-amd-gpu-kernel-optimization",
+      "title": "AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "基于LLM智能体的GPU算子生成与优化",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12655v1",
+      "route": "202609/14/2609.12655v1-lifemem-enabling-lifelong-experience-reuse-for-llm-agents",
+      "title": "LifeMem: Enabling Lifelong Experience Reuse for LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "基于记忆的LLM智能体存储与检索可复用技能和轨迹",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12299v1",
+      "route": "202609/14/2609.12299v1-argus-orchestrating-cross-layer-gpu-performance-measurements-around-semantic-regions",
+      "title": "Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向自动优化器的区域级GPU性能测量",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12330v1",
+      "route": "202609/14/2609.12330v1-unleashing-the-power-of-equality-saturation-for-tensor-program-superoptimization",
+      "title": "Unleashing the Power of Equality Saturation for Tensor Program Superoptimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "基于等式饱和的GPU张量程序自动超优化",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12404v1",
+      "route": "202609/14/2609.12404v1-vrl-bench-benchmarking-agents-on-computer-control-tasks-under-finite-trial-budgets",
+      "title": "VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "评测智能体言语记忆与试错学习方法",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12459v1",
+      "route": "202609/14/2609.12459v1-evors-on-policy-self-evolution-of-reward-systems-for-open-ended-reinforcement-learning",
+      "title": "EvoRS: On-Policy Self-Evolution of Reward Systems for Open-Ended Reinforcement Learning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "自进化强化学习框架，基于在策略经验演化奖励系统",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.08258v1",
+      "route": "202609/14/2609.08258v1-revoked-but-still-authoritative-an-empirical-study-of-revocation-enforcement-in-agent-memory-systems",
+      "title": "Revoked but Still Authoritative: An Empirical Study of Revocation Enforcement in Agent-Memory Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "智能体记忆系统的存取与撤销执行",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12422v1",
+      "route": "202609/14/2609.12422v1-hierarchical-belief-modeling-for-zero-shot-opponent-adaptation-in-partially-observable-multi-agent-navigation",
+      "title": "Hierarchical Belief Modeling for Zero-Shot Opponent Adaptation in Partially Observable Multi-Agent Navigation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "双记忆信念追踪的智能体自适应",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12551v1",
+      "route": "202609/14/2609.12551v1-rooflang-enabling-ai-driven-architecting-of-llm-inference-systems",
+      "title": "RoofLang: Enabling AI-Driven Architecting of LLM Inference Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "AI驱动的LLM推理系统自动化设计搜索",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    },
+    {
+      "paper_id": "2609.12746v1",
+      "route": "202609/14/2609.12746v1-what-drives-recovery-in-agentic-text-to-cypher-last-cq-an-llm-agent-self-refinement-framework",
+      "title": "What Drives Recovery in Agentic Text-to-Cypher? LAST-CQ: An LLM Agent Self-Refinement Framework",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "免训练、带执行接地纠错循环的LLM智能体自精炼框架",
+      "first_seen_at": "2026-09-14 22:22:33 UTC",
+      "updated_at": "2026-09-14 22:22:33 UTC"
+    }
+  ]
+}
