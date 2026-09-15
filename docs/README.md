@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-14</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-15</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 11 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 14 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>3</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>6</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>8</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-14 22:22:33 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-15 21:57:02 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,10 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今天筛完11篇论文：精读3篇、速读8篇，已列出的两篇精读均拿下9.0分，聚焦GPU内核优化与自回归解码加速。</p>
-<p>最值得看的是ForgeMegakernel的高效解码megakernel，以及AMDKernelVault的大规模数据集与智能体训练，速读还可关注GPU跨层性能测量、张量程序超优化和有限试错预算下的计算机控制评测。</p>
-<p>普通读者建议先读两篇9.0分精读，再按兴趣挑速读，重点看GPU内核自动优化如何落地。</p>
+<p>今日共生成 14 篇推荐（精读 6 篇，速读 8 篇）</p>
+<p>精读：《Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement》（8.0/10）, 《Dream-RSI: Recursive Self-Improvement through Evolving Worlds》（8.0/10）</p>
+<p>速读：《LifeFuse-Mem: Lifecycle-Aware State Fusion Against Temporary Overwriting for Long-Term Memory》（7.0/10）, 《Dissecting GPU Utilization for LLM Inference on Nvidia Hopper》（7.0/10）, 《AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels》（7.0/10）</p>
+<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +81,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">3 篇</strong>
+    <strong class="dpr-home-dashboard-count">6 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels">ForgeMegakernel: A General Framework for Efficient Auto-Regressive Model Decode Megakernels</span></li><li><span class="dpr-home-dashboard-paper-title" title="AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization">AMDKernelVault: Large-Scale Datasets and Agentic Training for AMD GPU Kernel Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="LifeMem: Enabling Lifelong Experience Reuse for LLM Agents">LifeMem: Enabling Lifelong Experience Reuse for LLM Agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement">Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement</span></li><li><span class="dpr-home-dashboard-paper-title" title="Dream-RSI: Recursive Self-Improvement through Evolving Worlds">Dream-RSI: Recursive Self-Improvement through Evolving Worlds</span></li><li><span class="dpr-home-dashboard-paper-title" title="CoMem: Collective-Individual Memory Synergy for Evolutionary Multi-Agent Systems">CoMem: Collective-Individual Memory Synergy for Evolutionary Multi-Agent Systems</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -96,7 +97,7 @@
     <strong class="dpr-home-dashboard-count">8 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions">Argus: Orchestrating Cross-Layer GPU Performance Measurements around Semantic Regions</span></li><li><span class="dpr-home-dashboard-paper-title" title="Unleashing the Power of Equality Saturation for Tensor Program Superoptimization">Unleashing the Power of Equality Saturation for Tensor Program Superoptimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets">VRL-Bench: Benchmarking agents on computer control tasks under finite trial budgets</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="LifeFuse-Mem: Lifecycle-Aware State Fusion Against Temporary Overwriting for Long-Term Memory">LifeFuse-Mem: Lifecycle-Aware State Fusion Against Temporary Overwriting for Long-Term Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="Dissecting GPU Utilization for LLM Inference on Nvidia Hopper">Dissecting GPU Utilization for LLM Inference on Nvidia Hopper</span></li><li><span class="dpr-home-dashboard-paper-title" title="AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels">AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>8</strong></span></div>
 </section>

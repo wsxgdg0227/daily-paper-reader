@@ -1,0 +1,1195 @@
+ATTNFUSE: A COMPOSABLE DSL FOR COMPILING
+ATTENTIONS TO FUSED GPU KERNELS
+A PREPRINT
+Varun Kumar Dasoju
+Department of Computer Science
+University of Wisconsin–Milwaukee
+dasoju@uwm.edu
+Tian Zhao
+Department of Computer Science
+University of Wisconsin–Milwaukee
+tzhao@uwm.edu
+September 15, 2026
+ABSTRACT
+Modern AI systems are built on the Transformer architecture, whose core operation, attention, ac-
+counts for the majority of computation and memory cost. Researchers continually propose new at-
+tention variants to improve quality, efficiency, or context length, but each variant currently requires
+expert-written GPU code to run at usable speeds. PyTorch’s recent flex attention lets researchers
+describe custom attention patterns in Python and compile them to fused kernels, but its design is
+limited to modifications applied after the central matrix multiplication, excluding Rotary Position
+Embedding (RoPE), the positional encoding used by every major LLM.
+We introduce AttnFuse, a small DSL for attention that makes pre-multiplication transformations
+like RoPE first-class operations. Researchers compose ten high-level building blocks to describe a
+variant, and AttnFuse’s compiler emits a single fused GPU kernel for the entire computation. On an
+RTX 3090, AttnFuse achieves a 2.10× speedup over flex attention on the RoPE+causal pattern. On
+an H100, it runs a full Llama-3-8B training step within 5% of PyTorch’s hand-tuned backend. Our
+investigation reveals the Rotation Calculus: whether to fuse RoPE or apply it separately depends
+on the GPU’s compute-to-bandwidth ratio, with a derived crossover that matches measurement.
+AttnFuse demonstrates that a small, attention-specific compiler can close the gap between flexible
+research code and production kernels.
+1
+Introduction
+The attention bottleneck.
+At the heart of every modern
+language model lies a single operation called attention.
+Given a sequence of tokens, attention computes which
+prior tokens are most relevant to each new token, then ag-
+gregates their information. This operation accounts for the
+majority of both computation and memory cost in mod-
+els like ChatGPT, Claude, and LLaMA. Making attention
+faster is therefore one of the central problems in AI sys-
+tems research.
+The challenge is that attention is memory-intensive. On
+a GPU, moving data between slow off-chip memory and
+fast on-chip memory is expensive. Naive implementations
+write the full intermediate score matrix to off-chip mem-
+ory, which becomes prohibitive at long sequence lengths.
+Kernel fusion solves this by combining operations into a
+single GPU program that keeps intermediate values on-
+chip, dramatically reducing memory traffic. FlashAtten-
+tion [1, 2] is the canonical fused kernel: a hand-written
+CUDA program that underpins nearly every production
+LLM today. But it is fixed and inflexible.
+The researcher’s dilemma.
+AI researchers constantly
+invent new attention variants – sliding windows [6], linear
+biases [7], sparse patterns, and more – to improve quality,
+efficiency, or context length. Each new variant currently
+requires expert-written GPU code to run at useful speeds.
+This creates a persistent gap: high-level Python code is
+flexible but slow, while production kernels like FlashAt-
+tention are fast but inflexible.
+PyTorch 2.5 introduced flex attention [14], a promis-
+ing step toward bridging this gap. Researchers write a
+small Python function that modifies attention scores, and
+a compiler turns it into a fused GPU kernel via Tri-
+ton [4, 17]. flex attention is the strongest published
+bridge between researcher convenience and production
+arXiv:2609.13612v1  [cs.LG]  11 Sep 2026
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+(a) flex attention: score mod is post-matmul
+Q, K, V
+rotate(Q,K)
+Q’K’⊤
+score mod(s)
+softmax(P) @ V →output
+(b) AttnFuse: rope() is a pre-matmul combinator
+Q, K, V
+rope(Q,K) →S=Q’K’⊤→mask →softmax →@V
+single fused Triton kernel
+Figure 1: The abstraction gap. (a) flex attention ap-
+plies RoPE in a separate kernel because score mod is
+post-matmul. (b) AttnFuse represents RoPE as a first-class
+pre-matmul operation and fuses everything into one ker-
+nel.
+performance, supporting sliding windows, ALiBi, and ar-
+bitrary score modifications.
+A fundamental limitation.
+flex attention has one
+important limitation: its modification function operates on
+the score matrix after the multiplication QK⊤. Many use-
+ful attention variants require transformations before this
+multiplication. The most consequential example is Ro-
+tary Position Embedding (RoPE) [8] – the position en-
+coding used by LLaMA, Mistral, Qwen, DeepSeek, and
+every other recent major LLM. RoPE rotates queries and
+keys before multiplication, encoding position information
+in the geometry of the vectors themselves. Because the
+rotation applies to Q and K separately, it cannot be ex-
+pressed as a post-matmul score modification. The current
+workaround applies RoPE in a separate kernel before call-
+ing flex attention, paying two extra memory round-
+trips per attention layer (Figure 1a).
+AttnFuse is a domain-specific language (DSL) for atten-
+tion that makes pre-multiplication transformations first-
+class operations. Researchers compose ten high-level
+building blocks to describe an attention variant declara-
+tively – for example, softmax(causal(rope(Q, K)))
+@ V. AttnFuse’s compiler then emits a single fused GPU
+kernel for the entire program. This is a strictly more gen-
+eral abstraction that includes pre-matmul fusions by con-
+struction.
+Contributions.
+We make three contributions:
+• A compilable DSL for attention. A ten-
+combinator DSL with a two-level IR and four-
+pass compiler guaranteeing single-kernel fusion
+for any well-formed program.
+• Fused RoPE. Pre-matmul fusion of RoPE into
+attention inner loop, achieving 2.10× over
+flex attention on causal+RoPE at N = 4096
+on RTX 3090.
+• The Rotation Calculus. A quantitative prin-
+ciple linking fusion profitability to compute-
+to-bandwidth ratio: fusion wins on Ampere;
+crossover at N ∗≈5,500 on Hopper, derived al-
+gebraically and confirmed experimentally.
+The paper also presents a complete engineering artifact
+–Flash Decoding, backward pass, block-sparse attention,
+HuggingFace integration, and a documented Triton limi-
+tation – validating the DSL on real workloads, including
+Llama-3-8B training within 5% of PyTorch’s hand-tuned
+backend on H100.
+2
+Background
+FlashAttention
+and
+online
+softmax.
+FlashAtten-
+tion [1, 2] introduced a key algorithmic insight: the
+softmax normalization [5] can be computed incremen-
+tally, tile by tile, without materializing the full N × N
+score matrix. The algorithm maintains a running max m,
+a running sum ℓ, and a partial output accumulator across
+tiles of keys. When a new tile arrives, the running state is
+rescaled to account for any change in the maximum. This
+recurrence is exact and reduces the number of off-chip
+memory accesses from O(N 2) to O(N) per query row. In
+online softmax, the running state (m, ℓ, acc) lives entirely
+in GPU registers, so the full score matrix is never written
+to off-chip memory. This is the foundation of efficient
+attention implementation.
+Why fusion is not always profitable.
+Fusing opera-
+tions saves off-chip memory traffic but often increases
+the amount of computation performed on-chip. Whether
+a fusion is profitable depends on the GPU’s balance be-
+tween compute throughput and memory bandwidth. This
+balance is captured by the roofline model: a kernel’s per-
+formance is limited by whichever resource is the bottle-
+neck.
+Triton.
+Triton [4] is a language for writing GPU kernels
+at a tile level, higher-level than raw CUDA but lower-level
+than PyTorch. It compiles to GPU machine code through
+an MLIR-based backend. AttnFuse generates Triton code;
+we do not modify the Triton compiler itself, though we
+identify a lowering limitation in version 3.3.1 that creates
+a useful negative result (Section 7.2).
+Rotary Position Embeddings (RoPE).
+RoPE [8] en-
+codes position by rotating each pair of dimensions in Q
+and K by an angle proportional to token position, making
+the dot product ⟨Q′
+i, K′
+j⟩depend only on relative posi-
+tion j −i. Because the rotation applies to Q and K sepa-
+rately before QK⊤, RoPE is a pre-matmul transformation
+and therefore impossible to express in flex attention’s
+post-matmul score mod (Figure 1).
+2
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+User DSL
+Code
+High-Level
+IR
+Triton
+Kernel
+Runtime
+Dispatch
+Figure 2: AttnFuse’s four-layer pipeline: user DSL →
+high-level IR →Triton kernel →runtime dispatch.
+3
+System Design
+AttnFuse is designed for AI researchers to implement new
+attention variants in Python and get a fused GPU kernel
+that matches production performance. Figure 2 shows the
+four-layer pipeline. The user writes a function using ten
+composable building blocks; AttnFuse traces the function
+once per configuration, compiles it through four passes,
+and dispatches the compiled kernel at runtime with negli-
+gible overhead.
+3.1
+The Researcher Interface
+AttnFuse exposes ten combinators that correspond to
+common attention operations: scaled dot product,
+rope,
+causal,
+sliding window,
+full,
+block sparse,
+alibi,
+additive bias,
+softmax,
+and relu attention. A researcher defines an attention
+variant by composing these combinators:
+@af.attention
+def
+llama_attn(Q, K, V):
+s = af.rope(Q, K)
+# RoPE
+applied
+before
+matmul
+s = af.causal(s)
+# causal
+mask
+return
+af.softmax(s) @ V # softmax & value
+aggregation
+The @af.attention decorator traces this function once,
+capturing the computation graph. The DSL is intention-
+ally narrow: it cannot express flex attention’s arbi-
+trary score mod callback. This is by design – the nar-
+rowness is what lets AttnFuse guarantee that every well-
+formed program compiles to a single fused kernel. Adding
+a new combinator like rope() requires defining its se-
+mantics and its compiler effect, but this is a one-time ef-
+fort; researchers using the DSL never touch the compiler.
+3.2
+From DSL to Kernel
+The compiler transforms the user’s computation graph
+through four passes and two intermediate representation
+(IR):
+1. Fuse: Recognizes the canonical attention pat-
+tern – score computation, masking, normaliza-
+tion, and value aggregation – and verifies that the
+graph is fusible.
+2. Tile: Selects tile sizes (block dimensions, num-
+ber of warps, pipeline stages) appropriate for
+the target GPU architecture and attention variant.
+Tuning tables are precomputed from the sweeps
+described in Section 5.2.
+3. Lower:
+Converts
+the
+graph
+to
+a
+flat
+TiledKernel record with all constants needed
+for code generation.
+4. Codegen: Emits Triton source. The generated
+kernel has no runtime branching, all variant-
+specific logic is resolved at compile time via Tri-
+ton’s constexpr mechanism.
+The high-level IR uses six node types: TensorSym for
+input tensors, ScoreOp for score computation, MaskOp
+and BiasOp for modifications, NormOp for softmax vari-
+ants, and MatMulPV for the final value aggregation. Each
+graph carries a SHA-1 signature over its structural con-
+tent, which serves as a cache key for compiled ker-
+nels. The low-level IR captures tile shapes, architecture-
+specific flags, and constants like ROPE KIND, MASK KIND,
+and SAVE L.
+3.3
+Runtime Dispatch
+At runtime, run attention() computes the graph’s sig-
+nature, looks up a precompiled LaunchBundle, and in-
+vokes the kernel. Three fast paths bypass the general ker-
+nel:
+• Flash Decoding: When the query batch size is 1
+(autoregressive inference), the KV cache is split
+across multiple programs for better parallelism
+(Section 4.2).
+• Block-sparse: When a sparse block mask is sup-
+plied, the kernel iterates only over active blocks
+(Section 4.3).
+• Hopper spike: On H100 GPUs, a tile-swept
+kernel variant is used for causal attention (Sec-
+tion 5.2).
+Steady-state dispatch overhead is under 1 µs, so the run-
+time cost is negligible relative to the kernel execution
+time.
+4
+Key Optimizations
+This section describes four optimizations that demonstrate
+AttnFuse’s expressiveness and performance.
+4.1
+Fused RoPE
+When a researcher includes rope(Q, K) in their DSL
+program, AttnFuse’s code generator produces a kernel
+that rotates the query matrix once, before the outer loop,
+and rotates each key tile on the fly inside the inner loop.
+The rotation follows the standard NeoX convention: each
+pair of dimensions is rotated by an angle that depends on
+the token’s position. This is implemented using a precom-
+puted index offset and sign multiplier to access the rotated
+half of each vector.
+3
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+4.2
+Flash Decoding
+For autoregressive decoding, the query batch size is 1. The
+standard FlashAttention-2 kernel launches only B · Hq
+programs (e.g., 32 for Llama-3-8B), which underutilizes
+modern GPUs with hundreds of streaming multiproces-
+sors.
+AttnFuse’s Flash Decoding path addresses this by split-
+ting the KV cache across multiple programs. Phase 1
+launches one program per chunk of the KV cache; each
+program computes a partial (m, ℓ, acc) triple using the
+online-softmax loop. Phase 2 runs a small combine ker-
+nel that merges these partials via log-sum-exp to produce
+the final output. For models using Grouped-Query Atten-
+tion, we pad the number of query heads per program to 16
+by cyclic replication, loading K and V exactly once per
+program while recovering full tensor-core throughput. On
+Llama-3-70B with a 32k cache, this optimization reduces
+latency from 3,153 µs to 184 µs—a 17× speedup, beating
+flex attention’s 196 µs.
+4.3
+Block-Sparse Attention
+Many efficient attention variants use sparse masks to
+reduce quadratic complexity. AttnFuse supports block-
+sparse attention: the user supplies a Python predicate over
+block coordinates; create block mask evaluates it once
+and returns a CSR-style BlockMask with per-row active-
+block index lists. Both forward and backward kernels it-
+erate only over active blocks, producing genuinely sub-
+quadratic FLOPs.
+On the BigBird mask [9] at N=4096 (∼
+7.7%
+active blocks), AttnFuse forward runs at 84 µs vs.
+flex attention’s 270 µs, a 3.21× speedup. The ad-
+vantage is structural: flex attention pays full O(N 2)
+FLOPs and masks inactive tiles to −∞, while AttnFuse
+pays proportionally to the active fraction.
+4.4
+Backward Pass
+AttnFuse implements a full backward pass following the
+FlashAttention-2 design. The backward decomposes into
+three kernels: a preprocessing kernel that computes row-
+reduced gradients, a kernel that accumulates gradients
+with respect to keys and values, and a kernel that accumu-
+lates gradients with respect to queries. This split avoids
+atomic accumulation: each kernel writes to a clean per-
+program output tile. The forward pass saves a single scalar
+per query row (L = m + log ℓ), which is sufficient to re-
+derive softmax probabilities tile-by-tile during the back-
+ward pass without ever materializing the full score matrix.
+5
+A Cross-Architecture Analysis
+The previous sections established that AttnFuse can ex-
+press and fuse RoPE. But is fusion always the right
+choice? This section shows that the answer depends on
+the hardware. We report a structured investigation on
+Table 1: Nsight Compute counters for causal for-
+ward on H100 NVL (B=4, H=12, N=4096, D=64,
+fp16). The production Ampere-template kernel reaches
+15.8%
+HMMA
+pipe
+utilization;
+the
+sweep-tuned
+spike reaches 29.4%, within 3.2 percentage points of
+flex attention’s 32.6% ceiling.
+Metric
+Production Spike flex attention
+HMMA pipe (%)
+15.8
+29.4
+32.6
+SM throughput (%)
+35.5
+58.6
+43.7
+Warp occupancy (%)
+12.0
+24.1
+12.0
+DRAM throughput (%)
+2.1
+3.8
+4.3
+Wait stalls (%)
+29.9
+13.4
+21.5
+Long-SB stalls (%)
+1.2
+3.1
+—
+Short-SB stalls (%)
+19.5
+7.1
+—
+H100 NVL (sm 90) that begins with a porting failure,
+proceeds through systematic tuning, and culminates in a
+general principle we call the Rotation Calculus: whether
+fused RoPE beats pre-rotation is determined by the GPU’s
+compute-to-bandwidth ratio.
+5.1
+The Hopper Gap
+Porting the Ampere-kernel template to H100 NVL pro-
+duces a 2.10× slowdown vs. flex attention on causal
+forward at N=4096. We profiled both kernels with Nsight
+Compute; Table 1 reports the counter triangulation. The
+production kernel also shows higher register pressure (217
+vs. 255 regs/thread) and lower shared memory usage (65
+vs. 113 KB/block), consistent with its less aggressive
+tiling.
+A
+key
+reframing
+emerges
+from
+these
+numbers:
+flex attention’s HMMA pipe sits at 32.6% on
+H100, not the 60–70% that CUTLASS-class Hopper
+kernels reach. The FA-2 algorithm at this shape is
+structurally bounded by its non-matmul fraction (online
+softmax, mask logic, address arithmetic); even fully
+optimized codegen cannot meaningfully exceed ∼35%
+HMMA. This reframes the Hopper goal from “WGMMA
+codegen needed” to “match flex’s ceiling, then look for
+algorithm-level gains.”
+5.2
+Sweep-Tuning for Hopper
+We executed a 16-configuration sweep over num stages ∈
+{2, 3, 4}, BLOCK N ∈{64, 128, 256}, and num warps ∈
+{4, 8} with BLOCK M=128 fixed. Table 2 summarizes
+the results. Three findings generalize:
+Table 2: 16-configuration sweep winners on H100 NVL.
+Variant
+Winner
+Latency
+Plain causal
+BN=64, nw=8, ns=3
+0.488 ms
+RoPE+causal
+BN=128, nw=8, ns=3
+0.779 ms
+4
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+1. The sparse-table heuristic inverts on Hopper.
+On Ampere, causal variants want BN=32 for
+more programs per SM. On Hopper, the win-
+ner is BN=64 for plain causal and BN=128 for
+RoPE+causal.
+2. num warps=8
+strictly
+dominates.
+num warps=4 is 2–3× slower in all sweep
+entries. Hopper wants one full warp-group per
+program.
+3. num stages=3 vs. 4 is essentially flat. Pipeline
+depth matters less than getting the matmul shape
+right.
+The sweep-tuned kernel is packaged as a dispatch-time
+fast path (Table 3) that activates on H100 for causal atten-
+tion, closing 85% of the gap to flex attention via tile
+selection alone.
+Table 3: H100 ablation – causal forward at B=4, H=12,
+N=4096, D=64, fp16. Tile selection alone closes 85% of
+the gap to flex attention.
+Configuration
+Latency
+vs. prod.
+Production Ampere kernel on H100
+0.931 ms
+1.00×
++ FA-2 causal split + bigger tiles
+0.694 ms
+1.34×
++ BLOCK N=64 sweep winner
+0.488 ms
+1.91×
+Hopper spike (dispatched)
+0.488 ms
+1.91×
+flex attention reference
+0.443 ms
+2.10×
+5.3
+The Rotation Calculus
+We now extend the spike to fused RoPE+causal and mea-
+sure the cross-architecture comparison. These measure-
+ments reveal a general principle: the Rotation Calculus.
+Whether to fuse RoPE inside the attention kernel or pre-
+rotate Q and K separately is determined by the plat-
+form’s compute-to-bandwidth ratio. Pre-rotation pays an
+O(NHD) HBM round-trip once; in-kernel fusion pays
+an O(N 2D/BM) rotation cost inside the FA-2 causal
+loop. On a bandwidth-bound platform (Ampere, ≈152
+FLOPs/byte ridge), fusion wins decisively. On a compute-
+rich platform (Hopper, ≈300 FLOPs/byte ridge), the
+crossover occurs between N=4k and N=8k. Table 4
+shows the headline result.
+Algebraic identification of the crossover.
+The pre-
+rotation cost is Tpre
+=
+4BHND · 2/BW seconds
+(read Q, K, write Q′, K′). The in-kernel rotation cost is
+Tfused ≈Ntiles ·crot where Ntiles = BHN 2/(BM·BN) and
+crot is the per-tile rotation cost in cycles (∼800 cycles on
+Hopper). Setting Tpre = Tfused yields:
+N ∗≈
+r
+8D · BM · BN · FLOPS
+BW · crot
+.
+(1)
+Plugging in H100 NVL numbers [16] (BW = 3.9 TB/s,
+FLOPS = 1015, BM = 128, BN = 128, D = 64,
+crot = 800) gives N ∗≈6000, consistent with the mea-
+sured crossover between 4k and 8k.
+Table 4: The Rotation Calculus. Speedup (×) of
+fused
+RoPE
+over
+flex attention+pre-rotate
+for
+causal+RoPE forward, fp16. Values >
+1.0 indicate
+AttnFuse fusion wins. Crossover at N ⋆≈5,500.
+GPU \ N
+512
+1024
+2048
+4096
+8192
+16384
+RTX 3090
+2.10
+2.04
+1.95
+2.10
+—
+—
+H100 NVL
+—
+—
+1.37
+1.05
+0.82
+0.69
+5.4
+Nsight Compute Profile of the RoPE Spike
+To characterize where the in-kernel rotation cost goes
+on H100, we profiled the RoPE+causal spike against the
+plain-causal spike (Table 5). The diagnostic combination
+is long-scoreboard rising 5.5× while DRAM utilization
+decreases: many small HBM-latency-blocked loads (cos,
+sin, Krot half) without bandwidth saturation. This moti-
+vated a targeted optimization attempt (documented in Sec-
+tion 7.2).
+Table 5: Plain causal vs. RoPE+causal forward, H100
+NVL, N=4096, fp16.
+Counter
+Plain
+RoPE
+HMMA pipe %
+29.4
+16.6
+SM throughput %
+58.6
+38.5
+Warp occupancy %
+24.1
+12.5
+Wait stalls % (math-pipe)
+13.4
+26.3
+Long-scoreboard % (HBM)
+3.1
+17.5
+DRAM throughput %
+3.8
+2.2
+Regs/thread
+120
+215
+6
+Evaluation
+All measurements use PyTorch 2.5.1, CUDA 12.1,
+Triton 3.1.0 (Ampere) or 3.3.1 (Hopper). Latency is
+the
+median
+of
+40–50
+CUDA-event-timed
+launches
+after 8–12 warmups. Evaluation hardware: RTX 3090
+(sm 86, 24 GB GDDR6X, 82 SMs, 142 TFLOPS fp16
+peak); H100 NVL (sm 90, 132 SMs, ∼1000 TFLOPS
+fp16 peak via WGMMA). Three baselines: naive
+(PyTorch eager-mode), sdpa (torch.nn.functional.
+scaled dot product attention),
+and
+flex attention (PyTorch 2.5’s compiled attention).
+6.1
+Forward Head-to-Head on Ampere
+Table 6 reports AttnFuse vs. flex attention on GPT-
+2-small geometry (B=4, H=12, D=64) in fp16. Cells
+show speedup = flex/AttnFuse (bold = AttnFuse wins).
+AttnFuse wins 12 of 16 cells, with sliding-window atten-
+tion showing a clean sweep.
+6.2
+RoPE on Ampere
+Because flex attention’s score mod is a post-matmul
+hook by design (Section 4.1), it applies RoPE host-side in
+5
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+Table 6: Forward latency ratio on RTX 3090, fp16.
+Variant
+N=512
+N=1024
+N=2048
+N=4096
+Dense
+1.74×
+1.00×
+0.98×
+0.95×
+Causal
+1.10×
+1.15×
+1.04×
+0.94×
+SW (W=256)
+1.16×
+1.16×
+1.10×
+1.05×
+Causal+ALiBi
+1.20×
+1.19×
+1.10×
+0.96×
+two extra kernels. Table 7 reports the resulting speedup.
+AttnFuse wins every cell at 1.65–2.10×.
+Table 7: AttnFuse fused RoPE vs. flex attention+pre-
+rotation. RTX 3090, fp16.
+Variant
+N=512
+N=1024
+N=2048
+N=4096
+RoPE + Dense
+1.99×
+2.05×
+1.92×
+1.78×
+RoPE + Causal
+2.10×
+2.04×
+1.95×
+2.10×
+RoPE + SW
+1.81×
+1.66×
+1.74×
+1.65×
+6.3
+KV-Cache Decoding
+Table
+8
+reports
+AttnFuse
+Flash
+Decoding
+vs.
+flex attention on three production LLM geome-
+tries with Q.N=1. The Llama-3-70B cell shows the 17×
+improvement over the unsplit AttnFuse kernel.
+Table 8: Flash Decoding (Q.N=1, large KV cache).
+Geometry
+Cache
+AttnFuse
+flex
+Llama-3-8B (32q/8kv/128)
+4096
+0.034 ms
+0.039 ms
+Llama-3-70B (64q/8kv/128)
+32768
+0.184 ms
+0.196 ms
+Mistral-7B (32q/8kv/128)
+16384
+0.072 ms
+0.079 ms
+6.4
+H100 Causal Ablation
+The H100 spike ablation (Table 3) shows the progres-
+sion from the production Ampere-tuned kernel (0.931 ms)
+through the FA-2 causal split (0.694 ms) to the sweep-
+tuned winner (0.488 ms), closing 85% of the gap to
+flex attention’s 0.443 ms reference. The attempted
+half-swap optimization regressed to 0.952 ms and was re-
+verted (discussed in Section 7).
+6.5
+End-to-End: Llama-3-8B
+To validate AttnFuse on a production workload, we
+benchmark a single Llama-3-8B LlamaDecoderLayer
+(random-init weights, Hq=32, Hkv=8, D=128) with the
+HuggingFace transformers [15] integration. AttnFuse reg-
+isters as an attn implementation backend; switching
+is a one-line configuration change.
+Table 9 reports latencies on H100 NVL. Forward-only,
+AttnFuse is essentially tied with PyTorch’s SDPA backend
+at N=2048, trailing by only 51 µs (+1.8%), and remains
+within 8% at N=4096. For the full training step (forward,
+Table 9: Llama-3-8B on H100 NVL, random initializa-
+tion, B=1, fp16. Latencies in milliseconds.
+Workload
+Sequence SDPA flex AttnFuse
+Forward only
+N=2048
+2.82
+2.71
+2.87
+Forward only
+N=4096
+5.90
+5.93
+6.36
+Forward+backward+step N=2048
+7.27
+7.49
+7.65
+Forward+backward+step N=4096 14.39 16.02
+16.51
+backward, and optimizer step), AttnFuse is within 5.2%
+of SDPA at N=2048 and within 14.7% at N=4096.
+On
+RTX
+3090,
+AttnFuse
+achieves
+1.06×
+SDPA
+on
+the
+training
+step;
+flex attention
+OOMs
+at
+HEAD DIM=128, so AttnFuse is the only Triton-based
+attention compiler that runs Llama-3-8B training on
+consumer Ampere. These results demonstrate that a
+DSL-emitted kernel can match hand-tuned CUDA on
+production workloads.
+Two notes on the H100 numbers.
+First, HuggingFace’s
+LlamaDecoderLayer applies RoPE to Q and K before
+calling the registered attention function, so the graph
+traced is plain causal, not fused RoPE. Threading cos, sin
+through the HF hook would invoke the fused-RoPE path,
+which per the Rotation Calculus should improve the for-
+ward number at N ≤4k. Second, the spike’s dispatch
+predicate rejects calls with save lse set, so the training-
+step forward uses the production kernel; widening predi-
+cate coverage would close the training-step gap. Both are
+well-scoped follow-on items.
+6.6
+Correctness
+87 GPU pytest cells cover the variant matrix ×
+dtype × shape × GQA configuration. 80 Hypothesis-
+driven [11] property fuzzer examples randomize config-
+urations across forward and backward. All gradients are
+verified against a naive PyTorch reference within FA2’s
+documented fp16 tolerance (|err| < 2 × 10−2).
+7
+Discussion
+The results reframe three common assumptions about at-
+tention codegen for modern GPUs and provide practical
+guidance for researchers and practitioners.
+Hopper
+does
+not
+necessarily
+require
+WGMMA
+intrinsics
+for
+attention.
+Section
+5
+measured
+flex attention’s HMMA pipe ceiling on H100 at
+32.6%, not the 60–70% that CUTLASS-class Hopper
+kernels sometimes reach. The FA-2 non-matmul fraction
+– online softmax, mask logic, address arithmetic – is
+the binding constraint at this shape, not the WGMMA-
+vs-HMMA codegen choice. Our sweep-tuned spike
+reaches 29.4% HMMA via tile selection alone, within 3.2
+percentage points of this ceiling. Closing the residual gap
+6
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+requires FA-3-style algorithmic restructure (producer/-
+consumer warp specialization that overlaps softmax with
+the next matmul), not explicit Hopper intrinsics. For AI
+systems researchers, this means that significant Hopper
+gains for attention may come from algorithm redesign
+rather than low-level tuning alone.
+Fusion is platform-dependent, and that’s quantifiable.
+The Rotation Calculus is the explicit form of an intu-
+ition the FlashAttention community has long gestured at:
+as accelerators rebalance toward compute, the value of
+HBM-saving fusions shrinks. We measure and quantify
+the crossover for fused RoPE; the same algebra applies to
+any pre-matmul fusion whose in-kernel cost grows with
+N faster than its pre-pass analogue. For practitioners, this
+provides a concrete rule: on compute-rich hardware like
+H100, pre-rotation may be preferable for long contexts;
+on bandwidth-bound hardware like Ampere, fusion is al-
+most always the right choice.
+A high-level DSL can match hand-tuned CUDA on
+production LLMs.
+The 51 µs gap from SDPA at
+N=2048 forward on H100, and the 5% training-step gap
+at the same shape, are the production-grade claim. The
+DSL surface is what makes adding the next variant a one-
+day change rather than a multi-week kernel rewrite. This
+suggests that the historical tradeoff between researcher
+productivity and production performance is not funda-
+mental; attention-specific compilation can offer both.
+7.1
+Workload Positioning
+Where is AttnFuse the right choice today? Based on our
+results, AttnFuse is the strong choice for LLM fine-tuning
+at 2k–4k tokens (within 5% of SDPA on training, 2.10×
+over flex attention on RTX 3090 for RoPE), KV-
+cache inference at 4k–32k cache lengths (17× speedup
+over unsplit AttnFuse, parity with flex attention on
+Llama-3-70B at 32k), and block-sparse training (3.21×
+over flex attention on BigBird at N=4k). It is compa-
+rable to flex attention on ALiBi, sliding window, and
+custom score modifications (5–10% range on Ampere),
+where the DSL surface is the primary value. Long-context
+RoPE on Hopper (N ≥16k) is future work: the Rotation
+Calculus favors pre-rotation at these lengths, and an FA-
+3-style producer/consumer kernel is the path forward. For
+full pre-training at 4k–8k, the picture is mixed: forward
+parity on H100, but the backward uses the production ker-
+nel (spike predicate rejects save lse-set calls), and RoPE
+crosses over near N ≈6k.
+7.2
+Lessons Learned: A Negative Result
+The investigation of fused RoPE on Hopper revealed a
+compiler limitation worth documenting. The NCU diag-
+nosis of the RoPE spike (Section 5) pointed at the per-
+tile Krot half HBM load as the dominant new stall: long-
+scoreboard stalls rose 5.5× from 3.1% to 17.5%, while
+DRAM utilization actually decreased. The Krot half tile is
+Table 10: Negative result: attempted half-swap optimiza-
+tion. Prong B reduced HBM stalls but introduced stronger
+SMEM stalls, causing a 20% latency regression.
+Metric
+S7-A Spike
+Prong B (failed)
+Change
+Long-SB stalls (%)
+17.45
+3.33
+-14.12 pp
+Short-SB stalls (%)
+7.04
+15.68
++8.64 pp
+HMMA pipe (%)
+16.6
+10.3
+-6.3 pp
+SM throughput (%)
+38.5
+26.8
+-11.7 pp
+Latency (ms)
+0.793
+0.952
++20%
+K with the two D-halves swapped; algebraically, it can
+be derived from K by a register layout permutation with
+no second HBM access.
+We
+implemented
+this
+via
+Triton’s
+tl.reshape
++
+tl.permute + tl.split + tl.join chain. Table 10
+shows the bisected result. Prong B achieved the in-
+tended reduction in HBM dependency: long-scoreboard
+stalls fell from 17.45% to 3.33%. However, it intro-
+duced a stronger SMEM dependency: short-scoreboard
+stalls rose from 7.04% to 15.68%. HMMA utilization
+dropped from 16.6% to 10.3%, SM throughput fell from
+38.5% to 26.8%, and wall-clock latency regressed by 20%
+to 0.952 ms, worse than the flex attention+pre-rotate
+baseline at 0.834 ms.
+Cause and implication.
+The root cause is that Tri-
+ton 3.3.1 lowers the tl.reshape + tl.permute +
+tl.split + tl.join chain on sm 90 to a SMEM round-
+trip, not to a register-level warp shuffle. The kernel writes
+the tile to shared memory, performs the layout permuta-
+tion there, and reads it back to registers. The SMEM de-
+pendency cost exceeds the HBM dependency cost it re-
+placed because Hopper’s L2-cached HBM access for the
+Krot half load is cheaper than the SMEM staging Triton in-
+serts.
+The optimization is right in principle and will pay
+off as soon as Triton’s lowering recognizes the half-
+swap pattern as a warp-shuffle candidate. Inline PTX
+( shfl xor sync) would also achieve the goal but for-
+feits Triton’s portability. The bisected counter delta in Ta-
+ble 10 provides a falsifiable test case that the Triton com-
+piler community can address. For researchers using Tri-
+ton, this serves as a cautionary tale: high-level tensor op-
+erations on sm 90 may lower to surprising SMEM round-
+trips that defeat the intended optimization.
+8
+Related Work
+FlashAttention.
+Dao et al. [1, 2] pioneered IO-aware
+tiled attention, establishing the online softmax recur-
+rence and tiled execution that underpin nearly every ef-
+ficient attention implementation today. AttnFuse adopts
+the same algorithmic foundation but exposes it through
+a composable DSL rather than a fixed CUDA binary.
+7
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+FlashAttention-3 [3] is the Hopper-targeted hand-written
+follow-on; its producer/consumer warp specialization
+overlaps softmax with the next matmul, recovering some
+of the non-matmul overhead that limits FA-2 at ∼30%
+HMMA on H100 (Section 5). Porting AttnFuse’s code-
+gen to the FA-3 [3] inner-loop structure is a natural next
+step for closing the residual Hopper gap.
+PyTorch
+flex attention.
+flex attention
+(Py-
+Torch 2.5+) is the closest published abstraction to
+AttnFuse. As discussed in Section 1 and Figure 1, the
+score mod hook is post-matmul by design; AttnFuse’s
+combinator surface includes pre-matmul nodes (rope())
+by design. This structural difference is the core distinc-
+tion: flex attention is a general-purpose abstraction
+for modifying scores; AttnFuse is an attention-specific
+DSL that guarantees single-kernel fusion for any well-
+formed
+program,
+including
+those
+with
+pre-matmul
+transformations.
+Triton and TorchInductor.
+Triton [4] provides the JIT
+compilation infrastructure that both AttnFuse and Py-
+Torch’s TorchInductor build upon. TorchInductor is Py-
+Torch’s Triton-emitting backend for flex attention
+and other compiled operations. On Hopper, our investi-
+gation (Section 5) finds that TorchInductor’s WGMMA
+codegen achieves an HMMA pipe ceiling of 32.6% at
+the shape tested. The Rotation Calculus reframes this as
+a structural property of the FA-2 algorithm rather than a
+Triton limitation—a finding that has implications for the
+broader Triton ecosystem. Our documented negative re-
+sult on Triton 3.3.1’s lowering of reshape/permute chains
+(Section 7) offers a falsifiable test case for the Triton com-
+piler community.
+CUTLASS and vendor libraries.
+NVIDIA CUT-
+LASS [12] is a C++ template library for GPU ma-
+trix multiplication and attention. PyTorch’s SDPA back-
+end on H100 reaches CUTLASS-class throughput. The
+matching we report in Section 6.5 (Llama-3-8B forward
+within 51 µs of SDPA at N=2048) demonstrates how
+close a high-level DSL can come to hand-tuned vendor
+libraries—without requiring the developer to write C++
+or reason about CUDA specifics.
+Domain-specific kernel libraries.
+xFormers [13] pro-
+vides a library of memory-efficient attention kernels but
+is not a compiler—users choose among hand-written
+variants. Other libraries such as FlashAttention’s official
+repository and various open-source implementations offer
+fixed kernels for common patterns. AttnFuse’s domain-
+specificity (attention only) is what permits the guaranteed-
+fusion compiler contract that a general-purpose kernel
+DSL cannot promise. This narrowness is a feature, not a
+limitation: it enables the compiler to make strong guaran-
+tees about memory behavior and kernel structure.
+9
+Conclusion and Future Work
+We presented AttnFuse, an embedded Python DSL
+for
+attention
+that
+compiles
+to
+fused
+Triton
+ker-
+nels. The DSL makes RoPE a first-class pre-matmul
+combinator, offering a strictly more general abstrac-
+tion than flex attention’s post-matmul score mod.
+On RTX 3090, fused RoPE achieves 2.10× over
+flex attention. On H100, a tile-swept dispatch path
+closes 85% of the gap to flex attention, with tensor-
+core utilization within 3.2 percentage points of the struc-
+tural ceiling. The Rotation Calculus provides the first sys-
+tematic quantification of when in-kernel RoPE fusion is
+profitable as a function of compute-to-bandwidth ratio.
+End-to-end, AttnFuse runs a Llama-3-8B training step
+within 5% of hand-tuned SDPA on both architectures.
+9.1
+Limitations and Future Directions
+Several limitations point to natural next steps. The Hop-
+per spike currently covers causal MHA/GQA at D ∈
+{64, 128}, fp16/bf16, N ≥2048, forward-only. Exten-
+sions include threading cos, sin through the Hugging-
+Face hook for fused RoPE, widening the spike predicate
+to LSE-saving forward calls, and extending codegen to
+sliding-window, ALiBi, and additive-bias variants.
+On H100 at N ≥8k, pre-rotation wins. Two recovery
+paths are promising: an FA-3 producer/consumer kernel
+that overlaps rotation cost with the next matmul, or Triton
+compiler support for warp-shuffle-lowered half-swap. The
+negative result we documented provides a concrete test
+case for the Triton compiler community.
+The two-level IR is structurally ready for Ring Atten-
+tion [10]; lowering to a sequence-parallel kernel would
+enable scaling across multiple GPUs. Hopper’s fp8 tensor
+cores offer a natural extension for low-precision training
+and inference; adding fp8 support introduces one new IR
+concept.
+We believe the Rotation Calculus will outlast the AttnFuse
+implementation. As accelerators continue to rebalance to-
+ward compute, this calculus will become increasingly rel-
+evant for AI systems researchers.
+References
+[1] Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri
+Rudra, and Christopher R´e.
+FlashAttention: Fast
+and Memory-Efficient Exact Attention with IO-
+Awareness. In Advances in Neural Information Pro-
+cessing Systems (NeurIPS), 2022.
+[2] Tri Dao.
+FlashAttention-2: Faster Attention with
+Better Parallelism and Work Partitioning.
+arXiv
+preprint, arXiv:2307.08691, 2023.
+[3] Jay Shah, Ganesh Bikshandi, Ying Zhang, Vi-
+jay
+Thakkar,
+Pradeep
+Ramani,
+and
+Tri
+Dao.
+FlashAttention-3: Fast and Accurate Attention with
+8
+
+
+AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels
+A PREPRINT
+Asynchrony and Low-Precision.
+arXiv preprint,
+arXiv:2407.08608, 2024.
+[4] Philippe Tillet, H. T. Kung, and David Cox.
+Tri-
+ton: An Intermediate Language and Compiler for
+Tiled Neural Network Computations. In Proceed-
+ings of the 3rd ACM SIGPLAN International Work-
+shop on Machine Learning and Programming Lan-
+guages (MAPL), 2019.
+[5] Maxim Milakov and Natalia Gimelshein.
+Online
+Normalizer Calculation for Softmax. arXiv preprint,
+arXiv:1805.02867, 2018.
+[6] Rewon Child, Scott Gray, Alec Radford, and Ilya
+Sutskever. Generating Long Sequences with Sparse
+Transformers.
+arXiv preprint, arXiv:1904.10509,
+2019.
+[7] Ofir Press, Noah A. Smith, and Mike Lewis. Train
+Short, Test Long: Attention with Linear Biases En-
+ables Input Length Extrapolation. In International
+Conference on Learning Representations (ICLR),
+2022.
+[8] Jianlin Su, Yu Lu, Shengfeng Pan, Ahmed Mur-
+tadha, Bo Wen, and Yunfeng Liu. RoFormer: En-
+hanced Transformer with Rotary Position Embed-
+ding. arXiv preprint, arXiv:2104.09864, 2021.
+[9] Manzil Zaheer, Guru Guruganesh, Avinava Dubey,
+Joshua Ainslie, Chris Alberti, Santiago Onta˜n´on,
+Philip Pham, Anirudh Ravula, Qifan Wang, Li Yang,
+and Amr Ahmed. Big Bird: Transformers for Longer
+Sequences. In Advances in Neural Information Pro-
+cessing Systems (NeurIPS), 2020.
+[10] Hao Liu and Pieter Abbeel.
+Ring Attention with
+Blockwise Transformers for Near-Infinite Context.
+arXiv preprint, arXiv:2310.01889, 2023.
+[11] David R. MacIver, Zac Hatfield-Dodds, and many
+others. Hypothesis: A New Approach to Property-
+Based Testing. Journal of Open Source Software,
+4(43), 2019.
+[12] Vijay Thakkar, Pradeep Ramani, Cris Cecka, and
+others. CUTLASS: CUDA Templates for Linear Al-
+gebra Subroutines. NVIDIA Corporation, 2023.
+[13] Benjamin
+Lefaudeux,
+Francisco
+Massa,
+Diane
+Liskovitch, Wenhan Xiong, Vittorio Caggiano, Sean
+Naren, Min Xu, Jieru Hu, Marta Tintore, Su-
+san Zhang, Patrick Labatut, Daniel Haziza, Luca
+Wehrstedt, Jeremy Reizenstein, and Grigory Sizov.
+xFormers: A Modular and Hackable Transformer
+Modelling Library. GitHub repository, 2022.
+[14] PyTorch
+Contributors.
+PyTorch
+2.5
+flex attention
+Documentation.
+https://pytorch.
+org/docs/stable/generated/torch.nn.functional.
+scaled dot product attention.html, 2024. Accessed:
+2026-01-15.
+[15] Thomas Wolf, Lysandre Debut, Victor Sanh, Julien
+Chaumond, Clement Delangue, Anthony Moi, Pier-
+ric Cistac, Tim Rault, R´emi Louf, Morgan Funtow-
+icz, Joe Davison, Sam Shleifer, Patrick von Platen,
+Clara Ma, Yacine Jernite, Julien Plu, Canwen Xu,
+Teven Le Scao, Sylvain Gugger, Mariama Drame,
+Quentin Lhoest, and Alexander M. Rush. Hugging-
+Face Transformers: State-of-the-Art Natural Lan-
+guage Processing. https://github.com/huggingface/
+transformers, 2024. Accessed: 2026-01-15.
+[16] NVIDIA.
+NVIDIA H100 Tensor Core GPU Ar-
+chitecture Overview.
+https://www.nvidia.com/en-
+us/data-center/h100/, 2024. Accessed: 2026-01-15.
+[17] Philippe Tillet and OpenAI.
+Triton Compiler and
+MLIR Backend.
+https://github.com/openai/triton,
+2024. Accessed: 2026-01-15.
+9

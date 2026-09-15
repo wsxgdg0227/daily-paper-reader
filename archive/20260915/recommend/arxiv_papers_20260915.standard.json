@@ -1,0 +1,583 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-15T21:47:47.174150+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2609.13406v1",
+      "source": "arxiv",
+      "title": "Generalized Agent Iteration: One Formal Framework for Iterative Policy Improvement and Recursive Self-Improvement",
+      "abstract": "When we speak of recursive self-improvement (RSI), are we speaking of a phenomenon, a mechanism, or a prospect? Towards autonomous and evolving intelligence, RSI is being claimed at many scales, while no single framework that formally describes these emerging instances exists. Its counterpart in the classical realm, iterative policy improvement, is characterized by generalized policy iteration (GPI), a framework of broad applicability with well-understood theoretical properties, but only where the update principle and the evaluation base lie outside the agent. In this paper, we propose Generalized Agent Iteration (GAI), a formal framework that describes iterative policy improvement and RSI as two cases of a single learning paradigm. GAI defines the agent as a configuration of modifiable components within a system and models the learning process as a cycle of agent evaluation and agent improvement. Two pivotal dials then distinguish the instances: whether the improving mechanism is part of the agent and whether the standard it is measured against is grounded outside it. The former dial delineates the boundary between GPI and RSI, and the latter determines a system's polarity as anchored, goal drift, or fully self-referential. Moreover, we use these coordinates to place existing systems on the same two axes and make the defects of recursive self-improvement statable one condition at a time. We see this paper as a first step toward exploring a formal characterization of RSI that rests on the classical account, makes existing systems comparable, and provides a principled basis for analyzing and designing new ones.",
+      "authors": [
+        "Hongyao Tang",
+        "Yi Ma",
+        "Pengyi Li",
+        "Yifu Yuan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-11T18:15:09+00:00",
+      "link": "https://arxiv.org/pdf/2609.13406v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "formal framework for iterative policy improvement and recursive self-improvement",
+      "llm_evidence_cn": "迭代策略改进与递归自我改进的形式化框架",
+      "llm_evidence": "迭代策略改进与递归自我改进的形式化框架",
+      "canonical_evidence": "迭代策略改进与递归自我改进的形式化框架",
+      "llm_tldr_en": "The paper proposes Generalized Agent Iteration, a formal framework unifying classical iterative policy improvement and recursive self-improvement, giving theoretical grounding for agents that autonomously evolve their policies.",
+      "llm_tldr_cn": "针对递归自我改进缺乏统一形式化描述的问题，论文提出广义智能体迭代（GAI）框架。该框架把经典迭代策略改进与递归自我改进统一为同一机制的两种情形，并给出相应的理论性质。工作为无需人工干预、持续自我提升的智能体提供了形式化基础与概念刻画，推动了自主演化智能的研究。",
+      "llm_tldr": "针对递归自我改进缺乏统一形式化描述的问题，论文提出广义智能体迭代（GAI）框架。该框架把经典迭代策略改进与递归自我改进统一为同一机制的两种情形，并给出相应的理论性质。工作为无需人工干预、持续自我提升的智能体提供了形式化基础与概念刻画，推动了自主演化智能的研究。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.14858v1",
+      "source": "arxiv",
+      "title": "Dream-RSI: Recursive Self-Improvement through Evolving Worlds",
+      "abstract": "Recursive self-improvement is becoming increasingly vital for autonomous AI agents, where progress hinges on discovering high-value solutions across complex domains. The driver of this process is effective exploration, however, managing and improving exploration strategies remains a major bottleneck. Current systems face a fundamental dilemma: fixed strategies fail to adapt as search spaces scale, while online policy optimization requires navigating vast meta-search spaces under delayed and expensive feedback over long-horizon rollouts. We introduce \\textsc{Dream-RSI}, a framework for scalable and recursively self-improving exploration. A lightweight orchestration layer makes exploration explicit and programmable while leaving the underlying coding agent unchanged. Our key insight is that accumulated discovery history can serve as a replay simulator over the realized search space. By performing dreaming in the replay simulator constructed from historical discovery trees, \\textsc{Dream-RSI} secures immediate, low-cost off-policy feedback to evaluate and refine exploration policies without invoking repetitive, expensive online evaluations. The improved policy is subsequently redeployed online to drive further discovery, continuously expanding the simulator pool in a self-improving loop. Across algorithm engineering, mathematical optimization, and GPU kernel engineering, \\textsc{Dream-RSI} achieves competitive or improved discovery quality while substantially reducing discovery cost in several settings.",
+      "authors": [
+        "Tong Zheng",
+        "Xidong Wu",
+        "Zheng Zhang",
+        "Zhankui He",
+        "Chaoyi Zhang",
+        "Benjamin Coleman",
+        "Ruoqiao Wei",
+        "Di Bai",
+        "Haolin Liu",
+        "Rui Liu",
+        "Xue Wang",
+        "Yue Zhuan",
+        "Wang-Cheng Kang",
+        "Renkai Xiang",
+        "Heng Huang",
+        "Xinwu Cheng",
+        "Yunsong Guo"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-14T00:10:47+00:00",
+      "link": "https://arxiv.org/pdf/2609.14858v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "recursive self-improvement framework for autonomous agents",
+      "llm_evidence_cn": "面向自主智能体的递归自我改进框架",
+      "llm_evidence": "面向自主智能体的递归自我改进框架",
+      "canonical_evidence": "面向自主智能体的递归自我改进框架",
+      "llm_tldr_en": "Dream-RSI addresses the dilemma between fixed and online-optimized exploration strategies by introducing a programmable orchestration layer that enables scalable recursive self-improvement for coding agents.",
+      "llm_tldr_cn": "递归自我改进对自主智能体日益重要，其核心是高效探索，但固定策略难以随搜索空间扩展而适应，在线策略优化又需在巨大元搜索空间中应对延迟且昂贵的反馈。本文提出Dream-RSI框架，通过轻量编排层把探索显式化、可编程化，同时保持底层编码智能体不变。该设计实现了可扩展、可递归自我改进的探索。工作为智能体持续自我提升性能提供了通用机制，可迁移到代码生成等任务。",
+      "llm_tldr": "递归自我改进对自主智能体日益重要，其核心是高效探索，但固定策略难以随搜索空间扩展而适应，在线策略优化又需在巨大元搜索空间中应对延迟且昂贵的反馈。本文提出Dream-RSI框架，通过轻量编排层把探索显式化、可编程化，同时保持底层编码智能体不变。该设计实现了可扩展、可递归自我改进的探索。工作为智能体持续自我提升性能提供了通用机制，可迁移到代码生成等任务。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.15009v1",
+      "source": "arxiv",
+      "title": "CoMem: Collective-Individual Memory Synergy for Evolutionary Multi-Agent Systems",
+      "abstract": "Designing effective memory mechanisms is crucial for advancing LLM-driven Multi-Agent Systems (MAS), helping agents learn together and perform better over time. While recent work has led to strong cooperation skills, most methods still use flat, unstructured memories, which easily get filled with noise and erase differences between agents. To address this, we introduce the concept of collective-individual memory synergy and propose CoMem, an architecture that unifies both private experience and shared knowledge for multi-agent learning. CoMem features:(i) Private Experience Sedimentation, which lets each agent keep and update its own useful memories over time;(ii) Collective Wisdom Curation, which carefully selects only widely proven ideas to be shared among agents;(iii)Parallel Dual-Stream Retrieval, which allows agents to draw both from their own memory and the group's wisdom, using clustering to ensure diversity.Experiments on ALFWorld and PDDL benchmarks show that CoMem achieves strong overall performance and robustly avoids memory pollution.",
+      "authors": [
+        "Chengxin Yu",
+        "Zhaoxin Fan",
+        "Faguo Wu",
+        "Hongwei Zheng",
+        "Yun Zhou",
+        "Zhiyu Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-14T04:15:55+00:00",
+      "link": "https://arxiv.org/pdf/2609.15009v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "collective-individual memory synergy for evolutionary multi-agent systems",
+      "llm_evidence_cn": "面向进化多智能体的集体与个体记忆协同",
+      "llm_evidence": "面向进化多智能体的集体与个体记忆协同",
+      "canonical_evidence": "面向进化多智能体的集体与个体记忆协同",
+      "llm_tldr_en": "Most LLM multi-agent systems use flat unstructured memory that fills with noise. CoMem unifies private experience and shared knowledge, letting each agent retain useful memories while curating widely proven ideas.",
+      "llm_tldr_cn": "现有大模型多智能体系统多采用扁平无结构记忆，容易被噪声填满并抹平智能体间差异，阻碍协同学习与长期进化。论文提出集体与个体记忆协同概念及CoMem架构，包含私有经验沉淀机制让每个智能体持续更新自身有用记忆，以及集体智慧策展机制筛选被广泛验证的思路共享。该设计在保留个体差异的同时促进知识共享，提升多智能体系统随时间演进的表现。",
+      "llm_tldr": "现有大模型多智能体系统多采用扁平无结构记忆，容易被噪声填满并抹平智能体间差异，阻碍协同学习与长期进化。论文提出集体与个体记忆协同概念及CoMem架构，包含私有经验沉淀机制让每个智能体持续更新自身有用记忆，以及集体智慧策展机制筛选被广泛验证的思路共享。该设计在保留个体差异的同时促进知识共享，提升多智能体系统随时间演进的表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.15161v1",
+      "source": "arxiv",
+      "title": "EMR: Self-Evolving Medical Multi-Agent System via Experience Mining and Reuse",
+      "abstract": "Large language model (LLM) driven multi-agent systems have shown promise in complex clinical reasoning, yet existing approaches rely on static strategies and lack persistent clinical memory, preventing self-evolving from prior diagnostic successes and failures. We present EMR, a self-evolving medical multi-agent system via Experience Mining and Reuse. EMR introduces a hierarchical clinical experience library that organizes accumulated knowledge into three levels: clinical principles, diagnostic patterns, and representative cases. During inference, EMR emulates multidisciplinary consultation: a planner agent coordinates domain-specific department agents for specialized reasoning, while a summary agent synthesizes their analyses into a final decision. Critically, EMR automatically extracts correct diagnostic insights and failure-related warnings from multi-agent reasoning trajectories, incrementally updating the experience library to guide future cases. Experiments on medical reasoning benchmarks demonstrate that EMR consistently outperforms state-of-the-art medical multi-agent baselines. Further analysis reveals that the hierarchical experience enables cross-specialty generalization and transfer across diverse LLM backbones, offering a scalable and in",
+      "authors": [
+        "Dongsheng Shi",
+        "Yue Li",
+        "Xin Yi",
+        "Linlin Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-14T07:41:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.15161v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving medical multi-agent system with hierarchical experience library and reuse",
+      "llm_evidence_cn": "带分层经验库与经验复用的自演化医疗多智能体系统",
+      "llm_evidence": "带分层经验库与经验复用的自演化医疗多智能体系统",
+      "canonical_evidence": "带分层经验库与经验复用的自演化医疗多智能体系统",
+      "llm_tldr_en": "EMR is a self-evolving medical multi-agent system with a hierarchical clinical experience library that mines and reuses prior diagnostic successes and failures to improve reasoning.",
+      "llm_tldr_cn": "针对现有医疗多智能体依赖静态策略、缺乏持久临床记忆而无法从成败中自演化的问题，论文提出EMR。它构建分层的临床经验库，把累积知识组织为临床原则、诊断模式与代表病例三层，推理时由规划智能体协调科室智能体并汇总。该机制实现经验的挖掘与复用，使系统能持续自我进化，体现了智能体记忆、检索与自演化的结合，但领域为医疗而非GPU算子。",
+      "llm_tldr": "针对现有医疗多智能体依赖静态策略、缺乏持久临床记忆而无法从成败中自演化的问题，论文提出EMR。它构建分层的临床经验库，把累积知识组织为临床原则、诊断模式与代表病例三层，推理时由规划智能体协调科室智能体并汇总。该机制实现经验的挖掘与复用，使系统能持续自我进化，体现了智能体记忆、检索与自演化的结合，但领域为医疗而非GPU算子。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.15364v1",
+      "source": "arxiv",
+      "title": "RSIAgent: Autonomous Exploration for Recursive Self-improvement in New Environments",
+      "abstract": "Digital agents must often adapt to new environments whose interfaces, tools, and failure modes are not fully captured by pretrained models. We introduce \\textbf{RSIAgent}, a training-free multi-agent framework for recursive self-improvement through autonomous memory construction. RSIAgent coordinates curriculum, actor, and verifier agents to continually explore the environment, validate outcomes, and retain environment-specific knowledge, including reusable causal relationships between actions, conditions, and consequences. It further adopts a \\textbf{broad-then-deep} exploration strategy, combining parallel broad recursive self-exploration for discovering diverse environment structures with focused deep self-exploration for uncovering hard cases, hidden constraints, boundary conditions, and previously unknown causal dependencies. The resulting memory is frozen and can be directly reused for downstream tasks without updating model parameters. Experiments on OSWorld-v2 and Agent's Last Exam show that RSIAgent substantially improves strong open-source models, enabling Kimi-K3 and GLM-5.3 to outperform frontier closed-source models including GPT-6.",
+      "authors": [
+        "Sibo Zhu",
+        "Shicheng Fan",
+        "Xinyue Wang",
+        "Wenyi Wu",
+        "Kun Zhou",
+        "Biwei Huang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.CV"
+      ],
+      "published": "2026-09-14T10:46:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.15364v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Recursive self-improvement via autonomous memory construction and environment knowledge retention",
+      "llm_evidence_cn": "通过自主记忆构建与环境知识保留实现递归自我改进",
+      "llm_evidence": "通过自主记忆构建与环境知识保留实现递归自我改进",
+      "canonical_evidence": "通过自主记忆构建与环境知识保留实现递归自我改进",
+      "llm_tldr_en": "RSIAgent is a training-free multi-agent framework that recursively self-improves by autonomously constructing memory in new environments.",
+      "llm_tldr_cn": "数字智能体常需适应接口、工具与失败模式未被预训练模型充分覆盖的新环境。本文提出免训练多智能体框架RSIAgent，通过自主记忆构建实现递归自我改进：由课程、执行与验证智能体协同探索环境、验证结果并保留环境特定知识，包括动作、条件与后果之间可复用的因果关系。其先广后深探索策略兼顾环境结构发现与难点挖掘，实验表明其在新环境中能够持续自我提升。",
+      "llm_tldr": "数字智能体常需适应接口、工具与失败模式未被预训练模型充分覆盖的新环境。本文提出免训练多智能体框架RSIAgent，通过自主记忆构建实现递归自我改进：由课程、执行与验证智能体协同探索环境、验证结果并保留环境特定知识，包括动作、条件与后果之间可复用的因果关系。其先广后深探索策略兼顾环境结构发现与难点挖掘，实验表明其在新环境中能够持续自我提升。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.15820v1",
+      "source": "arxiv",
+      "title": "AlgoEvo: Self-Evolving Agentic Search for Automated Algorithm Discovery",
+      "abstract": "Large language models have advanced automated algorithm discovery by synthesizing executable code, but existing frameworks trap them in rigid search pipelines with pre-defined control flows. This limitation restricts adaptive reasoning, blocks cross-paradigm transfer, and discards valuable execution feedback. We propose AlgoEvo, a unified agentic framework that transforms automated algorithm discovery into an interactive, knowledge-accumulating process. An autonomous agent dynamically inspects, diagnoses, and edits code based on runtime feedback. A design skill hub decouples paradigm-specific knowledge from the core discovery engine, allowing a single workflow to seamlessly handle single-objective, multi-objective, and multi-component design. Meanwhile, a hierarchical experience mechanism organizes search trajectories into a task-level tree to guide exploration and consolidates cross-task patterns into reusable skills. Across six representative benchmark tasks, AlgoEvo matches or surpasses specialized methods with substantially fewer evaluations and reduced token consumption, demonstrating strong intra-task accumulation, cross-task transfer, and the ability to reproduce or exceed existing state-of-the-art performance through flexible skill activation.",
+      "authors": [
+        "Junhao Qiu",
+        "Qinglong Hu",
+        "Xialiang Tong",
+        "Mingxuan Yuan",
+        "Liyong Lin",
+        "Qingfu Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-14T16:24:27+00:00",
+      "link": "https://arxiv.org/pdf/2609.15820v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "LLM agentic framework synthesizing and editing executable code via runtime feedback",
+      "llm_evidence_cn": "基于运行时反馈合成与编辑可执行代码的LLM智能体框架",
+      "llm_evidence": "基于运行时反馈合成与编辑可执行代码的LLM智能体框架",
+      "canonical_evidence": "基于运行时反馈合成与编辑可执行代码的LLM智能体框架",
+      "llm_tldr_en": "AlgoEvo turns automated algorithm discovery into an interactive, knowledge-accumulating agentic process where an LLM inspects, diagnoses and edits executable code using runtime feedback.",
+      "llm_tldr_cn": "针对现有自动化算法发现框架流程僵化、难以自适应推理并丢弃执行反馈的问题，论文提出AlgoEvo。它把算法发现转化为交互式、知识累积的智能体过程，由自主智能体根据运行时反馈检查、诊断并编辑代码，并以设计技能库解耦范式知识。该框架统一处理单目标、多目标与多组件设计，体现了大模型生成代码与自演化智能体的结合，可迁移到算子代码优化场景。",
+      "llm_tldr": "针对现有自动化算法发现框架流程僵化、难以自适应推理并丢弃执行反馈的问题，论文提出AlgoEvo。它把算法发现转化为交互式、知识累积的智能体过程，由自主智能体根据运行时反馈检查、诊断并编辑代码，并以设计技能库解耦范式知识。该框架统一处理单目标、多目标与多组件设计，体现了大模型生成代码与自演化智能体的结合，可迁移到算子代码优化场景。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.12436v1",
+      "source": "arxiv",
+      "title": "LifeFuse-Mem: Lifecycle-Aware State Fusion Against Temporary Overwriting for Long-Term Memory",
+      "abstract": "Long-running LLM agents require memory mechanisms that maintain coherent internal states across interactions. We study a lifecycle-labeled memory setting in which write episodes provide lifecycle metadata during training, and phase-aware readout is used during evaluation. This setting reflects the need to distinguish information that should remain influential across future interactions from information that should affect only the current context. A mismatch between these lifecycles can cause temporary information to overwrite durable knowledge, leading to behavioral drift in persistent agents. Within this setting, we introduce \\textbf{LifeFuse-Mem}, a lifecycle-aware neural memory framework that separates information according to its temporal commitment. LifeFuse-Mem uses dedicated memory components and lifecycle-aware updates to allow stable and transient knowledge to evolve locally without converting temporary context into durable state. On the controlled anti-overwrite benchmark, LifeFuse-Mem improves acquisition-controlled retention and reduces temporary overwrite; on two public long-memory benchmarks, it remains broadly competitive. These results suggest that explicit lifecycle signals can help diagnose and mitigate overwrite in compact online memory.",
+      "authors": [
+        "Hanyu Zhao",
+        "Yuqian Feng",
+        "Zhenyu Song",
+        "Yuanchao Cheng",
+        "Yance Jiao",
+        "Tengfei Pan",
+        "Li Du"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-11T04:56:48+00:00",
+      "link": "https://arxiv.org/pdf/2609.12436v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "long-term agent memory separating durable vs temporary info",
+      "llm_evidence_cn": "区分持久与临时信息的智能体长期记忆",
+      "llm_evidence": "区分持久与临时信息的智能体长期记忆",
+      "canonical_evidence": "区分持久与临时信息的智能体长期记忆",
+      "llm_tldr_en": "Long-running LLM agents need memory that keeps coherent states, but temporary information can overwrite durable knowledge and cause behavioral drift. This paper proposes LifeFuse-Mem, a lifecycle-aware neural memory framework that separates information by lifecycle and uses phase-aware readout. Results show it mitigates temporary overwriting and preserves long-term memory consistency.",
+      "llm_tldr_cn": "长时运行的 LLM 智能体需要在多轮交互中保持连贯的内部状态，但临时信息可能覆盖持久知识，导致行为漂移。本文提出生命周期感知的神经记忆框架 LifeFuse-Mem，按信息的生命周期将持久知识与当前上下文分离，并在评估时采用相位感知读出。实验表明该框架能有效缓解临时覆盖问题，维持长期记忆的一致性，为持久化智能体的记忆机制提供了新思路。",
+      "llm_tldr": "长时运行的 LLM 智能体需要在多轮交互中保持连贯的内部状态，但临时信息可能覆盖持久知识，导致行为漂移。本文提出生命周期感知的神经记忆框架 LifeFuse-Mem，按信息的生命周期将持久知识与当前上下文分离，并在评估时采用相位感知读出。实验表明该框架能有效缓解临时覆盖问题，维持长期记忆的一致性，为持久化智能体的记忆机制提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.13436v1",
+      "source": "arxiv",
+      "title": "Toward Self-Adaptive Physical AI: Can LLM Agents Manage Long-Horizon Physical Tasks?",
+      "abstract": "Large Language Model (LLM) agents offer a promising path toward autonomously managing long-term physical tasks without human intervention. However, physical tasks require agents to continuously observe the environment, make consequential actions, and remain effective as the environment changes. Existing approaches either require substantial data and retraining, or primarily focus on agents operating in the virtual world. In this work, we explore the feasibility of building a self-adaptive physical AI agent that manages long-term physical tasks in a zero-shot manner and adapts to environmental changes without human intervention. We design a multi-agent framework that integrates planning, tool calling, observation, and verification, and evaluate it on agricultural tasks against reinforcement learning (RL) agents under different weather patterns. Our results show that zero-shot LLM agents can achieve comparable management outcomes to RL agents under the same weather pattern and adapt more effectively than RL when evaluated under a shifted environment, highlighting a promising path toward self-adaptive physical AI agents.",
+      "authors": [
+        "Varun Kaushik",
+        "Yayun Tan",
+        "Xiaofan Yu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-11T18:52:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.13436v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Self-adaptive LLM agents managing long-horizon physical tasks without human intervention",
+      "llm_evidence_cn": "自适性LLM智能体在无人干预下管理长时程物理任务",
+      "llm_evidence": "自适性LLM智能体在无人干预下管理长时程物理任务",
+      "canonical_evidence": "自适性LLM智能体在无人干预下管理长时程物理任务",
+      "llm_tldr_en": "Explores a zero-shot multi-agent framework that lets LLM agents manage long-horizon physical tasks and adapt without human intervention.",
+      "llm_tldr_cn": "物理任务要求智能体持续观察环境、执行关键动作并在环境变化中保持有效，而现有方法要么依赖大量数据与重训练，要么只关注虚拟世界中的智能体。本文探索零样本下自主管理长期物理任务并适应环境变化的可行性，设计整合规划、工具调用、观测与验证的多智能体框架。实验评估其在长时程物理任务中的表现，为自适性物理AI智能体提供可行性参考与新思路。",
+      "llm_tldr": "物理任务要求智能体持续观察环境、执行关键动作并在环境变化中保持有效，而现有方法要么依赖大量数据与重训练，要么只关注虚拟世界中的智能体。本文探索零样本下自主管理长期物理任务并适应环境变化的可行性，设计整合规划、工具调用、观测与验证的多智能体框架。实验评估其在长时程物理任务中的表现，为自适性物理AI智能体提供可行性参考与新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.12923v1",
+      "source": "arxiv",
+      "title": "Dissecting GPU Utilization for LLM Inference on Nvidia Hopper",
+      "abstract": "A single SM utilization percentage can make an LLM inference workload look compute-saturated while hiding how much useful work is being done. The problem is not that the counter is wrong, but that it collapses several different mechanisms into one number. This is most severe during decode, where each request contributes only one new token and dense projection GEMMs become small-row matrix multiplications. On Hopper, the bfloat16 GMMA path executes these operations in fixed 64-row matrix fragments, so small-batch decode can fill only a small fraction of each fragment with real token rows.   In this paper, we profile vLLM with FlashAttention-3 and cuBLASLt on an H100 NVL across cold prefill, warm prefill, and decode, sweeping sequence length and batch size. We replace the usual single utilization number with eight counter-validated views derived from raw Nsight Compute reports, each pinned to an NCU counter or explicit formula. Together, these views map utilization gaps to concrete mechanisms - fragment fill, occupancy limits, stall signatures, wave quantization, and kernel selection - across four production models and six per-layer kernel roles.",
+      "authors": [
+        "Mohammad Siavashi",
+        "Gerald Q. Maguire",
+        "Dejan Kostic",
+        "Marco Chiesa"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF",
+        "cs.AR",
+        "cs.DC",
+        "cs.LG"
+      ],
+      "published": "2026-09-11T14:49:05+00:00",
+      "link": "https://arxiv.org/pdf/2609.12923v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "dissecting GPU utilization and kernel behavior for LLM inference",
+      "llm_evidence_cn": "剖析LLM推理中的GPU利用率与内核行为",
+      "llm_evidence": "剖析LLM推理中的GPU利用率与内核行为",
+      "canonical_evidence": "剖析LLM推理中的GPU利用率与内核行为",
+      "llm_tldr_en": "The paper profiles vLLM with FlashAttention-3 and cuBLASLt on an H100 to expose how SM utilization collapses distinct mechanisms, especially during decode GEMMs.",
+      "llm_tldr_cn": "单一SM利用率指标会让LLM推理看似计算饱和，却掩盖了实际有用工作量，该问题在解码阶段尤为严重：每次请求仅产生一个token，稠密投影GEMM退化为小行矩阵乘法，而Hopper的bfloat16 GMMA以固定64行分片执行，小批量解码难以填满分片。本文在H100 NVL上对vLLM结合FlashAttention-3与cuBLASLt进行剖析，扫描序列长度与批量大小，区分冷预填充、热预填充与解码阶段。该工作揭示了GPU利用率指标背后的内核执行机制。",
+      "llm_tldr": "单一SM利用率指标会让LLM推理看似计算饱和，却掩盖了实际有用工作量，该问题在解码阶段尤为严重：每次请求仅产生一个token，稠密投影GEMM退化为小行矩阵乘法，而Hopper的bfloat16 GMMA以固定64行分片执行，小批量解码难以填满分片。本文在H100 NVL上对vLLM结合FlashAttention-3与cuBLASLt进行剖析，扫描序列长度与批量大小，区分冷预填充、热预填充与解码阶段。该工作揭示了GPU利用率指标背后的内核执行机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.13585v1",
+      "source": "arxiv",
+      "title": "mKernel: Fast Multi-GPU, Multi-Node Fused Kernels",
+      "abstract": "Communication has become a bottleneck in distributed training and inference of large models. Overlapping communication with computation at the granularity of kernels, on separate streams, reduces only part of this communication cost. Fused kernels often have better performance by transmitting each output tile as soon as it is produced, but existing fused kernels are largely confined to a single NVLink domain. We present mKernel, a library of multi-GPU, multi-node fused kernels that overlap computation, intra-node NVLink communication, and inter-node RDMA at tile granularity. mKernel partitions the streaming multiprocessors (SMs) of a persistent kernel into compute and communication roles, and an on-GPU controller tunes the SM partition adaptively at run time, since the best SM partition varies with the kernel and the input shape. It structures data movement hierarchically so that data traversing the inter-node network is minimized. Finally, it drives the network from the GPU through a lightweight command queue and host proxy implemented directly on RDMA verbs, which allows the same kernels to run on any network backend (e.g. InfiniBand and on AWS EFA); we observe, surprisingly, that GPUDirect Async (IBGDA) yields little additional benefit over host-assisted GPU-initiated communication. We implement five kernels spanning tensor, sequence, and expert parallelism. On two 16-GPU H200 clusters, mKernel achieves speedups of up to 1.72x on GEMM+AllReduce and $1.88\\times$ on Ring Attention.",
+      "authors": [
+        "Ziming Mao",
+        "Yihan Zhang",
+        "Shawn Wei Chew",
+        "Shuang Ma",
+        "Costin Raiciu",
+        "Yang Zhou",
+        "Scott Shenker",
+        "Ion Stoica"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AI",
+        "cs.LG",
+        "cs.NI"
+      ],
+      "published": "2026-09-11T22:50:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.13585v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-GPU multi-node fused kernels overlapping compute and communication at tile granularity",
+      "llm_evidence_cn": "多GPU多节点融合内核在tile粒度重叠计算与通信",
+      "llm_evidence": "多GPU多节点融合内核在tile粒度重叠计算与通信",
+      "canonical_evidence": "多GPU多节点融合内核在tile粒度重叠计算与通信",
+      "llm_tldr_en": "Presents mKernel, a library of multi-GPU multi-node fused kernels that overlap computation, NVLink and RDMA communication at tile granularity with a runtime-tuned SM partition.",
+      "llm_tldr_cn": "该文针对分布式大模型训练与推理中通信成为瓶颈、现有融合内核多局限于单一NVLink域的问题，提出mKernel多GPU多节点融合内核库。它在tile粒度重叠计算、节点内NVLink通信与节点间RDMA，并把持久内核的流多处理器划分为计算与通信角色，由片上控制器在运行时自适应调整划分比例。该设计扩展了融合内核的跨节点适用范围，提升了GPU内核执行与通信重叠性能。",
+      "llm_tldr": "该文针对分布式大模型训练与推理中通信成为瓶颈、现有融合内核多局限于单一NVLink域的问题，提出mKernel多GPU多节点融合内核库。它在tile粒度重叠计算、节点内NVLink通信与节点间RDMA，并把持久内核的流多处理器划分为计算与通信角色，由片上控制器在运行时自适应调整划分比例。该设计扩展了融合内核的跨节点适用范围，提升了GPU内核执行与通信重叠性能。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.13612v1",
+      "source": "arxiv",
+      "title": "AttnFuse: A Composable DSL for Compiling Attentions to Fused GPU Kernels",
+      "abstract": "Modern AI systems are built on the Transformer architecture, whose core operation, attention, accounts for the majority of computation and memory cost. Researchers continually propose new attention variants to improve quality, efficiency, or context length, but each variant currently requires expert-written GPU code to run at usable speeds. PyTorch's recent flex\\_attention lets researchers describe custom attention patterns in Python and compile them to fused kernels, but its design is limited to modifications applied after the central matrix multiplication, excluding Rotary Position Embedding (RoPE), the positional encoding used by every major LLM.   We introduce AttnFuse, a small DSL for attention that makes pre-multiplication transformations like RoPE first-class operations. Researchers compose ten high-level building blocks to describe a variant, and AttnFuse's compiler emits a single fused GPU kernel for the entire computation. On an RTX 3090, AttnFuse achieves a 2.10$\\times$ speedup over flex\\_attention on the RoPE+causal pattern. On an H100, it runs a full Llama-3-8B training step within 5\\% of PyTorch's hand-tuned backend. Our investigation reveals the Rotation Calculus: whether to fuse RoPE or apply it separately depends on the GPU's compute-to-bandwidth ratio, with a derived crossover that matches measurement. AttnFuse demonstrates that a small, attention-specific compiler can close the gap between flexible research code and production kernels.",
+      "authors": [
+        "Varun Kumar Dasoju",
+        "Tian Zhao"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-11T23:55:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.13612v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "DSL compiling attention patterns to fused GPU kernels",
+      "llm_evidence_cn": "将注意力模式编译为融合GPU核的DSL",
+      "llm_evidence": "将注意力模式编译为融合GPU核的DSL",
+      "canonical_evidence": "将注意力模式编译为融合GPU核的DSL",
+      "llm_tldr_en": "AttnFuse is a small DSL that lets researchers describe attention variants, including pre-multiplication transforms like RoPE, and compiles them to fused GPU kernels.",
+      "llm_tldr_cn": "针对新注意力变体必须由专家手写GPU代码才能达到可用速度的问题，论文提出AttnFuse。它是一种小型领域特定语言，允许用Python描述注意力模式并编译为融合GPU核，尤其支持此前flex_attention无法覆盖的乘法前变换（如RoPE）。该工作降低了自定义注意力算子的实现门槛并提升了执行性能，属于算子生成与优化方向，但并非由大模型自动生成代码。",
+      "llm_tldr": "针对新注意力变体必须由专家手写GPU代码才能达到可用速度的问题，论文提出AttnFuse。它是一种小型领域特定语言，允许用Python描述注意力模式并编译为融合GPU核，尤其支持此前flex_attention无法覆盖的乘法前变换（如RoPE）。该工作降低了自定义注意力算子的实现门槛并提升了执行性能，属于算子生成与优化方向，但并非由大模型自动生成代码。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.15807v1",
+      "source": "arxiv",
+      "title": "Accelerating Transfer-Learning-Based Autotuning with Predictive LLVM IR Performance Ranking",
+      "abstract": "As the complexity of High Performance Computing (HPC) ecosys- tems continually increases, achieving optimal performance becomes a challenge. Traditional performance autotuning techniques pro- vide promising means to navigate this complexity, these techniques remain computationally intensive and require many evaluations to find optimal configurations. This work proposes an autotuning framework that designs a machine learning-based ensemble LLVM Intermediate Representa- tion (IR) ranker, Neural Configuration Scorer (NCS). NCS ranks the performance of IRs sampled by a transfer-learning-based autotuner, improving the efficiency of the tuning process by reducing tuning overheads and circumventing subpar evaluations. By leveraging knowledge from related tasks, we are able to effectively exploit the transfer relationship to access high-performing configurations in fewer samples than traditional techniques that rely upon itera- tive refinement. Our framework can achieve similar performance improvements as state-of-the-art autotuning techniques with up to 61.67% fewer evaluations, averaging 27.85% fewer evaluations across various HPC benchmarks.",
+      "authors": [
+        "Md Arafat Hossain",
+        "Thomas Randall",
+        "Akash Dutta",
+        "Xingfu Wu",
+        "Rong Ge",
+        "Ali Jannesari"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF",
+        "cs.LG"
+      ],
+      "published": "2026-09-14T16:14:15+00:00",
+      "link": "https://arxiv.org/pdf/2609.15807v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "ML-based autotuning and performance ranking",
+      "llm_evidence_cn": "基于机器学习的自动调优与性能排序",
+      "llm_evidence": "基于机器学习的自动调优与性能排序",
+      "canonical_evidence": "基于机器学习的自动调优与性能排序",
+      "llm_tldr_en": "As HPC systems grow complex, traditional autotuning needs many costly evaluations to find optimal configurations. This paper proposes a transfer-learning autotuning framework with an ensemble LLVM IR ranker, Neural Configuration Scorer, that ranks sampled IRs to reduce tuning overhead and avoid subpar evaluations, improving tuning efficiency.",
+      "llm_tldr_cn": "随着 HPC 系统日益复杂，传统性能自动调优需大量评估才能找到最优配置，开销高昂。本文提出一种自动调优框架，设计基于机器学习的集成 LLVM 中间表示排序器 NCS，对迁移学习型调优器采样的 IR 进行性能排序，从而减少调优开销并规避劣质评估。结果表明该方法提升了调优效率，为编译器层面的性能优化与自动配置搜索提供了有效工具。",
+      "llm_tldr": "随着 HPC 系统日益复杂，传统性能自动调优需大量评估才能找到最优配置，开销高昂。本文提出一种自动调优框架，设计基于机器学习的集成 LLVM 中间表示排序器 NCS，对迁移学习型调优器采样的 IR 进行性能排序，从而减少调优开销并规避劣质评估。结果表明该方法提升了调优效率，为编译器层面的性能优化与自动配置搜索提供了有效工具。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.14138v1",
+      "source": "arxiv",
+      "title": "LIMBO: Lifelong Inference-Time Memory and Budget Optimization for LLM Agents",
+      "abstract": "As LLM agents become integrated into increasingly complex workflows, they must continually acquire new capabilities while retaining competence on previously learned tasks. Lifelong agents address this through experience replay, injecting past interactions into the prompt to leverage prior experience during inference. However, replay is not free: every replayed trajectory competes with retrieval, reasoning, tool use, and verification for the same limited prompt and compute budget, making effective resource allocation essential. Existing approaches allocate these resources using fixed replay policies, regardless of whether replay is beneficial for the current task. We identify this as inference-time memory allocation, a distinct problem class for lifelong agents, and introduce LIMBO: the first online framework to our knowledge that treats memory as a controllable inference-time resource and jointly optimizes memory strategy and inference budget for each incoming task. Unlike prior approaches that fix the replay policy or require model weights, teacher supervision, or offline retraining, LIMBO learns this allocation online in a single pass, explicitly balancing task performance and inference cost without modifying the underlying agent. Across three LLM backbones on LifelongAgentBench, LIMBO achieves better cost-accuracy tradeoffs than state-of-the-art memory-augmented baselines and nearly matches all strongest such baselines at up to ~83% lower inference cost (~53% on average). LIMBO adapts its policy across models and environments without retraining, demonstrating that effective allocation can be learned online rather than manually specified.",
+      "authors": [
+        "Siddharth Sharma",
+        "Nilesh Prasad Pandey",
+        "Onat Gungor",
+        "Tajana Rosing"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-12T20:39:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.14138v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "inference-time memory allocation and experience replay for lifelong LLM agents",
+      "llm_evidence_cn": "面向终身LLM智能体的推理时记忆分配与经验回放",
+      "llm_evidence": "面向终身LLM智能体的推理时记忆分配与经验回放",
+      "canonical_evidence": "面向终身LLM智能体的推理时记忆分配与经验回放",
+      "llm_tldr_en": "Lifelong LLM agents replay past experience, but replay competes with retrieval and reasoning for a limited prompt budget; LIMBO reframes this as inference-time memory allocation and adaptively allocates resources.",
+      "llm_tldr_cn": "终身LLM智能体需持续获得新能力并保留旧任务能力，通常通过经验回放把历史交互注入提示。然而回放并非免费，每条轨迹都与检索、推理、工具调用和验证争夺有限的提示与计算预算。现有方法采用固定回放策略，无论回放对当前任务是否有益。作者将这一问题定义为推理时记忆分配，并提出LIMBO，动态优化记忆与预算分配。",
+      "llm_tldr": "终身LLM智能体需持续获得新能力并保留旧任务能力，通常通过经验回放把历史交互注入提示。然而回放并非免费，每条轨迹都与检索、推理、工具调用和验证争夺有限的提示与计算预算。现有方法采用固定回放策略，无论回放对当前任务是否有益。作者将这一问题定义为推理时记忆分配，并提出LIMBO，动态优化记忆与预算分配。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.15779v1",
+      "source": "arxiv",
+      "title": "EvoOntology: A Self-Evolving Ontology Layer for Data Agents",
+      "abstract": "Data agents aim to fulfill natural-language instructions over heterogeneous data, including tables, files, and databases. However, data agents face a challenging agent-data gap: heterogeneous data resides outside the agent, while the agent can access it (e.g., column names and file paths) only through generic tools. Existing approaches either let agents directly explore raw data sources or inject manually constructed semantic layers into prompts. However, neither scales well to large heterogeneous data sources nor adapts to different agent behaviors. In this paper, we introduce EvoOntology, a self-evolving ontology layer for data agents. EvoOntology encapsulates the ontology as an MCP server comprising a schema layer, a content layer, and a tool layer, enabling agents to actively query and interact with the ontology at runtime. To this end, we introduce a builder agent for autonomous ontology construction and a self-evolution loop that continuously refines the ontology through attribution-guided typed edits that are accepted only after a backbone-conditional paired evaluation. Experiments on three well-adopted data-agent benchmarks with four LLM backbones demonstrate that EvoOntology consistently outperforms strong baselines and existing semantic-layer approaches, effectively bridging the agent-data gap and enabling more effective interaction with heterogeneous data. Code: https://github.com/ruc-datalab/EvoOntology",
+      "authors": [
+        "Meiduo Chong",
+        "Shaolei Zhang",
+        "Ju Fan",
+        "Xiaoyong Du"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.DB"
+      ],
+      "published": "2026-09-14T15:59:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.15779v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "self-evolving ontology layer that adapts to agent behavior without manual construction",
+      "llm_evidence_cn": "无需人工构建、可随智能体行为自演化的本体层",
+      "llm_evidence": "无需人工构建、可随智能体行为自演化的本体层",
+      "canonical_evidence": "无需人工构建、可随智能体行为自演化的本体层",
+      "llm_tldr_en": "EvoOntology addresses the agent-data gap by proposing a self-evolving ontology layer exposed as an MCP server with schema, content, and tool layers, improving data agents access to large heterogeneous sources.",
+      "llm_tldr_cn": "针对数据智能体面对异构数据源时存在的数据鸿沟，以及现有直接探索原始数据或注入人工语义层方案难以扩展、难以适应智能体行为的问题，本文提出EvoOntology自演化本体层。该方法将本体封装为包含模式层、内容层与工具层的MCP服务器，使本体能够随智能体行为持续演化。实验表明该方案能更好地支持大规模异构数据访问。其贡献在于为数据智能体提供了可扩展、可自适应的语义层机制。",
+      "llm_tldr": "针对数据智能体面对异构数据源时存在的数据鸿沟，以及现有直接探索原始数据或注入人工语义层方案难以扩展、难以适应智能体行为的问题，本文提出EvoOntology自演化本体层。该方法将本体封装为包含模式层、内容层与工具层的MCP服务器，使本体能够随智能体行为持续演化。实验表明该方案能更好地支持大规模异构数据访问。其贡献在于为数据智能体提供了可扩展、可自适应的语义层机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
