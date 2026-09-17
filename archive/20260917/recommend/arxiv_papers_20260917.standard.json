@@ -1,0 +1,382 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-17T21:43:41.696553+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2609.16053v1",
+      "source": "arxiv",
+      "title": "Retrieval-Driven Memory Reconsolidation for Long-Term LLM Agents",
+      "abstract": "Long-term memory is essential for LLM-based agents operating over extended interactions. Existing memory systems primarily update memory when new information arrives, treating retrieval as the endpoint of memory access rather than a driver of memory evolution. Consequently, retrieval feedback is rarely exploited to reorganize memory for future access continuously. Moreover, most existing approaches rely on predefined memory structures together with fixed retrieval pipelines, limiting the agent's ability to organize and evolve its own memory autonomously. Inspired by memory reconsolidation in cognitive neuroscience, we propose \\textbf{REALM}, a \\textbf{r}econsolidation-\\textbf{e}volution \\textbf{a}gentic \\textbf{l}ong-term \\textbf{m}emory framework. It models long-term memory as a continual lifecycle by autonomously organizing memories into a heterogeneous cognitive graph, retrieving evidence via adaptively composed graph-search atoms, and continually reconsolidating memories based on retrieval feedback. REALM achieves an average accuracy of 75.97\\% on LoCoMo and 65.11\\% on LongMemEval, outperforming the strongest baselines by 7.17 and 1.31 points respectively. Ablation studies confirm that memory reconsolidation consistently boosts performance, with further analyses revealing that it progressively reorganizes related memory units into more coherent local structures for collective evidence recall and utilization during reasoning. These results suggest that retrieval-driven memory reconsolidation provides an effective mechanism for continually evolving long-term memory in LLM agents.",
+      "authors": [
+        "Yuanyi Song",
+        "Yukai Wang",
+        "Xinbei Ma",
+        "Zhihui Fu",
+        "Jianghao Lin",
+        "Weiwen Liu",
+        "Jun Wang",
+        "Huarong Deng",
+        "Yong Yu",
+        "Weinan Zhang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-13T05:17:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.16053v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "retrieval-driven memory reconsolidation for long-term LLM agent memory",
+      "llm_evidence_cn": "面向长期智能体记忆的检索驱动记忆再巩固",
+      "llm_evidence": "面向长期智能体记忆的检索驱动记忆再巩固",
+      "canonical_evidence": "面向长期智能体记忆的检索驱动记忆再巩固",
+      "llm_tldr_en": "Long-term memory is vital for LLM agents, yet existing systems update memory only when new information arrives and treat retrieval as an endpoint, relying on predefined structures and fixed pipelines. REALM, inspired by memory reconsolidation, uses retrieval feedback to continuously reorganize and autonomously evolve memory.",
+      "llm_tldr_cn": "长时交互的LLM智能体依赖长期记忆，但现有系统只在新信息到来时更新记忆，把检索视为记忆访问的终点而非记忆演化的驱动力，且依赖预定义结构与固定检索流程，限制了记忆的自主组织。本文受神经科学记忆再巩固启发，提出REALM框架，让检索反馈持续重组记忆并自主演化。实验验证其提升了长期记忆的组织与未来检索效果。该工作为智能体记忆的自主演化提供了新机制。",
+      "llm_tldr": "长时交互的LLM智能体依赖长期记忆，但现有系统只在新信息到来时更新记忆，把检索视为记忆访问的终点而非记忆演化的驱动力，且依赖预定义结构与固定检索流程，限制了记忆的自主组织。本文受神经科学记忆再巩固启发，提出REALM框架，让检索反馈持续重组记忆并自主演化。实验验证其提升了长期记忆的组织与未来检索效果。该工作为智能体记忆的自主演化提供了新机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.17391v1",
+      "source": "arxiv",
+      "title": "FlashVector: Agent for Hierarchical Model Serving Stack Optimization",
+      "abstract": "Model serving is one of the largest cost drivers in production recommender systems. Maximizing its throughput requires navigating a deeply layered hierarchy: GPU kernels, the ML framework computation graph, the model server, and on-demand feature processing -- each demanding specialized domain expertise. Such cross-layer expertise is inherently difficult to acquire, and does not scale with a workload that continuously grows and evolves, leaving significant cost efficiency gains unrealized. While recent AI agents have demonstrated human expert level efficiency in standalone GPU kernel optimization, automated tuning and optimization for the rest of the serving stack remain largely unexplored. We present FlashVector, an agentic system that optimizes performance across all layers of the model serving stack. The key contribution is an extensible framework to generalize the single kernel optimization agent paradigm to heterogeneous technical stacks, and to deliver performance improvements holistically. After deployment in Unity's Vector advertising platform, FlashVector achieved up to 2x throughput increase and up to 1.98x latency speedup on model server, and up to 1.6x throughput increase on feature store. These optimizations were discovered not only at the GPU kernel and computation graph levels, but also across the other components of the model serving stack, such as the model server (NVIDIA Triton's C++ codebase) and the on-demand feature transformation service (Python codebase), demonstrating the extensibility of the framework to more complex system architectures.",
+      "authors": [
+        "Qi Wu",
+        "Lohan Lemire",
+        "Kai Meng",
+        "Zhongmou Cai",
+        "Raphael Bargues",
+        "Petr Zhitnikov",
+        "Zeyuan Cao",
+        "Yao Wang",
+        "Shujun Bian",
+        "Wei Chen",
+        "Sean Sheng"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.PF"
+      ],
+      "published": "2026-09-15T16:27:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.17391v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "agentic optimization of GPU kernels and serving stack",
+      "llm_evidence_cn": "智能体驱动的GPU内核与服务栈分层优化",
+      "llm_evidence": "智能体驱动的GPU内核与服务栈分层优化",
+      "canonical_evidence": "智能体驱动的GPU内核与服务栈分层优化",
+      "llm_tldr_en": "FlashVector proposes an agentic system that automates hierarchical optimization across GPU kernels, computation graphs, model servers, and feature processing, extending expert-level single-kernel agents to the full serving stack.",
+      "llm_tldr_cn": "针对模型服务中跨GPU内核、计算图、服务与特征处理的分层优化高度依赖稀缺专家、难以随负载扩展的问题，本文提出FlashVector智能体系统，自动在各层级进行调优与优化。该系统把已有智能体在单点GPU内核优化上达到人类专家效率的能力扩展到整个服务栈，实现端到端吞吐优化，为生产推荐系统的成本效率提升提供可扩展的自动化路径。",
+      "llm_tldr": "针对模型服务中跨GPU内核、计算图、服务与特征处理的分层优化高度依赖稀缺专家、难以随负载扩展的问题，本文提出FlashVector智能体系统，自动在各层级进行调优与优化。该系统把已有智能体在单点GPU内核优化上达到人类专家效率的能力扩展到整个服务栈，实现端到端吞吐优化，为生产推荐系统的成本效率提升提供可扩展的自动化路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.16800v1",
+      "source": "arxiv",
+      "title": "Smarter by the Moment: Environment-Driven Dynamic Policies for Continual LLM Improvement",
+      "abstract": "Large Language Models (LLMs) have achieved remarkable progress across diverse domains, but continual adaptation to evolving tasks and environments remains a key challenge. Existing memory-augmented approaches retrieve individual past examples as direct references, but do not explicitly synthesize actionable strategies from them, causing the same types of errors to recur. We propose Dynamic Retrieval-based Policy Generation (DRPG), a framework that integrates memory-based retrieval with a dynamic policy generator, leveraging historical data and environment feedback to produce task-specific policies for continual LLM improvement. We evaluate DRPG across six benchmarks spanning text-to-SQL, question answering, medical diagnosis, and Python programming, using seven LLMs from both proprietary and open-weight families. DRPG outperforms strong baselines across most datasets and models. Further analysis demonstrates that DRPG's policy generation is robust to retrieval strategy, operates effectively without prior policy continuity, and can leverage smaller or cross-family models as cost-efficient policy generators. We also find that the benefit of policy-level guidance depends on task characteristics, offering practical insights into when and under what conditions this mechanism is most effective.",
+      "authors": [
+        "Ting-Wei Chang",
+        "Po-Chun Chen",
+        "Hen-Hsen Huang",
+        "Hsin-Hsi Chen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-15T08:06:17+00:00",
+      "link": "https://arxiv.org/pdf/2609.16800v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "memory retrieval plus dynamic policy generation for continual LLM improvement",
+      "llm_evidence_cn": "记忆检索结合动态策略生成实现持续改进",
+      "llm_evidence": "记忆检索结合动态策略生成实现持续改进",
+      "canonical_evidence": "记忆检索结合动态策略生成实现持续改进",
+      "llm_tldr_en": "Memory-augmented LLMs retrieve past examples but rarely synthesize actionable strategies, so errors recur. DRPG couples memory-based retrieval with a dynamic policy generator that uses history and environment feedback to produce task-specific policies.",
+      "llm_tldr_cn": "LLM在多样领域取得进展，但持续适应不断变化的任务与环境仍是难题；现有记忆增强方法只把过去样例作为直接参考检索出来，未从中显式提炼可执行策略，导致同类错误反复出现。本文提出动态检索式策略生成框架DRPG，将基于记忆的检索与动态策略生成器结合，利用历史数据与环境反馈为当前任务生成专门策略。作者在涵盖文本到SQL、问答、医疗诊断与Python等六个基准上评估，验证了持续改进的有效性，为智能体在决策时检索并综合经验提供了新思路。",
+      "llm_tldr": "LLM在多样领域取得进展，但持续适应不断变化的任务与环境仍是难题；现有记忆增强方法只把过去样例作为直接参考检索出来，未从中显式提炼可执行策略，导致同类错误反复出现。本文提出动态检索式策略生成框架DRPG，将基于记忆的检索与动态策略生成器结合，利用历史数据与环境反馈为当前任务生成专门策略。作者在涵盖文本到SQL、问答、医疗诊断与Python等六个基准上评估，验证了持续改进的有效性，为智能体在决策时检索并综合经验提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.17010v1",
+      "source": "arxiv",
+      "title": "ThinkFlow: Self-Evolving Probabilistic Latent Memory for Lifelong Conversational Agents",
+      "abstract": "Lifelong conversational agents rely on memory systems to maintain deep, context-aware interactions with users. However, existing explicit textual memory pipelines suffer from a severe information bottleneck, often losing subtle behavioral patterns and emotional shifts. Furthermore, being typically static post-deployment, they cannot autonomously adapt to personal habits and preferences without manual feedback. Cognitive science, however, suggests that humans maintain mental models purely in a latent space and continuously refine them through predictive coding. Inspired by this, we propose \\textbf{ThinkFlow}, a novel end-to-end latent memory framework for lifelong conversational agents. ThinkFlow bypasses the text bottleneck by dynamically compressing conversational flows into probabilistic latent memory skills, autonomously consolidating complex user states into disentangled, continuous vectors without semantic interference. To break this barrier, we introduce a test-time evolution paradigm. By coupling teacher-guided latent alignment to bootstrap the initial state with a self-supervised next-user-utterance prediction task for continuous refinement, the framework successfully overcomes cold-start challenges and achieves label-free lifelong personalization. Extensive experiments on long-term conversation benchmarks demonstrate that ThinkFlow significantly outperforms prevailing memory systems, providing highly personalized and contextually accurate responses over extended multi-session interactions.",
+      "authors": [
+        "Cai Ke",
+        "Xin Liu",
+        "Han Zhang",
+        "Jiangyue Yan",
+        "Zike Yuan",
+        "Ling Deng",
+        "Yue Yu",
+        "Hui Wang",
+        "Ruifeng Xu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-15T11:21:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.17010v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving latent memory framework for lifelong conversational agents",
+      "llm_evidence_cn": "面向终身对话智能体的自演化潜在记忆框架",
+      "llm_evidence": "面向终身对话智能体的自演化潜在记忆框架",
+      "canonical_evidence": "面向终身对话智能体的自演化潜在记忆框架",
+      "llm_tldr_en": "Existing textual memory pipelines for lifelong agents lose subtle patterns and stay static after deployment. ThinkFlow proposes an end-to-end latent memory that self-evolves via predictive coding to adapt autonomously.",
+      "llm_tldr_cn": "终身对话智能体依赖记忆系统维持上下文感知交互，但现有显式文本记忆存在严重信息瓶颈，易丢失细微行为模式与情感变化，且部署后无法自主适应。受认知科学中潜在心理模型与预测编码启发，本文提出ThinkFlow，一种端到端潜在记忆框架，动态地在潜在空间存储并持续精炼记忆。该框架绕过文本瓶颈，无需人工反馈即可自适应个人习惯与偏好。其贡献在于为智能体的记忆存储、检索与自演化提供了统一的新型记忆机制。",
+      "llm_tldr": "终身对话智能体依赖记忆系统维持上下文感知交互，但现有显式文本记忆存在严重信息瓶颈，易丢失细微行为模式与情感变化，且部署后无法自主适应。受认知科学中潜在心理模型与预测编码启发，本文提出ThinkFlow，一种端到端潜在记忆框架，动态地在潜在空间存储并持续精炼记忆。该框架绕过文本瓶颈，无需人工反馈即可自适应个人习惯与偏好。其贡献在于为智能体的记忆存储、检索与自演化提供了统一的新型记忆机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.16073v1",
+      "source": "arxiv",
+      "title": "The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG",
+      "abstract": "Retrieval-Augmented Generation (RAG) serves as the primary memory architecture for long-horizon autonomous agents. However, treating shared memory as an append-only stream introduces \\textit{Semantic Shadowing}, a critical failure mode where conflicting historical observations accumulate and statistically dominate valid recent updates. In dynamic environments, this results in severe state divergence as agents retrieve and act upon obsolete facts. This paper formalizes the mechanics of State Mutability to prove that standard dense retrieval suffers from Asymptotic Recall Decay. Furthermore, we formally demonstrate a Majority Vote Trap, revealing that increasing the retrieval context window paradoxically degrades generation accuracy by diluting the attention mechanism under conditions of semantic equivalence. To resolve this, we introduce GC-Mem (Garbage Collection for Memory), a strict inference-time consistency protocol. Unlike heuristic time-decay mechanisms---which indiscriminately destroy valid long-term memory---GC-Mem relies purely on a temporal dominance operator ($Φ_{\\mathcal{T}}$) paired with contradiction detection to surgically excise shadowed context. Evaluated across a rigorous, behaviorally inferred benchmark of 137,760 memory chunks and continuous accumulation sweeps, standard RAG and timestamp re-ranking baselines experience severe degradation. In contrast, GC-Mem empirically recovers $>90\\%$ conflict resolution accuracy. We establish strict precision and recall deployment thresholds, ensuring state convergence where standard mutable RAG fundamentally fails.",
+      "authors": [
+        "Hamed HaddadPajouh",
+        "Amir AmiriTabat"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-13T15:28:07+00:00",
+      "link": "https://arxiv.org/pdf/2609.16073v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "RAG as agent memory; conflict resolution in mutable memory",
+      "llm_evidence_cn": "RAG作为智能体记忆；可变记忆的冲突解决",
+      "llm_evidence": "RAG作为智能体记忆；可变记忆的冲突解决",
+      "canonical_evidence": "RAG作为智能体记忆；可变记忆的冲突解决",
+      "llm_tldr_en": "Formalizes state mutability in mutable RAG agent memory, proving asymptotic recall decay and a majority vote trap where larger retrieval windows degrade accuracy.",
+      "llm_tldr_cn": "检索增强生成已成为长时程自主智能体的主要记忆架构，但将共享记忆视为仅追加的流会导致语义遮蔽：冲突的历史观测不断累积并压过有效的新更新，使智能体检索并依据过时事实行动，产生状态漂移。本文将状态可变性形式化，证明标准稠密检索存在渐近召回衰减，并揭示多数投票陷阱——扩大检索上下文窗口反而降低生成准确率。该工作为可变记忆的冲突解决提供了理论基础，对智能体记忆管理具有指导意义。",
+      "llm_tldr": "检索增强生成已成为长时程自主智能体的主要记忆架构，但将共享记忆视为仅追加的流会导致语义遮蔽：冲突的历史观测不断累积并压过有效的新更新，使智能体检索并依据过时事实行动，产生状态漂移。本文将状态可变性形式化，证明标准稠密检索存在渐近召回衰减，并揭示多数投票陷阱——扩大检索上下文窗口反而降低生成准确率。该工作为可变记忆的冲突解决提供了理论基础，对智能体记忆管理具有指导意义。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.16389v1",
+      "source": "arxiv",
+      "title": "Exo-GPU: Safe, Imperative, User-schedulable Programming for Tensor Cores",
+      "abstract": "Modern GPUs require not only SIMT-style parallelism but also software-managed concurrency between compute and data movement to reach maximum performance. Performance engineers must reason about subdividing work into the hierarchy of computation resources (threads, warps, warpgroups, blocks, clusters), and, in many cases, also must use asynchronous tensor core and memcpy instructions on different levels of the memory hierarchy (registers, tensor core accumulators, shared memory, global memory). Unlike CPUs, where out-of-order execution is managed by hardware and hidden from programmers, GPUs expose explicit instruction reordering to software through these asynchronous instructions. Well-established GPU programming languages generally offer either direct low-level control without safety guarantees (e.g., CUDA C++ inline assembly or intrinsics) or easier-to-analyze, high-level abstractions (e.g., Triton's tile-based model) that hide asynchronous instructions in the compiler backend, which may prevent performance engineers from maximizing performance by tuning critical details. We propose Exo-GPU, an imperative, low-level language that creates minimal abstraction over CUDA. Our key idea is to treat parallelism and synchronization as mere annotations on sequential code rather than as fundamental control flow primitives, enabling verification that these constructs do not alter the program semantics. The benefit is twofold: programmers can reason about code without hidden control flow or mutation, while allowing the Exo-GPU compiler to verify sequential-parallel equivalence--guaranteeing that parallel execution is functionally equivalent to its sequential interpretation. We used Exo-GPU to author GEMM kernels for the H100 GPU, using wgmma, TMA, and split-k. Our kernels achieved over 80% of theoretical peak on large problem sizes, in some cases outperforming the vendor-provided CUBLAS library.",
+      "authors": [
+        "David Zhao Akeley",
+        "Yuka Ikarashi",
+        "Jonathan Ragan-Kelley"
+      ],
+      "primary_category": "cs.PL",
+      "categories": [
+        "cs.PL"
+      ],
+      "published": "2026-09-14T21:55:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.16389v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Safe imperative user-schedulable GPU programming for tensor core kernel performance",
+      "llm_evidence_cn": "面向张量核心内核性能的安全命令式可调度GPU编程",
+      "llm_evidence": "面向张量核心内核性能的安全命令式可调度GPU编程",
+      "canonical_evidence": "面向张量核心内核性能的安全命令式可调度GPU编程",
+      "llm_tldr_en": "Exo-GPU is a safe, imperative, user-schedulable programming model for tensor cores that exposes software-managed concurrency, letting engineers explicitly schedule work and asynchronous tensor-core and memcpy instructions across GPU memory hierarchies.",
+      "llm_tldr_cn": "现代GPU要在计算与数据搬运间实现软件管理的并发，性能工程师须在多层计算资源上划分工作，并使用张量核心与异步拷贝指令，但现有GPU编程语言难以兼顾安全、命令式风格与用户可调度性。本文提出Exo-GPU，一种面向张量核心的安全、命令式且可用户调度的编程模型，让开发者显式控制线程、warp与内存层级上的异步指令编排。该方法在保持安全性的同时暴露底层调度能力，为编写高性能张量核心内核提供了更可控的抽象。",
+      "llm_tldr": "现代GPU要在计算与数据搬运间实现软件管理的并发，性能工程师须在多层计算资源上划分工作，并使用张量核心与异步拷贝指令，但现有GPU编程语言难以兼顾安全、命令式风格与用户可调度性。本文提出Exo-GPU，一种面向张量核心的安全、命令式且可用户调度的编程模型，让开发者显式控制线程、warp与内存层级上的异步指令编排。该方法在保持安全性的同时暴露底层调度能力，为编写高性能张量核心内核提供了更可控的抽象。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.17088v1",
+      "source": "arxiv",
+      "title": "Interactive Memory Learning for Long-Term Conversations",
+      "abstract": "Recent advancements in large language models have significantly enhanced the capabilities of agents in modeling long-term conversations. Despite these successes, existing approaches typically adopt a static heuristic paradigm, where information is passively archived without adaptive memory valuation. Consequently, these methods fail to self-evolve or align their memory management with evolving user needs. To address this, we propose ICML (InteraCtive Memory Learning), a multi-agent framework that transforms the memory mechanism from a passive archive into a learnable, interactive memory policy. Specifically, we first employ a session synthesis pipeline to generate expert data, facilitating rapid test-time adaptation in unseen scenarios. Building on this, ICML utilizes an online reinforcement learning mechanism where a Planner agent selectively encodes high-value information and a Trigger agent dynamically retrieves it to optimize response quality, whereby the two agents co-evolve through continuous interaction feedback. Crucially, both agents are synchronized through a delayed reward mechanism that propagates future feedback back to earlier storage decisions, ensuring memory policies are precisely aligned with user expectations. Experimental results demonstrate that ICML significantly outperforms strong baselines, exhibiting the unique capability to continuously improve response quality as interactions accumulate.",
+      "authors": [
+        "Cai Ke",
+        "Jiangyue Yan",
+        "Han Zhang",
+        "Xin Liu",
+        "Zike Yuan",
+        "Yue Yu",
+        "Hui Wang",
+        "Ruifeng Xu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-15T12:21:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.17088v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Learnable interactive memory policy for agents",
+      "llm_evidence_cn": "面向智能体的可学习交互式记忆策略",
+      "llm_evidence": "面向智能体的可学习交互式记忆策略",
+      "canonical_evidence": "面向智能体的可学习交互式记忆策略",
+      "llm_tldr_en": "ICML turns agent memory from a passive archive into a learnable interactive memory policy, using session synthesis for fast test-time adaptation in long-term conversations.",
+      "llm_tldr_cn": "现有智能体在长期对话中多采用静态启发式记忆，信息被动存档而缺乏自适应记忆价值评估，难以随用户需求演化而自我进化。本文提出ICML多智能体框架，将记忆机制从被动档案转变为可学习、可交互的记忆策略，并借助会话合成管线生成专家数据以支持在未见场景下的快速测试时自适应。该方法使记忆管理能与用户需求对齐并持续自我演化，提升了长期对话场景下的智能体表现。",
+      "llm_tldr": "现有智能体在长期对话中多采用静态启发式记忆，信息被动存档而缺乏自适应记忆价值评估，难以随用户需求演化而自我进化。本文提出ICML多智能体框架，将记忆机制从被动档案转变为可学习、可交互的记忆策略，并借助会话合成管线生成专家数据以支持在未见场景下的快速测试时自适应。该方法使记忆管理能与用户需求对齐并持续自我演化，提升了长期对话场景下的智能体表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.18304v1",
+      "source": "arxiv",
+      "title": "Rollback the World, Keep the Reflection: Rollback-Induced Reflection for Long-Horizon LLM Agents",
+      "abstract": "Large language model (LLM) agents increasingly tackle long-horizon tasks through multi-step environment interaction, yet a single erroneous action can alter subsequent states and observations, causing errors to compound over time. Existing methods either correct the context without repairing altered environment states or restore earlier states while discarding useful experience, making it difficult to both eliminate failure conditions and avoid repeating past mistakes. We argue that reliable recovery should instead be treated as a rollback-boundary control problem that jointly determines when to intervene, where to resume, and what information should survive recovery. Based on this view, we propose Rollback-Induced Reflection (RIR), a unified recovery framework that restores execution to a selected prior state while carrying forward reusable knowledge distilled from the abandoned trajectory to guide subsequent decisions. We further characterize recovery through a unified operator over rollback depth and retained memory, providing a general view of state restoration and knowledge retention. Experiments on three long-horizon benchmarks demonstrate that RIR consistently improves task performance across multiple LLM backbones, with structured reflection memory preserving useful experience and selective rollback enabling efficient recovery.",
+      "authors": [
+        "Yi Yu",
+        "Liuyi Yao",
+        "Yaliang Li",
+        "Enshu Wang",
+        "Libing Wu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.RO"
+      ],
+      "published": "2026-09-16T08:26:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.18304v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reflection-based rollback recovery retains useful experience for LLM agents",
+      "llm_evidence_cn": "基于反思的回滚恢复为智能体保留有用经验",
+      "llm_evidence": "基于反思的回滚恢复为智能体保留有用经验",
+      "canonical_evidence": "基于反思的回滚恢复为智能体保留有用经验",
+      "llm_tldr_en": "Long-horizon LLM agents compound errors after a single wrong action alters environment states. The paper frames recovery as rollback-boundary control and proposes Rollback-Induced Reflection to decide when to intervene, where to resume, and what experience to keep.",
+      "llm_tldr_cn": "长程LLM智能体在环境中多步交互时，单个错误动作会改变后续状态与观测，导致错误不断累积，而现有方法要么只修正上下文却不修复环境状态，要么回滚时丢弃了有用经验。作者将可靠恢复重新建模为回滚边界控制问题，联合决定何时干预、从何处恢复以及哪些信息应在恢复后保留，并提出回滚诱导反思机制。该机制能在消除失败条件的同时保留经验，减少重复犯错，为长程智能体的错误恢复提供了统一框架。",
+      "llm_tldr": "长程LLM智能体在环境中多步交互时，单个错误动作会改变后续状态与观测，导致错误不断累积，而现有方法要么只修正上下文却不修复环境状态，要么回滚时丢弃了有用经验。作者将可靠恢复重新建模为回滚边界控制问题，联合决定何时干预、从何处恢复以及哪些信息应在恢复后保留，并提出回滚诱导反思机制。该机制能在消除失败条件的同时保留经验，减少重复犯错，为长程智能体的错误恢复提供了统一框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.18779v1",
+      "source": "arxiv",
+      "title": "CERA-MoA: Co-Evolving Routing Mechanisms with Continually Learning LLM Agents",
+      "abstract": "Current Mixture-of-Agents (MoA) paradigms generally treat query routing and agent fine-tuning as separate processes, limiting their ability to respond to evolving agent capabilities. This disconnect prevents routing strategies from adapting to evolving agent capabilities during post-training and prevents agents from achieving synergistic data-driven specialization. To resolve this, we introduce CERA-MoA (Co-Evolving Router with continually learning Agents for Mixture-of-Agents), an iterative reinforcement learning framework where the dynamic router and independent agent policies co-evolve. We design a predictive familiarity estimator that leverages mid-layer hidden states to evaluate semantic competence among agents, avoiding the overhead of full rollouts. Based on these familiarity scores, a cumulative-threshold adaptive routing mechanism dynamically activates a tailored minimal agent subset, achieving a trade-off between task performance and efficiency. By proactively allocating targeted training samples to agents based on their evolving competence, CERA-MoA promotes capability differentiation. Extensive experiments across various domains demonstrate that CERA-MoA outperforms state-of-the-art static-agent routing and fix-workflow fine-tuning baselines.",
+      "authors": [
+        "Jiaxuan Jiang",
+        "Liyuan He",
+        "Zhixuan Fang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-16T15:01:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.18779v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "router and agents co-evolve to adapt to evolving capabilities",
+      "llm_evidence_cn": "路由与智能体协同演化以适应能力变化",
+      "llm_evidence": "路由与智能体协同演化以适应能力变化",
+      "canonical_evidence": "路由与智能体协同演化以适应能力变化",
+      "llm_tldr_en": "Mixture-of-Agents treats routing and agent fine-tuning separately, so routers cannot track evolving agent abilities; CERA-MoA co-evolves a dynamic router with continually learning agents via iterative RL and a predictive familiarity estimator.",
+      "llm_tldr_cn": "现有Mixture-of-Agents范式将查询路由与智能体微调视为两个独立过程，导致路由策略无法跟随智能体能力演化，智能体也难以实现数据驱动的协同专业化。本文提出CERA-MoA迭代强化学习框架，让动态路由器与各智能体策略协同演化，并设计基于中层隐状态的预测式熟悉度估计器以降低完整推理开销。该工作为自进化多智能体系统的路由与训练一体化提供了新范式。",
+      "llm_tldr": "现有Mixture-of-Agents范式将查询路由与智能体微调视为两个独立过程，导致路由策略无法跟随智能体能力演化，智能体也难以实现数据驱动的协同专业化。本文提出CERA-MoA迭代强化学习框架，让动态路由器与各智能体策略协同演化，并设计基于中层隐状态的预测式熟悉度估计器以降低完整推理开销。该工作为自进化多智能体系统的路由与训练一体化提供了新范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

@@ -1,0 +1,548 @@
+Title: The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG
+
+URL Source: https://arxiv.org/pdf/2609.16073v1
+
+Published Time: Wed, 16 Sep 2026 00:07:38 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG 
+
+Hamed Haddadpajouh 
+
+Independent Researcher 
+
+Amir AmiriTabat 
+
+Independent Researcher 
+
+Abstract 
+
+Retrieval-Augmented Generation (RAG) serves as the primary memory architec-ture for long-horizon autonomous agents. However, treating shared memory as an append-only stream introduces Semantic Shadowing , a critical failure mode where conflicting historical observations accumulate and statistically dominate valid recent updates. In dynamic environments, this results in severe state diver-gence as agents retrieve and act upon obsolete facts. This paper formalizes the mechanics of State Mutability to prove that standard dense retrieval suffers from Asymptotic Recall Decay. Furthermore, we formally demonstrate a Majority Vote Trap, revealing that increasing the retrieval context window paradoxically degrades generation accuracy by diluting the attention mechanism under conditions of seman-tic equivalence. To resolve this, we introduce GC-Mem (Garbage Collection for Memory), a strict inference-time consistency protocol. Unlike heuristic time-decay mechanisms—which indiscriminately destroy valid long-term memory—GC-Mem relies purely on a temporal dominance operator ( ΦT ) paired with contradiction detection to surgically excise shadowed context. Evaluated across a rigorous, behaviorally inferred benchmark of 137,760 memory chunks and continuous accu-mulation sweeps, standard RAG and timestamp re-ranking baselines experience severe degradation. In contrast, GC-Mem empirically recovers > 90% conflict resolution accuracy. We establish strict precision and recall deployment thresholds, ensuring state convergence where standard mutable RAG fundamentally fails. 
+
+1 Introduction 
+
+As autonomous systems graduate from isolated tasks to long-horizon workflows, the consistency of their memory architecture becomes paramount. Retrieval-Augmented Generation (RAG) is the consensus memory framework Lewis et al. [2020], yet it operates under the implicit assumption of a static knowledge base. In real-world agentic deployments, memory is an append-only stream where factual states mutate over time (e.g., user preferences shift, project goals update, infrastructure changes) Park et al. [2023]. We identify a foundational failure in the append-only paradigm: when an entity updates, the historical state is not deleted. Because the historical and updated states are semantically equivalent but logically contradictory, dense retrieval algorithms return the statistical majority of stale chunks. We formalize this failure mode as Semantic Shadowing .This paper establishes the theoretical bounds of retrieval failure under state mutation. We prove three central theorems: (1) valid-state recall decays asymptotically to zero as a system’s interaction history grows; (2) generation fails even when valid chunks are successfully retrieved because attention mass becomes non-discriminating across semantically equivalent contradictions; and (3) multi-factor memory scoring fundamentally violates state convergence by protecting entrenched historical errors. To address these vulnerabilities, we propose GC-Mem , a lightweight, inference-time garbage collec-tion operator driven strictly by temporal dominance ( ΦT ). Unlike naive timestamp re-ranking—which 
+
+> Preprint. arXiv:2609.16073v1 [cs.CL] 13 Sep 2026
+
+we demonstrate destroys valid historical reasoning—GC-Mem surgically removes logical contradic-tions from the retrieved context prior to generation. 
+
+2 Related Work 
+
+Agentic Memory and Mutable RAG. The deployment of long-horizon autonomous agents ne-cessitates robust memory architectures. Current frameworks like Voyager Wang et al. [2023] and Reflexion Shinn et al. [2023] utilize iterative self-reflection to update agent policies, but rely on local-ized episodic buffers. MemGPT Packer et al. [2023] introduced an OS-inspired memory hierarchy to manage context limits, while GraphRAG Edge et al. [2024] and HippoRAG Gutiérrez et al. [2024] map global semantic structures for multi-hop reasoning. However, these architectures primarily treat memory as a monotonically growing, static knowledge base. When subjected to state mutation, standard dense retrieval Lewis et al. [2020], Karpov et al. [2024] falters because heuristic time-decay algorithms indiscriminately erase valid historical invariants alongside stale facts. GC-Mem explicitly solves the mutability gap in RAG-driven agent architectures. 
+
+Knowledge Editing and Temporal Contradiction. Our work bridges mutable RAG with the literature on knowledge editing and temporal QA. Methodologies like ROME Meng et al. [2022] and MEMIT Meng et al. [2023] directly mutate the parametric weights of LLMs to inject updated facts. Concurrently, TempLAMA Dhingra et al. [2022] and StreamingQA Liska et al. [2022] explore QA over temporally evolving corpora. While parametric editing is computationally prohibitive for continuous, high-frequency multi-agent streams, GC-Mem acts as a non-parametric, inference-time filter. By utilizing Natural Language Inference (NLI) contradiction detection, GC-Mem dynamically resolves temporal conflicts in the retrieved context without requiring weight updates. 
+
+Long-Context Dilution and Attention Collapse. The Majority Vote Trap formalized in this paper builds upon the "Lost in the Middle" phenomenon Liu et al. [2023], Levy et al. [2024], which demonstrated that LLM attention degrades when relevant information is flanked by noise. We extend this by proving that in mutable memory, context dilution is not an accidental byproduct of long documents, but a mathematical asymptote. As history grows, the probability of retrieving a correct state approaches zero, and the generation attention mass becomes captive to the statistical majority of stale evidence Wang et al. [2025]. 
+
+Latency and Self-Correction in LLMs. Recent advancements in agentic reasoning heavily leverage critic-guided reflection loops Zhang et al. [2025] to correct hallucinations and reasoning errors. However, relying on multi-turn generative reflection to prune memory contradictions induces severe latency overhead and token costs. GC-Mem operates as a computationally lightweight, feed-forward inference filter. By excising logical contradictions prior to the primary generation phase, GC-Mem circumvents the need for post-generation reflection loops, ensuring strict factual grounding within bounded operational latency. 
+
+3 Theoretical Framework 
+
+Let Mt = {(c1, τ 1), . . . , (cn, τ n)} denote the shared memory stream at time t, where ci is a memory chunk and τi is its timestamp. 
+
+3.1 Problem Formulation Definition 3.1 (Mutable Entity State & Multi-Transition Dynamics) . Consider an entity E. The ground truth state σE (t) is formally defined as a piecewise-constant function over time. Let T =
+
+{t0, t 1, . . . , t n} denote a strictly monotonically increasing sequence of transition timestamps ( t0 <t1 < · · · < t n). For any interval t ∈ [ti, t i+1 ), the entity state is Si.For a query issued at current time t > t n, the terminal state Snew = Sn is the sole valid state. All preceding states Sold ∈ { S0, . . . , S n−1} where Sold ⊥ Snew constitute logical contradictions. This formalizes chained state mutations (e.g., A → B → C). Because the temporal operator ΦT enforces 
+
+τnew > τ old pairwise across all retrieved chunks, it dynamically collapses chained contradictions to the terminal valid state Sn.2Lemma 3.2 (Semantic Equivalence) . For a query q targeting the state of E, the embedding similarity of the old and new states is mathematically indistinguishable up to a marginal noise term ϵ:
+
+|sim (q, S old ) − sim (q, S new )| < ϵ (1) 
+
+Assumption 3.3 (Accumulation Hypothesis ( N ≫ M )) . Let η(S) denote the count of chunks asserting state S semantically similar to a specific attribute. For instance, if an agent interacts with a user 50 times regarding their diet, and the diet mutates once, N = 49 and M = 1 . N scales per-attribute, not globally. We assume η(Sold ) ≫ η(Snew ).
+
+3.2 The Shadowing Failure Theorem 3.4 (Asymptotic Recall Decay) . Assuming the Accumulation Hypothesis ( N ≫ M ), the expected number of valid chunks X in the retrieved set Rk is bounded by: 
+
+E[X] ≈ k MN + M (2) 
+
+As attribute history N → ∞ , E[X] → 0. Because dense retrievers exhibit inherent semantic bias toward dominant phrasings, this hypergeometric formulation serves as a theoretical worst-case lower bound for recall failure (Proof in Appendix B.1). 
+
+Theorem 3.5 (The Majority Vote Trap) . Even if Rk contains valid evidence (e.g., k − 1 stale chunks and 1 valid chunk), generation collapses. Under Semantic Equivalence (Lemma 3.2), the LLM attention mechanism becomes non-discriminating across the chunks Liu et al. [2023]. The probability mass assigned to the stale state scales with its representation: 
+
+P (y = Sold ) ∝ k − 1
+
+k (3) 
+
+(Proof in Appendix B.2). 
+
+Figure 1: Embedding similarity noise ( ϵ) distribution illustrating semantic equivalence between old and new states. 
+
+4 The GC-Mem Protocol 
+
+To mathematically guarantee state convergence, we introduce GC-Mem . Operationally, the system functions as a linear inference stack from ingested interaction logs to validated generation. We detail the architectural mechanics below. 34.1 Memory Architecture and Candidate Retrieval 
+
+Each multi-turn session is segmented and embedded via a fixed sentence encoder, populating the primary medium-term memory (MTM) vector index. Optionally, the architecture supports a Short-Term Memory (STM) recency buffer, implemented as a FIFO queue mirroring the N most recent chunks. When a user query is issued, the system executes multi-query expansion to mitigate single-embedding bias. The MTM returns the top-k semantically similar chunks. If the STM buffer is enabled, it is unioned with the MTM hits and deduplicated, forming the frozen candidate set Rk.Crucially, Rk serves as the identical baseline context evaluated across all methodologies (Standard RAG, Timestamp Re-ranking, and GC-Mem) to ensure strict experimental parity. 
+
+4.2 Conflict Oracle and Temporal Dominance 
+
+Each item is simplified to a tuple mi = ( ci, τ i, r i), where τi is the strict chronological timestamp and 
+
+ri is retrieval relevance. We define the conflict function κ(ci, c j ) ∈ { 0, 1} which evaluates whether two retrieved statements logically contradict relative to the user query. This step utilizes a pairwise Natural Language Inference (NLI) heuristic operating strictly within Rk, resulting in a bounded O(|R k|2) operational complexity. We define the temporal dominance operator ΦT over the retrieved set Rk:
+
+ΦT (Rk) = {ci ∈ R k | ∄cj ∈ R k : κ(ci, c j ) = 1 ∧ τj > τ i} (4) 
+
+Theorem 4.1 (State Recovery) . Applying ΦT guarantees that if at least one valid chunk Snew is retrieved, all older contradictory chunks Sold are excised. The context is purged of contradiction, breaking the Majority Vote Trap and forcing P (y = Snew ) → 1.
+
+5 Experimental Methodology 
+
+5.1 Dataset Scale and Rationale 
+
+We constructed a Temporal Mutation Benchmark consisting of 2,016 experiment instances and 137,760 evaluated memory chunks across continuous parameter sweeps (6 controlled N : M
+
+accumulation ratios from 1:1 to 100:1, and 4 model architectures). We utilize a controlled synthetic environment because organic data cannot isolate the mathematical bounds of Semantic Shadowing. We evaluated external datasets (FactConsolidation and WikiContra-dict) and found they yielded 0% and 10% Conflict Resolution Accuracy (CR-Acc), respectively, due to the complete absence of controlled temporal contradiction ratios. 
+
+5.2 The Behavioral Pipeline 
+
+To ensure robust evaluation, we utilize a behavioral generation pipeline to construct the memory contexts. Preliminary templates exhibited up to 14% keyword leakage (where the state is explicitly named, e.g., "Status: employed"). The pipeline relies exclusively on behavior-inferrable state constraints (e.g., Old: "Complained about feeling winded after climbing a single flight of stairs." vs New: "Jogged three miles before breakfast this morning."). Regulated by a secondary GPT-4 quality rater, keyword leakage is suppressed to 0-3%, forcing the retriever to rely purely on complex semantic similarity. The medium dataset contains 48 instances (1,464 chunks), and the large contains 65 instances (1,950 chunks). 4INGEST RETRIEVAL                 
+
+> ΦTOPERATOR ANSWER PATHS
+> Chat Session (multi-turn) Embed (all-MiniLM-L6-v2) Qdrant (MTM) Redis FIFO (STM)
+> default last-N=10
+> User Query Multi-Query Expansion Qdrant top-k
+> Union with STM recent-N
+> Dedup →Rk
+> old-biased + new-biased
+> k=10 default
+> GC-Mem Filter (drop older) ⇒R′
+> k
+> κ
+> same LLM as answer
+> Standard RAG answer Timestamp re-rank answer GC-Mem answer
+> G
+> Grader (strict-match)
+> 3 Accuracy Scores std / ts / gc
+> turns embed optional top-kRk
+> conflicts
+> R′
+> kRk(std)
+> Rk(ts)
+> Standard RAG Timestamp GC-Mem (hero) Storage Optional / STM
+> path path path Qdrant / Redis configurable
+
+Figure 2: System architecture: the end-to-end RAG system used in this paper (this figure depicts the system architecture, not the dataset-generation pipeline). The diagram shows chunking, embedding, the optional STM (short-term memory) FIFO, and the three parallel answer paths (Standard RAG, Timestamp re-rank, and GC-Mem). All approaches receive the same retrieved candidate set so differences are attributable to the conflict oracle κ and the temporal dominance operator ΦT .
+
+6 Results 
+
+6.1 Timestamp Baselines vs. GC-Mem 
+
+A common heuristic is that simple time-decay or timestamp re-ranking resolves mutable memory. Table 1 empirically refutes this. Timestamp heuristics blindly penalize all historical chunks, discarding valid, non-contradicted long-term facts alongside stale ones. Model Dataset Split Standard RAG Timestamp Re-ranking GC-Mem ( ΦT )deepseek-v3 Large ( n = 74 ) 56.8% 20.3% 97.3%* 
+
+o4-mini Medium ( n = 38 ) 28.9% 10.5% 92.1%* 
+
+gpt-4o Medium ( n = 38 ) 68.4% 10.5% 10.5% Table 1: Conflict Resolution Accuracy (CR-Acc). Timestamps alone cause severe degradation. (* indicates p < 0.01 significance). 
+
+6.2 Short-Term Memory (STM) Dynamics 
+
+To evaluate architectural interaction, we activated the Short-Term Memory (STM) recency buffer. As demonstrated in Table 2, enabling STM raises the baseline accuracy of standard RAG by artificially elevating the exposure of new-state evidence in the retrieval window. However, GC-Mem retains a substantially wider performance gap. Because simple recency heuristics merely surface the new state alongside the vast quantity of historical states, the context remains contradictory. GC-Mem explicitly resolves this by pruning the semantically shadowed stale chunks that the STM forces into the context window. 
+
+6.3 Detector Dependency and Deployment Threshold 
+
+GC-Mem operates as a cognitive offloading protocol; its success is strictly bounded by the underlying model’s reasoning capabilities. Table 3 demonstrates that while precision is universally high, recall is the decisive factor .5DeepSeek-V3 GPT-4o GPT-4.1 GPT-4.1-mini GPT-5-Chat o4-mini Phi-4 
+
+> 0% 10% 20% 30% 40% 50% 60% 70%
+> CR-Acc (%)  +18.9p +32.3p +21.9p +28.1p +17.7p +25.5p +4.2p +9.4p +16.0p +18.1p +12.5p +13.5p +19.8p +27.1p
+> STM lifts both Std RAG and GC-Mem; GC-Mem advantage widens (medium dataset, averaged over modes)
+> Std RAG / Qdrant-only Std RAG / Qdrant+Redis (STM) GC-Mem / Qdrant-only GC-Mem / Qdrant+Redis (STM)
+
+Figure 3: Effect of STM (Short-Term Memory) on conflict resolution accuracy across models: comparison between Timestamp re-ranking and GC-Mem. STM supplies recency evidence; the plot shows GC-Mem retains a substantial advantage because it excises contradictory old chunks rather than re-ranking them. Dataset STM Buffer Standard RAG GC-Mem ( ΦT ) ∆GC Lift Medium STM=off 24.4% 40.2% +15.8p 
+
+Medium STM=on 46.1% 68.1% +22.0p 
+
+Large STM=off 15.9% 30.4% +14.4p 
+
+Large STM=on 34.5% 62.9% +28.4p 
+
+Table 2: Headline accuracy averaged over the benchmark models. STM amplifies the value of GC-Mem by supplying the conflict oracle with richer temporal context. 
+
+6.4 Ablation: The Failure of Multi-Factor Dominance 
+
+To evaluate whether multi-factor memory scoring helps resolve contradictions, we test a multi-factor scoring variant (e.g., scoring chunks using α(recency ) + β(relevance ) + γ(usage ) + δ(stability )). We rigorously ablated this variant on the o4-mini architecture. As demonstrated in Table 4, utilizing the pure temporal operator ( ΦT ) yields 94.7% CR-Acc. However, introducing usage frequency ( γ) causes accuracy to crash to 10.5%. Because stale chunks have resided in memory longer, they inherently accumulate higher usage and stability scores. Multi-factor scoring systematically assigns higher dominance to the exact contradictions that must be removed, mathematically violating Theorem 4.1. Temporal dominance is uniquely required for state convergence. Model Precision Recall F1 Score CR-Acc ∆ Protocol Efficacy deepseek-v3 98.9% 95.2% 0.97 +69.0 pp Optimal o4-mini 98.1% 99.8% 0.99 +79.0 pp Optimal gpt-4o 99.7% 36.6% 0.54 +4.0 pp Marginal gpt-4.1-mini 100.0% 0.7% 0.01 -0.2 pp Fails 
+
+Table 3: Detector Dependency. High recall ( > 50% ) is strictly required for GC-Mem efficacy. 6Variant CR-Acc (Medium) CR-Acc (Large) Status Eq. 5 (timestamp-only α) 94.7% 97.3% Optimal 
+
+α + β (+ relevance) 86.8% 96.0% Slight Drop 
+
+α + β + γ (+ usage) 10.5% 18.9% Severe Crash 
+
+Full Multi-Factor (+ stability) 10.5% 18.9% Severe Crash 
+
+Table 4: Ablation demonstrating the mathematical failure of non-temporal multi-factor scoring. 0 2 4 6 8 10 12 
+
+> Shadows removed by GC-Mem (kappa)
+> GC broke it No change GC fixed it
+> Effect on correctness
+> Per-instance shadow removal vs correctness change (medium dataset, STM=on, all 3 models)
+> DeepSeek-V3 GPT-4o GPT-4.1 GPT-4.1-mini GPT-5-Chat o4-mini Phi-4 Bin-mean trend
+
+Figure 4: Relationship between mean number of chunks flagged as shadowed by κ and the accuracy change induced by GC-Mem. More removable shadows correlate with larger lifts when the detector is well calibrated. 
+
+6.5 Bag-of-Facts Evaluation: Isolating Protocol Ceiling 
+
+To decouple the fundamental efficacy of the ΦT operator from the variance of dense retrieval noise, we conducted a "Bag-of-Facts" ablation. In this setting, the retrieval bottleneck is entirely removed (k → ∞ ), and all relevant historical and updated chunks are placed directly into the context window. Model Mean Std. RAG Mean GC-Mem ∆GC Lift Shadows Pruned DeepSeek-V3 11.9% 54.3% +42.4p 13.28 GPT-4o 12.9% 53.3% +40.3p 15.70 Phi-4 12.3% 44.6% +32.3p 13.73 04-mini 19.2% 33.4% +14.2p 6.21 Table 5: Models ranked by pooled mean ∆GC across dataset sizes in the Bag-of-Facts setting. Remov-ing the retrieval limit exposes the immense baseline vulnerability to the Majority Vote Trap (averaging 12% accuracy). GC-Mem consistently excises 13-15 obsolete chunks per query, recovering the state. As shown in Table 5, when standard RAG is forced to reason over the entire contradictory timeline, its accuracy collapses to roughly 12%. The Majority Vote Trap overwhelms the attention mechanism entirely. However, GC-Mem dynamically prunes an average of 13.28 shadowed chunks per query on DeepSeek-V3, lifting generation accuracy by a massive +42.4 percentage points. This confirms that GC-Mem scales proportionally with retrieval volume: as contexts become more dense with contradictions, the necessity of explicit temporal pruning becomes critical. 7Figure 5: Average number of shadows removed by ΦT per query and corresponding accuracy lift. 
+
+6.6 Computational Overhead and Latency 
+
+In production architectures, maintaining strict latency bounds is essential. The pairwise conflict detection κ operates via a lightweight NLI prompt strictly bounded by k, running exclusively over the retrieved candidate set rather than the global database. Dataset STM Buffer Mean Wall Time (s) Per-Instance Latency (s) Avg. Shadows Medium STM=off 525s 10.9s 1.55 Medium STM=on 1276s 26.6s 3.52 Large STM=off 685s 10.5s 1.39 Large STM=on 973s 15.0s 4.07 Table 6: End-to-end wall time and per-instance latency by dataset and STM setting. STM increases cost because the unioned candidate set is larger, requiring κ to evaluate more conflict pairs, yet it yields higher global accuracy by pruning more obsolete shadows (up to 4.07 per instance). Table 6 details the end-to-end latency. For a standard k = 10 retrieval without an STM buffer, the GC-Mem protocol operates efficiently at 10.5 seconds per instance. The introduction of an STM buffer naturally inflates the candidate set, thereby increasing the O(k2) κ evaluation permutations (elevating latency to 15.0s). However, this overhead remains substantially lower than orchestrating multi-turn, generative LLM self-reflection loops, establishing GC-Mem as a highly viable inference-time architecture. 
+
+7 Discussion and Limitations 
+
+When NOT to use GC-Mem. Our precision/recall analysis dictates a strict deployment guideline: GC-Mem should only be implemented when paired with a conflict detector capable of > 50% 
+
+recall. Models like gpt-4.1-mini exhibit 100% precision but < 1% recall; they fail to detect contradictions, rendering the protocol inert. Furthermore, partial detection (as seen with gpt-4o ) can inadvertently leave the context mixed, confusing the generator further. 
+
+Limitations. While the benchmark limits keyword leakage, it remains a synthetic environment optimized for single-attribute mutations. Future work must validate GC-Mem on live, concurrent multi-entity mutations utilizing organic interaction logs. Additionally, while the O(k2) conflict check overhead is modest for typical k ∈ [5 , 50] (adding ∼ 250 ms to a standard 400 ms RAG pipeline), it may prove prohibitive for ultra-low latency requirements. 88 Conclusion 
+
+This work proves that semantic shadowing fatally compromises standard RAG architectures over long horizons. By establishing the theoretical bounds of the Majority Vote Trap, we demonstrate that heuristic time-decay and multi-factor scoring both fail to preserve state consistency. We offer GC-Mem, utilizing a pure temporal dominance operator ( ΦT ), which empirically restores > 90% 
+
+accuracy and provides a mathematically sound protocol for mutable RAG systems. 
+
+References 
+
+Bhuwan Dhingra, Jeremy Cole, Julian Martin Eisenschlos, Dan Gillick, Jacob Eisenstein, and William W. Cohen. Time-aware language models as temporal knowledge bases. Transactions of the Association for Computational Linguistics , 2022. Darren Edge, Ha Trinh, Newman Cheng, et al. Graphrag: Unlocking llm discovery on narrative private data. arXiv preprint arXiv:2404.16130 , 2024. Bernal Jiménez Gutiérrez et al. Hipporag: Neurobiologically inspired long-term memory for large language models. In NeurIPS , 2024. Andrei Karpov, Yiyang Li, Aman Madaan, Danqi Chen, and Hannaneh Hajishirzi. A survey of retrieval-augmented generation for large language models. arXiv preprint arXiv:2410.12837 , 2024. Itay Levy, Michal Moshkovitz, and Reut Tsarfaty. Safe and effective long-context reasoning in code generation. arXiv preprint arXiv:2407.13912 , 2024. Patrick Lewis et al. Retrieval-augmented generation for knowledge-intensive nlp tasks. In NeurIPS ,2020. Adam Liska, Arun Chaganty, Danqi Chen, and Jason Weston. Streamingqa: A benchmark for adaptation to new knowledge over time in question answering models. In International Conference on Machine Learning , 2022. Nelson F Liu et al. Lost in the middle: How language models use long contexts. TACL , 2023. Kevin Meng, Arnab Sharma, Alex Andonian, and Yonatan Belinkov. Locating and editing factual associations in gpt. In Advances in Neural Information Processing Systems , 2022. Kevin Meng, David Sen, Dan Friedman, Yihan Pan, and Yonatan Belinkov. Mass-editing memory in a transformer. In International Conference on Learning Representations , 2023. Charles Packer, Vivian Fang, Shishir Patil, Kevin Lin, and Joseph E. Gonzalez. Memgpt: Towards llms as operating systems. arXiv preprint arXiv:2310.08560 , 2023. Joon Sung Park et al. Generative agents: Interactive simulacra of human behavior. arXiv , 2023. Noah Shinn, Federico Cassano, Eli Berman, Ashwin Labash, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao. Reflexion: Language agents with verbal reinforcement learning. arXiv preprint arXiv:2303.11366 , 2023. Guanzhi Wang, Yuqi Xie, Wenhao Jiang, Ajay Mandlekar, Haoqi Fan, Anima Anandkumar, and Yuke Wang. Voyager: An open-ended embodied agent with large language models. arXiv preprint arXiv:2305.16291 , 2023. Z Wang et al. Evaluating memory in llm agents via incremental multi-turn interactions. OpenReview ,2025. Y Zhang et al. Rag-critic: Leveraging automated critic-guided agentic workflow for retrieval augmented generation. In ACL , 2025. 9A Artifact-Backed Results Appendix 
+
+This appendix collects the full experimental tables and figures underlying the main text: dataset statistics, headline aggregates, per-condition breakdowns, ablations, and supplementary plots. To-gether they document every benchmark cell, including retrieval recalls, conflict removals, latency, and significance summaries. 
+
+A.1 Dataset Construction and Composition 
+
+Table A.1: GCMEMv2 chat dataset statistics. Per-instance means and standard deviations are reported for the number of old, new and distractor turns; "Total turns" is the dataset-wide token/turn count and "Gen. model" indicates the LLM used to generate the synthetic sessions. 
+
+Dataset N Entity Severity nold mnew ndist Total turns Gen. model types tiers mean (SD) mean (SD) mean (SD) Chat-Medium (n=48) 48 12 4 27.5 (14.9) 3.0 (1.2) 12.5 (1.7) 2,033 GPT-4o Chat-Large (n=65) 65 13 5 27.0 (13.4) 3.0 (1.1) 11.4 (1.7) 2,690 GPT-4o Fitness Level Diet Sleep Pattern Mood Health Marital Status Pet Ownership Housing Subscription Tier Work Style Hobby Involvement Financial Habit   
+
+> 01234
+> Number of instances Medium (n=48) 12 entity types
+> Severity Mild Moderate Severe Extreme Diet Mood Fitness Level Smoking Relationship Status Housing Employment Health Parental Status Dietary Habit Social Behavior Transportation Method Reading Habit
+> 012345
+> Number of instances Large (n=65) 13 entity types
+> Severity Mild Moderate-1 Moderate-2 Severe Extreme
+
+Diverse coverage across entity types and severity tiers 
+
+Figure A.1: Distribution of synthetic entity attributes (stacked by contradiction severity) in Chat-Medium ( n=48 ) and Chat-Large ( n=65 ). 
+
+A.2 Primary Benchmark Tables 
+
+Dataset STM Std. RAG Timestamp GC-Mem ∆GC Cells Medium STM=off 24.4% 24.4% 40.2% +15.8p Medium STM=on 46.1% 71.6% 68.1% +22.0p Large STM=off 15.9% 16.2% 30.4% +14.4p Large STM=on 34.4% 67.5% 61.5% +27.1p 
+
+Table A.2: Headline accuracy (%) averaged across models and prompt modes for each dataset×STM condition. Columns compare Standard RAG, Timestamp re-ranking, and GC-Mem; ∆GC reports the GC-Mem improvement in percentage points. STM=on rows indicate the Short-Term Memory recency buffer was enabled. 10 nold mnew ndist 
+
+0612 18 24 30 36 42 48 
+
+> Turns per instance
+
+25 212 
+
+Medium (n=48) 
+
+Old turns (n_old) New turns (m_new) Distractor turns (n_dist) 
+
+nold mnew ndist 
+
+0612 18 24 30 36 42 48 
+
+> Turns per instance
+
+25 312 
+
+Large (n=65) 
+
+Old turns (n_old) New turns (m_new) Distractor turns (n_dist) 
+
+Old turns dominate (~27 per instance), new ~3, distractors ~12 Figure A.2: Per-instance counts of chat turns by scenario role: old (establishes superseded state), new 
+
+(current ground truth), and distractor (neutral context). 11 Chat timeline: fitness_level_severe_002_chat (entity: fitness level, severity: severe, 47 turns total) 
+
+# Role Scenario Rel. time Content preview (first 80 chars) 
+
+0 user distractor +0h Did you catch the game last night? That final goal was wild. 
+
+1 assistant distractor +1h Absolutely! The overtime play had me on the edge of my seat. Can't believe how c... 
+
+2 user old +2h Got any tips for starting a workout routine? I ve never really exercised before. 
+
+3 assistant old +3h Sure! Begin with short walks a few times a week. Ease into it, maybe try some ge... 
+
+4 user old +4h Is it normal to feel tired after a short walk? I went around the block and neede... 
+
+5 assistant old +5h Yes, that's normal when just starting out. Your body needs time to adjust. Try k... 
+
+6 user old +6h I spend most days at a desk. Any simple way to move a bit more during work hours... 
+
+7 assistant old +7h Absolutely! Stand up and stretch every hour, or take brief walks around the offi... 
+
+8 user old +8h Should I invest in a standing desk if I barely move? My friend swears by hers. 
+
+9 assistant old +9h Standing desks can encourage movement, but start small. Try to stand for just a ... 
+
+10 user old +10h Last week I tried some YouTube yoga videos but found them too intense. Are there... 
+
+11 assistant old +11h Absolutely! Look for beginner or chair yoga sessions. They're very accessible an... 
+
+12 user old +12h I always feel stiff in the mornings. Is gentle stretching safe if I haven t work... 
+
+13 assistant old +13h Yes, gentle stretching can help. Start slow and focus on breathing. Avoid pushin... 
+
+14 user old +14h What s a realistic step goal for someone who usually drives everywhere? 
+
+15 assistant old +15h Begin with 2,000-3,000 steps daily. Gradually build up as you feel comfortable. ... 
+
+16 user old +16h I m curious how do you stay active when you work from home? 
+
+17 assistant old +17h I set reminders to stretch or walk for 5 minutes every hour. Even walking in pla... 
+
+18 user old +18h Honestly, I m more likely to relax with Netflix than exercise. Any tips on motiv... 
+
+19 assistant old +19h Pair movement with something you enjoy like standing during a TV show so it feel... 
+
+... 27 more turns not shown ... 
+
+Old-state turns New-state turns Distractor turns Figure A.3: Illustrative multi-turn instance: user/assistant turns are color-coded by role to show how state change is conveyed without explicit status keywords. 12 Table A.3: Per-condition accuracy breakdown across models, prompt modes, STM settings and datasets. Columns: Std = Standard RAG, TS = Timestamp re-rank baseline, GC = GC-Mem (best shown in bold). 
+
+> ∆GC = GC-Mem  − Standard RAG (percentage points). Rec old /new /dis  = retrieval recall for old-state / new-state / distractor chunks. "Shadows" is mean number of chunks removed by the conflict oracle  κ
+> per instance; "Err" lists API errors excluded from accuracy; "Sec" shows mean seconds per instance. This granular table is the source for the per-condition figures in the report. Dataset  STM  Model  Mode  Std  TS  GC  ∆GC  Rec old  Rec new  Rec dis  Shadows  n Err  Sec Medium  STM=off  DeepSeek-V3  Forced-choice  25.0%  20.8%  45.8%  +20.8p  24.1%  37.2%  5.0%  1.73  48  0 267 STM=off  DeepSeek-V3  Allow-unclear  23.4%  19.1%  40.4%  +17.0p  24.3%  38.0%  5.0%  1.77  47  1 259 STM=off  GPT-4o  Forced-choice  20.8%  22.9%  47.9%  +27.1p  24.1%  37.2%  5.0%  2.27  48  0 669 STM=off  GPT-4o  Allow-unclear  12.5%  18.8%  29.2%  +16.7p  24.1%  37.2%  5.0%  2.19  48  0 486 STM=off  GPT-4.1  Forced-choice  20.8%  22.9%  43.8%  +22.9p  24.1%  37.2%  5.0%  1.73  48  0 387 STM=off  GPT-4.1  Allow-unclear  22.9%  22.9%  35.4%  +12.5p  24.1%  37.2%  5.0%  1.69  48  0 375 STM=off  GPT-4.1-mini  Forced-choice  33.3%  31.2%  33.3%  +0.0p  24.1%  37.2%  5.0%  0.92  48  0 561 STM=off  GPT-4.1-mini  Allow-unclear  29.2%  27.1%  37.5%  +8.3p  24.1%  37.2%  5.0%  0.88  48  0 560 STM=off  GPT-5-Chat  Forced-choice  34.0%  29.8%  48.9%  +14.9p  23.8%  38.0%  5.1%  1.70  47  1 239 STM=off  GPT-5-Chat  Allow-unclear  23.4%  25.5%  40.4%  +17.0p  24.2%  38.0%  4.9%  1.66  47  1 243 STM=off  o4-mini  Forced-choice  25.0%  25.0%  39.6%  +14.6p  24.1%  37.2%  5.0%  0.92  48  0 1347 STM=off  o4-mini  Allow-unclear  22.9%  18.8%  33.3%  +10.4p  24.1%  37.2%  5.0%  0.90  48  0 1330 STM=off  Phi-4  Forced-choice  31.2%  35.4%  47.9%  +16.7p  24.1%  37.2%  5.0%  1.67  48  0 330 STM=off  Phi-4  Allow-unclear  16.7%  20.8%  39.6%  +22.9p  24.1%  37.2%  5.0%  1.73  48  0 297 STM=on  DeepSeek-V3  Forced-choice  37.5%  79.2%  70.8%  +33.3p  32.1%  98.2%  43.3%  3.81  48  0 868 STM=on  DeepSeek-V3  Allow-unclear  29.2%  62.5%  60.4%  +31.2p  32.1%  98.2%  43.3%  3.77  48  0 914 STM=on  GPT-4o  Forced-choice  43.8%  79.2%  77.1%  +33.3p  32.1%  98.2%  43.3%  4.77  48  0 1198 STM=on  GPT-4o  Allow-unclear  45.8%  62.5%  68.8%  +22.9p  32.1%  98.2%  43.3%  4.71  48  0 1252 STM=on  GPT-4.1  Forced-choice  46.8%  76.6%  70.2%  +23.4p  32.2%  98.2%  43.0%  4.79  47  1 733 STM=on  GPT-4.1  Allow-unclear  40.4%  72.3%  68.1%  +27.7p  32.2%  98.2%  43.0%  4.91  47  1 720 STM=on  GPT-4.1-mini  Forced-choice  58.3%  72.9%  66.7%  +8.3p  32.1%  98.2%  43.3%  1.90  48  0 1514 STM=on  GPT-4.1-mini  Allow-unclear  52.1%  72.9%  62.5%  +10.4p  32.1%  98.2%  43.3%  2.17  48  0 1092 STM=on  GPT-5-Chat  Forced-choice  53.2%  72.3%  72.3%  +19.1p  32.2%  98.2%  43.0%  3.94  47  1 1194 STM=on  GPT-5-Chat  Allow-unclear  53.2%  68.1%  70.2%  +17.0p  32.2%  98.2%  43.0%  3.91  47  1 1060 STM=on  o4-mini  Forced-choice  45.8%  68.8%  58.3%  +12.5p  32.1%  98.2%  43.3%  1.44  48  0 3113 STM=on  o4-mini  Allow-unclear  41.7%  62.5%  56.2%  +14.6p  32.1%  98.2%  43.3%  1.50  48  0 2874 STM=on  Phi-4  Forced-choice  58.3%  85.4%  83.3%  +25.0p  32.1%  98.2%  43.3%  3.92  48  0 709 STM=on  Phi-4  Allow-unclear  39.6%  66.7%  68.8%  +29.2p  32.1%  98.2%  43.3%  3.71  48  0 623 Large  STM=off  DeepSeek-V3  Forced-choice  15.4%  13.9%  38.5%  +23.1p  22.7%  29.9%  4.5%  1.54  65  0 366 STM=off  DeepSeek-V3  Allow-unclear  15.5%  19.0%  31.0%  +15.5p  22.9%  29.3%  4.6%  1.38  58  7 365 STM=off  GPT-4o  Forced-choice  15.4%  16.9%  35.4%  +20.0p  22.7%  29.9%  4.5%  2.34  65  0 459 STM=off  GPT-4o  Allow-unclear  7.7%  7.7%  30.8%  +23.1p  22.7%  29.9%  4.5%  2.32  65  0 441 STM=off  GPT-4.1  Forced-choice  15.4%  16.9%  33.9%  +18.5p  22.7%  29.9%  4.5%  1.95  65  0 480
+> Continued on next page
+
+13 Table A.3 –  Continued from previous page 
+
+> Dataset  STM  Model  Mode  Std  TS  GC  ∆GC  Rec old  Rec new  Rec dis  Shadows  n Err  Sec STM=off  GPT-4.1  Allow-unclear  16.9%  21.5%  29.2%  +12.3p  22.7%  29.9%  4.5%  1.82  65  0 478 STM=off  GPT-4.1-mini  Forced-choice  18.5%  21.5%  27.7%  +9.2p  22.7%  29.9%  4.5%  0.60  65  0 414 STM=off  GPT-4.1-mini  Allow-unclear  20.0%  18.5%  21.5%  +1.5p  22.7%  29.9%  4.5%  0.62  65  0 407 STM=off  GPT-5-Chat  Forced-choice  20.0%  16.0%  36.0%  +16.0p  22.4%  29.9%  5.8%  1.84  50  15  650 STM=off  GPT-5-Chat  Allow-unclear  20.0%  15.4%  35.4%  +15.4p  22.7%  29.9%  4.5%  1.51  65  0 826 STM=off  o4-mini  Forced-choice  10.8%  13.9%  27.7%  +16.9p  22.7%  29.9%  4.5%  0.55  65  0 1895 STM=off  o4-mini  Allow-unclear  12.3%  12.3%  23.1%  +10.8p  22.7%  29.9%  4.5%  0.60  65  0 2139 STM=off  Phi-4  Forced-choice  18.5%  20.0%  30.8%  +12.3p  22.7%  29.9%  4.5%  1.15  65  0 345 STM=off  Phi-4  Allow-unclear  16.9%  13.9%  24.6%  +7.7p  22.7%  29.9%  4.5%  1.23  65  0 331 STM=on  DeepSeek-V3  Forced-choice  27.7%  80.0%  69.2%  +41.5p  29.1%  98.5%  47.8%  4.51  65  0 1270 STM=on  DeepSeek-V3  Allow-unclear  23.1%  61.5%  63.1%  +40.0p  29.1%  98.5%  47.8%  4.46  65  0 1207 STM=on  GPT-4o  Forced-choice  36.9%  80.0%  83.1%  +46.2p  29.1%  98.5%  47.8%  5.51  65  0 1593 STM=on  GPT-4o  Allow-unclear  33.9%  47.7%  58.5%  +24.6p  29.1%  98.5%  47.8%  5.43  65  0 1613 STM=on  GPT-4.1  Forced-choice  28.1%  79.7%  67.2%  +39.1p  29.3%  98.4%  48.2%  5.09  64  1 794 STM=on  GPT-4.1  Allow-unclear  33.3%  55.6%  55.6%  +22.2p  28.9%  98.4%  48.0%  4.87  63  2 791 STM=on  GPT-4.1-mini  Forced-choice  36.9%  75.4%  55.4%  +18.5p  29.1%  98.5%  47.8%  2.29  65  0 1019 STM=on  GPT-4.1-mini  Allow-unclear  35.4%  60.0%  47.7%  +12.3p  29.1%  98.5%  47.8%  2.20  65  0 946 STM=on  GPT-5-Chat  Forced-choice  39.7%  76.2%  68.2%  +28.6p  28.9%  98.4%  48.0%  4.25  63  2 1166 STM=on  GPT-5-Chat  Allow-unclear  39.1%  68.8%  65.6%  +26.6p  29.3%  98.4%  48.2%  4.31  64  1 982 STM=on  o4-mini  Forced-choice  33.9%  70.8%  44.6%  +10.8p  29.1%  98.5%  47.8%  1.62  65  0 3954 STM=on  o4-mini  Allow-unclear  32.3%  58.5%  46.2%  +13.9p  29.1%  98.5%  47.8%  1.54  65  0 4030 STM=on  Phi-4  Forced-choice  47.7%  80.0%  75.4%  +27.7p  29.1%  98.5%  47.8%  4.28  65  0 762 STM=on  Phi-4  Allow-unclear  33.9%  50.8%  61.5%  +27.7p  29.1%  98.5%  47.8%  4.42  65  0 792
+
+14 STM Model Forced-choice ∆GC Allow-unclear ∆GC STM=off DeepSeek-V3 +22.0p +16.3p STM=off GPT-4o +23.5p +19.9p STM=off GPT-4.1 +20.7p +12.4p STM=off GPT-4.1-mini +4.6p +4.9p 
+
+STM=off GPT-5-Chat +15.4p +16.2p 
+
+STM=off o4-mini +15.8p +10.6p STM=off Phi-4 +14.5p +15.3p 
+
+STM=on DeepSeek-V3 +37.4p +35.6p STM=on GPT-4o +39.7p +23.8p STM=on GPT-4.1 +31.2p +24.9p STM=on GPT-4.1-mini +13.4p +11.4p STM=on GPT-5-Chat +23.9p +21.8p STM=on o4-mini +11.6p +14.2p 
+
+STM=on Phi-4 +26.3p +28.4p 
+
+Table A.4: Prompt-mode ablation: mean ∆GC (pp) across both datasets for Forced-choice vs. Allow-unclear prompts, per model and STM setting. Bold indicates the stronger prompt mode. GC-Mem improves over Standard RAG in all 12 cells. 
+
+A.3 Primary Benchmark Figures 
+
+Dataset STM Recall old Recall new Recall dis Cells Medium STM=off 24.1% 37.4% 5.0% 14/6 Medium STM=on 32.1% 98.2% 43.2% 14/6 Large STM=off 22.7% 29.9% 4.6% 14/6 Large STM=on 29.1% 98.5% 47.9% 14/6 
+
+Table A.5: Retrieval recall before and after activating the Short-Term Memory (STM) buffer, averaged over 3 models × 2 prompt modes. Recall new = fraction of updated (new-truth) chunks retrieved; Recall dis = fraction of distractor chunks retrieved (lower is better). STM raises Recall new from ∼37% to ∼98%. 15 STM Model Mode Avg. Shadows Removed Datasets STM=off DeepSeek-V3 Forced-choice 1.64 2/2 STM=off DeepSeek-V3 Allow-unclear 1.57 2/2 STM=off GPT-4o Forced-choice 2.30 2/2 STM=off GPT-4o Allow-unclear 2.25 2/2 STM=off GPT-4.1 Forced-choice 1.84 2/2 STM=off GPT-4.1 Allow-unclear 1.75 2/2 STM=off GPT-4.1-mini Forced-choice 0.76 2/2 STM=off GPT-4.1-mini Allow-unclear 0.75 2/2 STM=off GPT-5-Chat Forced-choice 1.77 2/2 STM=off GPT-5-Chat Allow-unclear 1.58 2/2 STM=off o4-mini Forced-choice 0.74 2/2 STM=off o4-mini Allow-unclear 0.75 2/2 STM=off Phi-4 Forced-choice 1.41 2/2 STM=off Phi-4 Allow-unclear 1.48 2/2 STM=on DeepSeek-V3 Forced-choice 4.16 2/2 STM=on DeepSeek-V3 Allow-unclear 4.12 2/2 STM=on GPT-4o Forced-choice 5.14 2/2 STM=on GPT-4o Allow-unclear 5.07 2/2 STM=on GPT-4.1 Forced-choice 4.94 2/2 STM=on GPT-4.1 Allow-unclear 4.89 2/2 STM=on GPT-4.1-mini Forced-choice 2.09 2/2 STM=on GPT-4.1-mini Allow-unclear 2.19 2/2 STM=on GPT-5-Chat Forced-choice 4.09 2/2 STM=on GPT-5-Chat Allow-unclear 4.11 2/2 STM=on o4-mini Forced-choice 1.53 2/2 STM=on o4-mini Allow-unclear 1.52 2/2 STM=on Phi-4 Forced-choice 4.10 2/2 STM=on Phi-4 Allow-unclear 4.06 2/2 
+
+Table A.6: Mean number of shadow chunks removed per instance by the GC-Mem operator κ,averaged over both datasets. STM=on substantially increases the number of outdated chunks surfaced and pruned, confirming that STM provides richer context for the conflict detector. 16 Dataset Model Mode Std. RAG Timestamp GC-Mem Winner Gap Medium DeepSeek-V3 Forced-choice 37.5% 79.2% 70.8% Timestamp +8.3pp DeepSeek-V3 Allow-unclear 29.2% 62.5% 60.4% Timestamp +2.1pp GPT-4o Forced-choice 43.8% 79.2% 77.1% Timestamp +2.1pp GPT-4o Allow-unclear 45.8% 62.5% 68.8% GC-Mem +6.2pp GPT-4.1 Forced-choice 46.8% 76.6% 70.2% Timestamp +6.4pp GPT-4.1 Allow-unclear 40.4% 72.3% 68.1% Timestamp +4.3pp GPT-4.1-mini Forced-choice 58.3% 72.9% 66.7% Timestamp +6.2pp GPT-4.1-mini Allow-unclear 52.1% 72.9% 62.5% Timestamp +10.4pp GPT-5-Chat Forced-choice 53.2% 72.3% 72.3% Tie 0.0pp GPT-5-Chat Allow-unclear 53.2% 68.1% 70.2% GC-Mem +2.1pp o4-mini Forced-choice 45.8% 68.8% 58.3% Timestamp +10.4pp o4-mini Allow-unclear 41.7% 62.5% 56.2% Timestamp +6.2pp Phi-4 Forced-choice 58.3% 85.4% 83.3% Timestamp +2.1pp Phi-4 Allow-unclear 39.6% 66.7% 68.8% GC-Mem +2.1pp Large DeepSeek-V3 Forced-choice 27.7% 80.0% 69.2% Timestamp +10.8pp DeepSeek-V3 Allow-unclear 23.1% 61.5% 63.1% GC-Mem +1.5pp GPT-4o Forced-choice 36.9% 80.0% 83.1% GC-Mem +3.1pp GPT-4o Allow-unclear 33.9% 47.7% 58.5% GC-Mem +10.8pp GPT-4.1 Forced-choice 28.1% 79.7% 67.2% Timestamp +12.5pp GPT-4.1 Allow-unclear 33.3% 55.6% 55.6% Tie 0.0pp GPT-4.1-mini Forced-choice 36.9% 75.4% 55.4% Timestamp +20.0pp GPT-4.1-mini Allow-unclear 35.4% 60.0% 47.7% Timestamp +12.3pp GPT-5-Chat Forced-choice 39.7% 76.2% 68.2% Timestamp +7.9pp GPT-5-Chat Allow-unclear 39.1% 68.8% 65.6% Timestamp +3.1pp o4-mini Forced-choice 33.9% 70.8% 44.6% Timestamp +26.2pp o4-mini Allow-unclear 32.3% 58.5% 46.2% Timestamp +12.3pp Phi-4 Forced-choice 47.7% 80.0% 75.4% Timestamp +4.6pp Phi-4 Allow-unclear 33.9% 50.8% 61.5% GC-Mem +10.8pp 
+
+Table A.7: Head-to-head comparison of Timestamp re-ranking and GC-Mem under STM=on (where the STM buffer dramatically improves retrieval recall). Bold marks the stronger of the two non-trivial baselines. Timestamp becomes competitive under STM because high recall reduces its recency-ranking advantage gap, yet GC-Mem retains an edge in Allow-unclear (lenient) conditions. 
+
+Dataset STM Mean Wall Time (s) Per-instance (s) Avg. Shadows Cells Medium STM=off 525 10.9 1.55 14/6 Medium STM=on 1276 26.6 3.52 14/6 Large STM=off 685 10.5 1.39 14/6 Large STM=on 1494 23.0 3.91 14/6 
+
+Table A.8: Wall-clock time per condition averaged over 3 models × 2 prompt modes, and mean shadows removed per instance. STM=on increases latency due to additional STM retrieval and conflict detection, but also removes substantially more shadow chunks. 17 DeepSeek-V3 GPT-4o GPT-4.1 GPT-4.1-mini GPT-5-Chat o4-mini Phi-4 
+
+0% 10% 20% 30% 40% 50% 60% 70% 
+
+> CR-Acc (%)  +18.9p +32.3p +21.9p +28.1p +17.7p +25.5p +4.2p +9.4p +16.0p +18.1p +12.5p +13.5p +19.8p +27.1p
+
+STM lifts both Std RAG and GC-Mem; GC-Mem advantage widens (medium dataset, averaged over modes) 
+
+> Std RAG / Qdrant-only Std RAG / Qdrant+Redis (STM) GC-Mem / Qdrant-only GC-Mem / Qdrant+Redis (STM)
+
+Figure A.4: Effect of enabling STM (Redis FIFO of recent chunks) on standard RAG vs. GC-Mem accuracy. STM raises both baselines by improving exposure of new-state evidence; GC-Mem retains a larger gap because it removes contradictions that simple recency heuristics leave in context. 18 A.4 Example Prompt Conflict-Detection System Prompt (gcmem/conflict/prompts.py · CONFLICT_DETECTION_SYSTEM_PROMPT) role: system 
+
+You are a semantic contradiction detector. Determine if two memory chunks contradict each other. Two chunks CONTRADICT if they make incompatible claims about the same entity or topic: - Direct: "X is A" vs "X is B" (mutually exclusive) - State updates: old email vs new email - Preference changes: dark mode vs light mode - Status changes: pending vs completed Behavioral contradictions (state inferrable from actions): - Mutually exclusive behaviors implying opposite states: * "Skipped the gym for weeks" vs "Jogged five miles before breakfast" CONTRADICT (sedentary vs active) 
+
+* "Lit a cigarette at the bus stop" vs "Turned down a cigarette, citing they had quit" CONTRADICT (smoker vs non-smoker) 
+
+* "Skipped steakhouse, ordered lentil curry" vs "Ordered grilled salmon AND steak sandwich" CONTRADICT (vegetarian vs omnivore) 
+
+* "Stayed up until 3am organising bookshelf" vs "Started jogging at 5am before work" CONTRADICT (night owl vs early riser) 
+
+Two chunks do NOT contradict if: - They discuss different entities or topics - They provide complementary info about same entity - Events at different times that DO NOT imply opposite states (gym Mon vs gym Wed both active) 
+
+- One is more specific but not incompatible Decision procedure: 1. Identify the underlying entity attribute (e.g. 'diet', 'fitness level', 'smoking status'). 2. Determine the state each chunk implies. 3. If mutually exclusive states for the same attribute mark CONTRADICT, regardless of 
+
+shared keywords. Strict commitment rule: - Same attribute + mutually exclusive states you MUST mark CONTRADICT. 
+
+- "Events at different times" is NOT a valid reason to skip when underlying states oppose. - "Subtle/implicit behaviors" is NOT a valid reason infer the underlying state and check. 
+
+- When in doubt lean toward CONTRADICT false 
+
+negatives are more harmful than false positives. Output: 1-2 sentence analysis then your verdict. 
+
+Shared by GC-Mem in both answer modes not varied in the ablation 
+
+Answer Prompt Forced-choice (mode = tight) role: system 
+
+Based ONLY on the provided memories, decide which of the following labels best describes the user's current state: {options}. You MUST pick exactly one label from the list. Do not say 'unclear', 'unknown', 'both', or anything outside the list. Reply with the label in lowercase, with no punctuation, no quotes, and no other words. Do not include reasoning. Do not say 'the answer is X', just say 'X'. The grader will compare your reply against the listed labels using case-insensitive exact match. 
+
+LLM MUST pick one label no hedging allowed 
+
+Answer Prompt Allow-unclear (mode = lenient) role: system 
+
+Based ONLY on the provided memories, decide which of the following labels best describes the user's current state: {options}. If the memories do not contain enough information to decide, reply with 'unclear'. Reply with the label in lowercase, with no punctuation, no quotes, and no other words. Do not include reasoning. Do not say 'the answer is X', just say 'X'. The grader will compare your reply against the listed labels using case-insensitive exact match. 
+
+LLM may answer unclear when memory is ambiguous 
+
+key difference 
+
+Complete prompts used in the GCMem pipeline (top) is identical in both modes only one sentence in the answer prompt differs (annotated, bottom-right) 
+
+Figure A.5: Example prompt templates used for the prompt-mode ablation. The figure shows the two prompt styles compared: Forced-choice (must pick a label) and Allow-unclear (model may respond with “unclear”). These were used across all models to measure robustness of GC-Mem to prompt framing. 19 Medium Qdrant-only Medium Qdrant+Redis (STM) Large Qdrant-only Large Qdrant+Redis (STM) 
+
+> 0% 20% 40% 60% 80% 100%
+> Avg retrieval recall (%)
+> recall_new: 37% -> 98% (STM on) (medium dataset)
+
+Retrieval recall by chunk type STM lifts recall_new 37% 98%, distractor leakage 5% 43% 
+
+> Recall Old Recall New Recall Distractor Medium STM=off Medium STM=on Large STM=off Large STM=on
+
+Figure A.6: Retrieval recall by chunk type (old-state, new-state, distractor) comparing STM off vs on. STM substantially raises recall of new-state chunks, which increases the number of contradictory pairs in the candidate set and therefore the benefit of applying the temporal dominance operator ΦT .Medium STM=off Medium STM=on Large STM=off Large STM=on 
+
+Dataset / STM condition 
+
+DeepSeek-V3 GPT-4o GPT-4.1 GPT-4.1-mini GPT-5-Chat o4-mini Phi-4 
+
+> Model
+
++18.9p +32.3p +19.3p +40.8p +21.9p +28.1p +21.5p +35.4p +17.7p +25.5p +15.4p +30.6p +4.2p +9.4p +5.4p +15.4p +16.0p +18.1p +15.7p +27.6p +12.5p +13.5p +13.8p +12.3p +19.8p +27.1p +10.0p +27.7p 
+
+GC-Mem accuracy lift (DeltaGC) over Standard RAG averaged over Forced-choice + Allow-unclear modes 
+
+> 40
+> 30
+> 20
+> 10
+> 010 20 30 40
+> DeltaGC (pp)
+
+Figure A.7: Heatmap summarizing ∆GC (GC-Mem minus Standard RAG) across model × dataset × STM cells. Warm colors indicate larger gains from GC-Mem; the heatmap serves as the single-glance summary of experimental effectiveness reported in the artifact. 20 10 0 10 20 30 40 50 60 
+
+DeltaGC (pp, 95% bootstrap CI) 
+
+DeepSeek-V3 / Forced-choice / STM=off DeepSeek-V3 / Forced-choice / STM=on DeepSeek-V3 / Allow-unclear / STM=off DeepSeek-V3 / Allow-unclear / STM=on GPT-4o / Forced-choice / STM=off GPT-4o / Forced-choice / STM=on GPT-4o / Allow-unclear / STM=off GPT-4o / Allow-unclear / STM=on GPT-4.1 / Forced-choice / STM=off GPT-4.1 / Forced-choice / STM=on GPT-4.1 / Allow-unclear / STM=off GPT-4.1 / Allow-unclear / STM=on GPT-4.1-mini / Forced-choice / STM=off GPT-4.1-mini / Forced-choice / STM=on GPT-4.1-mini / Allow-unclear / STM=off GPT-4.1-mini / Allow-unclear / STM=on GPT-5-Chat / Forced-choice / STM=off GPT-5-Chat / Forced-choice / STM=on GPT-5-Chat / Allow-unclear / STM=off GPT-5-Chat / Allow-unclear / STM=on o4-mini / Forced-choice / STM=off o4-mini / Forced-choice / STM=on o4-mini / Allow-unclear / STM=off o4-mini / Allow-unclear / STM=on Phi-4 / Forced-choice / STM=off Phi-4 / Forced-choice / STM=on Phi-4 / Allow-unclear / STM=off Phi-4 / Allow-unclear / STM=on DeepSeek-V3 / Forced-choice / STM=off DeepSeek-V3 / Forced-choice / STM=on DeepSeek-V3 / Allow-unclear / STM=off DeepSeek-V3 / Allow-unclear / STM=on GPT-4o / Forced-choice / STM=off GPT-4o / Forced-choice / STM=on GPT-4o / Allow-unclear / STM=off GPT-4o / Allow-unclear / STM=on GPT-4.1 / Forced-choice / STM=off GPT-4.1 / Forced-choice / STM=on GPT-4.1 / Allow-unclear / STM=off GPT-4.1 / Allow-unclear / STM=on GPT-4.1-mini / Forced-choice / STM=off GPT-4.1-mini / Forced-choice / STM=on GPT-4.1-mini / Allow-unclear / STM=off GPT-4.1-mini / Allow-unclear / STM=on GPT-5-Chat / Forced-choice / STM=off GPT-5-Chat / Forced-choice / STM=on GPT-5-Chat / Allow-unclear / STM=off GPT-5-Chat / Allow-unclear / STM=on o4-mini / Forced-choice / STM=off o4-mini / Forced-choice / STM=on o4-mini / Allow-unclear / STM=off o4-mini / Allow-unclear / STM=on Phi-4 / Forced-choice / STM=off Phi-4 / Forced-choice / STM=on Phi-4 / Allow-unclear / STM=off Phi-4 / Allow-unclear / STM=on Medium (n=48) Large (n=65) 
+
+Per-condition DeltaGC with 95% bootstrap CI (10K resamples, paired instances) 
+
+STM=off (Qdrant-only) STM=on (Qdrant+Redis (STM)) Figure A.8: Forest plot of paired bootstrap 95% confidence intervals for ∆GC (10,000 resamples per cell). Intervals entirely above zero support a consistent gain; intervals crossing zero flag weak κ on that model or incomplete cells. 21 A.5 Bag-of-Facts (No-Retrieval) Ablation Phi-4 GPT-4o DeepSeek-V3 GPT-4.1 GPT-5-Chat GPT-4.1-mini o4-mini 
+
+> +0 +10 +20 +30 +40 +50
+> DeltaGC (percentage points)
+> +48.8 +43.8 +41.7 +39.1 +32.6 +22.9 +14.6 +15.7 +36.9 +43.1 +17.2 +27.0 +16.9 +13.9
+
+GC-Mem lift (DeltaGC) per model bag-of-facts setup (k=inf) 
+
+> Medium mean +34.8p Large mean +24.4p Medium (n=48) Large (n=65)
+
+Figure A.10: Bag-of-facts (no retrieval) setting: ∆GC by model when all old and new memories are placed directly in context ( k→∞ ). This isolates the value of ΦT from retrieval noise. 
+
+Dataset n Mean Std σ Mean TS Mean GC Mean ∆GC σ(∆GC) Medium 48 20.4% ±10.7 18.5% 55.2% +34.8p ±12.2 Large 65 12.1% ±4.2 11.7% 36.5% +24.4p ±11.6 
+
+Table A.9: Bag-of-facts (k= ∞) headline results: mean accuracy and ∆GC across 7 models. Std = Standard RAG (all facts in context without GC), TS = Timestamp re-ranking, GC = GC-Mem. σ is sample standard deviation across 7 models. 22 +0 +10 +20 +30 +40 +50 +60 
+
+Mean DeltaGC (pp) 
+
+Reading Habit Sleep Pattern Transportation Method Fitness Level Financial Habit Health Dietary Habit Mood Smoking Housing Social Behavior Subscription Tier Hobby Involvement Relationship Status Diet Pet Ownership Employment Parental Status Work Style Marital Status 
+
+> n=135 n=112 n=134 n=248 n=112 n=251 n=140 n=247 n=135 n=252 n=140 n=112 n=110 n=139 n=246 n=112 n=140 n=140 n=112 n=112
+
+Per-entity-type mean DeltaGC (all models, modes, STM states, and datasets) 
+
+Global mean +20.0p Figure A.9: ∆GC broken down by synthetic entity type. Positive bars across categories indicate that GC-Mem is not driven by a single attribute family. 23 Model Dataset Std. RAG Timestamp GC-Mem ∆GC Shadows n
+
+DeepSeek-V3 Medium 14.6% 12.5% 56.2% +41.7p 13.58 48 Large 9.2% 12.3% 52.3% +43.1p 12.98 65 GPT-4o Medium 16.7% 18.8% 60.4% +43.8p 16.67 48 Large 9.2% 6.2% 46.2% +36.9p 14.72 65 GPT-4.1 Medium 21.7% 15.2% 60.9% +39.1p 13.02 48 Large 14.1% 9.4% 31.2% +17.2p 10.47 65 GPT-4.1-mini Medium 14.6% 18.8% 37.5% +22.9p 7.42 48 Large 7.7% 7.7% 24.6% +16.9p 5.14 65 GPT-5-Chat Medium 39.1% 21.7% 71.7% +32.6p 13.39 48 Large 17.5% 11.1% 44.4% +27.0p 10.52 65 o4-mini Medium 29.2% 31.2% 43.8% +14.6p 7.25 48 Large 9.2% 15.4% 23.1% +13.9p 5.17 65 Phi-4 Medium 7.0% 11.6% 55.8% +48.8p 14.02 48 Large 17.6% 19.6% 33.3% +15.7p 13.45 65 
+
+Table A.10: Per-model bag-of-facts results across both dataset sizes. Std = Standard RAG accuracy (all facts provided); GC-Mem = accuracy after GC operator prunes outdated shadows (bold). ∆GC = GC-Mem − Std. RAG in percentage points. Shadows = mean outdated chunks removed per instance by κ.
+
+Rank Model Mean Std. RAG Mean GC-Mem Mean ∆GC Mean Shadows 1 DeepSeek-V3 11.9% 54.3% +42.4p 13.28 2 GPT-4o 12.9% 53.3% +40.3p 15.70 3 Phi-4 12.3% 44.6% +32.3p 13.73 4 GPT-5-Chat 28.3% 58.1% +29.8p 11.96 5 GPT-4.1 17.9% 46.1% +28.2p 11.75 6 GPT-4.1-mini 11.1% 31.1% +19.9p 6.28 7 o4-mini 19.2% 33.4% +14.2p 6.21 
+
+Table A.11: Models ranked by pooled mean ∆GC (average of medium and large datasets). Mean Std. RAG and Mean GC-Mem are averages of the two dataset sizes. Models with lower baseline accuracy (Std) tend to show larger GC-Mem gains, indicating that GC pruning is most effective when the unfiltered context is most misleading. DeepSeek-V3 GPT-5-Chat Phi-4 
+
+> +0 +10 +20 +30 +40 +50
+> DeltaGC (percentage points)  +41.7 +32.6 +48.8 +32.3 +18.1 +27.1 +18.9 +16.0 +19.8
+
+GC-Mem advantage scales with retrieval quality (medium dataset; bag-of-facts = k=inf removes retrieval bottleneck) 
+
+> Bag-of-facts (k=inf) Chat-RAG + STM Chat-RAG (no STM)
+
+Figure A.11: Comparison of mean ∆GC across chat-RAG (with and without STM) and bag-of-facts. Larger candidate sets with more conflicting statements yield larger GC-Mem lifts. 
+
+24 GPT-4o Phi-4 DeepSeek-V3 GPT-5-Chat GPT-4.1 GPT-4.1-mini o4-mini 
+
+> 0246810 12 14 16
+> Avg shadows removed per instance
+
+Shadow removal volume: bag-of-facts vs chat-RAG baseline (dots = medium and large dataset values) 
+
+> BOF grand mean 11.3 Bag-of-facts (mean of medium+large)
+
+Figure A.12: Distribution of shadow counts identified by κ in the bag-of-facts regime, by model. 10% 15% 20% 25% 30% 35% 40% 
+
+Standard RAG accuracy (%) 
+
++15 +20 +25 +30 +35 +40 +45 +50  
+
+> DeltaGC (percentage points)
+> MLMLMLMLMLMLML
+
+Standard RAG accuracy vs GC-Mem lift bag-of-facts 
+
+(M = medium, L = large; one point per model x dataset) 
+
+DeepSeek-V3 GPT-4o GPT-4.1 GPT-4.1-mini GPT-5-Chat o4-mini Phi-4 Linear trend 
+
+Figure A.13: Standard RAG accuracy vs. ∆GC in bag-of-facts: weaker baselines often coincide with more headroom for conflict pruning. 25 B Mathematical Proofs 
+
+B.1 Proof of Theorem 1: Asymptotic Recall Decay 
+
+Proof. Let the total memory stream contain N chunks asserting the stale state Sold and M chunks asserting the valid state Snew . Under the Accumulation Hypothesis (Assumption 3.3), N ≫ M .We model the retrieval of top-k chunks Rk as sampling without replacement from the population 
+
+N + M . Let X be the random variable denoting the number of valid chunks ( Snew ) successfully retrieved. If retrieval were purely uniform, X would follow a hypergeometric distribution: 
+
+P (X = x) = 
+
+ Mx
+
+  Nk−x
+
+ N +Mk
+
+ (5) The expected value is E[X] = k MN +M .However, dense retrievers utilize cosine similarity over high-dimensional embeddings. Under Seman-tic Equivalence (Lemma 3.2), |sim (q, S old ) − sim (q, S new )| < ϵ . Because Sold constitutes the vast majority of the embedded semantic space, dense retrieval exhibits a structural bias towards the denser centroid of Sold phrasings. Therefore, the hypergeometric expected value serves as a strict theoretical upper bound. Taking the limit as the interaction history scales: 
+
+lim   
+
+> N→∞
+
+E[X] ≈ lim   
+
+> N→∞
+
+k MN + M = 0 (6) As N → ∞ , the probability of retrieving zero valid evidence ( P (X = 0) ) approaches 1, proving Asymptotic Recall Decay. 
+
+B.2 Proof of Theorem 2: The Majority Vote Trap 
+
+Proof. Assume the retriever successfully circumvents Theorem 1 and retrieves a mixed context Rk
+
+containing 1 valid chunk ( Snew ) and k − 1 stale chunks ( Sold ). During generation, the LLM utilizes scaled dot-product attention. Let αi denote the attention weight assigned to chunk ci ∈ R k. Under Lemma 3.2, the semantic embeddings of Sold and Snew are equivalent up to ϵ < 0.10 . Consequently, the query vector q yields roughly identical dot-products across all k chunks. Applying the softmax function over these practically uniform logits results in a non-discriminating attention distribution: 
+
+αi ≈ 1
+
+k ∀ci ∈ R k (7) The final generation probability for a state y is the sum of the attention mass corresponding to the chunks asserting that state. 
+
+P (y = Sold ) = X
+
+> ci∈Sold
+
+αi ≈ k − 1
+
+k (8) 
+
+P (y = Snew ) = X 
+
+> cj∈Snew
+
+αj ≈ 1
+
+k (9) For any typical retrieval window ( k ≥ 5), k−1 
+
+> k
+
+≫ 1 
+
+> k
+
+. The probability mass overwhelmingly favors the stale state. Thus, even when valid evidence is perfectly retrieved, generation collapses due to attention dilution, proving the Majority Vote Trap. 26

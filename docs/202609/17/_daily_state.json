@@ -1,0 +1,153 @@
+{
+  "date": "20260917",
+  "date_label": "",
+  "generated_at": "2026-09-17 21:52:22 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.16053v1",
+      "route": "202609/17/2609.16053v1-retrieval-driven-memory-reconsolidation-for-long-term-llm-agents",
+      "title": "Retrieval-Driven Memory Reconsolidation for Long-Term LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向长期智能体记忆的检索驱动记忆再巩固",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.17391v1",
+      "route": "202609/17/2609.17391v1-flashvector-agent-for-hierarchical-model-serving-stack-optimization",
+      "title": "FlashVector: Agent for Hierarchical Model Serving Stack Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "智能体驱动的GPU内核与服务栈分层优化",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.16800v1",
+      "route": "202609/17/2609.16800v1-smarter-by-the-moment-environment-driven-dynamic-policies-for-continual-llm-improvement",
+      "title": "Smarter by the Moment: Environment-Driven Dynamic Policies for Continual LLM Improvement",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "记忆检索结合动态策略生成实现持续改进",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.17010v1",
+      "route": "202609/17/2609.17010v1-thinkflow-self-evolving-probabilistic-latent-memory-for-lifelong-conversational-agents",
+      "title": "ThinkFlow: Self-Evolving Probabilistic Latent Memory for Lifelong Conversational Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向终身对话智能体的自演化潜在记忆框架",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.16073v1",
+      "route": "202609/17/2609.16073v1-the-immutable-past-formalizing-state-mutability-and-conflict-resolution-in-mutable-rag",
+      "title": "The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "RAG作为智能体记忆；可变记忆的冲突解决",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.17088v1",
+      "route": "202609/17/2609.17088v1-interactive-memory-learning-for-long-term-conversations",
+      "title": "Interactive Memory Learning for Long-Term Conversations",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向智能体的可学习交互式记忆策略",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.18779v1",
+      "route": "202609/17/2609.18779v1-cera-moa-co-evolving-routing-mechanisms-with-continually-learning-llm-agents",
+      "title": "CERA-MoA: Co-Evolving Routing Mechanisms with Continually Learning LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "路由与智能体协同演化以适应能力变化",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.16389v1",
+      "route": "202609/17/2609.16389v1-exo-gpu-safe-imperative-user-schedulable-programming-for-tensor-cores",
+      "title": "Exo-GPU: Safe, Imperative, User-schedulable Programming for Tensor Cores",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向张量核心内核性能的安全命令式可调度GPU编程",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    },
+    {
+      "paper_id": "2609.18304v1",
+      "route": "202609/17/2609.18304v1-rollback-the-world-keep-the-reflection-rollback-induced-reflection-for-long-horizon-llm-agents",
+      "title": "Rollback the World, Keep the Reflection: Rollback-Induced Reflection for Long-Horizon LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于反思的回滚恢复为智能体保留有用经验",
+      "first_seen_at": "2026-09-17 21:52:22 UTC",
+      "updated_at": "2026-09-17 21:52:22 UTC"
+    }
+  ]
+}
