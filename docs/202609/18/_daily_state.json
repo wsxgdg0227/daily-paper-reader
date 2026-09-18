@@ -1,0 +1,121 @@
+{
+  "date": "20260918",
+  "date_label": "",
+  "generated_at": "2026-09-18 21:39:10 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.19523v1",
+      "route": "202609/18/2609.19523v1-econskills-studying-skill-transfer-and-retrieval-for-web-agents-on-live-economic-data",
+      "title": "EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "技能库用于检索与复用智能体经验",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.19656v1",
+      "route": "202609/18/2609.19656v1-self-evolving-search-index",
+      "title": "Self-Evolving Search Index",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "索引通过自主优化器无需人工干预自进化",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.19664v1",
+      "route": "202609/18/2609.19664v1-videoresearcher-self-improving-tool-design-for-long-video-understanding",
+      "title": "VideoResearcher: Self-Improving Tool Design for Long-Video Understanding",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "无需训练、自主设计与改进工具的多智能体框架",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.20089v1",
+      "route": "202609/18/2609.20089v1-unifiedplayers-enhance-tool-integrated-reasoning-in-agentic-reinforcement-learning",
+      "title": "UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "自进化工具智能体自主生成训练数据与反馈",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.15311v1",
+      "route": "202609/18/2609.15311v1-flashgpu-sim-enabling-gpu-modeling-for-modern-architectures-and-ai-workloads",
+      "title": "FlashGPU-sim: Enabling GPU Modeling for Modern Architectures and AI Workloads",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "模拟器建模高性能内核使用的现代GPU特性",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.18662v1",
+      "route": "202609/18/2609.18662v1-automated-instruction-encoding-synthesis-for-modern-gpu-isa-compression",
+      "title": "Automated Instruction Encoding Synthesis for Modern GPU ISA Compression",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "通过指令编码合成降低GPU指令占用",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    },
+    {
+      "paper_id": "2609.19519v1",
+      "route": "202609/18/2609.19519v1-an-architecture-for-long-horizon-agents-levels-ticks-and-cascaded-intelligence",
+      "title": "An Architecture for Long-Horizon Agents: Levels, Ticks and Cascaded Intelligence",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向长时程智能体的分层记忆harness与有限摘要",
+      "first_seen_at": "2026-09-18 21:39:10 UTC",
+      "updated_at": "2026-09-18 21:39:10 UTC"
+    }
+  ]
+}

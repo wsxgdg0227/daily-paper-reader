@@ -1,0 +1,655 @@
+Title: VideoResearcher: Self-Improving Tool Design for Long-Video Understanding
+
+URL Source: https://arxiv.org/pdf/2609.19664v1
+
+Published Time: Fri, 18 Sep 2026 00:44:49 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# VideoResearcher: Self-Improving Tool Design for Long-Video Understanding 
+
+Dingqiang Ye 1,⋆ , Dongdi Zhao ⋆, †, Kaishen Wang , Qingqiao Hu , Jingchen Sun , Yijun Liang , Yuqi Jia ,
+
+Yiqiao Huang , Yunjie Tian , Jiaxing Zhang , Chuanyang Jin 1, Ke Zhang 1, Vishal M. Patel 1, Di Fu ‡
+
+> 1
+
+Johns Hopkins University 
+
+> ⋆
+
+Equal Contribution , †Team Lead , ‡Corresponding Author 
+
+Video agents have made substantial progress in long-video understanding. Yet effective video-agent systems require costly, time-consuming manual design and trial and error. Current self-improvement methods either refine low-impact prompts, recombine predefined micro-tools, or struggle with convergence in harness optimization. To bridge this gap, we target high-impact video-tool with VideoResearcher , a training-free multi-agent framework that autonomously designs, tests, and refines tools for video understanding, like a human researcher. VideoResearcher operates through dual Solving and Evolving loops: it analyzes tool-use trajectories to identify capability gaps, coordinates specialized agents to develop and validate executable tools, and reuses evolved tools to strengthen evidence acquisition in subsequent video reasoning. Through iterative tool refinement and validation, it progressively strengthens evidence acquisition without updating model parameters. VideoResearcher achieves state-of-the-art performance among self-improving agents and approaches the human-designed upper bound, demonstrating a training-free paradigm for long-video understanding that expands agent capabilities through autonomous tool development while reducing costly manual engineering.  
+
+> Correspondence:
+
+Di Fu 
+
+## 1 Introduction 
+
+Video understanding connects visual perception with language reasoning, supporting applications from interactive assistants to embodied systems. Advances in large multimodal models have expanded these capabilities, enabling increasingly effective video dialogue and question answering (Li et al., 2023; Zohar et al., 2025). However, long videos introduce a harder requirement: models must locate relevant events and connect evidence scattered across time (Wu et al., 2024). Video agents largely address this challenge through iterative planning, tool use, and evidence gathering, allowing them to decide what to inspect next rather than answer from a single set of observations. Their results show effective agentic reasoning for long-video understanding (Wang et al., 2024c; Lin et al., 2026). Existing video agents improve evidence acquisition through purpose-built tools. VideoAgent (Wang et al., 2024c) uses vision-language models and retrieval tools to iteratively gather question-relevant information; DVD (Zhang et al., 2025b) autonomously selects search tools over a multi-granular video database; and VideoSeek (Lin et al., 2026) progressively localizes critical evidence through overview, skim, and focus tools. These approaches demonstrate the value of tool-assisted reasoning, but developing effective toolkits requires researchers to identify needed operations, diagnose tool limitations, and validate improvements to video reasoning. As illustrated on the left of Fig. 1, researchers repeatedly execute the system, inspect trajectories, and revise tools, manually translating execution feedback into implementation changes. Automating this process could reduce development effort and enable toolkits to improve through use. A growing body of work seeks to automate this development process through agent self-improvement. In general-purpose tasks, SkillOpt (Yang et al., 2026) refines tool-use guidance, Meta-Harness (Lee et al., 2026) optimizes whole agent-system code, and AutoResearch (Karpathy, 2026) automates code experimentation for model training. For long-video understanding, META (Huang et al., 2026) composes successful execution patterns into reusable macro-tools and extracts usage constraints from failures. These efforts demonstrate the potential to automate parts of the development cycle, but their updates may offer limited gains in long-video 1arXiv:2609.19664v1 [cs.CV] 17 Sep 2026 Long Cooking Video       
+
+> 1Prepares vegetables 2 Checks oven (1st) 3 Stirs a pot 4 Checks oven (2nd) 5 Adds basil 6 Dish is plated
+> What did the cook add after checking the oven for the second time?
+
+Answer: Basil 
+
+From manual trial-and-error to automatic video-tool development 
+
+Manual Design Existing Self-Improvement VideoResearcher    
+
+> 1Design tools
+> 2Run on videos
+> 3Inspect failures
+
+Time-consuming Labor-intensive       
+
+> SkillOpt Agent Prompt
+> Old skill note Edited skill note
+> Refines tool-use guidance
+> Meta-Harness AutoResearch
+> Program block Program block Program block
+> …
+> META …Macro-tool
+> Recombines existing micro tools
+> 1Diagnose a tool gap
+> 2Develop & test a new tool
+> 3Acquire the needed evidence
+> Toolbox
+> 1
+
+? 
+
+> Gap: second oven check
+> def scan_window(video, span): clips = split(span) return [ask_video(video, c) for c in clips]
+> Toolbox
+> +
+> New tool
+> Keep if accuracy improves
+> 12
+> Answer: Basil
+
+Develop missing capabilities Reduce manual engineering 
+
+> Prompt Level System Level Tool Level
+> Instructions + updated skill
+> Tool implementations stay fixed Broader search space Updates beyond video tools Consolidates successful patterns
+
+Figure 1 Motivation of VideoResearcher. Video-tool development remains labor-intensive. Existing self-improvement falls short: prompts have limited impact, system-wide search wastes most effort, and recombination remains bounded by predefined capabilities. VideoResearcher targets high-impact video-tool updates while avoiding costly system optimization. 
+
+understanding. Better tool-use instructions (Yang et al., 2026) or new combinations of predefined tools (Huang et al., 2026) cannot directly address deficiencies in the underlying tools. Changing the entire system (Lee et al., 2026; Karpathy, 2026) allows broader exploration, but may largely waste effort on unrelated components. This raises a question: how can we enable more efficient self-improvement for long-video understanding? To address this question, we introduce VideoResearcher , a training-free multi-agent framework for targeted video-tool development. Our key insight is that tool-level self-improvement addresses evidence-acquisition deficiencies more efficiently than instruction refinement or tool recombination, avoiding system-level redesign. 
+
+Our framework consists of two coupled loops: a Solving loop that gathers execution experience and an Evolving loop that uses this experience to improve video tools. The Solving loop separates reasoning, tool execution, and video perception, allowing the agent to actively gather evidence through VLM-based tools. The Worker and perception model remain fixed, making the intermediate toolbox the sole target of self-improvement. Within this scope, the Evolving loop coordinates specialized agents to develop and validate tool changes based on observed failures. The two loops connect problem solving with tool development, enabling targeted improvements without modifying the surrounding agent architecture. Extensive experiments on LVBench, LongVideoBench, and Video-MME evaluate the effectiveness of Vide-oResearcher. VideoResearcher outperforms the evaluated same-base self-improvement methods in overall accuracy on all three benchmarks, raising the base agent’s average accuracy from 72.1% to 74.5%. These results demonstrate effective targeted tool development for long-video understanding. Our contributions are threefold: • We introduce VideoResearcher, a training-free multi-agent framework that automates video-tool development for long-video understanding, reducing reliance on manual engineering. • We propose failure-driven tool synthesis, where specialized agents translate evidence gaps into tool specifi-cations and executable code, retaining updates that improve answer accuracy. 2• We demonstrate state-of-the-art performance among evaluated self-improving agents on three long-video benchmarks and show how autonomous tool development strengthens evidence acquisition. 
+
+## 2 Related Work 
+
+2.1 Long-Video Understanding 
+
+Long-video understanding depends on both representing extended videos and finding relevant evidence. Video-language models benefit from unified visual representations (Li et al., 2024; Wang et al., 2024b; Bai et al., 2025) and richer captioning and instruction data (Chen et al., 2024a; Zhang et al., 2025c). Long-video methods extend this foundation through hour-scale training (Chen et al., 2024b; Lin et al., 2025), context transfer (Zhang et al., 2024a; Wei and Chen, 2025), and efficient visual representations (Shen et al., 2024; Shu et al., 2025; Xu et al., 2025; Ye et al., 2025; Wang et al., 2025b). Pooling and token compression reduce redundant inputs (Xu et al., 2024; Tao et al., 2025; Yang et al., 2025a), while reinforcement learning and self-distillation improve temporal reasoning and evidence use (Feng et al., 2025; Wang et al., 2026a). Visual Contrastive Self-Distillation derives on-policy training targets by contrasting predictions conditioned on original and content-erased images (Liang et al., 2026). Benchmarks such as HourVideo and Video-Holmes emphasize that longer context alone is insufficient: models must also recall events and connect scattered clues (Chandrasegaran et al., 2024; Cheng et al., 2025). Retrieval and memory make this evidence easier to access. Methods organize video into searchable documents, temporal trees, or dynamic memories (Ma et al., 2025; Wang et al., 2025c; Pang and Wang, 2025; Luo et al., 2025; Zuo et al., 2025); others retain past observations (He et al., 2024; Fan et al., 2024), retrieve from video collections (Jeong et al., 2025), or query hierarchical graph memories (Chen et al., 2026b). Agents further control evidence acquisition during reasoning: VideoAgent (Wang et al., 2024c) retrieves observations, DVD (Zhang et al., 2025b) searches a multi-granular database, and VideoSeek (Lin et al., 2026) moves from overview to focused inspection. Related agents adapt temporal search (Yang et al., 2025b; Yin et al., 2026; Tian et al., 2025), observation granularity (Wang et al., 2026b; Li et al., 2026a), or multi-agent coordination (Xu et al., 2026; Yan et al., 2026; Chen et al., 2026a). These methods improve evidence access, but their available operations are generally specified before execution. VideoResearcher automates this cycle: diagnosing missing capabilities, implementing tool changes, and testing them against the current toolbox. 
+
+2.2 Agent Evolution 
+
+Agent evolution improves guidance, system code, or reusable capabilities through execution feedback. Self-Refine revises outputs through self-feedback (Madaan et al., 2023); Reflexion retains verbal lessons across attempts (Shinn et al., 2023). DSPy, TextGrad, and GEPA optimize language-model programs through task evaluations or textual feedback (Khattab et al., 2024; Yuksekgonul et al., 2025; Agrawal et al., 2025). SkillOpt refines reusable tool-use instructions (Yang et al., 2026); Trace2Skill extracts trajectory lessons (Ni et al., 2026), while EvoSkill and CoEvoSkills develop skills through failure analysis or co-evolving verification (Alzubi et al., 2026; Zhang et al., 2026a). Skills may contain instructions, code, or both, requiring evaluation in use (Jiang et al., 2026; Li et al., 2026b). Broader approaches optimize the agent system itself. Meta-Harness and VeRO improve the code surrounding model calls (Lee et al., 2026; Ursekar et al., 2026); SkillOpt-Lite and EvoTest also refine agent behavior from trajectories (Shen et al., 2026b; He et al., 2025). Architecture and workflow search modify roles, coordination, and execution structure (Hu et al., 2025; Zhang et al., 2025a; Song et al., 2026; Zhang et al., 2026b). Related program-evolution systems evaluate code changes in mathematical, algorithmic, or model-training tasks (Romera-Paredes et al., 2024; Novikov et al., 2025; Sharma, 2025; Zelikman et al., 2024; Karpathy, 2026). These methods offer broad flexibility; VideoResearcher focuses on tools that acquire video evidence. Executable tool learning is the closest line of work. LATM and CREATOR separate tool creation from use (Cai et al., 2024; Qian et al., 2023); Voyager accumulates code skills from environment feedback (Wang et al., 2024a), and AgentOptimizer improves callable functions while freezing the language model (Zhang et al., 2024b). ToolMaker and CASCADE construct tools or scientific skills from external resources (Wölflein et al., 2025; Huang et al., 2025), while experience reuse can develop tools for multimodal reasoning (Shen 3SOLVING LOOP EVOLVING LOOP 
+
+HUMAN USER Question 
+
+> What did the cook add after checking the oven for the second time?
+
+REQUEST RESULT 
+
+L2 Worker (fixed) 
+
+> Plans tool calls and answers the question
+
+L1 Toolbox (evolving) 
+
+Toolbox 
+
+L0 Qwen-VL Server (fixed) 
+
+Perception API Service 
+
+LONG VIDEO 
+
+1) DIAGNOSE 2) DESIGN & BUILD 3) DEBUG & TEST 4) VERIFY & MEMORY 
+
+Capability Auditor Trajectory Analyzer Tool Designer Coding Assistant Debugger Fixed Evaluator Tool Verifier Memory Curator 
+
+DIAGNOSIS OUTPUTS 
+
+TOOL PROFILE — Auditor 
+
+• Function and boundary • Reliability • Observed failures 
+
+> TRAJECTORY REPORT — Analyzer
+
+• Story Coverage • Evidence Quality • Accuracy 
+
+COMBINED DIAGNOSIS 
+
+Which tool failed, and why? 
+
+One actionable tool issue →
+
+BUILD OUTPUTS         
+
+> TOOL SPECIFICATION — Designer
+> • Purpose and boundary • Inputs and outputs • Tool-call policy • Interface and constraints
+> CANDIDATE PYTHON TOOL — Assistant
+> def tool(video, query): spans =locate(query) evidence =observe( video, spans) return evidence
+
+DEBUG + TEST OUTPUTS 
+
+> DEBUG CHECKLIST — Debugger
+
+✓ Registered 
+
+✓ Called by Worker 
+
+✓ Valid output 
+
+> ACCURACY BACKTEST — fixed
+> Current Accuracy Candidate Accuracy
+
+RESULT 
+
+Candidate Accuracy is higher  
+
+> IMPROVED
+
+or NO GAIN 
+
+VERIFICATION + MEMORY 
+
+> CAUSAL VERIFICATION — Verifier
+
+··· 
+
+> DID THE NEW TOOL CAUSE THE GAIN?
+
+✓ Tool was called 
+
+✓ New evidence returned 
+
+✓ Accuracy improved 
+
+> EXPERIENCE MEMORY — Curator
+> • Successful attempts • Failed attempts • Why each attempt worked or failed
+
+1/4 Audit tools and analyze failure trajectories 2/4 Design and implement a candidate tool 3/4 Debug and compare Accuracy 4/4 Verify the gain and record all attempts 
+
+> REJECTED Return to Design & Build
+
+Accuracy? 
+
+A₂ > A ₁
+
+NO YES ACCEPTED Update L1 Toolbox ADD / REPLACE TOOL 
+
+Acceptance Check (Gate) 
+
+> Accept only if Accuracy improves
+
+Figure 2 Overview of VideoResearcher. The Solving Loop connects a fixed Worker to a fixed perception model through an evolving toolbox. The Evolving Loop diagnoses trajectory failures, develops and tests executable tools, inspects their effects, and updates the toolbox. 
+
+et al., 2026a). For long videos, META consolidates recurring micro-tool trajectories into macro-tools and derives usage priors from failures (Huang et al., 2026). VideoResearcher targets failure-directed video-tool development: structured diagnosis identifies an evidence gap, specialized agents implement a candidate, and development accuracy governs acceptance with fixed Worker and perception models. 
+
+## 3 Method 
+
+3.1 Overview 
+
+VideoResearcher couples Solving and Evolving Loops to improve video tools (Fig. 2). The Solving Loop answers questions and records trajectories with the current toolbox; the Evolving Loop diagnoses failures, develops and tests executable tools, and retains updates that improve development accuracy. The Worker and perception model stay fixed; evolution changes evidence acquisition without parameter updates or system redesign. For a task xi = ( Vi, q i) with video Vi, question qi, and reference answer yi, the system at evolution round r is 
+
+Π(r) =  πW, T (r), P , T (0) = {ask_video }, (1) where πW is the Worker, P is the perception model, and T (r) is the toolbox, initially containing only the general-purpose ask_video tool. Fixing πW and P isolates toolbox changes across rounds. On a fixed development set Devo , the loops collect experience and update the toolbox: 
+
+(ˆ y(r)
+
+i , τ (r)
+
+i ) = Solve( xi; Π (r)),
+
+E(r) = {(xi, y i, ˆy(r)
+
+i , τ (r)
+
+i )}(xi,y i)∈D evo ,
+
+T (r+1) = Evolve 
+
+
+
+T (r), E(r); Aval 
+
+
+
+,
+
+(2) 4Experience E(r) comprises tasks, reference answers, predictions ˆy(r) 
+
+> i
+
+, and trajectories τ (r) 
+
+> i
+
+. The Evolving Loop develops candidates from this experience, accepting only those that improve development-set accuracy Aval .Sections 3.2 and 3.3 detail trajectory collection and tool development. 
+
+3.2 Solving: Hierarchical Tool Use 
+
+In the Solving Loop (Fig. 2), the Worker (L2) requests evidence, tools (L1) acquire it, and the perception model (L0) inspects video. It interleaves reasoning and action (Yao et al., 2023) with active evidence seeking (Wang et al., 2026b), evolving observation procedures with both models fixed. 
+
+Worker-guided reasoning. The Worker accesses video only through tools. At step j, it uses the question and interaction history h(r) 
+
+> i,<j
+
+to select a tool g(r) 
+
+> ij
+
+∈ T (r) and arguments a(r) 
+
+> ij
+
+:
+
+(g(r) 
+
+> ij
+
+, a (r) 
+
+> ij
+
+) = πW
+
+
+
+qi, h (r) 
+
+> i,<j
+
+; T (r)
+
+. (3) The Worker appends each observation to its history, then requests more evidence or produces ˆy(r) 
+
+> i
+
+.
+
+Tool-mediated perception. Tools translate evidence requests into perception calls. The initial tool exposes the perception model directly: 
+
+ask_video (Vi; p, s, e, ρ ) = P (Vi, p, s, e, ρ ). (4) Here, p is the visual query passed as question , s and e are optional start and end times in seconds, and ρ is the sampling rate in frames per second (FPS). The tool defaults to the full video at 2 FPS and returns a textual observation. Evolved tools use the same perception interface but may define their own arguments, combine targeted calls, and aggregate observations into reusable procedures. 
+
+Trajectory collection. Each trajectory preserves the interactions that produced an answer. For tool observation 
+
+o(r) 
+
+> ij
+
+, we record 
+
+o(r) 
+
+> ij
+
+= g(r)
+
+> ij
+
+
+
+Vi, a (r) 
+
+> ij
+
+; P
+
+
+
+, c(r) 
+
+> ij
+
+=
+
+
+
+g(r) 
+
+> ij
+
+, a (r) 
+
+> ij
+
+, o (r)
+
+> ij
+
+
+
+,τ (r) 
+
+> i
+
+=
+
+
+
+c(r) 
+
+> i1
+
+, . . . , c (r) 
+
+> iM i
+
+, ˆy(r)
+
+> i
+
+
+
+,
+
+(5) where Mi is the number of tool calls. The record includes underlying perception requests, giving the Evolving Loop the tool choices, arguments, and evidence needed for diagnosis. 
+
+3.3 Evolving: Multi-Agent Tool Development 
+
+The Evolving Loop assigns diagnosis, implementation, testing, and verification to specialized agents linked by structured reports (Fig. 2): 
+
+E(r) diagnose 
+
+−−−−−→ 
+
+> T(r)
+
+d(r) design and build 
+
+−−−−−−−−−−→  
+
+> T(r),M(r)
+
+eg(r) debug and test 
+
+−−−−−−−−−→ b(r) verify and remember 
+
+−−−−−−−−−−−−−→
+
+> M(r)
+
+ T (r+1) , M(r+1) , (6) Here, d(r) is a diagnosis, eg(r) a candidate tool, b(r) a comparison against the current toolbox, and M(r) the accumulated development experience. The lower labels specify inputs: diagnosis inspects the current toolbox, development uses it as the implementation base, and stored experience guides design and coding. Each candidate is thus linked to an observed failure and a recorded outcome. 
+
+1) Diagnose. Diagnosis narrows execution failures to one tool-development target. The Capability Auditor produces a Tool Profile describing each tool’s function, boundaries, reliability, and limitations. The Trajectory Analyzer combines this profile with trajectories to produce a Trajectory Report of recurring failures and answer outcomes. Its diagnostic criteria are Story Coverage , whether observations cover relevant events, and 
+
+Evidence Quality , whether they provide useful evidence for answering the question. These criteria guide diagnosis rather than serve as acceptance objectives. The reports specify d(r): the failure, its conditions, and the missing capability. 5Table 1 Accuracy (%) on three representative long-video benchmarks. ∗ marks methods evolved from the same Base, VideoResearcher (w/o Evolution); parentheses show changes from it. Average is computed over the three Overall scores. The best and second-best results are bolded and underlined.           
+
+> Method Venue LVBench LongVideoBench Video-MME Average Overall Overall Long Overall Long Overall
+
+Human-engineered agentic video systems 
+
+VideoAgent (Wang et al., 2024c) ECCV’24 29.3 – – – 46.4 –VideoTree (Wang et al., 2025c) CVPR’25 28.8 – – 60.6 54.2 –VideoLucy (Zuo et al., 2025) NeurIPS’25 – 58.8 – 72.5 66.8 –DVD (Zhang et al., 2025b) NeurIPS’25 74.2 71.6 68.6 – 67.3 –VideoSeek (Lin et al., 2026) CVPR’26 68.4 – 73.5 – 70.1 –VideoARM (Yin et al., 2026) CVPR’26 – 73.7 69.2 80.1 75.3 –VideoResearcher (w/o Evolution) Ours 66.9 73.2 70.6 76.3 70.6 72.1 
+
+Self-improving agentic video systems 
+
+META (Huang et al., 2026) CVPR’26 – 63.6 – 77.7 – –SkillOpt ∗ (Yang et al., 2026) arXiv’26 64.8 (−2.1) 66.5 (−6.7) 63.8 (−6.8) 78.1 (+1 .8) 74.1 (+3 .5) 69.8 (−2.3) 
+
+Meta-Harness ∗ (Lee et al., 2026) arXiv’26 67.1 (+0 .2) 74.9 (+1 .7) 70.9 (+0 .3) 78.4 (+2 .1) 73.6 (+3 .0) 73.5 (+1 .4) 
+
+AutoResearch ∗ (Karpathy, 2026) GitHub’26 66.8 (−0.1) 73.0 (−0.2) 73.4 (+2 .8) 75.2 (−1.1) 73.3 (+2 .7) 71.7 (−0.4) 
+
+VideoResearcher Ours 68.4 (+1 .5) 75.0 (+1 .8) 71.6 (+1 .0) 80.2 (+3 .9) 74.7 (+4 .1) 74.5 (+2 .4) 
+
+2) Design and build. Development turns d(r) into a specification and executable code. Using the Tool Profile and memory M(r), the Tool Designer specifies the tool’s purpose, input–output schema, boundaries, perception-call policy, and difference from existing tools in a Tool Specification . The Coding Assistant implements it as a Candidate Python Tool eg(r) in an isolated toolbox. Changes may affect perception prompts, temporal decomposition, inspected intervals, frame selection, and output aggregation. The tool can be registered, invoked, and evaluated by the fixed Worker (Table 3). 
+
+3) Debug and test. Testing checks both execution and answer accuracy. The Debugger runs smoke tests and records a Debug Checklist covering registration, execution, Worker invocation, schema compliance, and output validity. Failures return to the Coding Assistant for a bounded repair loop. After these checks pass, a fixed Evaluator compares the candidate and current toolboxes on the same development examples, using the same Worker, perception model, inference settings, and random seed. This Accuracy Backtest b(r) uses 
+
+Aval (T ) = 1
+
+|D evo |
+
+X
+
+> (xi,y i)∈D evo
+
+I[ˆ yi(T ) = yi] . (7) Diagnosis and selection use this development set; final benchmarks remain separate (Sec. 4). 
+
+4) Verify and remember. Verification examines how a candidate changed the evidence and preserves the result for future development. The Tool Verifier’s Causal Verification Report records candidate invocation, new observations, and their relation to corrected or regressed answers. This is a trajectory-based explanation of the backtest, not an independent causal experiment. It does not override the sole acceptance criterion, an accuracy increase: 
+
+T (r+1) =
+
+( eT (r+1) , Aval ( eT (r+1) ) > A val (T (r)),
+
+T (r), otherwise , (8) where eT (r+1) = Update( T (r), eg(r)) is the isolated candidate toolbox. The Memory Curator appends the attempt’s status, design, result, and lesson to Experience Memory , producing M(r+1) . Accepted tools enter the next Solving Loop; rejected attempts inform future design and coding. This links failures to tested tool updates. 6Table 2 Analysis of framework components, model choices, and tool evolution. Panel (d) breaks down LVBench by question type. ER, EU, KIR, TG, Rea, and Sum denote entity recognition, event understanding, key-information retrieval, temporal grounding, reasoning, and summarization.                                                             
+
+> (a) Framework components
+> Worker Evolution Perception Qwen3-VL-8B Qwen3.5-4B
+> ××58.0 57.6
+> ✓×63.6 66.9
+> ✓✓66.8 68.4
+> (b) Overall accuracy across benchmarks
+> Method Benchmark LVBench Video-MME LongVideoBench
+> VideoResearcher (w/o Evolution) 66.9 76.3 73.2 VideoResearcher (Round 2) 68.9 80.0 75.5
+> VideoResearcher (Round 7) 68.4 80.2 75.0
+> (c) Worker and perception models
+> Worker Perception Qwen3-VL-8B Qwen3.5-4B
+> GPT-o4-mini 45.0 45.6 GPT-5.3-Codex 44.3 50.5 GPT-5.6-SOL 66.8 68.4
+> (d) LVBench accuracy by question type
+> Method Question type Overall ER EU KIR TG Rea Sum
+> VideoResearcher (w/o Evolution) 66.2 65.2 77.3 67.7 61.2 60.3 66.9 VideoResearcher (Round 2) 66.2 68.3 72.9 71.4 65.7 77.6 68.9
+> VideoResearcher (Round 7) 66.6 67.4 74.6 72.3 64.7 69.0 68.4
+
+## 4 Experiments 
+
+4.1 Experimental Setup 
+
+Benchmarks. We evaluate on three long-video benchmarks. LVBench (Wang et al., 2025a) comprises 103 videos (30 minutes–2 hours) and 1,549 multiple-choice questions across six categories. LongVideoBench (Wu et al., 2024) contains 3,763 videos (up to 1 hour) and 6,678 questions for long-context retrieval and reasoning. Video-MME (Fu et al., 2025) comprises 900 videos (254 hours) and 2,700 questions across six domains and three duration groups. We report overall accuracy (Overall) on all three benchmarks and long-duration subset accuracy (Long) for LongVideoBench and Video-MME, using subtitles only for LongVideoBench. 
+
+Implementation details. Unless otherwise noted, GPT-5.6-SOL and Qwen3.5-4B in instruct mode serve as the fixed Worker and perception model, respectively; Evolving roles use the Codex SDK. The Solving Loop allows at most 10 turns of tool use per question. The initial ask_video tool (Sec. 3.2) uses one perception call and at most 2,048 sampled frames. The Evolving Loop uses up to 20 rounds and 300 fixed ALLVB (Tan et al., 2025) development questions; videos average nearly two hours. Each evolved tool may make at most five perception calls and sample at most 512 frames in total. Only updates that strictly improve development accuracy are retained, and the toolbox is frozen for final testing on the three benchmarks, which are excluded from tool design and selection. The Qwen service was deployed using eight NVIDIA B200 GPUs. 
+
+Baselines and controlled comparison. Table 1 compares human-engineered and self-improving video agents. SkillOpt (Yang et al., 2026), Meta-Harness (Lee et al., 2026), AutoResearch (Karpathy, 2026), and Video-Researcher start from VideoResearcher (w/o Evolution) , called the Base , with the same Worker, perception model, inference limits, initial ask_video tool, 300 development questions, and 20-round evolution budget. This comparison varies the self-improvement strategy from a common starting agent. Human-engineered agents and META (Huang et al., 2026) use published configurations and scores under the closest matching benchmark settings; they provide external reference points rather than matched controls. 
+
+4.2 Main Results 
+
+Comparison with self-improving agents. VideoResearcher leads the evaluated self-improving agents on all three Overall scores and their average (Table 1). VideoResearcher outperforms SkillOpt, Meta-Harness, and AutoResearch by 4.7, 1.0, and 2.8 points in average accuracy, respectively, with notable gains including 8.5 points over SkillOpt on LongVideoBench and 5.0 points over AutoResearch on Video-MME. Compared with META, it improves Overall accuracy by 11.4 points on LongVideoBench and 2.5 points on Video-MME. These results are consistent with the optimization scope: SkillOpt refines instructions and lowers Base accuracy by 2.3 points; the evaluated Meta-Harness and AutoResearch runs mainly revise prompts, yielding limited gains. 7Table 3 Tool-evolution outcomes and an accepted executable tool. Panel (b) shows the Round-2 tool’s contract, prompt, and core implementation; Qwen denotes the fixed perception model. Accuracy is measured on 300 development questions from ALLVB (Tan et al., 2025).    
+
+> (a) Representative evolution outcomes (b) Accepted executable tool (Round 2)
+> Round Evolved tool Dev. acc. Result
+
+2
+
+> Neutral Scene Landmark Index
+
+Target: Unreliable coarse event localization 
+
+Function: Build a five-part landmark index from about 512 frames 
+
+68 .7 → 75 .0
+
+> Accept
+
+3
+
+> Premise-free action anchor index
+
+Target: Incomplete global action coverage 
+
+Function: Extract early, middle, and late action anchors from five segments 
+
+75 .0 → 70 .7
+
+Reject 7
+
+> Candidate Window Atomic Scan
+
+Target: Weak evidence near a candidate event 
+
+Function: Scan five 20-s clips at 5 fps for timestamped atomic events 
+
+75 .0 → 76 .7
+
+> Accept
+
+14 
+
+> Appearance–object signature index
+
+Target: Broken cross-scene entity links 
+
+Function: Link appearance, object, and interaction signatures across scenes 
+
+76 .7 → 69 .0
+
+Reject 17 
+
+> Single-context midpoint evidence reel
+
+Target: Evidence fragmented across calls 
+
+Function: Inspect one midpoint window in a single context 
+
+76 .7 → 71 .7
+
+Reject 
+
+> Tool contract
+
+Input: video path. Output: five ordered scene landmarks. Budget: five Qwen calls and approximately 512 sampled frames. 
+
+> Evolved function
+> def neutral_scene_landmark_index(video): prompt = ( "Analyze the clip and summarize " "visible events in temporal order. " "Infer roles and relationships " "from visible evidence. " "Consider alternatives and " "uncertainty before summarizing." )T = video_duration(video) dt, fps, segments = T / 5, 512 / T, [] for i in range(5): start, end = ( i * dt, min((i + 1) * dt, T)) desc = Qwen( video, start, end, fps, prompt) segments.append({ "segment": i + 1, "start": start, "end": end, "description": desc}) return {"segments": segments}
+
+VideoResearcher adds two executable tools for better evidence acquisition (Table 3): Neutral Scene Landmark Index indexes coarse video events, and Candidate Window Atomic Scan inspects short clips near candidate events. Together, they raise Base’s average accuracy from 72.1 to 74.5. 
+
+Comparison with human-engineered agents. Taking human-designed agents as the performance upper bound, VideoResearcher reaches this bound on LongVideoBench and Video-MME, leading in Overall accuracy, and ties for second on LVBench among the systems in Table 1. Its autonomously developed tools combine coarse indexing with focused local inspection, echoing DVD (Zhang et al., 2025b) and VideoSeek (Lin et al., 2026). These parallels suggest that tool evolution recovers strategies from manual design, although the published configurations do not isolate its effect. 
+
+4.3 Ablation Studies 
+
+Framework components. Agentic tool use and tool evolution both improve accuracy (Table 2(a)). With Qwen3-VL-8B, adding the Worker raises LVBench accuracy from 58.0 to 63.6, and tool evolution raises it to 66.8, an 8.8-point gain over direct perception. The complete framework reaches 68.4 with Qwen3.5-4B. Both perception models benefit from combining these components. 
+
+Worker and perception models. Stronger Workers substantially improve accuracy, consistent with prior findings (Zhang et al., 2025b; Chen et al., 2026b). Table 2(c) tests three Workers (GPT-o4-mini, GPT-5.3-Codex, and GPT-5.6-SOL) with two perception models using the same evolved toolbox, without further evolution. Changing the perception model yields smaller gains: with GPT-5.6-SOL, switching from Qwen3-VL-8B to Qwen3.5-4B raises accuracy from 66.8 to 68.4. 
+
+Effects of evolved tools. Further toolbox expansion may yield diminishing and uneven overall gains. Table 2(b) shows gains over Base on LVBench, Video-MME, and LongVideoBench of 2.0, 3.7, and 2.3 points at Round 2, compared with 1.5, 3.9, and 1.8 points at Round 7, respectively. Table 2(d) also supports the tools’ intended function: Round 2 introduces the landmark index, raising accuracy in locating when events occur (temporal grounding, TG) from 67.7 to 71.4 (+3.7 points). 8(a) Long Video Evidence  
+
+> 1
+
+t = 3160 s 2 t = 3194 s 3 t = 3200 s 4 t = 3213 s 5 t = 3225 s 6 t = 3235 s 
+
+QUESTION 
+
+After the series of close-up shots of lions, what animals are shown running immediately afterward? (A) Leopards and deer (B) Lions and zebra ✗
+
+(C) Lions and deer (D) Zebra and deer ✓
+
+(b) Base Trajectory   
+
+> AGENT: BASE ·TOOLS (1) ask_video
+> LOCALIZATION · TOOL: ask_video(full video)
+
+“The correct answer is (C) lions and deer ... lion close-ups: 76 s, 95 s, 113 s ...” 
+
+> RECHECK · TOOL: ask_video(full video)
+
+“The correct answer is: lions and zebra.” 
+
+> RELOCALIZATION · TOOL: ask_video(full video)
+
+“... close-up series 898–908 s ... first zebra 1175 s; second zebra 1177 s.” 
+
+> LOCAL VERIFY · TOOL: ask_video(14–21 s)
+
+“... no lion montage or any animal shots visible ... only an open landscape ...” 
+
+> LOCAL RECHECK · TOOL: ask_video(14–21 s)
+
+“... lions and zebra running ... observed from 0–5 s of the same clip.” 
+
+Final: Lions and zebra run. (B) ✗ 
+
+> ✗No global grounding: it misses the true lion close-ups (3160–3194 s) and searches unrelated early segments.
+
+(c) SkillOpt-Evolved Trajectory   
+
+> AGENT: REFINED ·TOOLS (1) ask_video
+> LOCALIZATION · TOOL: ask_video(full video)
+> “... lion close-ups 76–122 s ... mongoose 123–125 s ... ostriches 126–136 s ...”
+> CANDIDATE SEARCH · TOOL: ask_video(full video)
+> “... 76–122 s ... 3114–3148 s, 3149–3200 s ... Animals running: None.”
+> PAIR SEARCH · TOOL: ask_video(full video)
+> “... Zebras and Wildebeests 10–20 s ... Gazelles and Oryx 20–30 s ...”
+> LOCAL VERIFY · TOOL: ask_video(51.5–53.8 s)
+> “... no lions ... a small antelope ... standing still ... it is not running.”
+> LOCAL RECHECK · TOOL: ask_video(69.8–71 s)
+> “... several antelope close-ups ... all stationary ... no lion montage.”
+
+Final: No supported answer. ✗ 
+
+> ✗Agent Prompt refinement lacks grounding; scattered candidates never stabilize on the lion close-ups (3160s).
+
+(d) VideoResearcher-Evolved Trajectory   
+
+> AGENT: BASE ·TOOLS (3) ask_video · neutral_scene_landmark_index candidate_window_atomic_scan
+> LOCALIZE · TOOL: neutral_scene_landmark_index
+
+“Segment 4 (2834–3779 s) ... lions lounging together ... zebras and wildebeests moving together ...” 
+
+> SEARCH · TOOL: ask_video(2800–3300 s)
+
+“Yes ... lion close-ups 3112–3198 s ... zebras visibly running 3199–3222 s.” 
+
+> CHECK · TOOL: ask_video(3300–3800 s)
+
+“Yes ... lions 3300.2–3302.2 s ... zebras running 3303.2–3309.2 s.” 
+
+> VERIFY · TOOL: atomic_scan(3148–3248 s)
+
+“3148–3168 s: male lion with cubs ... 3188–3198 s: lioness → zebras ... 3221.5–3222 s: zebras → gazelles (deer-like) ...” 
+
+Final: Zebra + gazelles (deer-like). (D) ✓   
+
+> ✓Ground lions (3160–3194 s), then verify zebras (3200–3213 s) and gazelles (deer-like; 3225–3235 s).
+> LION CLOSE-UP LION CLOSE-UP
+
+ZEBRA ✓ ZEBRA ✓ GAZELLE ✓ GAZELLE ✓Figure 3 Tool-use trajectories for the same video and question. (a) Shared long-video evidence. (b) The base Worker uses the default ask_video tool. (c) SkillOpt revises the Worker prompt with the same tool interface. (d) VideoResearcher uses evolved executable tools to retrieve decisive evidence and answer correctly. 
+
+4.4 Qualitative Analysis of Tool Evolution 
+
+Evolution outcomes. VideoResearcher proposes distinct tool behaviors for different evidence failures. Ta-ble 3(a) covers coarse indexing, action anchoring, local event scanning, cross-scene association, and context consolidation. The landmark index and atomic scan are accepted, raising development accuracy from 68.7 to 75.0 and then 76.7; the other three proposals reduce accuracy and are rejected. Panel (b) shows the Round-2 tool’s contract and executable implementation. Thus, accepted tools expand the toolbox, while rejected proposals preserve unresolved problems and unsuccessful implementations for later evolution or manual design. 
+
+Trajectory case study. Figure 3 illustrates how a new tool changes acquired evidence and the final answer. Panel (a) fixes the video and question; Panels (b)–(d) compare Base, SkillOpt, and VideoResearcher. Base misses the decisive transition with ask_video ; SkillOpt’s revised Worker prompt retains the tool interface and still fails to retrieve sufficient evidence. The evolved indexing and local-scanning tools locate the relevant interval, recover the zebra-and-gazelle evidence, and enable VideoResearcher to answer correctly. This case connects an identified failure to a new capability, better evidence, and a corrected answer. 
+
+## 5 Conclusion 
+
+In this work, we introduced VideoResearcher, a training-free multi-agent framework that automates tool development for long-video understanding. By diagnosing evidence gaps in execution trajectories, developing executable tools, and validating accuracy gains, VideoResearcher turns observed failures into tested toolbox updates. This process strengthens evidence acquisition while keeping the Worker and perception model fixed, allowing agents to expand their capabilities without repeated manual tool design. Experiments on three benchmarks demonstrate state-of-the-art performance among self-improving agents, approaching the human-designed upper bound and raising average accuracy from 72.1% to 74.5%. These results highlight autonomous tool development as a practical route to more capable long-video agents. However, the current framework relies on textual trajectory assessment and repeated selection on one 9development set, and its evolution remains confined to tools. Future work will investigate independent candidate-selection data and extend evolution to agent architectures, enabling adaptation in both evidence acquisition and reasoning organization. 
+
+## References 
+
+L. A. Agrawal, S. Tan, D. Soylu, N. Ziems, R. Khare, K. Opsahl-Ong, A. Singhvi, H. Shandilya, M. J. Ryan, M. Jiang, et al. Gepa: Reflective prompt evolution can outperform reinforcement learning. arXiv preprint arXiv:2507.19457 , 2025. S. Alzubi, N. Provenzano, J. Bingham, W. Chen, and T. Vu. Evoskill: Automated skill discovery for multi-agent systems. arXiv preprint arXiv:2603.02766 , 2026. S. Bai, K. Chen, X. Liu, J. Wang, W. Ge, S. Song, K. Dang, P. Wang, S. Wang, J. Tang, et al. Qwen2.5-VL technical report. 
+
+arXiv:2502.13923 , 2025. T. Cai, X. Wang, T. Ma, X. Chen, and D. Zhou. Large language models as tool makers. In ICLR , 2024. URL https: //openreview.net/forum?id=qV83K9d5WB .K. Chandrasegaran, A. Gupta, L. M. Hadzic, T. Kota, J. He, C. Eyzaguirre, Z. Durante, M. Li, J. Wu, and L. Fei-Fei. Hourvideo: 1-hour video-language understanding. In NeurIPS , 2024. B. Chen, Z. Wang, Z. Yue, K. Yan, C. Yu, Y. Huang, Z. Liu, Y. Wen, X. Chen, Y. Liu, P. Li, and Y. Wang. VideoChat-M1: Collaborative policy planning for video understanding via multi-agent reinforcement learning. In CVPR , pages 33772–33783, 2026a. C. Chen, G. Gan, K. Ji, Z. Zhang, Z. Yang, G. Yao, H. Chen, J. Chen, Y. Yuan, and C. Shen. MemDreamer: Decoupling perception and reasoning for long video understanding via hierarchical graph memory and agentic retrieval mechanism. arXiv preprint arXiv:2606.07512 , 2026b. L. Chen, X. Wei, J. Li, X. Dong, P. Zhang, Y. Zang, Z. Chen, H. Duan, B. Lin, Z. Tang, et al. Sharegpt4video: Improving video understanding and generation with better captions. In NeurIPS , 2024a. Y. Chen, F. Xue, D. Li, Q. Hu, L. Zhu, X. Li, Y. Fang, H. Tang, S. Yang, Z. Liu, et al. Longvila: Scaling long-context visual language models for long videos. arXiv:2408.10188 , 2024b. J. Cheng, Y. Ge, T. Wang, Y. Ge, J. Liao, and Y. Shan. Video-holmes: Can mllm think like holmes for complex video reasoning? 
+
+arXiv:2505.21374 , 2025. Y. Fan, X. Ma, R. Wu, Y. Du, J. Li, Z. Gao, and Q. Li. VideoAgent: A memory-augmented multimodal agent for video understanding. In ECCV , pages 75–92, 2024. K. Feng, K. Gong, B. Li, Z. Guo, Y. Wang, T. Peng, J. Wu, X. Zhang, B. Wang, and X. Yue. Video-r1: Reinforcing video reasoning in mllms. In NeurIPS , 2025. C. Fu, Y. Dai, Y. Luo, L. Li, S. Ren, R. Zhang, Z. Wang, C. Zhou, Y. Shen, M. Zhang, et al. Video-mme: The first-ever comprehensive evaluation benchmark of multi-modal llms in video analysis. In CVPR , 2025. B. He, H. Li, Y. K. Jang, M. Jia, X. Cao, A. Shah, A. Shrivastava, and S.-N. Lim. MA-LMM: Memory-augmented large multimodal model for long-term video understanding. In CVPR , pages 13504–13514, 2024. Y. He, J. Liu, Y. Liu, Y. Li, T. Cao, Z. Hu, X. Xu, and B. Hooi. Evotest: Evolutionary test-time learning for self-improving agentic systems. arXiv preprint arXiv:2510.13220 , 2025. S. Hu, C. Lu, and J. Clune. Automated design of agentic systems. In The Thirteenth International Conference on Learning Representations , 2025. URL https://openreview.net/forum?id=t9U3LW7JVX .J. Huang, L. Chen, Z. Xu, Y. Li, X. Xu, S. Chen, J. Liu, M. Kong, and Q. Zhu. META: Meta evolution of tool trajectory adaptation for long-video understanding. In CVPR , pages 9837–9846, 2026. X. Huang, J. Chen, Y. Fei, Z. Li, P. Schwaller, and G. Ceder. CASCADE: Cumulative agentic skill creation through autonomous development and evolution. arXiv preprint arXiv:2512.23880 , 2025. S. Jeong, K. Kim, J. Baek, and S. J. Hwang. VideoRAG: Retrieval-augmented generation over video corpus. arXiv preprint arXiv:2501.05874 , 2025. Y. Jiang, D. Li, H. Deng, B. Ma, X. Wang, Q. Wang, and G. Yu. Sok: Agentic skills–beyond tool use in llm agents. arXiv preprint arXiv:2602.20867 , 2026. A. Karpathy. AutoResearch. GitHub repository, 2026. URL https://github.com/karpathy/autoresearch . Accessed: 2026-08-20. O. Khattab, A. Singhvi, P. Maheshwari, Z. Zhang, K. Santhanam, S. V. A, S. Haq, A. Sharma, T. Joshi, H. Moazam, H. Miller, M. Zaharia, and C. Potts. DSPy: Compiling declarative language model calls into state-of-the-art pipelines. In ICLR , 2024. URL https://openreview.net/forum?id=sY5N0zY5Od .Y. Lee, R. Nair, Q. Zhang, K. Lee, O. Khattab, and C. Finn. Meta-harness: End-to-end optimization of model harnesses. arXiv preprint arXiv:2603.28052 , 2026. B. Li, Y. Zhang, D. Guo, R. Zhang, F. Li, H. Zhang, K. Zhang, P. Zhang, Y. Li, Z. Liu, et al. Llava-onevision: Easy visual task transfer. arXiv:2408.03326 , 2024. K. Li, Y. He, Y. Wang, Y. Li, W. Wang, P. Luo, Y. Wang, L. Wang, and Y. Qiao. Videochat: Chat-centric video understanding. 
+
+arXiv:2305.06355 , 2023. K. Li, Y. Li, H. Shen, M. Liu, H. Chang, and S. Shan. LensWalk: Agentic video understanding by planning how you see in videos. In CVPR , pages 19518–19528, 2026a. X. Li, Y. Liu, W. Chen, B. You, Z. Di, Y. He, S. Zheng, K. W. Choe, J. Sun, S. Wang, et al. SkillsBench: Benchmarking how well agent skills work across diverse tasks. arXiv preprint arXiv:2602.12670 , 2026b. doi: 10.48550/arXiv.2602.12670. URL 
+
+https://arxiv.org/abs/2602.12670v4 .
+
+10 Y. Liang, Y. Tian, Y. Li, Y. Jia, K. Wang, F. Huang, T. Zhou, and D. Fu. Visual contrastive self-distillation. arXiv preprint arXiv:2607.21556 , 2026. URL https://arxiv.org/abs/2607.21556 .J. Lin, J. Wu, X. Sun, Z. Wang, J. Liu, Y. Su, X. Yu, H. Chen, J. Luo, Z. Liu, et al. Unleashing hour-scale video training for long video-language understanding. In NeurIPS , 2025. J. Lin, J. Wu, J. Liu, X. Sun, Z. Wang, X. Yu, J. Luo, Z. Liu, and E. Barsoum. VideoSeek: Long-horizon video agent with tool-guided seeking. arXiv preprint arXiv:2603.20185 , 2026. Y. Luo, X. Zheng, G. Li, S. Yin, H. Lin, C. Fu, J. Huang, J. Ji, F. Chao, J. Luo, et al. Video-rag: Visually-aligned retrieval-augmented long video comprehension. In NeurIPS , 2025. Z. Ma, C. Gou, H. Shi, B. Sun, S. Li, H. Rezatofighi, and J. Cai. Drvideo: Document retrieval based long video understanding. In CVPR , pages 18936–18946, 2025. A. Madaan, N. Tandon, P. Gupta, S. Hallinan, L. Gao, S. Wiegreffe, U. Alon, N. Dziri, S. Prabhumoye, Y. Yang, S. Gupta, B. P. Majumder, K. Hermann, S. Welleck, A. Yazdanbakhsh, and P. Clark. Self-Refine: Iterative refinement with self-feedback. In NeurIPS , 2023. doi: 10.52202/075280-2019. URL https://proceedings.neurips.cc/paper_files/paper/2023/hash/ 91edff07232fb1b55a505a9e9f6c0ff3-Abstract-Conference.html .J. Ni, Y. Liu, X. Liu, Y. Sun, M. Zhou, P. Cheng, D. Wang, E. Zhao, X. Jiang, and G. Jiang. Trace2Skill: Distill trajectory-local lessons into transferable agent skills. arXiv preprint arXiv:2603.25158 , 2026. doi: 10.48550/arXiv.2603.25158. URL 
+
+https://arxiv.org/abs/2603.25158v5 .A. Novikov, N. V˜ u, M. Eisenberger, E. Dupont, P.-S. Huang, A. Z. Wagner, S. Shirobokov, B. Kozlovskii, F. J. Ruiz, A. Mehrabian, et al. Alphaevolve: A coding agent for scientific and algorithmic discovery. arXiv preprint arXiv:2506.13131 , 2025. Z. Pang and Y.-X. Wang. MR. Video: “MapReduce” is the principle for long video understanding. arXiv preprint arXiv:2504.16082 ,2025. C. Qian, C. Han, Y. Fung, Y. Qin, Z. Liu, and H. Ji. CREATOR: Tool creation for disentangling abstract and concrete reasoning of large language models. In Findings of EMNLP , pages 6922–6939, 2023. doi: 10.18653/v1/2023.findings-emnlp.462. URL 
+
+https://aclanthology.org/2023.findings-emnlp.462/ .B. Romera-Paredes, M. Barekatain, A. Novikov, M. Balog, M. P. Kumar, E. Dupont, F. J. Ruiz, J. S. Ellenberg, P. Wang, O. Fawzi, et al. Mathematical discoveries from program search with large language models. Nature , 625(7995):468–475, 2024. A. Sharma. Openevolve: an open-source evolutionary coding agent. https://github.com/algorithmicsuperintelligence/openevolve ,2025. URL https://github.com/algorithmicsuperintelligence/openevolve . GitHub repository. X. Shen, Y. Xiong, C. Zhao, L. Wu, J. Chen, C. Zhu, Z. Liu, F. Xiao, B. Varadarajan, F. Bordes, et al. Longvu: Spatiotemporal adaptive compression for long video-language understanding. arXiv:2410.17434 , 2024. X. Shen, J. Chen, L. Zheng, H. Ma, T. Wei, and K. Zhan. Evolving from tool user to creator via training-free experience reuse in multimodal reasoning. arXiv preprint arXiv:2602.01983 , 2026a. doi: 10.48550/arXiv.2602.01983. URL https: //arxiv.org/abs/2602.01983v1 .Y. Shen, B. Li, and X. Zhang. SkillOpt-Lite: Better and faster agent self-evolution via one line of vibe. arXiv preprint arXiv:2607.03451 , 2026b. N. Shinn, F. Cassano, A. Gopinath, K. Narasimhan, and S. Yao. Reflexion: Language agents with verbal reinforcement learning. In NeurIPS , 2023. doi: 10.52202/075280-0377. URL https://proceedings.neurips.cc/paper_files/paper/2023/hash/ 1b44b878bb782e6954cd888628510e90-Abstract-Conference.html .Y. Shu, Z. Liu, P. Zhang, M. Qin, J. Zhou, Z. Liang, T. Huang, and B. Zhao. Video-xl: Extra-long vision language model for hour-scale video understanding. In CVPR , 2025. W. Song, J. Yue, and Z. Pang. Abstral: Automatic design of multi-agent systems through iterative refinement and topology optimization. arXiv preprint arXiv:2603.22791 , 2026. X. Tan, Y. Luo, Y. Ye, F. Liu, and Z. Cai. ALLVB: All-in-one long video understanding benchmark. In AAAI , pages 7211–7219, 2025. doi: 10.1609/aaai.v39i7.32775. K. Tao, C. Qin, H. You, Y. Sui, and H. Wang. DyCoke: Dynamic compression of tokens for fast video large language models. In 
+
+CVPR , pages 18992–19001, 2025. S. Tian, R. Wang, H. Guo, P. Wu, Y. Dong, X. Wang, J. Yang, H. Zhang, H. Zhu, and Z. Liu. Ego-r1: Chain-of-tool-thought for ultra-long egocentric video reasoning. arXiv:2506.13654 , 2025. V. Ursekar, A. Shanker, V. Chatrath, Y. Xue, and S. M. Denton. VeRO: A harness for agents to optimize agents. arXiv preprint arXiv:2602.22480 , 2026. G. Wang, Y. Xie, Y. Jiang, A. Mandlekar, C. Xiao, Y. Zhu, L. Fan, and A. Anandkumar. Voyager: An open-ended embodied agent with large language models. Transactions on Machine Learning Research , 2024a. URL https://openreview.net/forum? id=ehfRiF0R3a .K. Wang, D. Zhao, Y. Liang, D. Ye, R. Chen, H. Huang, and D. Fu. Where to look matters: On-policy self-distillation for long-video understanding. arXiv preprint arXiv:2608.25356 , 2026a. P. Wang, S. Bai, S. Tan, S. Wang, Z. Fan, J. Bai, K. Chen, X. Liu, J. Wang, W. Ge, et al. Qwen2-vl: Enhancing vision-language model’s perception of the world at any resolution. arXiv:2409.12191 , 2024b. W. Wang, Z. He, W. Hong, Y. Cheng, X. Zhang, J. Qi, M. Ding, X. Gu, S. Huang, B. Xu, et al. Lvbench: An extreme long video understanding benchmark. In ICCV , 2025a. X. Wang, Y. Zhang, O. Zohar, and S. Yeung-Levy. Videoagent: Long-form video understanding with large language model as agent. In ECCV , 2024c. Y. Wang, X. Li, Z. Yan, Y. He, J. Yu, X. Zeng, C. Wang, C. Ma, H. Huang, J. Gao, et al. InternVideo2.5: Empowering video MLLMs with long and rich context modeling. arXiv preprint arXiv:2501.12386 , 2025b. Z. Wang, S. Yu, E. Stengel-Eskin, J. Yoon, F. Cheng, G. Bertasius, and M. Bansal. Videotree: Adaptive tree-based video 
+
+11 representation for llm reasoning on long videos. In CVPR , 2025c. Z. Wang, H. Zhou, S. Wang, J. Li, C. Xiong, S. Savarese, M. Bansal, M. S. Ryoo, and J. C. Niebles. Active video perception: Iterative evidence seeking for agentic long video understanding. In CVPR Findings , 2026b. H. Wei and Z. Chen. Visual context window extension: A new perspective for long video understanding. In ACM Multimedia ,pages 4281–4289, 2025. G. Wölflein, D. Ferber, D. Truhn, O. Arandjelović, and J. N. Kather. LLM agents making agent tools. arXiv preprint arXiv:2502.11705 , 2025. H. Wu, D. Li, B. Chen, and J. Li. Longvideobench: A benchmark for long-context interleaved video-language understanding. In 
+
+NeurIPS , 2024. L. Xu, Y. Zhao, D. Zhou, Z. Lin, S. K. Ng, and J. Feng. Pllava: Parameter-free llava extension from images to videos for video dense captioning. arXiv:2404.16994 , 2024. M. Xu, M. Gao, S. Li, J. Lu, Z. Gan, Z. Lai, M. Cao, K. Kang, Y. Yang, and A. Dehghan. Slowfast-llava-1.5: A family of token-efficient video large language models for long-form video understanding. In COLM , 2025. Y. Xu, G. Liu, R. R. Kompella, T. Huang, S. Hu, F. Ilhan, S. F. Tekin, Z. Yahn, and L. Liu. A multi-agent perception-action alliance for efficient long video reasoning. In CVPR , pages 19497–19507, 2026. H. Yan, H. Zhou, P. Xu, X. Feng, and M. Liu. Symphony: A cognitively-inspired multi-agent system for long-video understanding. In CVPR , pages 24031–24041, 2026. C. Yang, X. Dong, X. Zhu, W. Su, J. Wang, H. Tian, Z. Chen, W. Wang, L. Lu, and J. Dai. PVC: Progressive visual token compression for unified image and video processing in large vision-language models. In CVPR , pages 24939–24949, 2025a. Y. Yang, Z. Gong, W. Huang, Q. Yang, Z. Zhou, Z. Huang, Y. Li, X. Gao, Q. Dai, B. Liu, K. Qiu, Y. Yang, D. Chen, X. Yang, and C. Luo. SkillOpt: Executive strategy for self-evolving agent skills. arXiv preprint arXiv:2605.23904 , 2026. Z. Yang, D. Chen, X. Yu, M. Shen, and C. Gan. Vca: Video curious agent for long video understanding. In ICCV , 2025b. S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao. ReAct: Synergizing reasoning and acting in language models. In ICLR , 2023. J. Ye, H. Xu, H. Liu, A. Hu, M. Yan, Q. Qian, J. Zhang, F. Huang, and J. Zhou. mPLUG-Owl3: Towards long image-sequence understanding in multi-modal large language models. In ICLR , 2025. Y. Yin, Q. Meng, M. Chen, J. Ding, Z. Shao, and Z. Yu. VideoARM: Agentic reasoning over hierarchical memory for long-form video understanding. In CVPR , pages 24042–24051, 2026. M. Yuksekgonul, F. Bianchi, J. Boen, S. Liu, P. Lu, Z. Huang, C. Guestrin, and J. Zou. Optimizing generative AI by backpropagating language model feedback. Nature , 639:609–616, 2025. doi: 10.1038/s41586-025-08661-4. URL https: //www.nature.com/articles/s41586-025-08661-4 .E. Zelikman, E. Lorch, L. Mackey, and A. T. Kalai. Self-taught optimizer (STOP): Recursively self-improving code generation. In COLM , 2024. URL https://openreview.net/forum?id=46Zgqo4QIU .H. Zhang, S. Fan, H. P. Zou, Y. Chen, Z. Wang, J. Zhou, C. Li, W.-C. Huang, Y. Yao, K. Zheng, et al. CoEvoSkills: Self-evolving agent skills via co-evolutionary verification. arXiv preprint arXiv:2604.01687 , 2026a. doi: 10.48550/arXiv.2604.01687. URL 
+
+https://arxiv.org/abs/2604.01687v3 .J. Zhang, J. Xiang, Z. Yu, F. Teng, X. Chen, J. Chen, M. Zhuge, X. Cheng, S. Hong, J. Wang, B. Zheng, B. Liu, Y. Luo, and C. Wu. Aflow: Automating agentic workflow generation, 2025a. URL https://arxiv.org/abs/2410.10762 .J. Zhang, S. Hu, C. Lu, R. Lange, and J. Clune. Darwin Gödel machine: Open-ended evolution of self-improving agents. In 
+
+ICLR , 2026b. URL https://openreview.net/forum?id=pUpzQZTvGY .P. Zhang, K. Zhang, B. Li, G. Zeng, J. Yang, Y. Zhang, Z. Wang, H. Tan, C. Li, and Z. Liu. Long context transfer from language to vision. arXiv:2406.16852 , 2024a. S. Zhang, J. Zhang, J. Liu, L. Song, C. Wang, R. Krishna, and Q. Wu. Offline training of language model agents with functions as learnable weights. In ICML , pages 60315–60335, 2024b. URL https://proceedings.mlr.press/v235/zhang24cd.html .X. Zhang, Z. Jia, Z. Guo, J. Li, B. Li, H. Li, and Y. Lu. Deep video discovery: Agentic search with tool use for long-form video understanding. In NeurIPS , 2025b. Y. Zhang, J. Wu, W. Li, B. Li, Z. Ma, Z. Liu, and C. Li. LLaVA-Video: Video instruction tuning with synthetic data. Transactions on Machine Learning Research , 2025c. O. Zohar, X. Wang, Y. Dubois, N. Mehta, T. Xiao, P. Hansen-Estruch, L. Yu, X. Wang, F. Juefei-Xu, N. Zhang, et al. Apollo: An exploration of video understanding in large multimodal models. In CVPR , 2025. J. Zuo, Y. Deng, L. Kong, J. Yang, R. Jin, Y. Zhang, N. Sang, L. Pan, Z. Liu, and C. Gao. VideoLucy: Deep memory backtracking for long video understanding. arXiv preprint arXiv:2510.12422 , 2025. 
+
+12

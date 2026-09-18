@@ -1,0 +1,302 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-18T21:32:25.359236+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2609.19523v1",
+      "source": "arxiv",
+      "title": "EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data",
+      "abstract": "Web agents often revisit the same sites, yet most evaluations discard the procedures learned in earlier successful interactions. We introduce EconSkills, a skill library and evaluation framework that distills verified EconWebArena trajectories into parameterized standard operating procedures for retrieving live economic data. Each skill records its scope, navigation procedure, site-specific guidance, verification checks, and recovery steps while replacing source-instance values with placeholders. EconSkills separates two questions: whether a known relevant procedure transfers to a held-out task, and whether an agent can retain that benefit when selecting from a library. In controlled transfer, matched skills improve success over no-skill prompting and require fewer steps on paired successes, while abstraction is substantially more effective than replaying raw trajectories. At library scale, retrieval is competitive with the no-skill baseline overall and performs best on directly covered tasks; coverage-stratified outcomes show that approximate matches on uncovered tasks offset these gains. Browser trajectories further identify when procedural guidance shortens portal-specific navigation and when semantic verification remains necessary. These results establish that reusable economic web procedures can transfer across task instances and provide a concrete design target for coverage-aware selection and context delivery.",
+      "authors": [
+        "Yinzhu Quan",
+        "Zefang Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-17T00:29:46+00:00",
+      "link": "https://arxiv.org/pdf/2609.19523v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "skill library for retrieving and reusing agent experience",
+      "llm_evidence_cn": "技能库用于检索与复用智能体经验",
+      "llm_evidence": "技能库用于检索与复用智能体经验",
+      "canonical_evidence": "技能库用于检索与复用智能体经验",
+      "llm_tldr_en": "EconSkills distills verified web-agent trajectories into parameterized skills for retrieving live economic data, testing whether learned procedures transfer to held-out tasks and whether agents can select them from a library.",
+      "llm_tldr_cn": "网页智能体常重复访问同一网站，但多数评测丢弃了先前成功交互中习得的操作流程。本文提出EconSkills技能库与评测框架，把已验证的EconWebArena轨迹蒸馏为参数化标准操作流程，记录适用范围、导航步骤、站点知识与校验恢复步骤。实验区分技能迁移与库中检索两个问题，显示匹配技能可提升成功率，凸显经验复用与检索对智能体的价值。",
+      "llm_tldr": "网页智能体常重复访问同一网站，但多数评测丢弃了先前成功交互中习得的操作流程。本文提出EconSkills技能库与评测框架，把已验证的EconWebArena轨迹蒸馏为参数化标准操作流程，记录适用范围、导航步骤、站点知识与校验恢复步骤。实验区分技能迁移与库中检索两个问题，显示匹配技能可提升成功率，凸显经验复用与检索对智能体的价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.19656v1",
+      "source": "arxiv",
+      "title": "Self-Evolving Search Index",
+      "abstract": "Information retrieval is increasingly important as LLM agents tackle complex tasks involving diverse information needs. Because retrieval relies on an index that represents each document through index keys, retrieval quality depends heavily on how effectively these keys expose the knowledge contained in each document. However, effective index representations vary across retrieval environments, making it difficult for any fixed optimization strategy to perform consistently. Yet evolving an index to its retrieval environment remains largely human-driven, requiring humans to diagnose retrieval failures, refine the optimization strategy, and reprocess the index accordingly. We propose SELF-INDEX, a framework that enables an index to self-evolve without human intervention. Its Optimizer autonomously diagnoses retrieval shortfalls, selectively revises the responsible index keys, and validates each revision before updating the index. Beyond reacting to observed retrieval demands, SELF-INDEX proactively explores additional demands through a Query Simulator, allowing the index to evolve beyond the queries already available for optimization. Across diverse corpora and retrievers, SELF-INDEX consistently improves retrieval performance while outperforming existing index optimization methods. We further show that these benefits extend to downstream applications, improving the effectiveness and efficiency of search agents and helping agent memory systems retrieve useful past interactions.",
+      "authors": [
+        "Sangam Lee",
+        "Wonjae Lee",
+        "Sunghwan Kim",
+        "Deogyong Kim",
+        "Jaehoon Kim",
+        "Daye Nam",
+        "SeongKu Kang",
+        "Dongha Lee"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "published": "2026-09-17T03:56:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.19656v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "index self-evolves without human intervention via autonomous optimizer",
+      "llm_evidence_cn": "索引通过自主优化器无需人工干预自进化",
+      "llm_evidence": "索引通过自主优化器无需人工干预自进化",
+      "canonical_evidence": "索引通过自主优化器无需人工干预自进化",
+      "llm_tldr_en": "SELF-INDEX enables a retrieval index to self-evolve without human intervention, using an autonomous Optimizer to adapt index keys to the retrieval environment and improve retrieval quality for LLM agents.",
+      "llm_tldr_cn": "随着LLM智能体处理复杂任务，检索愈发重要，而检索质量取决于索引键能否有效暴露文档知识；然而有效表示随检索环境而变，固定优化策略难以持续奏效，且索引进化长期依赖人工诊断失败并重新处理。作者提出SELF-INDEX框架，使索引无需人工干预即可自进化，其优化器自主诊断检索失败、调整优化策略并重处理索引。实验表明该自进化机制能在不同检索环境中稳定提升检索质量，为智能体的知识检索提供了自动化支撑。",
+      "llm_tldr": "随着LLM智能体处理复杂任务，检索愈发重要，而检索质量取决于索引键能否有效暴露文档知识；然而有效表示随检索环境而变，固定优化策略难以持续奏效，且索引进化长期依赖人工诊断失败并重新处理。作者提出SELF-INDEX框架，使索引无需人工干预即可自进化，其优化器自主诊断检索失败、调整优化策略并重处理索引。实验表明该自进化机制能在不同检索环境中稳定提升检索质量，为智能体的知识检索提供了自动化支撑。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.15311v1",
+      "source": "arxiv",
+      "title": "FlashGPU-sim: Enabling GPU Modeling for Modern Architectures and AI Workloads",
+      "abstract": "As AI becomes increasingly ubiquitous, modern AI systems are shaped by a tight software-hardware co-design loop. Later GPUs expose features such as asynchronous data movement, tensor core pipelines, and fine-grained synchronization that high-performance kernels aggressively exploit, while emerging application behaviors increasingly influence the next generation of hardware design. Unfortunately, the latest open-source simulators for NVIDIA GPUs focus on architectures and software stacks from roughly six years ago. Therefore, they cannot support many state-of-the-art AI kernels generated by modern compiler stacks, e.g. Triton, or accurately model the hardware features they depend on. As a result, architects lack a credible platform for analyzing bottlenecks in this flywheel or evaluating design trade-offs for future AI systems. To bridge this gap, we present FlashGPU-sim, an open-source, execution-driven, cycle-accurate GPU simulator for modern AI workloads. FlashGPU-sim faithfully models modern hardware features such as asynchronous data movement, fine-grained synchronization, tensor-core execution, and distributed shared memory. A Triton extraction front-end allows direct simulation of optimized AI operators without manual porting, while multi-threaded execution makes large-scale software-hardware co-design practical. Across 131 workload configurations on RTX 5090, H100, and B200, FlashGPU-sim achieves a cycle-level MAPE of 5.24%, while multi-threaded simulation reaches a 7.86x speedup with 16 host threads. An H100 case study further demonstrates its utility for microarchitectural design exploration.",
+      "authors": [
+        "Siying Yu",
+        "Yixun Hong",
+        "Guozhi Qiu",
+        "Jingci Liu",
+        "Feng Gu",
+        "Chenbo Geng",
+        "Zhengrong Wang",
+        "Chen Zhang",
+        "Bei Yu"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.DC"
+      ],
+      "published": "2026-09-14T10:02:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.15311v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "simulator models modern GPU features used by high-performance kernels such as Triton",
+      "llm_evidence_cn": "模拟器建模高性能内核使用的现代GPU特性",
+      "llm_evidence": "模拟器建模高性能内核使用的现代GPU特性",
+      "canonical_evidence": "模拟器建模高性能内核使用的现代GPU特性",
+      "llm_tldr_en": "FlashGPU-sim is an open-source simulator that models modern NVIDIA GPU architectures and AI workloads, enabling analysis of state-of-the-art kernels generated by compilers like Triton.",
+      "llm_tldr_cn": "针对现有开源NVIDIA GPU模拟器仅覆盖约六年前的架构与软件栈、无法支持Triton等现代编译器生成的AI内核的问题，本文提出FlashGPU-sim。该模拟器建模异步数据搬运、张量核心流水线与细粒度同步等现代GPU特性，从而可分析高性能内核所依赖的硬件行为。它为架构师提供可信平台，用于评估现代AI工作负载与内核性能，对GPU内核优化与软硬件协同设计具有支撑价值。",
+      "llm_tldr": "针对现有开源NVIDIA GPU模拟器仅覆盖约六年前的架构与软件栈、无法支持Triton等现代编译器生成的AI内核的问题，本文提出FlashGPU-sim。该模拟器建模异步数据搬运、张量核心流水线与细粒度同步等现代GPU特性，从而可分析高性能内核所依赖的硬件行为。它为架构师提供可信平台，用于评估现代AI工作负载与内核性能，对GPU内核优化与软硬件协同设计具有支撑价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.19664v1",
+      "source": "arxiv",
+      "title": "VideoResearcher: Self-Improving Tool Design for Long-Video Understanding",
+      "abstract": "Video agents have made substantial progress in long-video understanding. Yet effective video-agent systems require costly, time-consuming manual design and trial and error. Current self-improvement methods either refine low-impact prompts, recombine predefined micro-tools, or struggle with convergence in harness optimization. To bridge this gap, we target high-impact video-tool with VideoResearcher, a training-free multi-agent framework that autonomously designs, tests, and refines tools for video understanding, like a human researcher. VideoResearcher operates through dual Solving and Evolving loops: it analyzes tool-use trajectories to identify capability gaps, coordinates specialized agents to develop and validate executable tools, and reuses evolved tools to strengthen evidence acquisition in subsequent video reasoning. Through iterative tool refinement and validation, it progressively strengthens evidence acquisition without updating model parameters. VideoResearcher achieves state-of-the-art performance among self-improving agents and approaches the human-designed upper bound, demonstrating a training-free paradigm for long-video understanding that expands agent capabilities through autonomous tool development while reducing costly manual engineering.",
+      "authors": [
+        "Dingqiang Ye",
+        "Dongdi Zhao",
+        "Kaishen Wang",
+        "Qingqiao Hu",
+        "Jingchen Sun",
+        "Yijun Liang",
+        "Yuqi Jia",
+        "Yiqiao Huang",
+        "Yunjie Tian",
+        "Jiaxing Zhang",
+        "Chuanyang Jin",
+        "Ke Zhang",
+        "Vishal M. Patel",
+        "Di Fu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-17T04:04:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.19664v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "training-free multi-agent framework that autonomously designs and refines tools",
+      "llm_evidence_cn": "无需训练、自主设计与改进工具的多智能体框架",
+      "llm_evidence": "无需训练、自主设计与改进工具的多智能体框架",
+      "canonical_evidence": "无需训练、自主设计与改进工具的多智能体框架",
+      "llm_tldr_en": "VideoResearcher is a training-free multi-agent framework that autonomously designs, tests, and refines tools for long-video understanding through dual Solving and Evolving loops, reducing costly manual design.",
+      "llm_tldr_cn": "长视频理解智能体系统常依赖昂贵耗时的人工设计与试错，现有自改进方法或只优化低影响提示，或重组预定义微工具，或在流程优化中难以收敛。为此作者提出VideoResearcher，一个无需训练的多智能体框架，通过求解与进化双循环分析工具使用轨迹以识别能力缺口，协调专用智能体开发并验证可执行工具，并复用进化成果。实验表明该框架能自主设计并持续改进高影响力的视频工具，为智能体的自进化工具构建提供了可行范式。",
+      "llm_tldr": "长视频理解智能体系统常依赖昂贵耗时的人工设计与试错，现有自改进方法或只优化低影响提示，或重组预定义微工具，或在流程优化中难以收敛。为此作者提出VideoResearcher，一个无需训练的多智能体框架，通过求解与进化双循环分析工具使用轨迹以识别能力缺口，协调专用智能体开发并验证可执行工具，并复用进化成果。实验表明该框架能自主设计并持续改进高影响力的视频工具，为智能体的自进化工具构建提供了可行范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.18662v1",
+      "source": "arxiv",
+      "title": "Automated Instruction Encoding Synthesis for Modern GPU ISA Compression",
+      "abstract": "Modern GPU kernels increasingly stress the instruction supply path, while fixed instruction containers can leave substantial footprint slack. This paper presents an automated encoding-synthesis framework that treats instruction layout as a constrained slot-assignment problem over a validated instruction-form field specification. The formulation separates semantic field identity from physical bit positions and supports tied, pinned, and free placement constraints, making it applicable when recurring decoded fields are not frozen by a public format contract. We instantiate the framework for NVIDIA SASS: raw public encoding text is normalized into a machine-readable specification, a SASS disassembler is validated against nvdisasm on 3.78M instructions, released as an open benchmark, and CP-SAT synthesis is used for fixed-length and variable-length encodings. On 142 Blackwell kernel inputs, variable-length synthesis reduces instruction footprint by 33%, with comparable reductions after re-synthesis on Ampere and Hopper; fixed-length synthesis on the same specification reduces decoder area by 16% against a decoder generated from the NVIDIA-observed 128-bit layout by the same generator and flow. Generated fetch/decode RTL meets 1.5 GHz in TSMC 22 nm with a replicated area delta of 0.12% of a GA100-class die; a same-node SRAM comparison shows the footprint reduction corresponds to about 9x this added logic in instruction-SRAM bit-cell area.",
+      "authors": [
+        "Mingyuan Ma",
+        "Hu He"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.PL"
+      ],
+      "published": "2026-09-16T13:41:42+00:00",
+      "link": "https://arxiv.org/pdf/2609.18662v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU instruction encoding synthesis to reduce footprint",
+      "llm_evidence_cn": "通过指令编码合成降低GPU指令占用",
+      "llm_evidence": "通过指令编码合成降低GPU指令占用",
+      "canonical_evidence": "通过指令编码合成降低GPU指令占用",
+      "llm_tldr_en": "This paper casts GPU instruction layout as a constrained slot-assignment problem and synthesizes compact encodings, validated on 3.78M NVIDIA SASS instructions against nvdisasm.",
+      "llm_tldr_cn": "现代GPU内核日益加重指令供给路径压力，而固定长度的指令容器造成空间浪费。论文提出自动化编码合成框架，将指令布局视为约束槽分配问题，分离语义字段身份与物理位位置并支持多种放置约束，并针对NVIDIA SASS实例化。框架在378万条指令上验证了反汇编正确性，说明可自动生成更紧凑的指令编码，对GPU内核性能与代码体积优化具有价值。",
+      "llm_tldr": "现代GPU内核日益加重指令供给路径压力，而固定长度的指令容器造成空间浪费。论文提出自动化编码合成框架，将指令布局视为约束槽分配问题，分离语义字段身份与物理位位置并支持多种放置约束，并针对NVIDIA SASS实例化。框架在378万条指令上验证了反汇编正确性，说明可自动生成更紧凑的指令编码，对GPU内核性能与代码体积优化具有价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.20089v1",
+      "source": "arxiv",
+      "title": "UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning",
+      "abstract": "Self-evolving methods reduce the need for human-annotated trajectories by allowing tool-using agents to generate their own training data. Yet existing methods typically separate trajectory generation from evaluation, relying on static verifiers that cannot adapt to emerging failure modes or self-consistency signals that may reinforce errors shared across trajectories. Jointly adapting planning, execution, and evaluation offers a promising alternative, but introduces a fundamental coordination challenge: each component continuously changes the data or feedback used to train the others. We address this challenge with \\textbf{UnifiedPlayers}, a cooperative framework comprising a Planning Player that generates tasks, an Execution Player that produces multi-turn trajectories with Python tool calls, and an Evaluation Player that constructs executable verifiers. We design role-specific rewards that coordinate the three players toward a shared learning objective under GRPO. Across two model backbones and twelve reasoning benchmarks, UnifiedPlayers outperforms the strongest prior baseline by at least 3.5\\% on mathematical reasoning and 3.9\\% on general reasoning tasks. Moreover, the learned verifier achieves 84.2\\% adversarial detection accuracy, while its reward signal exhibits 2.03$\\times$ higher per-question variance than a self-consistency baseline, providing more discriminative verifications. These results highlight cooperation among specialized players as a promising path toward self-enhanced tool-integrated agents.",
+      "authors": [
+        "Wenjie Liao",
+        "Liangjie Zhao",
+        "Zehong Cao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-17T11:49:31+00:00",
+      "link": "https://arxiv.org/pdf/2609.20089v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "self-evolving tool-using agents generate their own training data and feedback",
+      "llm_evidence_cn": "自进化工具智能体自主生成训练数据与反馈",
+      "llm_evidence": "自进化工具智能体自主生成训练数据与反馈",
+      "canonical_evidence": "自进化工具智能体自主生成训练数据与反馈",
+      "llm_tldr_en": "This paper targets self-evolving tool-using agents whose trajectory generation and evaluation are usually separated by static verifiers. UnifiedPlayers introduces a cooperative framework with Planning, Execution and Evaluation players that jointly adapt, letting agents generate tasks, solve them and refine feedback without human-annotated trajectories.",
+      "llm_tldr_cn": "本文针对自进化工具智能体中轨迹生成与评估分离、静态验证器无法适应新失败模式的问题。作者提出UnifiedPlayers协作框架，包含负责生成任务的规划玩家、负责执行的执行玩家与负责评估的评估玩家，三者联合自适应。该设计缓解了各组件相互改变训练数据与反馈的协调难题，使智能体无需人工标注轨迹即可持续自我改进，体现自进化机制。",
+      "llm_tldr": "本文针对自进化工具智能体中轨迹生成与评估分离、静态验证器无法适应新失败模式的问题。作者提出UnifiedPlayers协作框架，包含负责生成任务的规划玩家、负责执行的执行玩家与负责评估的评估玩家，三者联合自适应。该设计缓解了各组件相互改变训练数据与反馈的协调难题，使智能体无需人工标注轨迹即可持续自我改进，体现自进化机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.19519v1",
+      "source": "arxiv",
+      "title": "An Architecture for Long-Horizon Agents: Levels, Ticks and Cascaded Intelligence",
+      "abstract": "Language-model agents are increasingly asked to carry out work spanning days or weeks, such as an operations remediation or a research programme. Such a task outlives any context window, any process and any interval at which a person can attend. In this paper, we argue that a long-horizon agent must run continually without forgetting before it can learn continually. This ability lies in the harness around the model rather than in the model itself. We derive seven bottlenecks from the long-horizon setting and answer them with a hierarchical architecture of three parts: (i) levels indexed by time scale, each keeping a bounded file summarising the level below; (ii) a clocked tick as the unit of autonomous action; and (iii) cascaded intelligence, where work is escalated to a more capable model only after failing review. We report on a ten-day campaign in which an agent built on this architecture reproduced a published reinforcement-learning result with a human attending once a day, and show (1) the agent kept the thread across every context reset and session boundary of the campaign, (2) operating knowledge written early changed later behaviour with no change to model weights, and (3) where learned components would enter such a system. Overall, our experience suggests continual learning for these agents needs a substrate outliving every context and process, and the checks the harness already runs are where a learner belongs.",
+      "authors": [
+        "Erik Nijkamp",
+        "Anurag Koul",
+        "Egor Pakhomov",
+        "Bo Pang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-17T00:15:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.19519v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical memory harness with bounded summaries for long-horizon agents",
+      "llm_evidence_cn": "面向长时程智能体的分层记忆harness与有限摘要",
+      "llm_evidence": "面向长时程智能体的分层记忆harness与有限摘要",
+      "canonical_evidence": "面向长时程智能体的分层记忆harness与有限摘要",
+      "llm_tldr_en": "Long-horizon language agents outlive context windows, so the authors argue continual operation requires an external harness: time-indexed levels with bounded summaries, a clocked tick, and cascaded intelligence.",
+      "llm_tldr_cn": "长时程语言智能体需持续数天甚至数周地工作，远超任何上下文窗口与进程寿命。论文主张智能体必须先能持续运行而不遗忘，才能持续学习，并指出这一能力来自模型外部的harness。作者提出由三部分组成的层级架构：按时间尺度分层、每层保留对下层的有限摘要，以时钟节拍作为自主行动单元，并引入级联智能。该工作为长时程智能体的记忆与持续学习提供了架构蓝图。",
+      "llm_tldr": "长时程语言智能体需持续数天甚至数周地工作，远超任何上下文窗口与进程寿命。论文主张智能体必须先能持续运行而不遗忘，才能持续学习，并指出这一能力来自模型外部的harness。作者提出由三部分组成的层级架构：按时间尺度分层、每层保留对下层的有限摘要，以时钟节拍作为自主行动单元，并引入级联智能。该工作为长时程智能体的记忆与持续学习提供了架构蓝图。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

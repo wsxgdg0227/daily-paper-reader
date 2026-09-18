@@ -1,0 +1,441 @@
+Title: Automated Instruction Encoding Synthesis for Modern GPU ISA Compression
+
+URL Source: https://arxiv.org/pdf/2609.18662v1
+
+Published Time: Thu, 17 Sep 2026 01:34:40 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# Automated Instruction Encoding Synthesis for Modern GPU ISA Compression 
+
+Mingyuan Ma 
+
+School of Integrated Circuits Tsinghua University 
+
+Beijing, China cnwhmmy@outlook.com 
+
+Hu He *
+
+School of Integrated Circuits Tsinghua University 
+
+Beijing, China hehu@tsinghua.edu.cn 
+
+Abstract —Modern GPU kernels increasingly stress the instruc-tion supply path, while fixed instruction containers can leave substantial footprint slack. This paper presents an automated encoding-synthesis framework that treats instruction layout as a constrained slot-assignment problem over a validated instruction-form field specification. The formulation separates semantic field identity from physical bit positions and supports tied, pinned, and free placement constraints, making it applicable when recurring decoded fields are not frozen by a public format contract. We instantiate the framework for NVIDIA SASS: raw public encoding text is normalized into a machine-readable specification, a SASS disassembler is validated against nvdisasm on 3.78M instructions, released as an open benchmark, and CP-SAT synthesis is used for fixed-length and variable-length encodings. On 142 Blackwell kernel inputs, variable-length synthesis reduces instruction footprint by 33%, with comparable reductions after re-synthesis on Ampere and Hopper; fixed-length synthesis on the same specification reduces decoder area by 16% against a decoder generated from the NVIDIA-observed 128-bit layout by the same generator and flow. Generated fetch/decode RTL meets 1.5 GHz in TSMC 22 nm with a replicated area delta of 0.12% of a GA100-class die; a same-node SRAM comparison shows the footprint reduction corresponds to about 9 × this added logic in instruction-SRAM bit-cell area. 
+
+Index Terms —GPU, instruction set architecture, encoding synthesis, instruction compression, SASS, constraint optimization 
+
+I. I NTRODUCTION 
+
+Modern GPU kernels increasingly stress the instruction sup-ply path. Fused operators, persistent kernels, warp-specialized pipelines, and aggressive software pipelining place more static instructions inside one kernel and can keep several disjoint code regions active on the same streaming multiprocessor (SM). Public measurements and our microbenchmarks (§II-A) show instruction-supply thresholds in the tens to hundreds of KiB. SASS, the native machine-level instruction set of NVIDIA GPUs, encodes every instruction in 16 bytes, so these thresholds correspond to only a few thousand static in-structions. Instruction footprint is therefore not only a binary-
+
+> *
+
+Corresponding author. © 2026 IEEE. Personal use of this material is permitted. Permission from IEEE must be obtained for all other uses, in any current or future media, including reprinting/republishing this material for advertising or promotional purposes, creating new collective works, for resale or redistribution to servers or lists, or reuse of any copyrighted component of this work in other works. 
+
+size property, but also a frontend-capacity and fetch-bandwidth demand. NVIDIA SASS in recent architectures (sm_70 Volta through sm_100 Blackwell) uses an aligned fixed 128-bit container for every instruction. This uniform granularity is paid by every dynamic instruction, even when the decoded operands and modifiers require far fewer bits. Across our evaluated sm_100 benchmark set, the frequency-weighted operand and modifier fields occupy about 42 bits after opcode, predicate, and shared control fields are separated. This gap ex-poses a code-density opportunity: a replacement encoding can rearrange the same decoded fields while preserving instruction semantics. A replacement encoding must solve two coupled problems. First, public SASS artifacts are not directly usable as an encoding-synthesis input. Synthesis needs validated per-form field structure: which operands and modifiers each instruction form (one defined instruction) carries, how wide each field is, and which field values distinguish similar forms. Second, a replacement encoding must place every field anew, a decision no existing flow optimizes: fixed-format ISAs set positions by hand in a small format catalogue, and automated encoding synthesis optimizes opcode assignment while positions follow the hand-written processor description [1], [2]. SASS exposes what both paths miss: hundreds of operand and modifier fields recur across 975 instruction forms, and their positions can be chosen jointly (§II-B). In this paper, we take a holistic optimization approach, deciding all field positions jointly on a disassembler-validated benchmark of the real SASS instruction set (Fig. 1). First, we construct a validated, machine-readable SASS benchmark from raw instruction-description text publicly available from NVIDIA’s toolchain. Second, we formulate field placement as a constrained slot-assignment problem and solve it with the CP-SAT constraint-programming solver of OR-Tools for both fixed-length and variable-length encodings. Finally, the encod-ings are emitted as SystemVerilog fetch/decode frontends and characterized through ASIC synthesis. The paper makes four contributions:  
+
+> •
+
+A validated SASS specification and disassembler. 
+
+Raw public SASS encoding text is normalized into a typed, per-form field specification. The generated dis-arXiv:2609.18662v1 [cs.AR] 16 Sep 2026 Public SASS descriptions (SIDL) [artifact]    
+
+> Validated specification
+> 975 forms × typed fields × bit slots [artifact] normalize
+> Disassembler validation
+> vs nvdisasm
+> CP-SAT slot-assignment kernel
+> (co-location, non-overlap, muxcount obj.) [solver]
+> Fixed-length layout
+> → decoder RTL
+> Variable-length pipeline
+> 64/96/128b containers + prefix codes + MCSR → fetch/decode frontend RTL
+> ASIC synthesis & workload analysis
+> → area, power; footprint
+> reuse solver
+> Memory Compiler compare
+> ISA specification w/o any encoding information Automated ISA encoding synthesis
+> workload instruction frequency
+> Automated ASIC generation & evaluation
+
+Fig. 1: End-to-end encoding-synthesis flow. assembler matches nvdisasm across 4 GPU genera-tions, 3.78M instructions, and 30.0M field decodes. The toolchain is released at https://github.com/reoLantern/ nvsass-disassembler.  
+
+> •
+
+A CP-SAT formulation for SASS field layout. Slot assignment combines form-local non-overlap, union-find field sharing, and a decoder mux objective. On the fixed 128-bit sm_100 container, synthesis reduces decoder area by 16% and power by 21% against the NVIDIA-observed layout.  
+
+> •
+
+A workload-driven variable-length SASS encoding. 
+
+The 64/96/128-bit pipeline combines container assign-ment, prefix-free opcodes, cross-container field align-ment, singleton absorption, and modifier-CSR offloading. It reduces Blackwell footprint by 33%, with comparable Ampere and Hopper re-synthesis results.  
+
+> •
+
+Generated RTL and ASIC characterization. Auto-generated decoders and variable-length fetch/decode fron-tends meet 1.5 GHz in TSMC 22 nm; the replicated frontend-area delta is about 0.12% of a GA100-class die, and the saved instruction-SRAM bit-cell area is about 9 ×
+
+this added logic at the same node. II. B ACKGROUND AND MOTIVATION 
+
+A. Instruction-supply pressure in large GPU kernels 
+
+Recent GPU workload and kernel-optimization trends in-crease the instruction footprint that on-chip instruction caches must hold. Kernel fusion and persistent kernels are now standard practice for AI workloads: fused attention [3], expert-parallel mixture-of-experts (MoE) kernels [4], and persistent megakernels [5] collapse multiple operator phases into one kernel body, so a single launch carries a large static instruction block. Aggressive unrolling and software pipelining, used to hide memory latency, further enlarge the hot code region by replicating steady-state instruction sequences. Warp spe-cialization adds pressure on an orthogonal axis: warps split into producer, consumer, and epilogue roles, so each SM simultaneously executes multiple disjoint instruction regions rather than a single homogeneous code path. Instruction storage is already large enough to consume meaningful SM-local SRAM area, yet small enough to con-strain these kernels. Public microbenchmark studies place per-SM instruction storage in the tens to hundreds of KiB and a further cache level above it (Table I), the same order of TABLE I: NVIDIA instruction-cache capacities and level names as reported by public microbenchmark studies, shown alongside documented SM-local storage resources for scale. SMEM is the shared memory and RF the register file. 
+
+GPU L0 I$ † L1 I$ ‡ SMEM RF GV100 [6] 48 KiB 128 KiB 96 KiB 256 KiB TU104 [7] ≈64 KiB ≈46 KiB 64 KiB 256 KiB GB202 [8] ≈128 KiB ≈128 KiB 228 KiB 256 KiB              
+
+> †Reported per SM partition; shown as the per-SM aggregate over 4 partitions.
+> ‡Named differently across these studies: an L1 instruction cache, or a level merged with the L1.5 constant cache. 124816 32 64 128 256 512
+> Static SASS footprint (KiB)
+> 0246
+> CPI (single warp)
+> 32 64 128 KiB
+> MoE MLA
+> B200 (Blackwell, datacenter) H100 (Hopper, datacenter) RTX 4090 (Ada, consumer)
+
+Fig. 2: Instruction-supply thresholds from a single-warp FFMA hot-loop sweep on three NVIDIA GPUs. The vertical axis is median cycles per FFMA ; the horizontal axis is the static footprint of the loop body. Top bands mark static TileRT kernel footprint ranges; the sweep isolates frontend thresholds rather than modeling those kernels directly. magnitude as shared memory and the register file; enlarging this storage competes with other SM-local memories for area. This capacity is still modest in instruction terms: with 16-byte SASS instructions, 32, 64, and 128 KiB hold only 2,048, 4,096, and 8,192 instructions before conflicts and replacement reduce effective capacity. A hot-loop sweep isolates this limit. One resident warp executes an unrolled fused multiply-add (FFMA ) loop with 64 independent accumulator chains, whose static footprint is swept from 1 to 512 KiB; each point reports the median cycles per FFMA (CPI) over 30 runs. No data dependence and no co-resident warp compete for issue, so the CPI steps mark instruction-supply limits. B200 and H100 first transition at 32 KiB, while RTX 4090 remains flat to 64 KiB; all three transition again near 128 KiB (Fig. 2). NVIDIA reports the same H100 trend: larger workloads raise No-Instruction stalls and instruction-cache misses, and reducing hot footprint reduces both [9]. TileRT [5], a state-of-the-art open-source LLM inference runtime, reaches this scale in precompiled Blackwell megakernels: MoE kernels occupy 82– 114 KiB and multi-head latent attention (MLA) kernels occupy 121–163 KiB of SASS text. Static footprint upper-bounds the hot working set, but these ranges already overlap the measured frontend thresholds. 
+
+B. Cross-form field placement remains unoptimized 
+
+Instruction-supply pressure motivates encoding synthesis rather than larger instruction storage, but existing synthe-sis mostly optimizes opcode assignment [1], [2], not the placement of operand and modifier fields: the layout of a replacement encoding is still decided by hand. In the sm_100 
+
+field specification, instruction forms carry a median of 3 semantic modifiers, close to the median 4 register/predicate operands, across 388 different modifier types. One rounding-mode modifier alone recurs across 15 mnemonics, from FFMA to the conversions F2F and I2F. These recurring operands and modifiers can be placed globally once semantic field identity is separated from physical bit positions: fields that co-occur in one form must be disjoint, while fields that never co-occur may share a position. A layout with fewer positions per decoded output reduces extraction muxing. At 975 instruction forms, this cross-form placement choice is the core of the synthesis problem. In encoding synthesis from hierarchical processor models, a field keeps one position inside the group that declares it, so positions follow the designer’s grouping; the line continues in modern architecture-description-language (ADL) toolchains (§VII-A). 
+
+C. A benchmark gap for modern GPU encodings 
+
+NVIDIA GPUs dominate modern accelerated computing and are a natural target for ISA-encoding research, yet no open, machine-readable SASS benchmark with per-form field structure exists to study; we release a validated specification toolchain and benchmark to close this gap. Disassembly and opcode tables expose rendered instructions, not the per-form field structure that synthesis needs. Community assemblers and microbenchmarking studies cover useful subsets of the encoding [6], [7], [10], but operand kinds, modifier domains, and architecture changes remain case-specific. DocumentSASS [11] supplies the public starting point by capturing the Shader Instruction Description Language (SIDL) text that nvdisasm expands while processing a cubin. Raw SIDL is text written for the disassembler, not a synthesis-ready specification: its encoding slots, table calls, and conditional rewrites must be cross-referenced before each field occurrence has a precise role, domain, and bit position. The benchmark is constructed in §III; §IV and §V formulate fixed- and variable-length placement; §VI evaluates footprint and RTL cost. III. V ALIDATED SASS E NCODING BENCHMARK 
+
+We construct validated SASS specifications as a benchmark: the encoding is recovered from public DocumentSASS text and checked field-by-field against nvdisasm at scale. The benchmark normalizes raw SIDL into a typed per-form spec-ification, representing each instruction form as a record of its operand and modifier fields, constant discriminators, and table-encoded fields. 
+
+A. Cross-referenced SIDL field interpretation 
+
+The SIDL-to-spec translation resolves field meaning from cross-file references rather than individual ENCODING tokens. A field that appears in assembly text is introduced in FORMAT 
+
+as a variable bound to a type and, often, a default value. The top-level type definition supplies the legal labels and numeric values for that variable. The ENCODING section places the TABLE II: SIDL cross-references normalized into the struc-tured SASS specification.               
+
+> Raw SIDL relation Structured-spec object
+> FORMAT TYPE(d):x + top-level TYPE typed field x, domain, default
+> ENCODING slot = x decoded field xin physical slot
+> ENCODING slot = Opcode /const. opcode / constant discriminator
+> ENCODING slot = TABLES_t(...) atomic table-encoded field
+> CLASS /ALTERNATE CLASS normalized instruction form
+
+variable, a constant, an opcode value, or a table lookup into a physical bit slot. The structured specification keeps these roles separate: semantic field, value domain, discriminator status, and encoded location are distinct attributes (Table II). For example, FFMA binds printable modifiers to semantic variables 
+
+fmz , rnd , and sat , while ENCODING maps them to physical slots such as fmz , stride , and NaN . Thus .RZ is a value of rnd even when its bits occupy the slot named stride .This translation yields 975 instruction forms and hundreds of distinct field names for sm_100 . Each form records the fields required to decode and re-encode it together with the constants that distinguish it from other forms sharing the same opcode or assembly mnemonic family (e.g., all FFMA 
+
+variants). The same translation runs unchanged on the SIDL tables for 4 architecture generations ( sm_80 –sm_100 ). 
+
+B. Field-level validation against nvdisasm 
+
+We validate the interpretation with two independently im-plemented paths over the same instruction stream. The bi-nary path matches each 128-bit word against the structured specification and extracts the selected instruction form and its field values. The text path parses the nvdisasm rendering using the SIDL FORMAT string and reconstructs the fields visible in the assembly text. Agreement is checked at three levels: whether the binary path selects a unique instruction form (T0), whether the normalized mnemonic matches (T1), and whether the field values decoded on both sides agree (T2). T2 is the critical level: it catches cases where both paths agree on instruction identity but disagree on individual field values. We run this validation across 866 benchmarks spanning the 4 architecture generations, drawn from public GPU benchmark suites (Rodinia, Polybench-GPU, Parboil, SHOC, microbench collections, and CUTLASS / DeepGEMM kernels) and com-piled per architecture with CUDA 13.1. Table III reports the result. Across all 4 generations, every instruction resolves to a unique form, matches nvdisasm on the mnemonic, and agrees on every jointly decoded field value, confirming 30.0 million field decodes. The last two columns report which part of each specification the stream exercises. Compiled CUDA code reaches 354 of the 975 sm_100 forms and 147 of its 230 mnemonics; many forms it never selects belong to graphics and fixed-function units that nvcc does not emit, such as attribute access ( AL2P ,
+
+ALD , AST ) and texture-cache control ( CCTLT ). Validation therefore covers the fields this corpus exercises, while the synthesis of §IV and §V places the fields of all 975 forms, exercised or not. TABLE III: Disassembler validation: 3.78M instructions across 4 GPU generations match nvdisasm on the mnemonic and on every jointly decoded field. The last two columns give the instruction forms and mnemonics the corpus exercises out of those the specification defines. 
+
+Architecture Benchmarks Instructions Form+mnem pass Fields checked Field agree Forms used Mnem. used 
+
+sm_80 (Ampere) 217 1,074,312 100.000% 7,660,832 100.000% 287 / 962 103 / 164 
+
+sm_89 (Ada) 220 763,368 100.000% 6,035,290 100.000% 294 / 1,048 107 / 175 
+
+sm_90 (Hopper) 212 619,544 100.000% 5,062,986 100.000% 292 / 1,167 125 / 206 
+
+sm_100 (Blackwell) 217 1,320,040 100.000% 11,194,766 100.000% 354 / 975 147 / 230 Rd Ra Rb Rc Rd Ra Rc Rd fmt Rb      
+
+> FFMA FADD F2F
+> same name, one slot:
+> K= 1, fixed wire co-occur in one form: disjoint slots
+> never co-occur: may share a slot
+> Rb at K= 2 positions:
+> w(K1) = 8 mux inputs
+> 75-bit operand/modifier region
+> rnd fmz ftz mux
+
+Fig. 3: Cross-form slot assignment over three sm_100 forms in the 75-bit operand/modifier region of §IV-A. 
+
+C. Synthesis input as a per-form field projection 
+
+Synthesis uses a projection of the full specification. Let L
+
+denote the set of instruction forms. A field occurrence is one instance of a decoded field in one form. For each form ℓ ∈ L ,the specification yields a set Oℓ of field occurrences, each carrying a tuple (n, w, k, D ): semantic field name n, encoded width w, field kind k (operand, operand modifier, standalone modifier, or table-encoded field), and legal value domain D.Dense register and immediate domains are represented by type and width rather than by enumerating all values. Scheduling control, predicate guards, opcode bits, and con-stant discriminators occupy fixed container regions and are excluded from Oℓ. Table calls remain atomic fields with their encoded widths and output domains. IV. F IXED -L ENGTH ENCODING SYNTHESIS 
+
+One slot-assignment model underlies both encodings syn-thesized in this paper, the fixed-length encoding of this section and the variable-length encoding of §V (Fig. 3). Each recurring field group picks one slot, free by default unless designer constraints tie or pin it; co-occurring fields of a form occupy disjoint slots, never-co-occurring fields may stack ( fmz /fmt ), and a field name extracted from two positions, like Rb , pays mux inputs for the extra one. This section instantiates the model in the fixed 128-bit container with a decoder-muxing cost; §V adds per-form container classes with prefix-code budgets and switches the cost to frequency-weighted footprint. 
+
+A. Field-region placement model 
+
+Given the occurrence sets Oℓ from §III-C, the fixed-length formulation places operand and modifier fields inside the 128-bit container. The container allocates 22 bits to scheduling control, 4 to the predicate guard, and 13 to the opcode; 14 bits are unused in the reference encoding. These regions remain at their reference positions, leaving a contiguous R = 75 -bit operand/modifier region B = {0, . . . , R −1} for operand and modifier placement. Our model uses a pre-enumerated slot pool rather than con-tinuous integer bit-position variables. For a field of width w,a contiguous slot starting at bit b is the set 
+
+s(b, w ) = {b, b +1 , . . . , b +w−1} .
+
+The width-w slot pool is 
+
+Sw = s(b, w ) : b ∈ B, b +w ≤ R .
+
+All results use contiguous slots; the formulation admits any finite slot pool. The slot model exposes placement constraints at occurrence granularity. A co-location constraint states that two equal-width field occurrences must choose the same slot; such constraints may come from a global field name, a designer-defined instruction class, an operand role, or an individual occurrence pair. These constraints are not tied to a fixed ADL hierarchy: nested or overlapping classes are compiled into pairwise relations; a union-find equivalence pass computes their transitive closure before CP-SAT variable creation, so many occurrence-level decisions collapse into one shared slot decision. The closure partitions O = S 
+
+> ℓ
+
+Oℓ into assignment groups G, each sharing width wg and slot choice. A group may contain different field names when they fill the same decoder role or are intentionally unified by a placement constraint (e.g., 
+
+Rd and URd as destination registers). The solver assigns each group to exactly one slot: 
+
+xg,s ∈ { 0, 1}, ∀g ∈ G : X
+
+> s∈S wg
+
+xg,s = 1 .
+
+The packing constraint is form-local bit non-overlap: for every form and every bit in the placement region, 
+
+∀ℓ ∈ L , ∀b ∈ B : X 
+
+> g∈G :
+> g∩Oℓ̸=∅
+
+X 
+
+> s∈S wg :
+> b∈s
+
+xg,s ≤ 1.
+
+B. Decoder-cost objective 
+
+Let N denote the set of distinct field names across all forms. For a given assignment x, let Pn(x) be the set of low-bit positions from which field name n may be extracted: 
+
+Pn(x) = lo( s) : xg,s = 1 , n ∈ names( g) ,
+
+where names( g) collects the field names of all occurrences in g. The number of extraction positions is Kn(x) = |Pn(x)|.When Kn = 1 , the decoder wires field n from a fixed bit slice; when Kn > 1, it selects among Kn positions once the form is known (Fig. 3). A K-way selection can be implemented as a tree of K−1
+
+two-input muxes per output bit. With ¯wn denoting the max-imum output width emitted for name n, the mux-cost proxy (the muxcount ) therefore counts the two-input muxes across all decoder outputs: 
+
+cM (x) = X
+
+> n∈N
+
+¯wn
+
+ Kn(x) − 1 .
+
+It is an estimate, not a technology-mapped area formula. The complete fixed-length synthesis problem is 
+
+min 
+
+> x
+
+cM (x) = X
+
+> n∈N
+
+¯wn
+
+ Kn(x) − 1
+
+s.t. X
+
+> s∈S wg
+
+xg,s = 1 ∀ g ∈ G ,
+
+X  
+
+> g∈G :g∩Oℓ̸=∅
+
+X  
+
+> s∈S wg :b∈s
+
+xg,s ≤ 1 ∀ ℓ ∈ L , b ∈ B, Kn(x) ≤ cn ∀ n ∈ Ncap .
+
+The set Ncap contains field names with explicit dispersion bounds: cn = 1 pins a name to a single position; cn > 1
+
+limits but does not fix its coordinates. 
+
+C. Constraint instantiation and solver instance 
+
+The fixed-length experiment instantiates this interface with three constraint sources. 
+
+a) Operand-role ties: Within a mnemonic, different forms may spell the same operand role with different field names. An FMA-like mnemonic with RRR , RRI , RIR , RRU ,and RUR forms may use Rb , Rc , URb , or URc for the surviving source register. The operand role, not the local field name, determines the equality group. Operand modifiers attached to a merged base operand follow the same group when the modifier kind exists on both sides. A second pass chains register groups that occupy the same physical position in the reference NVIDIA encoding across mnemonics, collapsing high-frequency register names to Kn = 1 globally. 
+
+b) Discriminator ties: Some forms have the same opcode and fixed constants in the reference encoding, so a variable field with non-overlapping legal values selects the form. The fixed-length experiment preserves this shared identity rather than assigning new opcodes. The replacement layout therefore ties each such distinguishing field to one position across the affected forms, keeping the same form-selection test available. This rule creates 138 shared-identity groups and 457 pairwise distinguishing-field tie constraints. 
+
+c) Name-dispersion caps: Audited field names whose values feed common decoder outputs receive global pins or small caps on Kn. For example, setting KRd =1 forces every destination-register occurrence to use one extraction position; small caps allow limited dispersion for less regular fields. They express designer preferences without fixing coordinates: the ππ (2b)   
+
+> π(2b) id ctrl + pred (26b) ctrl + pred (26b) ctrl + pred (26b) field region field region field region id code id code id code
+> 128b
+> 96b
+> 64b
+> split id code MSB
+
+Fig. 4: Container bit layout for variable-length classes. solver still chooses legal slots under form-local non-overlap and the mux proxy. The Boolean model is instantiated with OR-Tools CP-SAT. The sm_100 fixed-layout instance contains 975 instruction forms, 7453 field occurrences after fixed-region exclusions, 2450 assignment groups, and 1404 candidate slots. The re-sulting model has 178,841 assignment variables and 72,029 form-level non-overlap constraints. V. V ARIABLE -L ENGTH ENCODING SYNTHESIS 
+
+Variable-length synthesis runs in three stages: container classes and two bit-reduction mechanisms, singleton absorp-tion and modifier control-and-status register (MCSR) offload-ing, set each form’s field budget (§V-A); a CP-SAT assignment picks each form’s container class and identity-code length under a prefix-free budget (§V-B); the slot-assignment model of §IV then places fields in the remaining bits (§V-C). 
+
+A. Field budgets and container classes 
+
+Variable-length encoding couples field placement to a con-tainer choice for each instruction form. Each form selects one class c ∈ C = {64 , 96 , 128 } bits, and the objective becomes the frequency-weighted total encoding length. Each container class c reserves πc bits for a length prefix (π64 = 1 ; π96 = π128 = 2 ) and 26 bits for scheduling control and predicate guard. The remaining budget for the per-form identity code (the prefix-free opcode bits that identify each form within its container class) and operand/modifier fields is 
+
+Bc = c − 26 − πc ,
+
+giving B64 = 37 , B96 = 68 , B128 = 100 . For 96- and 128-bit containers, bits 0–1 hold the prefix, bits 2–27 hold control and predicate fields, field bits start at bit 28, and the identity code occupies the MSB end. The 64-bit container uses bit 0 for the prefix and bit 1 for one identity-code bit, keeping the field bits aligned at bit 28 (Fig. 4). After container assignment, branch targets denote container starts and branch displacements are recomputed over the 32-bit-word-aligned synthesized stream. The variable-length formulation consumes two workload-derived quantities. Binary matching against the validated spec-ification (§III-B) gives an instruction-stream count fℓ for each form. Modifier traces along the instruction stream give a change rate for each modifier class , identified by its semantic name no and enumeration type to: the fraction of consecutive occurrences of that class whose decoded value differs from the previous occurrence. These frequencies and change rates are treated as inputs to the synthesis problem; the benchmark set and resulting statistics are reported in §VI. The variable-length design assigns each form its own prefix-free identity code rather than preserving NVIDIA’s shared opcode and constant-discriminator structure. A modifier whose value domain has size one in a given form is therefore implied by the form identity and need not occupy container bits. Let 
+
+Aℓ denote the set of such singleton occurrences: 
+
+Aℓ = o ∈ Oℓ : ko = modifier , |Do| = 1 .
+
+A second reduction targets slow-changing modifiers. A mod-ifier control-and-status register (MCSR) file holds modifier values that persist across instructions; a dedicated MCSR-SET 
+
+instruction updates the register when the value changes. A modifier class whose change rate falls below a threshold is eligible for MCSR offloading; offloaded values are supplied by architectural state rather than encoded in every instruction. Let SMCSR denote the set of selected (name, type) pairs and 
+
+Hℓ = o ∈ Oℓ : ( no, t o) ∈ SMCSR .
+
+The effective field-bit budget for form ℓ is then 
+
+Pℓ = X
+
+> o∈Oℓ\(Aℓ∪Hℓ)
+
+wo .
+
+The MCSR file is per-warp architectural state: each warp slot carries its own copy, since warps resident in a subcore interleave and each advances its own instruction stream. For 
+
+sm_100 the selected set holds 8 modifier classes, 15 bits per warp, so the 16 warp slots of a GA100-class subcore [12] store 30 bytes of MCSR state, saved and restored with the rest of the warp context. MCSR offloading is not free: whenever an offloaded modifier changes value along the instruction stream, an MCSR-SET instruction must be inserted. The code-size evaluation in §VI accounts for these insertions by scanning instruction streams and adding the MCSR-SET container cost at each transition. 
+
+B. Length-class and prefix-code assignment 
+
+The rate decision assigns each form a container class and an identity-code length q ∈ { 1, . . . , q max }. Let yℓ,c,q ∈ { 0, 1}
+
+indicate that form ℓ selects container c ∈ C with code length q;variables are created only when Pℓ + q ≤ Bc. The assignment problem is 
+
+min 
+
+> y
+
+X
+
+> ℓ,c,q
+
+fℓ · c · yℓ,c,q 
+
+s.t. X
+
+> c,q
+
+yℓ,c,q = 1 ∀ ℓ ∈ L ,
+
+X
+
+> ℓ,q
+
+yℓ,c,q 2−q ≤ 1 ∀ c ∈ C .
+
+The first constraint assigns each form to exactly one (class, code-length) pair. The second is the standard Kraft condition for a prefix-free codebook within each container class. The objective minimizes total frequency-weighted encoding length while leaving enough per-container capacity for the fields placed in §V-C. The Boolean model is solved with CP-SAT to determine the minimum-cost container assignment. Within that assignment, code lengths are tightened to the shortest feasible prefix-free values before field placement. Codewords are then assigned by a standard prefix-code construction. 
+
+C. Field placement in variable containers 
+
+Once each form has a container class cℓ and identity-code length qℓ, the field-region size for form ℓ is 
+
+Rℓ = Bcℓ − qℓ .
+
+The field-placement model of §IV-A applies with one change: the per-form slot budget is Rℓ rather than a uniform R = 75 .A group g that spans multiple forms is restricted to slots that fit every member: 
+
+b + wg ≤ min    
+
+> ℓ:g∩Oℓ̸=∅
+
+Rℓ .
+
+The mux-cost objective cM and the operand-role and cross-mnemonic ties of §IV-C carry over. Discriminator ties are no longer a correctness requirement (per-form identity codes make shared-identity separation redundant) but are retained as a decoder-quality heuristic. Because the operand/modifier region starts at absolute container bit 28 in all three classes, a field at relative position b occupies the same hardware wire in every container. The model exploits this by pinning shared reg-ister names {Rd , URd , Ra , URa } to identical positions across all classes, collapsing register-field extraction to a single hard-wire slice with no cross-class multiplexer. Four named encoding variants configure the field-bit reduc-tion: pure applies only variable containers and prefix codes; 
+
++singleton absorbs form-implied singleton modifiers; +MCSR 
+
+adds MCSR offloading; full enables both mechanisms. Each variant is solved end to end; their contributions are separated in §VI-B and §VI-C. VI. E XPERIMENTAL EVALUATION 
+
+A. Experimental setup and RTL model 
+
+Specification validation uses the benchmark set in Table III. Encoding experiments use 142 nonempty Blackwell SASS inputs compiled with CUDA 13.1 from Rodinia, PolyBench, Parboil, SHOC, other HPC benchmarks, and CUTLASS exam-ples for GEMM, convolution, sparse GEMM, fused multi-head attention, and fused kernels. Binary matching against the val-idated specification decodes 1,107,272 instruction instances; these matches provide per-form frequencies for variable-length assignment. MCSR variants additionally scan each matched instruction stream in program order to estimate modifier value-change rates. The cross-generation footprint study (Fig. 6) re-runs the full pipeline on matching Ampere ( sm_80 , 139 in-puts) and Hopper ( sm_90 , 134 inputs) specifications. Each ar-chitecture uses its own instruction frequencies and synthesized codebook, with no transfer across generations. All constraint models use Google OR-Tools CP-SAT on 16 threads. Hardware evaluation uses subcore-level fixed-length and variable-length fetch-decode RTL models. The fixed-length path advances by 4 32-bit words per instruction. The variable-length path reads prefix bits at a container start, waits until TABLE IV: Fixed-length (128-bit) decoder synthesis. Both designs use the same 975-form specification and ASIC flow (TSMC 22 nm, 1.5 GHz, compile_ultra ). cM is the mux-count defined in §IV-B.             
+
+> Layout cMArea ( μm2)Power (mW) NV observed 1202 3360 2.81 §IV synthesized 121 2832 2.23 Reduction −90% −16% −21%
+
+the selected 2/3/4-word container is buffered, aligns it from the circular word buffer, and advances by that length (Fig. 5). All decoders are auto-generated from the structured spec-ification and output the decoded SASS field vector: regis-ter addresses, immediates, predicates, modifiers, and table-encoded values. Execution-control generation for a proprietary GPU datapath is outside this field-extraction scope. The fixed-length baseline uses NVIDIA’s observed 128-bit layout and opcode structure; the variable-length path uses the synthesized containers and prefix codes. Both share the same L1-side interface, pipeline boundary, Synopsys Design Compiler flow, CLN22ULP library, 1.5 GHz target, and compile_ultra 
+
+settings, isolating the encoding choice. 
+
+B. Decoder synthesis and slot-assignment quality 
+
+Global slot assignment cuts extraction muxcount by 90% relative to the NVIDIA-observed 128-bit layout: cM falls from 1202 to 121 (solver lower bound 95), reducing total area by 16% (3360 to 2832 μm2) and dynamic power by 21% (2.81 to 2.23 mW) under the same ASIC flow (Table IV). Both designs meet timing at 1.5 GHz. The NVIDIA-observed layout is a reconstructed baseline, not necessarily optimized for cM :production placement also serves timing closure, datapath routing, and cross-generation compatibility. The comparison measures the placement quality reached under a decoder-extraction objective. The synthesized layout is also more reg-ular, with recurring field names clustered at shared extraction positions. 
+
+C. Instruction footprint and container distribution 
+
+The footprint metric charges each instance by its synthe-sized container width: 
+
+F = X
+
+> i
+
+container bits( i) + 64 · NMCSR -SET .
+
+The fixed 128-bit baseline is 128 × 1,107 ,272 =141 ,730 ,816 bits. All reductions reported below include MCSR-SET overhead. An ablation of the variable-length pipeline isolates each mechanism: containers and prefix-free codes alone reduce footprint by 30.7% (128 to 89 bits average), and singleton absorption and MCSR offloading contribute 1.4 and 1.8 pp over this baseline; the full variant combines both at 33.1% (Table V). MCSR offloading is optional: disabling it leaves sin-gleton absorption at 32.1% with no added architectural state. The full variant adds 5,268 MCSR-SET insertions ( ∼0.5% of TABLE V: Variable-length encoding ablation. Reductions in-clude MCSR-SET overhead; area is generated decoder area.                                  
+
+> Variant 64b 96b 128b Red. cMArea (%) (%) (%) (μm2)
+> pure 32.3 58.2 9.5 30.7% 937 5054
+> +singleton 34.5 59.3 6.1 32.1% 1044 4854
+> +MCSR 36.4 58.2 5.4 32.5% 1118 5046
+> full 38.3 56.6 5.1 33.1% 1227 4830
+
+the stream). Even a 4 × larger MCSR-SET count would keep the reduction above 32%. The footprint reduction is stable across architectures and suite partitions. Full re-synthesis from each architecture’s spec-ification reduces footprint by 29.6% on Ampere and 33.1% on both Hopper and Blackwell (Fig. 6); the corresponding medians are 30.3%, 33.2%, and 32.4%, so the cross-generation result is not driven by a few large kernels. Blackwell keeps 141/142 inputs above 25%. A leave-CUTLASS-out solve, removing the suite that carries 90% of instruction instances, drops aggregate reduction only to 31.4%, keeps held-out CUTLASS at 31.4%, and changes 121/142 inputs by less than 2 pp. Coarse 64/96/128-bit classes are constrained mainly by field-budget feasibility rather than fine-grained frequency ranks. In the full solution, 94.9% of static instances fit in 64-or 96-bit containers; only 5.1% retain 128-bit containers. Generated decoder cost stays within 4.8–5.1k μm2 across variants and meets 1.5 GHz timing; cM is not directly com-parable because singleton absorption and MCSR offloading change the decoded field set (Table V). 
+
+D. Frontend logic and instruction-SRAM area 
+
+The added frontend logic is small relative to the instruction-SRAM it saves at the same technology node (Fig. 7). The full 
+
+variable-length frontend adds 1,913 μm2 per subcore and still meets 1.5 GHz (Fig. 7a). Replicated across all 512 subcores of a GA100 configuration [12], this is 0.98 mm 2, or 0.12% of the 826 mm 2 die (0.006% at 7 nm under DeepScaleTool [13]). For a same-node SRAM reference, we generated 32 KiB single-port instruction arrays with the TSMC 22 nm memory compiler; a 33% smaller encoded stream needs about 33% less bit-cell capacity at equal byte-level headroom, corresponding to about 17,000 μm2 less bit-cell area per subcore, roughly 9 ×
+
+the added decode logic (Fig. 7b). Taken as capacity instead of area, the same reduction stretches the instruction budgets of §II-A by about 1.5 ×: a 128 KiB array holds roughly 12,000 variable-length instructions instead of 8,192. Both readings are first-order: they exclude tags and peripheral logic and do not redesign the instruction-cache hierarchy. This trade-off becomes more favorable at advanced nodes because SRAM density scales more slowly than logic density [14]. The variable-length frontend adds no pipeline stage and lowers fetch pressure. Prefix inspection, container selection, and alignment sit in the same combinational stage as field extraction: the variable-length fetch-decode path closes at the same 0.67 ns period as the fixed-length path with 26 logic levels against 28, and both designs keep one pipeline Frontend Buffer buf[0] buf[1] buf[3] buf[2] buf[7] buf[6] buf[4] buf[5] wr_ptr 8×32b circular buffer buf[rd_ptr][1:0] prefix decode container_class[1:0]  
+
+> +2 / +3 / +4 advance rd_ptr Barrel Shifter & Container Assembly buf[rd_ptr] buf[rd_ptr+1] buf[rd_ptr+2] buf[rd_ptr+3] barrel align
+> 64b: zero-pad upper 64; 96b: zero-pad upper 32; 128b: pass-through
+> Generated Decoder aligned container [127:0] opcode window
+> 64b:
+> bit[63:45,1]; 96/128b:
+> MSB end
+> mux casez match field mux
+> leaf_id valid Rd Ra imm ...... l0_data [127:0] l0_req
+
+Fig. 5: Variable-length fetch-decode frontend. 025 Ampere median 30.3% 025 Hopper median 33.2% 025 Blackwell median 32.4% 
+
+> Reduction (%)
+
+Rodinia PolyBench Parboil SHOC Other HPC CUTLASS GEMM CUTLASS Conv CUTLASS Sparse CUTLASS Fused/Other CUTLASS FMHA 
+
+Fig. 6: Per-input footprint reduction after full re-synthesis from each architecture’s own specification. Fixed Full varlen 
+
+> 02k 4k 6k
+> Area (  m2)
+> 3,847 5,760
+
+(a) Generated logic Baseline 33% footprint  
+
+> 020k 40k 60k
+> Area (  m2) 55.2k 40.1k 15k
+> 27%
+> Decode logic 32 KiB icache
+
+(b) Per-subcore SRAM trade 
+
+Fig. 7: Generated frontend logic and same-node instruction-SRAM area at TSMC 22 nm. SRAM estimates use the TSMC 22 nm memory compiler and include bit-cell array area only. boundary at the decoded field vector, so decode latency is one cycle in either encoding. On the supply side, a Blackwell instruction occupies 85.4 bits of container on average on this benchmark set (38.3% 64-bit, 56.6% 96-bit, and 5.1% 128-bit), or 85.7 bits once MCSR-SET insertions are charged, so one 128-bit L1 return carries 1.49 instructions where the fixed-length stream carries 1.00. Decode logic is one component of the frontend, and instruction-cache miss behavior, scheduler occupancy, and end-to-end performance are outside this static and RTL-level evaluation. VII. R ELATED WORK AND DISCUSSION 
+
+A. Encoding synthesis and field placement 
+
+Encoding synthesis from architecture description languages is a long-standing line: Nohl et al. [1] allocate variable-length opcodes to minimize instruction word width (synthesized widths are not byte-aligned), and Chattopadhyay et al. [2] reassign opcode values to minimize instruction-bus switching power, both on LISA models of register-dominated cores such TABLE VI: Prior work positioned by primary design variable and evaluation artifact. 
+
+Approach Design variable Evaluation artifact Nohl et al. [1] per-GROUP opcode + fields code density PICO [15] VLIW template layout compiler estimate Lee et al. [16] instruction selection area model Chattopadhyay et al. [2] opcode assignment power model Thumb/RVC [17] compact subset ISA specification Code compr. [18], [19] dictionary encoding HW decompression 
+
+This work cross-form field placement footprint + ASIC 
+
+as ARM7100 and MIPS32, and both solved heuristically. A recent line instead redesigns ISA semantics for density [20]. We cast SASS’s cross-form placement (§II-B) as one CP-SAT model over all 975 forms, and the solver reports a lower bound alongside the layout (§VI-B): the variable-length container assignment (§V) generalizes Nohl’s variable-length opcode to byte-aligned container classes, while the fixed-length model (§IV) holds the opcode fixed and re-places operand and modifier fields. Modern ADL toolchains (Synop-sys ASIP Designer [21], OpenVADL [22]) generate encodings without documented placement algorithms; PICO [15], Lee et al. [16], and Xiao et al. [23] optimize neighboring objects (VLIW templates; instruction selection). Compact encodings are otherwise reached by hand-designed formats (AMD multi-width families [24]; Thumb, MIPS16, RVC [17]) or by dictio-nary compression below the ISA boundary [18], [19]; field-placement synthesis adds neither a new hand format nor a decompression stage (Table VI). B. Applicability and limitations 
+
+The CP-SAT model does not require a free-form layout: it can tie field names together, pin selected fields to fixed slots, or leave only selected operand families free. It ap-plies when instruction descriptions expose recurring seman-tic fields and the bit layout is not frozen as a long-lived public machine-code contract. This condition appears beyond SASS in GPU compiler stacks where backend revisions ab-sorb encoding changes: Mesa’s Gen12/Xe bring-up added new binary-encoding and disassembly paths for basic, three-source, control-flow, SEND, compact, and datatype instruc-tions [25], while Mali reverse-engineering reports Bifrost-to-Valhall movement of dependency metadata from clause headers into instruction fields [26]. These cases show the freedom to re-encode; applying the solver there would still require recovering a per-form field specification as in §III. Where fields are few and regular, placement has little to coordinate; the gains of §VI rest on SASS’s modifier density (§II-B). Several limitations bound these results. The area trade-off in §VI-D is a first-order comparison: we synthesize the added frontend logic and compare it with memory-compiler SRAM arrays, but do not redesign cache tags, banking, associativity, replacement, or prefetch behavior. MCSR selection is based on observed modifier change rates rather than compiler schedul-ing. The reported MCSR-SET count scans only linear instruc-tion order; control-flow-correct offloading adds branch-merge and loop-entry resets that compiler dataflow would refine, with the insertion overhead quantified in §VI-C. Compiler co-design that biases instruction selection toward compressible forms is a natural extension. VIII. C ONCLUSION 
+
+Instruction layout can be treated as post-specification syn-thesis when an ISA exposes recurring semantic fields whose bit placement is not frozen by a small format catalogue. Starting from public SASS artifacts, the validated specification and disassembler make this structure precise enough for auto-mated synthesis across four GPU generations. On sm_100 ,fixed-length slot assignment reduces muxcount from 1202 to 121 and decoder area by 16%; variable-length synthesis reduces Blackwell footprint by 33% with stable Ampere and Hopper re-synthesis. The replicated frontend-area delta is 0.12% of a GA100-class die; at the subcore level, memory-compiler SRAM estimates map this saving to about 9 × the added frontend logic in bit-cell area. These results position encoding synthesis as a practical way to trade small decode-logic overhead for instruction capacity headroom when the machine-code contract leaves field placement available. ACKNOWLEDGEMENTS 
+
+This work was supported in part by the National Key Research and Development Program of China under Grant 2022YFB4500101 and in part by Shanghai Municipal Science and Technology Major Project. REFERENCES [1] A. Nohl et al. , “Instruction encoding synthesis for architecture explo-ration using hierarchical processor models,” in Proceedings of the 40th Annual Design Automation Conference , 2003, pp. 262–267. [2] A. Chattopadhyay et al. , “Power-efficient instruction encoding optimiza-tion for embedded processors,” in Proceedings of the 20th International Conference on VLSI Design Held Jointly with 6th International Confer-ence: Embedded Systems , 2007, pp. 595–600. [3] T. Dao et al. , “FlashAttention: fast and memory-efficient exact attention with IO-awareness,” in Advances in Neural Information Processing Systems 35 , ser. NIPS ’22, 2022. [4] DeepSeek-AI, “DeepEP: An efficient expert-parallel communication library,” https://github.com/deepseek-ai/DeepEP, 2025. [5] Tile-AI, “TileRT: Tile-based runtime for ultra-low-latency LLM infer-ence,” https://github.com/tile-ai/TileRT, 2026. [6] Z. Jia et al. , “Dissecting the NVIDIA Volta GPU architecture via microbenchmarking,” arXiv:1804.06826, 2018. [7] Z. Jia et al. , “Dissecting the NVidia Turing T4 GPU via microbench-marking,” arXiv:1903.07486, 2019. [8] C. Lam, “Blackwell: Nvidia’s massive GPU,” Chips and Cheese, 2025. [9] R. Van der Wijngaart and F. Oh, “Improving GPU performance by reducing instruction cache misses,” NVIDIA Technical Blog, 2024. [10] cloudcores, “CuAssembler: An unofficial CUDA assembler,” https:// github.com/cloudcores/CuAssembler, 2023. [11] 0xD0GF00D, “DocumentSASS: Unofficial description of the CUDA assembly (SASS) instruction sets,” https://github.com/0xD0GF00D/ DocumentSASS, 2025. [12] NVIDIA Corporation, “NVIDIA A100 Tensor Core GPU Architecture,” NVIDIA Corporation, White paper, 2020. [13] S. Sarangi and B. Baas, “DeepScaleTool: A tool for the accurate estimation of technology scaling in the deep-submicron era,” in 2021 IEEE International Symposium on Circuits and Systems (ISCAS) , 2021. [14] S.-Y. Wu et al. , “A 3nm CMOS FinFlex™ platform technology with enhanced power efficiency and performance for mobile SoC and high performance computing applications,” in 2022 International Electron Devices Meeting (IEDM) , 2022, pp. 27.5.1–27.5.4. [15] S. Aditya, B. R. Rau, and V. Kathail, “Automatic architectural synthesis of VLIW and EPIC processors,” in Proceedings of the 12th International Symposium on System Synthesis , 1999, pp. 107–113. [16] J.-e. Lee et al. , “Efficient instruction encoding for automatic instruc-tion set design of configurable ASIPs,” in Proceedings of the 2002 IEEE/ACM International Conference on Computer-Aided Design , 2002. [17] A. Waterman, “Improving energy efficiency and reducing code size with RISC-V compressed,” EECS Department, University of California, Berkeley, Technical Report UCB/EECS-2011-63, May 2011. [18] C. Lefurgy et al. , “Improving code density using compression tech-niques,” in Proceedings of the 30th Annual ACM/IEEE International Symposium on Microarchitecture , 1997, pp. 194–203. [19] A. Wolfe and A. Chanin, “Executing compressed programs on an embed-ded RISC architecture,” in Proceedings of the 25th Annual International Symposium on Microarchitecture , 1992, pp. 81–91. [20] E. J. Maroun, “A dense and efficient instruction set architecture encoding,” 2025. [Online]. Available: https://arxiv.org/abs/2510.04158 [21] Synopsys, Inc., “ASIP Designer,” https://www.synopsys.com/ designware-ip/processor-solutions/asip-designer.html. [22] F. Freitag et al. , “The Vienna architecture description language,” 2025. [23] Y. Xiao et al. , “Finding reusable instructions via e-graph anti-unification,” in Proceedings of the 31st ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 2 , 2026, pp. 749–763. [24] Advanced Micro Devices, Inc., AMD Instinct MI300 Instruction Set Architecture: Reference Guide , August 2025. [25] Mesa Project, “Mesa 19.3.0 Release Notes,” https://docs.mesa3d.org/ relnotes/19.3.0.html, 2019. [26] A. Rosenzweig, “Reverse-engineering the Mali G78,” Collabora Blog, 2021.

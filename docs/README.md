@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-17</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-18</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 9 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 7 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>4</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>6</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-17 21:52:22 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-18 21:39:10 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>2026-09-17 日报精选9篇，精读4篇、速读5篇，聚焦LLM智能体的长期记忆与模型服务优化。最值得看的是两篇9分精读：面向长期LLM智能体的检索驱动记忆再巩固，以及分层模型服务栈优化的FlashVector智能体。普通读者可先读这两篇精读，再按兴趣浏览可变更RAG、交互式记忆学习和CERA-MoA三篇速读。</p>
+<p>9月18日日报：精读1篇、速读6篇，主线落在Web Agent的技能迁移与工具推理。</p>
+<p>最值得看的是8.0分的《EconSkills》——它研究Web Agent在实时经济数据上的技能迁移与检索，速读中的《Self-Evolving Search Index》和《VideoResearcher》也延续了自进化与工具设计这条线。</p>
+<p>普通读者不妨先从《EconSkills》入手，再按兴趣挑一篇速读，感受Agent如何借检索和工具解决真实任务。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">4 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Retrieval-Driven Memory Reconsolidation for Long-Term LLM Agents">Retrieval-Driven Memory Reconsolidation for Long-Term LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="FlashVector: Agent for Hierarchical Model Serving Stack Optimization">FlashVector: Agent for Hierarchical Model Serving Stack Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="Smarter by the Moment: Environment-Driven Dynamic Policies for Continual LLM Improvement">Smarter by the Moment: Environment-Driven Dynamic Policies for Continual LLM Improvement</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data">EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">5 篇</strong>
+    <strong class="dpr-home-dashboard-count">6 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG">The Immutable Past: Formalizing State Mutability and Conflict Resolution in Mutable RAG</span></li><li><span class="dpr-home-dashboard-paper-title" title="Interactive Memory Learning for Long-Term Conversations">Interactive Memory Learning for Long-Term Conversations</span></li><li><span class="dpr-home-dashboard-paper-title" title="CERA-MoA: Co-Evolving Routing Mechanisms with Continually Learning LLM Agents">CERA-MoA: Co-Evolving Routing Mechanisms with Continually Learning LLM Agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Search Index">Self-Evolving Search Index</span></li><li><span class="dpr-home-dashboard-paper-title" title="VideoResearcher: Self-Improving Tool Design for Long-Video Understanding">VideoResearcher: Self-Improving Tool Design for Long-Video Understanding</span></li><li><span class="dpr-home-dashboard-paper-title" title="UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning">UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
 </section>
 </div>
 
