@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-18</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-19</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 7 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 4 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>6</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-18 21:39:10 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-19 21:43:01 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>9月18日日报：精读1篇、速读6篇，主线落在Web Agent的技能迁移与工具推理。</p>
-<p>最值得看的是8.0分的《EconSkills》——它研究Web Agent在实时经济数据上的技能迁移与检索，速读中的《Self-Evolving Search Index》和《VideoResearcher》也延续了自进化与工具设计这条线。</p>
-<p>普通读者不妨先从《EconSkills》入手，再按兴趣挑一篇速读，感受Agent如何借检索和工具解决真实任务。</p>
+<p>今日共生成 4 篇推荐（精读 0 篇，速读 4 篇）</p>
+<p>速读：《GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents》（7.0/10）, 《Reputation as Community Memory for the Agentic Web》（7.0/10）, 《TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection》（6.0/10）</p>
+<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">0 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data">EconSkills: Studying Skill Transfer and Retrieval for Web Agents on Live Economic Data</span></li></ul>
+<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
+
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">6 篇</strong>
+    <strong class="dpr-home-dashboard-count">4 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Search Index">Self-Evolving Search Index</span></li><li><span class="dpr-home-dashboard-paper-title" title="VideoResearcher: Self-Improving Tool Design for Long-Video Understanding">VideoResearcher: Self-Improving Tool Design for Long-Video Understanding</span></li><li><span class="dpr-home-dashboard-paper-title" title="UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning">UnifiedPlayers: Enhance Tool-Integrated Reasoning in Agentic Reinforcement Learning</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents">GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Reputation as Community Memory for the Agentic Web">Reputation as Community Memory for the Agentic Web</span></li><li><span class="dpr-home-dashboard-paper-title" title="TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection">TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
 </section>
 </div>
 

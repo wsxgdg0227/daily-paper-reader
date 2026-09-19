@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-19",
+  "date": "2026-09-19",
+  "generated_at": "2026-09-19T21:43:05",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/19/2609.13667v1-geoskillexperience-driven-hierarchical-skill-learning-with-collaborative-revision-forgeospatialagents",
+      "section": "quick",
+      "title_en": "GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents",
+      "authors": "Han Luo, Xian Xu, Yinhe Liu, Yanfei Zhong",
+      "date": "2026-09-12",
+      "pdf": "https://arxiv.org/pdf/2609.13667v1",
+      "score": "7.0",
+      "evidence": "智能体记忆将执行经验提炼为可复用技能",
+      "tldr": "地理空间智能体需支持重复且演进的分析任务，并将历史执行经验提炼为可复用技能。现有记忆增强方法难总结长时程工具链编排与工具级约束，且大模型自反思更新易致错误归因。GeoSkill提出经验驱动的分层技能学习框架，用规划与工具技能库沉淀经验，并以Judge、Critic、Refiner协同修订技能。在EarthBench和ThinkGeo上，它提升了端到端准确率与工具执行可靠性，证明历史经验可转化为可复用分层技能。",
+      "tags": "query:gkg",
+      "abstract_en": "Geospatial agents are increasingly expected to support recurring and evolving analytical tasks rather than execute isolated workflows. In such settings, effective agents must distill prior execution experience into reusable geospatial procedural knowledge to guide future planning and tool use. However, existing memory-augmented paradigms struggle to summarize both long-horizon tool-chain orchestration experience and tool-level invocation constraints in geospatial analysis, while directly relying on LLM self-reflection to update experience often leads to misattribution and unreliable revisions. To address these challenges, we propose GeoSkill, an experience-driven hierarchical skill learning framework for geospatial agents. GeoSkill comprises two core components: (i) a Hierarchical Skill Bank (HSB), consisting of a Planning Skill Bank and a Tool Skill Bank, which respectively distill high-level task-planning experience and tool usage constraints, enabling structured representation and cross-task reuse of historical execution experience; and (ii) a Collaborative Trace-driven Skill Revision (CTSR) mechanism, where Judge, Critic, and Refiner collaboratively perform error identification, skill-level defect localization, and targeted modification, preventing misattributed and unreliable revisions from polluting the skill bank. GeoSkill learns and validates skills from historical executions during development, and freezes the skill bank for retrieval-only guidance on unseen tasks during deployment. Extensive experiments on EarthBench and ThinkGeo demonstrate that GeoSkill effectively transforms historical execution experience into reusable hierarchical skills, improving both end-to-end task accuracy and tool-execution reliability in geospatial tasks.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/19/2609.19502v1-reputation-as-community-memory-for-the-agentic-web",
+      "section": "quick",
+      "title_en": "Reputation as Community Memory for the Agentic Web",
+      "authors": "Ryan Chard, Gus Ellerm, Alexander Brace, Alok Kamatar, Suman Raj, Ian Foster, Kyle Chard",
+      "date": "2026-09-16",
+      "pdf": "https://arxiv.org/pdf/2609.19502v1",
+      "score": "7.0",
+      "evidence": "将智能体记忆外部化为可检索与更新的社区集体知识",
+      "tldr": "当前智能体的记忆多为私有，难以独立判断共享数据源、服务与工具是否可信。Cairn 将声誉视为社区记忆，让智能体使用资源前查询社区评价、使用后提交带证据评分，并用时间衰减 Beta 模型与置信度收缩聚合观察，支持基于理由的语义检索。在说谎、合谋、伪装等对抗模拟中评估声誉引擎，并基准测试检索性能，还报告了生产环境异构智能体评分案例。结果表明集体声誉可提升可信知识构建与资源选择。",
+      "tags": "query:gkg",
+      "abstract_en": "Agents can now externalize experience into memory, consolidating historical traces into semantic knowledge and procedural shortcuts that persist between sessions. Such memory is typically private to a single agent. We argue that agentic memory benefits from being collective, because trustworthy knowledge of the shared environment---the data sources, services, and tools agents depend on---cannot be established by any single agent, only corroborated across many independent observers. We present Cairn, a community reputation platform that captures collective knowledge, allowing agents to query the community's opinion of a resource before use and to submit evidence-backed ratings afterward. Cairn aggregates observations via a time-decayed Beta model with confidence shrinkage and supports semantic discovery over reviewer rationales. We evaluate Cairn's reputation engine under adversarial simulation (e.g., lying, collusion, camouflage), benchmark its retrieval performance, and report a case study of rating heterogeneous agents in production.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/19/2609.13728v1-typatch-transforming-patches-into-typestate-rules-for-kernel-bug-detection",
+      "section": "quick",
+      "title_en": "TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection",
+      "authors": "Ruoyu Wang, Tuo Li, Jia Li",
+      "date": "2026-09-12",
+      "pdf": "https://arxiv.org/pdf/2609.13728v1",
+      "score": "6.0",
+      "evidence": "大模型从补丁生成静态分析检查器代码",
+      "tldr": "历史 Linux 内核补丁蕴含可复用的缺陷知识，但让 LLM 直接生成完整检查器需同时恢复缺陷语义并实现对象跟踪、别名分析等复杂机制，任务不稳定且昂贵。TyPatch 将缺陷语义与分析器实现解耦：LLM 把每个补丁翻译为 typestate 规则（被跟踪对象、动作、守卫、转移与违规），共享后端统一执行并处理别名与路径传播。在 Linux v6.16 上发现 559 个不同缺陷，121 个获开发者确认；与最先进的完整检查器流程在 38 个补丁上对比，生成 token 减少 88.3–90.1%，初始报告精度提升 3.42–14.95 倍。该工作把补丁驱动的内核缺陷检测转化为低成本、可复用的规则化分析。",
+      "tags": "query:gkg",
+      "abstract_en": "Historical Linux kernel patches capture defect knowledge that applies beyond their original repair sites. Recent work has shown that large language models (LLMs) can generate static-analysis checkers from historical patches and use them to uncover new kernel bugs. However, complete-checker generation requires the model both to recover the defect semantics expressed by a patch and to implement sophisticated program-analysis machinery, including object tracking, alias analysis, path-state maintenance, and interprocedural propagation. Coupling these responsibilities in a single end-to-end code-generation task can turn a simple defect rule into an unstable and expensive analyzer-implementation problem.   To address this problem, we present TyPatch, which decouples patch-specific defect semantics from analyzer implementation. An LLM translates each patch into a typestate rule specifying its tracked object, actions, guards, transitions, and violations. A shared backend then executes these rules, binding their actions to program events, tracking object identity across aliases, propagating typestate along program paths, and producing reports for all rules. On Linux v6.16, TyPatch finds 559 distinct bugs, 121 of which have been confirmed by kernel developers. In a matched 38-patch comparison with the state-of-the-art complete-checker construction workflow, TyPatch uses 88.3-90.1% fewer generation tokens, while its initial report pools achieve 3.42-14.95$\\times$ the precision of those produced by that workflow.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/19/2609.18366v1-bad-genius-counterfactual-guided-harness-evolution-beyond-task-specific-shortcuts",
+      "section": "quick",
+      "title_en": "Bad Genius: Counterfactual-Guided Harness Evolution Beyond Task-Specific Shortcuts",
+      "authors": "Guojun Zhu, Xunheng Huang, Peng Yin, Jiahui Xie, Sanguo Zhang, Doudou Zhou",
+      "date": "2026-09-16",
+      "pdf": "https://arxiv.org/pdf/2609.18366v1",
+      "score": "6.0",
+      "evidence": "反事实执行框架演化自动修改提示、记忆、检索与工具",
+      "tldr": "自动 harness 优化反复用已发布基准 B_rel 指导 Proposer 修改提示、记忆、检索、工具与控制代码；任务留出只换语义任务、固定评测协议，使“坏天才”能靠基准级捷径造出作弊 harness，危及 agent 评测。CHASE 将 harness 演化转为对保有效性基准反事实的约束生成：Challenger 搜索大幅破坏增益的可执行协议变换，有效性防火墙与确认集筛选反事实进入有限档案。作者形式化捷径中性化基准 B0，并建立有限档案关联 B0 及顺序搜索的统计保证。在合成基准和 OfficeQA 上，CHASE 保住发布基准增益，同时显著减少有效协议变化下的增益破坏。",
+      "tags": "query:gkg",
+      "abstract_en": "Reliable agent evaluation is complicated by automatic harness optimization, which repeatedly uses a released benchmark $B_{\\mathrm{rel}}$ to guide a Proposer that edits prompts, memory, retrieval, tools, and control code around a fixed target agent. Task holdout varies semantic tasks but leaves the benchmark protocol fixed, so a \"bad genius\" Proposer can produce a cheating harness whose released-benchmark gain depends on a benchmark-wide shortcut. We introduce Counterfactual Harness Search and Evolution (CHASE), which casts harness evolution as constraint generation over validity-preserving benchmark counterfactuals. After each Proposer update, a Challenger searches for an executable protocol transformation with large gain destruction. A validity firewall checks that task semantics are preserved, while a confirmation set determines whether the counterfactual enters a finite archive. We formalize an exact shortcut-neutralized benchmark $B_0$ and establish statistical guarantees linking finite counterfactual archives to $B_0$ and characterizing sequential Challenger search. We evaluate CHASE on a synthetic benchmark and on OfficeQA, where CHASE retains strong released-benchmark gains while substantially reducing gain destruction under valid protocol changes.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

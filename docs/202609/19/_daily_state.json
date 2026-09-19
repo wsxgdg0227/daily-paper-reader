@@ -1,0 +1,73 @@
+{
+  "date": "20260919",
+  "date_label": "",
+  "generated_at": "2026-09-19 21:43:01 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.13667v1",
+      "route": "202609/19/2609.13667v1-geoskillexperience-driven-hierarchical-skill-learning-with-collaborative-revision-forgeospatialagents",
+      "title": "GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体记忆将执行经验提炼为可复用技能",
+      "first_seen_at": "2026-09-19 21:43:01 UTC",
+      "updated_at": "2026-09-19 21:43:01 UTC"
+    },
+    {
+      "paper_id": "2609.19502v1",
+      "route": "202609/19/2609.19502v1-reputation-as-community-memory-for-the-agentic-web",
+      "title": "Reputation as Community Memory for the Agentic Web",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "将智能体记忆外部化为可检索与更新的社区集体知识",
+      "first_seen_at": "2026-09-19 21:43:01 UTC",
+      "updated_at": "2026-09-19 21:43:01 UTC"
+    },
+    {
+      "paper_id": "2609.13728v1",
+      "route": "202609/19/2609.13728v1-typatch-transforming-patches-into-typestate-rules-for-kernel-bug-detection",
+      "title": "TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "大模型从补丁生成静态分析检查器代码",
+      "first_seen_at": "2026-09-19 21:43:01 UTC",
+      "updated_at": "2026-09-19 21:43:01 UTC"
+    },
+    {
+      "paper_id": "2609.18366v1",
+      "route": "202609/19/2609.18366v1-bad-genius-counterfactual-guided-harness-evolution-beyond-task-specific-shortcuts",
+      "title": "Bad Genius: Counterfactual-Guided Harness Evolution Beyond Task-Specific Shortcuts",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "反事实执行框架演化自动修改提示、记忆、检索与工具",
+      "first_seen_at": "2026-09-19 21:43:01 UTC",
+      "updated_at": "2026-09-19 21:43:01 UTC"
+    }
+  ]
+}

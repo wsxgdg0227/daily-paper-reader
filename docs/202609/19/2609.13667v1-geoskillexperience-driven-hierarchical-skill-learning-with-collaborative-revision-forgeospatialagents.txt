@@ -1,0 +1,355 @@
+Title: GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents
+
+URL Source: https://arxiv.org/pdf/2609.13667v1
+
+Published Time: Tue, 15 Sep 2026 00:27:59 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# GeoSkill: Experience-Driven Hierarchical Skill Learning with Collaborative Revision for Geospatial Agents 
+
+## Han Luo 1, Xu Xian 1, Yinhe Liu 1, Yanfei Zhong 1∗
+
+1Wuhan University luo_han@whu.edu.cn, xuxian@whu.edu.cn, liuyinhe@whu.edu.cn, zhongyanfei@whu.edu.cn 
+
+Abstract 
+
+Geospatial agents are increasingly expected to support recur-ring and evolving analytical tasks rather than execute iso-lated workflows. In such settings, effective agents must distill prior execution experience into reusable geospatial procedu-ral knowledge to guide future planning and tool use. However, existing memory-augmented paradigms struggle to summa-rize both long-horizon tool-chain orchestration experience and tool-level invocation constraints in geospatial analysis, while directly relying on LLM self-reflection to update experience often leads to misattribution and unreliable revisions. To ad-dress these challenges, we propose GeoSkill, an experience-driven hierarchical skill learning framework for geospatial agents. GeoSkill comprises two core components: (i) a Hierar-chical Skill Bank (HSB), consisting of a Planning Skill Bank and a Tool Skill Bank, which respectively distill high-level task-planning experience and tool usage constraints, enabling structured representation and cross-task reuse of historical execution experience; and (ii) a Collaborative Trace-driven Skill Revision (CTSR) mechanism, where Judge, Critic, and Refiner collaboratively perform error identification, skill-level defect localization, and targeted modification, preventing mis-attributed and unreliable revisions from polluting the skill bank. GeoSkill learns and validates skills from historical ex-ecutions during development, and freezes the skill bank for retrieval-only guidance on unseen tasks during deployment. Extensive experiments on EarthBench and ThinkGeo demon-strate that GeoSkill effectively transforms historical execu-tion experience into reusable hierarchical skills, improving both end-to-end task accuracy and tool-execution reliability in geospatial tasks. 
+
+## Introduction 
+
+Geospatial analysis is moving beyond static prediction to-ward multi-step analytical workflows that require coordi-nated reasoning over data, tools, and geospatial states (Munir et al. 2026). Recent studies (Shabbir et al. 2025; Feng et al. 2025; Xu et al. 2024; Liu et al. 2024) primarily leverage general-purpose LLMs with ReAct-style tool-calling frame-works. As shown in Figure 1(a), these methods execute each task independently without persisting reusable experience. However, remote sensing analysis exhibits strong demand for experience reuse (Tang et al. 2026): the same region requires cross-seasonal monitoring, different disaster events share similar data processing pipelines, and complex domain 
+
+> ∗
+
+Corresponding author. Geospatial       
+
+> Task 1
+> ReAct
+> Loop
+> (a) Independent Execution
+> Environment Geospatial
+> Task 1
+> ReAct
+> Loop Environment
+> Geospatial
+> Task 2
+> (b) Intra-task Reflexion
+> Verb Reflexion
+> Geospatial
+> Task 1~N
+> Memory-conditioned
+> ReAct Loop
+> Environment
+> (c) Inter-task memory
+> Verb Reflexion extract
+> Experience Pool
+> “Use LST product ”
+> Attempt i+1
+> Geospatial
+> Task 1~N
+> Skill-
+> conditioned
+> ReAct Loop
+> Environment
+> LST based on Landsat 8
+> Skill-
+> conditioned
+> ReAct Loop
+> Attempt i
+> Environment
+> (d) Hierarchical Skill Evolution (Ours)
+> Causal Trace-driven
+> Skill Revision
+> Hierarchical Skill Bank
+> Planning ：LST analysis workflow
+> Tool ：LST product constraints
+> Missing:
+> (1)spatial resolution (2)temporal
+> constraint
+> Geospatial
+> Task 2
+> Wrong data/tool selection repeatly Reflection repairs current trials, not transferable skills
+> Missing constraints, No resolution & temporal constraint Validated skills preserve workflow and execution constraints
+> Experience
+> Lost
+> evolve
+> Rollout
+> from scratch
+> Rollou t
+> from scratc h
+> Memory-conditioned ReAct Loop
+> Environment
+> LST based on Landsat 8
+
+Figure 1: Comparison of agent paradigms illustrated with an LST (Land Surface Temperature) analysis task. (a) In-dependent Execution : each task runs a standalone ReAct loop from scratch; experience is lost and wrong data/tool selections repeat across tasks. (b) Intra-task Reflexion : ver-bal reflections repair the current trial, but the experience is not transferred to future tasks. (c) Inter-task Memory :experiences are extracted into a flat pool (e.g., “Use LST product”), yet critical constraints such as spatial resolution and temporal requirements are missing, causing downstream failures. (d) Hierarchical Skill Evolution (Ours) : a Hier-archical Skill Bank separates planning skills (LST analysis workflow) from tool skills (LST product constraints), while Causal Trace-driven Skill Revision evolves them through validated edits, preserving both workflow structure and exe-cution constraints. knowledge—sensor specifications, spatial reference systems, and analytical rules—must be applied repeatedly. These re-curring analyses produce both transferable task-planning pat-terns and operational experience tied to specific tools, data states, and execution constraints. Enabling geospatial agents to accumulate, abstract, and reuse effective experience from historical executions is therefore a key challenge for building long-term reliable geospatial intelligent systems. A natural resolution is to enable agents to learn from expe-rience (Silver and Sutton 2025). Early experience-augmented methods focus on intra-task reflexion (Figure 1(b)): reflect-ing on failures to repair the current trial, but the resulting experience is not transferred to future tasks. This motivated inter-task memory (Figure 1(c)): extracting cases, rules, or workflows from historical tasks to guide unseen ones (Shinn et al. 2023; Gou et al. 2024; Zhao et al. 2024; Wang et al. arXiv:2609.13667v1 [cs.AI] 12 Sep 2026 2024c). However, such flat experience pools lack hierarchical representation and reliable revision mechanisms (Qiao et al. 2024). A promising direction is to organize experience as skills —reusable procedural knowledge units with explicit applica-bility conditions and validation criteria (Wang et al. 2024a; Mi et al. 2026; Jiang et al. 2026). However, applying skill learning to geospatial agents remains challenging due to two fundamental properties of geospatial workflows. 
+
+First, geospatial experience requires hierarchical skill representation. Geospatial workflows contain heteroge-neous knowledge with distinct transfer requirements. High-level planning knowledge determines what to do —task decomposition and tool-chain organization—and exhibits strong cross-task transferability (e.g., flood mapping con-sistently follows data selection, preprocessing, water body extraction, and area estimation) (Qiao et al. 2024; Huang et al. 2022). In contrast, tool-level knowledge determines 
+
+how to execute —parameter constraints, I/O dependencies, and physical feasibility conditions—and strongly depends on specific data states (e.g., compatible CRS and resolu-tion matching) (Wang et al. 2024b; Qin et al. 2023). These two knowledge types have conflicting representation needs: excessive execution details reduce planning transferability, while excessive abstraction removes constraints for reliable tool execution. 
+
+Second, geospatial skills require reliable evolution mechanisms. Geospatial operations modify structured spa-tial states with long-range dependencies and sometimes irre-versible transformations. Reprojection, resampling, and tem-poral filtering alter intermediate products and may affect all subsequent analyses. Execution failures are difficult to at-tribute: an incorrect result may originate from early planning errors, invalid tool parameters, or environmental changes, with error signals manifesting only after several downstream operations (Zhang et al. 2025; Zhu et al. 2025). Directly asking an LLM to rewrite complete skills based on failed trajectories may overwrite previously validated components and gradually contaminate the skill bank. To address these challenges, we propose GeoSkill, an experience-driven hierarchical skill learning framework for geospatial agents. As shown in Figure 1(d), GeoSkill trans-forms historical execution experience into reusable proce-dural skills through a Retrieve–ReAct–Revise–Retain loop. GeoSkill comprises two core components: (i) Hierarchi-cal Skill Bank (HSB) , which decouples geospatial experi-ence into Planning Skills and Tool Skills, separately mod-eling transferable workflow structures and executable tool constraints; and (ii) Causal Trace-driven Skill Revision (CTSR) , consisting of a Judge for failure attribution, a Critic for causal defect localization, and a Refiner for constraint-preserving targeted revision. Each candidate revision must pass re-execution validation before being committed to the skill bank, preventing misattributed revisions from contam-inating the skill library. GeoSkill continuously evolves hi-erarchical geospatial skills without updating the underlying LLM parameters. Our main contributions are: 
+
+• We propose GeoSkill, an experience-driven hierarchi-cal skill learning framework that transforms historical execution experience into reusable, verifiable, and con-tinuously evolvable procedural skills, enabling geospatial agents to accumulate capabilities across tasks without up-dating LLM parameters. 
+
+• We design HSB , which decomposes experience into plan-ning skills and tool skills, separately modeling cross-task transferable workflow structures and execution knowl-edge constrained by data states and tool specifications. 
+
+• We propose CTSR , a trace-driven skill revision mech-anism that decouples failure attribution, defect localiza-tion, and targeted modification into three sequential de-cisions, and commits revisions only after environment re-execution validation, preventing unreliable skill accu-mulation from misattribution. Experiments on EarthBench and ThinkGeo demonstrate that GeoSkill effectively transforms historical execution experi-ence into reusable hierarchical skills, improving both end-to-end task accuracy and tool-execution reliability. 
+
+## Related Work 
+
+LLM-based Geospatial Agents 
+
+Recent advances in LLMs have driven geospatial agents from task-specific models toward interactive systems that plan analysis procedures and invoke external tools. Early work combined LLMs with remote sensing models: Change-Agent integrates language models with change detection; RS-ChatGPT and RS-Agent enable language-driven scene understanding and object detection (Liu et al. 2024; Guo et al. 2024; Xu et al. 2024). As task complexity increases, ThinkGeo and Earth-Agent explore executable geospatial workflows for end-to-end analysis (Shabbir et al. 2025; Feng et al. 2025). HTAM enhances long-horizon decomposition via hierarchical task abstraction, while CangLing-KnowFlow and RSMeM introduce process knowledge bases and mem-ory mechanisms for post-failure recovery (Li et al. 2025; Chen et al. 2025; Wu et al. 2026). However, existing agents focus on completing individual tasks. Since remote sensing is highly repetitive—same regions require long-term monitor-ing, different events share processing pipelines, and domain knowledge must be applied repeatedly—how to abstract his-torical executions into reusable and improvable procedural knowledge remains unexplored. 
+
+Experience and Memory Learning for LLM Agents 
+
+Experience learning enables LLM agents to leverage histor-ical interactions. Intra-task methods such as Reflexion and CRITIC use self-reflection and tool feedback for error cor-rection within the current task (Shinn et al. 2023; Gou et al. 2024). For cross-task reuse, ExpeL extracts transferable in-sights from historical trajectories; AWM organizes action patterns through workflow memory; A-MEM manages long-term experience via structured memory (Zhao et al. 2024; Wang et al. 2024c; Xu et al. 2025). Tool-augmented re-search further explores learning tool-calling patterns (Qin et al. 2023; Patil et al. 2023; Schick et al. 2023). Recent work also separates global planning knowledge from local execution knowledge to improve agent performance (Qiao et al. 2024; Wang et al. 2024b; Huang et al. 2022). However, existing representations—trajectory summaries, text rules, or cases—provide semantic-level guidance without model-ing structured execution constraints. For geospatial analysis, effective experience must encode strict constraints on data states, spatial reference systems, resolution, and tool param-eters. Moreover, existing methods lack mechanisms for diag-nosing and revising erroneous or outdated knowledge (Zhang et al. 2025). 
+
+Skill Learning and Agent Capability Evolution 
+
+Recent work proposes organizing experience as skills —procedural knowledge units with explicit triggering condi-tions and execution procedures (Wang et al. 2024a; Mi et al. 2026; Jiang et al. 2026; Pang et al. 2024). Beyond skill ac-quisition, SkillHone preserves diagnostic information and decision history during modification for progressive opti-mization (Zhou et al. 2026). Meanwhile, automated failure attribution has emerged as a critical challenge: even state-of-the-art reasoning models achieve only 14.2% accuracy in pinpointing failure steps (Zhang et al. 2025), and cascading failures where a single root-cause error propagates through subsequent decisions remain a fundamental bottleneck (Zhu et al. 2025). However, existing methods primarily target gen-eral software or web tasks, treating skills as independent as-sets without considering domain-specific dependencies. For geospatial workflows, skills encompass both planning pat-terns and tool-level execution constraints, and local errors may propagate through multiple intermediate products be-fore manifesting as failures. GeoSkill addresses these gaps by decoupling planning from tool knowledge via hierarchi-cal representation, and performing trace-driven defect local-ization, targeted modification, and re-execution validation through CTSR. 
+
+## Method 
+
+GeoSkill transforms historical execution experience into reusable procedural skills through a closed-loop process of 
+
+retrieval, execution, revision, and retention . The frame-work operates in two stages: during development , skills are iteratively evolved using historical tasks; during deploy-ment , the learned skill bank is frozen and used for inference only. No LLM parameters are updated in either stage. As shown in Fig. 2, GeoSkill consists of two core components: (i) Hierarchical Skill Bank (HSB) , which separates planning-level knowledge from execution-level constraints; and (ii) Causal Trace-driven Skill Revision (CTSR) , which performs failure attribution, defect local-ization, and constraint-preserving revision through a Judge– Critic–Refiner pipeline. 
+
+Problem Formulation 
+
+We formulate experience learning for geospatial agents as a Memory-based Markov Decision Process (M-MDP). Given a geospatial task q, the agent interacts with an executable environment through multi-step reasoning, tool invocation, and answer generation: 
+
+TM-MDP = ⟨S , A, P, R, γ, M⟩, (1) where S and A denote the state and action spaces, respec-tively; P(st+1 | st, a t) is the environment transition kernel; 
+
+R denotes execution feedback; γ is the discount factor; and 
+
+M is the space of external memories. A geospatial state st
+
+contains the task objective, available data, previous tool calls, intermediate artifacts, and environment feedback. An action 
+
+at may correspond to a reasoning decision, a parameterized tool invocation, or a final answer. GeoSkill instantiates external procedural memory as a skill bank M r ∈ M, where r indexes the rollout for the current task. Rather than repeatedly changing the retrieved context at every decision step, GeoSkill selects a stable skill context at the beginning of each rollout: 
+
+Sr ∼ μ(S | q, M r ), (2) where μ is a hierarchical retrieval function and Sr contains one planning skill together with the tool skills required by its workflow. The retrieved skills condition action generation throughout the ReAct trajectory: 
+
+art ∼ pθ (at | srt , q, S r ), (3) where pθ is the frozen underlying LLM. A rollout produces 
+
+τ r = {sr
+
+> 0
+
+, a r
+
+> 0
+
+, o r
+
+> 0
+
+, . . . , s rT , a rT , o rT }, (4) and a trajectory-level verifier G(τ r , y ∗) ∈ { 0, 1} determines task success, where y∗ is a semantic reference answer. When available, a reference explanation or trajectory τ ∗ is used as diagnostic evidence but is not treated as the only valid execution path. GeoSkill does not optimize θ. Instead, it updates external procedural memory at the rollout level: 
+
+M r+1 = U(M r , X r ), Xr = ( q, S r , τ r , ϵ r , ˆyr , y ∗, τ ∗),
+
+(5) where ϵr denotes environment outputs or errors, ˆyr is the predicted answer, and U is instantiated by the proposed CTSR mechanism. 
+
+Overview of GeoSkill 
+
+As illustrated in Fig. 2, GeoSkill follows a Retrieve–ReAct– Revise–Retain lifecycle during development. It first analyzes the task intent, retrieves a planning skill from HSB, and then retrieves the tool skills required by the tool chain encoded in the planning skill. When a required skill is absent, the LLM initializes a candidate skill. The resulting hierarchi-cal skill bundle is injected into a ReAct agent. A successful rollout validates the current candidate bundle and allows it to be retained. For an unsuccessful rollout, CTSR reads the complete evidence and distinguishes skill defects from agent execution deviations and runtime failures. Only failures at-tributed to skill knowledge trigger skill revision. After all defective skills have been processed, the complete candi-date bundle is re-executed. The candidates are committed to HSB only if the new rollout succeeds. Otherwise, revision continues within a bounded rollout budget, after which all task-specific candidates are discarded and the pre-task skill bank is restored. Retrieval 
+
+Planning Skills Tool Skills 
+
+Skill-conditioned ReAct Loop 
+
+Judge 
+
+Failure Attribution 
+
+Critic 
+
+Trace Analysis 
+
+Refiner 
+
+Targeted Revision 
+
+> Planning Skill Error Tool Skill Error Agent System Error Intent Analysis Hybrid Retrieval
+
+Geospatial Task i 
+
+> Geospatial Question Spectrum Data Product Data
+> RGB Image
+
+Inital Skills Miss Hit Inject 
+
+Environment 
+
+> Success Fail Trace
+
+Development Phase 
+
+Deployment Phase 
+
+Retrieval 
+
+> Intent Analysis Hybrid Retrieval
+
+Skill-conditioned ReAct Loop 
+
+Environment 
+
+Geospatial Task 1 
+
+> Causal Trace Failure Location Preserve Ledger Verifier Contract Preserve Constraints Execution Anchors
+
+... ... 
+
+Unseen Geospatial Task 
+
+> Rollout
+
+Retain Skills 
+
+Geospatial Dataset 
+
+... ... 
+
+> stop revision
+
+Figure 2: Overview of the GeoSkill framework. During development (top), GeoSkill iteratively evolves a Hierarchical Skill Bank (HSB) through a Retrieve–ReAct–Revise–Retain loop. The HSB decomposes procedural memory into Planning Skills and Tool Skills. Upon execution failure, a Causal Trace-driven Skill Revision (CTSR) pipeline—Judge (failure attribution), Critic (trace analysis and defect localization), and Refiner (constraint-preserving targeted revision)—diagnoses and repairs defective skills. Revised candidates are retained only after successful re-execution. During deployment (bottom), the skill bank is frozen and retrieved skills guide execution on unseen tasks without further updates. 
+
+Hierarchical Skill Bank 
+
+Geospatial executions contain two types of procedural knowl-edge with different abstraction requirements. Workflow-level knowledge should abstract reusable task structures from spe-cific regions, sensors, and parameter settings. Tool-level knowledge must instead preserve constraints imposed by input data, intermediate artifacts, and the execution envi-ronment. Mixing them in a single skill either binds planning knowledge to instance-specific configurations or removes the physical and geometric conditions required for reliable exe-cution. GeoSkill therefore decomposes procedural memory as 
+
+M r = ( Kr , Er ), (6) where Kr and Er denote the Planning Skill Bank and Tool Skill Bank, respectively. Both skill types follow a shared structured record while differing in granularity and retrieval: 
+
+s = (id , d, ω, W, V, T ), (7) where id is the skill identifier, d is its functional descrip-tion, ω specifies when it should be used, W is an executable workflow or invocation template, V contains validation con-straints, and T defines termination conditions. In a planning skill, W describes a multi-step tool chain and its depen-dencies. In a tool skill, W describes the parameter schema, input–output contract, and execution notes of one tool. 
+
+Planning Skill Retrieval and Initialization Planning skills represent task-level procedural knowledge, including task decomposition, subgoal ordering, and tool-chain topol-ogy. Given a task q, GeoSkill retrieves the most applicable planning skill from Kr :
+
+kr = μp(q, Kr ). (8) A planning skill abstracts the stable workflow structure of a task family. Its workflow template specifies required tools, stage dependencies, and validation requirements, and serves as a Plan-and-Execute prior for the subsequent ReAct rollout. If retrieval returns no applicable skill, the system initializes a candidate planning skill ˜kr from the task description and available tool space. The candidate remains in a task-local working copy and must pass rollout verification before it can be retained. 
+
+Tool Skill Retrieval and Initialization GeoSkill parses the workflow template of kr to obtain its tool chain 
+
+T (kr ) = ( u1, . . . , u L), (9) where uj denotes the j-th tool operation. The corresponding tool skill is retrieved from Er using the tool identifier: 
+
+erj = μt(uj , Er ). (10) Tool skills preserve executable knowledge for individual operators, including parameter names and types, input re-quirements, output semantics, artifact dependencies, spatial-reference and resolution constraints, and validation condi-tions. If a required tool skill is missing, GeoSkill initializes a candidate ˜erj . The activated hierarchical skill bundle is 
+
+Sr = ( kr , E(kr )) , E(kr ) = {erj }Lj=1 . (11) This tool-chain-conditioned retrieval avoids indiscriminate retrieval from the complete tool bank and keeps the injected tool knowledge consistent with the selected workflow. 
+
+Skill-Conditioned ReAct 
+
+GeoSkill injects the complete skill bundle Sr as a stable pro-cedural context for one ReAct rollout. The planning skill pro-vides a workflow-level prior, while the tool skills constrain parameter instantiation and artifact propagation. The agent remains responsive to environment observations, but its tool choices and parameter generation are explicitly guided by the activated skills. After execution, GeoSkill records the task, rendered skill contents, ReAct trajectory, skill-compliance report, environment outputs or errors, predicted answer, and semantic reference answer, forming the diagnostic evidence 
+
+Xr in Eq. (5). If G(τ r , y ∗) = 1 , the bundle proceeds to Retain. Otherwise, the evidence is passed to CTSR. 
+
+Causal Trace-Driven Skill Revision 
+
+A failed geospatial rollout does not directly imply that the underlying skills are defective. The same final error may arise from an incomplete planning skill, an invalid tool pa-rameter, failure to follow correct skills, incorrect answer synthesis, or a runtime exception. Blindly rewriting skills from every failed trajectory can attribute execution errors to valid knowledge and overwrite previously verified com-ponents. CTSR separates responsibility routing, skill-level diagnosis, and constrained revision. These stages are imple-mented through sequential role prompts within one shared LLM conversation context, avoiding information loss from summarizing evidence across independent agents. 
+
+Judge: Failure Responsibility Routing Judge receives the complete evidence Xr and outputs 
+
+Jr = ( ρr , I r , P r , E r , z r ), (12) where ρr is the responsibility category, Ir is the set of skills to inspect, P r is the preserve ledger, Er contains factual ev-idence, and zr is a concise responsibility rationale. The re-sponsibility space distinguishes planning-skill defects, tool-skill defects, joint skill defects, agent non-compliance, an-swer synthesis errors, runtime errors, and successful execu-tion. Judge only decides whether skills should be edited and which skills require inspection. It does not produce detailed diagnoses or patches. For agent non-compliance or answer synthesis errors, GeoSkill generates an ephemeral verbal re-flection for the next rollout without modifying HSB. The preserve ledger P r identifies skill components already sup-ported by the execution evidence; each entry specifies a target skill, an internal reference, and the reason why that compo-nent must remain unchanged. 
+
+Critic: Skill-Level Causal Diagnosis For each target skill 
+
+si ∈ Ir , Critic performs an independent, read-only diagno-sis: 
+
+Dri = ( F ri , E ri , C ri , L ri , Z ri , P ri ), (13) where F ri denotes the defect family, Eri contains skill-specific evidence, Cri expresses the causal chain from the earliest skill defect to the downstream failure, Lri specifies the fields or fragments that require rewriting, Zri is a diag-nostic summary, and P ri extends the preserve ledger when additional validated components are identified. For plan-ning skills, Critic examines missing stages, incorrect tool selection, invalid operation ordering, broken artifact depen-dencies, and termination logic. For tool skills, it examines parameter names and values, tool contracts, input–output objects, data dependencies, physical constraints, and metric-to-answer mapping. 
+
+Refiner: Constraint-Preserving Targeted Revision Re-finer reads the shared execution evidence, the Judge output, and the Critic diagnosis, and generates a structured patch: 
+
+(Zri, rev , ∆ri ) = R(Xr , J r , D ri ), (14) where Zri, rev records the verifier contract, revision evidence, and expected execution anchors, while ∆ri is the actual patch set. Each patch identifies the target skill, target field, opera-tion, and replacement payload, rather than regenerating the entire skill. Preservation is enforced through a deterministic patch guard. Let Ref( δ) denote the internal skill references touched by a patch δ. A replacement or deletion patch is rejected whenever it intersects the preserve ledger without explicit evidence of a direct conflict: 
+
+Accept( δ) = 0 , if op( δ) ∈ { replace , delete },
+
+Ref( δ) ∩ P ri̸ = ∅, conflict( δ) = 0 . (15) When Judge identifies multiple defective skills, they are di-agnosed and revised sequentially in the same shared context. The resulting candidate bundle is 
+
+eSr+1 = Apply( Sr , {∆ri }si∈Ir ). (16) 
+
+Retain and Development Procedure 
+
+Newly initialized and revised skills are maintained in a task-local working copy. A candidate is never committed merely because the LLM judges it to be plausible. Instead, the com-plete candidate bundle is used to re-execute the original task: 
+
+τ r+1 = ReAct( q, eSr+1 ). (17) If G(τ r+1 , y ∗) = 1 , all newly initialized or revised skills in the working copy are atomically committed to HSB. Other-wise, CTSR processes the new trajectory in the next rollout. Development uses a bounded rollout budget B. If no rollout succeeds, all candidates and patches produced for the task are discarded and the pre-task bank snapshot is preserved. Retain therefore serves jointly as an execution-verification gate and a transactional commit mechanism, preventing par-tial updates from breaking consistency between planning and tool skills. Deployment with a Frozen Skill Bank 
+
+After development, GeoSkill freezes the hierarchical skill bank: 
+
+M ∗ = ( K∗, E∗). (18) For an unseen task, the system only performs intent analysis, planning skill retrieval, tool-chain parsing, tool skill retrieval, and skill-conditioned ReAct. Deployment has no access to reference answers, does not invoke Judge, Critic, or Refiner, and neither generates nor writes back skills. If no applicable planning skill is retrieved, the system falls back to vanilla ReAct without skill assistance. 
+
+## Experiments 
+
+Experimental Setup 
+
+Benchmarks. We evaluate GeoSkill on two representative geospatial agent benchmarks: EarthBench and ThinkGeo. EarthBench focuses on end-to-end geospatial workflow execution, including tool selection, parameter configuration, and final answer generation. ThinkGeo further decomposes geospatial agent ability into perception, orchestration, and logical reasoning. To evaluate cross-task experience transfer, both bench-marks are divided into two balanced partitions following their original task distributions. Experience-based methods, including ExpeL, AWM, and GeoSkill, first construct ex-perience or skills from the first partition and then perform frozen evaluation on the second partition. Reasoning-based baselines, including ReAct and Reflexion, directly solve the evaluation partition without prior experience accumulation. 
+
+Baselines. We compare GeoSkill with representative rea-soning and experience-learning agents. ReAct is adopted as the standard tool-augmented reason-ing baseline. ReAct ×3 repeatedly executes the same task to examine whether additional rollouts can substitute expe-rience reuse. Reflexion improves execution through verbal self-correction. ExpeL and AWM represent inter-task experience mem-ory approaches. To investigate whether better experience ex-traction alone can improve transfer, we evaluate † variants (ExpeL †, AWM †, GeoSkill †), where experiences or skills are constructed using DeepSeek-V4-Pro while execution is performed by the target backbone. 
+
+Evaluation Metrics 
+
+We evaluate geospatial agents from three dimensions:Task success is measured by end-to-end Accuracy (Acc). Follow-ing EarthBench, tool execution reliability is evaluated us-ing Tool-Any, Tool-In, Tool-Exact, and Parameter Accuracy, which measure tool selection, workflow alignment, exact tool matching, and parameter correctness. Efficiency (Eff.) mea-sures execution redundancy through the ratio between pre-dicted and reference tool calls. For ThinkGeo, we report Perception (P), Orchestration (O), Logic (L), and answer ac-curacy following the original benchmark protocol. 
+
+Main Results and Analysis 
+
+Table 1 summarizes the overall comparison on EarthBench and ThinkGeo. 
+
+GeoSkill improves both task success and execution re-liability. On EarthBench with DeepSeek-V4-Pro, GeoSkill achieves 79.03% accuracy, outperforming ReAct (58.06%) by 20.97 points and Reflexion (73.98%) by 5.05 points. Meanwhile, GeoSkill reduces the efficiency ratio from 12.93 (Reflexion) to 6.08, close to the ground-truth baseline, demonstrating that improvement comes from better planning rather than trial-and-error. In contrast, ReAct@3 improves accuracy to 66.94% but increases redundancy to 12.85, con-firming that repeated attempts without structured memory are inefficient. 
+
+Hierarchical skills compensate for weaker backbones. 
+
+The advantage of GeoSkill becomes more pronounced on smaller models. With Qwen3-8B, GeoSkill reaches 41.13% accuracy, improving over ReAct (11.29%) by 29.84 points and over Reflexion (37.10%) by 4.03 points. More im-portantly, Tool-Exact increases from 8.47% (Reflexion) to 22.59%, and Parameter Accuracy from 5.09% to 13.88%. These gains are due to HSB’s explicit modeling of tool-level constraints—parameter names, types, and dependen-cies—which are precisely where small models struggle. 
+
+Better experience extraction alone is insufficient. To isolate the effect of extraction quality from representation design, we evaluate † variants where experiences or skills are constructed using DeepSeek-V4-Pro while execution is performed by the target backbone. On Qwen3-32B, ExpeL †
+
+improves from 17.74% to 21.77%, and GeoSkill † further improves GeoSkill from 41.13% to 43.55%, confirming that stronger extraction benefits both flat and hierarchical rep-resentations. However, on Qwen3-8B, GeoSkill † (38.71%) underperforms GeoSkill (41.13%). This reversal occurs be-cause skills constructed by a much stronger model encode complex multi-step reasoning patterns that exceed the 8B model’s execution capacity, causing more frequent devia-tions from the intended workflow. In contrast, skills evolved by the same backbone better match its reasoning budget. 
+
+Transferable skills improve geospatial reasoning. On ThinkGeo, GeoSkill achieves consistent improvements in orchestration and logic capabilities. With DeepSeek-V4-Pro, Logic F1 improves from 41.88% (ReAct) to 59.61%, a 17.73-point gain. On Qwen3-8B, GeoSkill improves Perception from 48.73% to 53.40% (+4.67), Operation from 43.14% to 47.82% (+4.68), and Logic from 29.49% to 33.60% (+4.11). These improvements demonstrate that hierarchi-cal skills capture reusable multi-step reasoning patterns that transfer across tasks. 
+
+Ablation Study 
+
+All ablations are conducted on EarthBench with DeepSeek-V4-Pro as the backbone. We analyze the contribution of each core component. The ablation results demonstrate that hi-erarchical skill representation provides the foundation for experience transfer. Introducing HSB improves accuracy from 65.32% to 72.58%, indicating that separating plan-ning knowledge from tool constraints enables more effec-tive reuse. Adding CTSR further improves performance to Table 1: Main results on EarthBench and ThinkGeo. Red = best per backbone, blue = second best. 
+
+EarthBench ThinkGeo Backbone Method Acc. Eff. Tool Calling Param. POL (F1) Ans_T Ans_I Any In-Ord. Exact P O LDeepSeekV4Pro ReAct 58.06 6.69 81.88 71.35 58.37 27.50 59.47 71.26 41.88 37/185 29/33 ReAct@3 66.94 12.85 78.28 69.64 57.17 27.88 61.07 72.34 44.26 52/185 30/33 Reflexion 73.98 12.93 78.08 70.49 57.02 27.82 53.94 57.39 39.10 52/185 31/33 ExpeL 65.32 8.50 73.50 64.00 52.00 23.50 55.00 58.00 40.50 41/188 28/30 AWM 48.39 9.80 68.00 58.50 45.00 19.00 52.00 55.00 38.00 36/188 27/30 GeoSkill 79.03 6.08 84.54 73.91 58.79 28.63 71.29 83.72 49.61 58/185 32/33 
+
+Qwen3-32B ReAct 13.71 2.94 48.16 34.97 1.13 0.59 78.24 78.69 55.86 35/185 23/33 ReAct@3 30.65 3.11 40.05 27.49 3.57 2.21 79.50 79.30 57.20 38/185 25/33 Reflexion 28.23 4.32 50.22 39.19 4.17 2.64 74.80 76.50 54.60 53/185 29/33 ExpeL 17.74 3.80 44.00 32.00 2.00 1.20 71.50 64.20 53.40 43/185 25/33 ExpeL † 21.77 3.55 46.80 35.40 2.80 1.65 74.10 66.90 55.30 46/185 26/33 AWM 16.13 4.50 42.50 30.00 1.80 1.00 68.30 61.00 50.70 38/185 23/33 AWM † 18.95 4.25 44.80 33.20 2.30 1.40 70.80 63.50 52.40 41/185 24/33 GeoSkill 41.13 4.85 60.93 51.63 29.90 15.33 80.94 80.00 62.08 56/185 32/33 
+
+GeoSkill † 43.55 4.60 62.50 53.20 31.45 16.10 81.60 80.70 63.50 58/185 32/33 
+
+Qwen3-8B ReAct 11.29 4.41 43.13 29.73 3.71 2.11 48.73 43.14 29.49 21/185 5/33 ReAct@3 32.26 4.47 47.01 39.21 8.47 5.09 50.18 45.60 31.25 24/185 7/33 Reflexion 37.10 4.90 53.37 45.22 8.47 5.09 47.62 20.08 25.30 44/185 16/33 ExpeL 27.42 4.20 44.00 33.00 3.50 2.80 42.30 38.50 27.10 30/185 9/33 ExpeL † 37.10 4.55 50.80 40.10 10.32 6.15 46.50 41.80 30.40 38/185 12/33 AWM 8.87 5.10 40.00 28.00 2.50 1.50 39.80 35.20 24.60 25/185 6/33 AWM † 20.16 5.35 46.50 35.20 5.80 3.60 44.10 40.30 28.90 33/185 10/33 GeoSkill 41.13 4.18 52.03 41.43 22.59 13.88 53.40 47.82 33.60 50/185 30/33 
+
+GeoSkill † 38.71 4.85 50.40 39.80 19.35 11.20 51.90 46.10 32.50 47/185 28/33 Table 2: Ablation of GeoSkill components (EarthBench, DSV4-Pro). HSB CTSR Acc Eff Any Exact Param In-Ord 
+
+× × 65.32 8.50 73.50 52.00 23.50 64.00 
+
+✓ × 72.58 7.25 80.12 55.80 25.90 69.45 
+
+✓ ✓ 79.03 6.08 84.54 58.37 27.50 73.91 
+
+79.03%. This gain verifies that skill evolution requires reli-able failure diagnosis and selective revision rather than di-rectly rewriting stored experiences. 
+
+Skill Evolution Analysis 
+
+We further analyze how iterative skill refinement affects performance.As shown in Figure 3, performance improves monotonically from B=0 (72.58%) to B=2 (79.03%), with the first revision round contributing the largest accuracy gain (+3.23%). Tool-Exact also improves steadily from 55.80% to 58.37%, confirming that CTSR refines both planning and tool-level knowledge. The B=0 result already outperforms ReAct (58.06%), confirming that the skill bank provides value even before evolution. 
+
+B=0 B=1 B=2 50 60 70 80 
+
+Revision Round ( B)Score (%) 
+
+> Accuracy Tool-Exact
+
+Figure 3: Effect of revision rounds on EarthBench (DeepSeek-V4-Pro). B=0 is retrieval-only without revision. 
+
+## Conclusion 
+
+We presented GeoSkill, an experience-driven hierarchical skill learning framework that enables geospatial agents to distill prior executions into reusable procedural knowledge. HSB decouples planning from tool constraints for transfer-able yet executable skills, while CTSR performs attribution, localization, and validated patching to prevent unreliable ac-cumulation. Experiments on EarthBench and ThinkGeo con-firm consistent improvements in accuracy and reliability. References 
+
+Chen, Z.; Wang, H.; Yao, J.; Zhang, J.; Ghamisi, P.; Zhou, J.; Atkinson, P. M.; and Zhang, B. 2025. CangLing-KnowFlow: A Unified Knowledge-and-Flow-fused Agent for Comprehensive Remote Sensing Applications. arXiv preprint arXiv:2512.15231 .Feng, P.; Lv, Z.; Ye, J.; Wang, X.; Huo, X.; Yu, J.; Xu, W.; Zhang, W.; Bai, L.; He, C.; and Li, W. 2025. Earth-Agent: Unlocking the Full Landscape of Earth Observation with Agents. arXiv preprint arXiv:2509.23141 . Published at ICLR 2026. Gou, Z.; Shao, Z.; Gong, Y.; Shen, Y.; Yang, Y.; Duan, N.; and Chen, W. 2024. CRITIC: Large Language Models Can Self-Correct with Tool-Interactive Critiquing. In The Twelfth International Conference on Learning Representations .Guo, H.; Su, X.; Wu, C.; Du, B.; Zhang, L.; and Li, D. 2024. Remote Sensing ChatGPT: Solving Remote Sensing Tasks with ChatGPT and Visual Models. arXiv preprint arXiv:2401.09083 .Huang, W.; Xia, F.; Xiao, T.; Chan, H.; Liang, J.; Florence, P.; Zeng, A.; Tompson, J.; Mordatch, I.; Chebotar, Y.; Sermanet, P.; Jackson, T.; Brown, N.; Luu, L.; Levine, S.; Hausman, K.; and Ichter, B. 2022. Inner Monologue: Embodied Reasoning through Planning with Language Models. arXiv preprint arXiv:2207.05608 .Jiang, G.; Su, Z.; Qu, X.; and Fung, Y. R. 2026. XSkill: Con-tinual Learning from Experience and Skills in Multimodal Agents. arXiv preprint arXiv:2603.12056 .Li, K.; Wang, J.; Wang, Z.; Qiao, H.; Zhang, W.; Meng, D.; and Cao, X. 2025. Designing Domain-Specific Agents via Hierarchical Task Abstraction Mechanism. arXiv preprint arXiv:2511.17198 .Liu, C.; Chen, K.; Zhang, H.; Qi, Z.; Zou, Z.; and Shi, Z. 2024. Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis. IEEE Transactions on Geoscience and Remote Sensing , 62: 1–17. Mi, Q.; Ma, Z.; Yang, M.; Li, H.; Wang, Y.; Zhang, H.; and Wang, J. 2026. Skill-Pro: Learning Reusable Skills from Experience via Non-Parametric PPO for LLM Agents. In 
+
+Proceedings of the 43rd International Conference on Ma-chine Learning . Spotlight presentation. Munir, M. A.; Sheikh, M. U.; Shabbir, A.; Khan, M. H.; Khan, F.; Zhu, X. X.; Demir, B.; and Khan, S. 2026. Agentic AI for Remote Sensing: Technical Challenges and Research Directions. arXiv preprint arXiv:2604.24919 .Pang, J.-C.; Yang, S.-H.; Li, K.; Zhang, J.; Chen, X.-H.; Tang, N.; and Yu, Y. 2024. KALM: Knowledgeable Agents by Of-fline Reinforcement Learning from Large Language Model Rollouts. In Advances in Neural Information Processing Systems , volume 37. Patil, S. G.; Zhang, T.; Wang, X.; and Gonzalez, J. E. 2023. Gorilla: Large Language Model Connected with Massive APIs. arXiv preprint arXiv:2305.15334 .Qiao, S.; Fang, R.; Zhang, N.; Zhu, Y.; Chen, X.; Deng, S.; Jiang, Y.; Xie, P.; Huang, F.; and Chen, H. 2024. Agent Planning with World Knowledge Model. In Advances in Neural Information Processing Systems , volume 37, 114843– 114871. Qin, Y.; Liang, S.; Ye, Y.; Zhu, L.; Wu, Y.; Yan, X.; Wang, Z.; Cong, X.; Tang, Y.; Qian, Q.; et al. 2023. ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs. arXiv preprint arXiv:2307.16789 .Schick, T.; Dwivedi-Yu, J.; Dessì, R.; Raileanu, R.; Lomeli, M.; Hambro, E.; Zettlemoyer, L.; Cancedda, N.; and Scialom, T. 2023. Toolformer: Language Models Can Teach Them-selves to Use Tools. Advances in Neural Information Pro-cessing Systems , 36. Shabbir, A.; Munir, M. A.; Dudhane, A.; Sheikh, M. U.; Khan, M. H.; Fraccaro, P.; Bernabe Moreno, J.; Khan, F. S.; and Khan, S. 2025. ThinkGeo: Evaluating Tool-Augmented Agents for Remote Sensing Tasks. arXiv preprint arXiv:2505.23752 .Shinn, N.; Cassano, F.; Berman, E.; Gopinath, A.; Narasimhan, K.; and Yao, S. 2023. Reflexion: Language Agents with Verbal Reinforcement Learning. In Advances in Neural Information Processing Systems , volume 36. Silver, D.; and Sutton, R. S. 2025. Welcome to the Era of Experience. In Designing an Intelligence, MIT Press .Preprint. Tang, J.; Yan, Y.; Wang, Q.; Xia, Y.; Geng, B.; Chen, J.; Ma, K.; Zhai, Y.; He, Q.; Shao, W.; Sun, Y.; Dai, J.; Chen, C.; Xu, X.; Yao, K.; Zhang, L.; Wei, W.; Chen, Q.; Plaza, A.; and Zhang, Y. 2026. Intelligent Remote Sensing Agents: A Survey. Preprint. Wang, G.; Xie, Y.; Jiang, Y.; Mandlekar, A.; Xiao, C.; Zhu, Y.; Fan, L.; and Anandkumar, A. 2024a. Voyager: An Open-Ended Embodied Agent with Large Language Models. In 
+
+Advances in Neural Information Processing Systems , vol-ume 37. Wang, X.; Chen, Y.; Yuan, L.; Zhang, Y.; Li, Y.; Peng, H.; and Ji, H. 2024b. Executable Code Actions Elicit Better LLM Agents. In Proceedings of the 41st International Conference on Machine Learning .Wang, Z. Z.; Mao, J.; Fried, D.; and Neubig, G. 2024c. Agent Workflow Memory. arXiv preprint arXiv:2409.07429 .Wu, B.; Zhang, Y.; Guo, Z.; Liu, T.; Qian, C.; Lu, Y.; Du, X.; Li, Y.; Zhang, Y.; Chen, C.; Yao, L.; Zhou, C.; and Sun, M. 2026. RSMeM: Knowledge-Enhanced Memory Evolu-tion for Remote Sensing Agents with Systematic Evaluation. In Proceedings of the 64th Annual Meeting of the Associa-tion for Computational Linguistics (Volume 1: Long Papers) .Association for Computational Linguistics. Xu, W.; Liang, Z.; Mei, K.; Gao, H.; Tan, J.; and Zhang, Y. 2025. A-MEM: Agentic Memory for LLM Agents. Advances in Neural Information Processing Systems .Xu, W.; Yu, Z.; Mu, B.; Wang, J.; Wei, Z.; and Peng, M. 2024. RS-Agent: Automating Remote Sensing Tasks through Intelligent Agent. arXiv preprint arXiv:2406.07089 .Zhang, S.; Yin, M.; Zhang, J.; Liu, J.; Han, Z.; Zhang, J.; Li, B.; Wang, C.; Wang, H.; and Chen, Y. 2025. Which Agent Causes Task Failures and When? On Automated Failure At-tribution of LLM Multi-Agent Systems. In Proceedings of the 42nd International Conference on Machine Learning .Spotlight. Zhao, A.; Huang, D.; Xu, Q.; Lin, M.; Liu, Y.-J.; and Huang, G. 2024. ExpeL: LLM Agents Are Experiential Learners. In 
+
+Proceedings of the 38th Annual AAAI Conference on Artifi-cial Intelligence , volume 38, 19632–19642. Zhou, J.; et al. 2026. SkillHone: A Harness for Continual Agent Skill Evolution Through Persistent Decision History. 
+
+arXiv preprint arXiv:2606.08671 .Zhu, Z.; et al. 2025. Where LLM Agents Fail and How They Can Learn From Failures. arXiv preprint arXiv:2509.25370 .
