@@ -1,0 +1,39 @@
+{
+  "label": "2026-09-20",
+  "date": "2026-09-20",
+  "generated_at": "2026-09-20T21:22:39",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202609/20/2609.15684v1-reskill-explicit-failure-attribution-and-structured-repair-for-interactive-language-agents",
+      "section": "quick",
+      "title_en": "RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents",
+      "authors": "Mengyi Deng, Xin Li, Duyi Pan, Zilin Wang, Zhiwei Li, Zhijiang Guo, Wei Wang",
+      "date": "2026-09-14",
+      "pdf": "https://arxiv.org/pdf/2609.15684v1",
+      "score": "7.0",
+      "evidence": "结构化修复状态使智能体技能迭代改进",
+      "tldr": "语言智能体依赖可复用技能，但失败后的修复多靠不透明的一次性反思，未显式记录失败解释与候选补丁的对应关系，也不利用失败重测来指导后续编辑。RESKILL 提出结构化修复框架，在多轮修复中维护显式修复状态：把失败假设与候选技能补丁关联，用基于覆盖度的归因选择局部修复，在环境中重测编辑后的技能集，并将重测结果带入下一轮更新。在 ALFWorld 与 TextCraft 的六组模型规模设定中均取得最高最终成功率，平均比直接修复高 3.7 个百分点、比假设条件修复高 3.3 个百分点。",
+      "tags": "query:gkg",
+      "abstract_en": "Language agents increasingly rely on reusable skills, but post-failure repair is often handled by opaque one-shot reflection: a model generates a skill patch without explicitly maintaining how failure explanations relate to candidate repairs or how unsuccessful retests should influence later edits. We introduce RESKILL, a structured repair framework that maintains an explicit repair state across repair rounds. Given a failed rollout, the framework links failure hypotheses to candidate skill patches, selects local repairs through coverage-based attribution, retests the edited skill set in the environment, and uses retest outcomes to guide subsequent repair updates. The language model supplies structured repair factors, while the repair procedure records them, compares local skill patches by how well they address active failure explanations, and carries unsuccessful retest outcomes into later repair rounds. We evaluate RESKILL on ALFWorld and TextCraft across three model sizes under fixed repair budgets. RESKILL obtains the strongest final success in all six benchmark-model settings, improving average final success by 3.7 percentage points over direct repair and 3.3 points over hypothesis-conditioned repair. These results suggest that explicit attribution alone is insufficient; durable improvement emerges when attribution is integrated with repair selection and persistent retest-conditioned update.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/20/2609.17331v1-self-emergence-agent-architecturebehavior-inertia-hmm-reflexive-metacognitionand-social-contrastive-self-modeling",
+      "section": "quick",
+      "title_en": "Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling",
+      "authors": "Xiaoyang Liu",
+      "date": "2026-09-15",
+      "pdf": "https://arxiv.org/pdf/2609.17331v1",
+      "score": "7.0",
+      "evidence": "通过可编辑记忆状态与元认知实现LLM智能体内生自演化",
+      "tldr": "LLM智能体存在人格漂移、反思非演化与自我—他者边界缺失三大结构局限。SEAA将行为惯性HMM、可改写HMM参数的Reflexion式元认知、以及多智能体社会对比闭环整合，形成“社会行动→反馈→反思→惯性更新→差异化行动”循环。无语言模型原型中，初始相同智能体自发分化出稳定人格；五智能体审议涌现共识中心与被一致排斥的离群者。该工作提供统一框架、可复现协议与人工自我涌现沙盒。",
+      "tags": "query:gkg",
+      "abstract_en": "Large language model (LLM) agents exhibit strong language-generation and problem-solving capabilities, yet suffer from three structural limitations: personality drift, non-evolutionary reflection, and the absence of a self-other boundary. Existing generative-agent simulations rely on static memory and fixed prompts, maintaining neither behavioral inertia nor endogenous self-evolution. We propose the Self-Emergence Agent Architecture (SEAA), which integrates three components: (i) a Hidden Markov Model (HMM) that encodes long-term behavioral and cognitive inertia as an editable state-transition matrix; (ii) a Reflexion-style verbal metacognition loop whose output updates the HMM parameters themselves, rather than merely being stored as text; and (iii) a multi-agent social environment in which initially identical agents continuously compare their behavior with others'. The three components form a closed loop: social action $\\to$ feedback $\\to$ self-reflection $\\to$ inertia update $\\to$ differentiated action. We state three falsifiable hypotheses and provide a reproducible experimental protocol with operational metrics. A language-model-free prototype shows the loop spontaneously breaks symmetry: initially identical agents consolidate distinct, stable personalities whereas matched controls do not. Experiments with a hosted LLM surface these differences as distinct first-person self-narratives, and a five-agent deliberation spontaneously develops social structure---a consensus hub and a unanimously rejected outlier---absent in the control. Following an epistemologically agnostic stance inspired by Zhuangzi, SEAA studies only observable behavioral emergence and makes no claim about subjective qualia. This work contributes a unified framework, a concrete architecture with pseudocode, mechanistic evidence, and a microscope-style sandbox for studying artificial-self emergence.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

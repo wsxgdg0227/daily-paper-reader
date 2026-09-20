@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-19</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-20</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 4 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 2 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>2</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-19 21:43:01 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-20 21:22:38 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日共生成 4 篇推荐（精读 0 篇，速读 4 篇）</p>
-<p>速读：《GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents》（7.0/10）, 《Reputation as Community Memory for the Agentic Web》（7.0/10）, 《TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection》（6.0/10）</p>
-<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
+<p>今日速读2篇交互式语言智能体研究，聚焦失败归因与自我涌现架构。值得关注：RESKILL用显式失败归因加结构化修复提升智能体纠错能力，另一篇则以行为惯性HMM和反思元认知建模智能体的自我涌现。普通读者可从&quot;智能体如何从错误中学习、如何形成自我模型&quot;两条线索入手，优先读RESKILL了解可落地的修复思路。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -93,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">4 篇</strong>
+    <strong class="dpr-home-dashboard-count">2 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents">GeoSkill:Experience-Driven Hierarchical Skill Learning with Collaborative Revision forGeospatialAgents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Reputation as Community Memory for the Agentic Web">Reputation as Community Memory for the Agentic Web</span></li><li><span class="dpr-home-dashboard-paper-title" title="TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection">TyPatch: Transforming Patches into Typestate Rules for Kernel Bug Detection</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents">RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling">Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
 </section>
 </div>
 

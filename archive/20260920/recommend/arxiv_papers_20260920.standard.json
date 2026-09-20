@@ -1,0 +1,93 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-20T21:21:11.288497+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.15684v1",
+      "source": "arxiv",
+      "title": "RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents",
+      "abstract": "Language agents increasingly rely on reusable skills, but post-failure repair is often handled by opaque one-shot reflection: a model generates a skill patch without explicitly maintaining how failure explanations relate to candidate repairs or how unsuccessful retests should influence later edits. We introduce RESKILL, a structured repair framework that maintains an explicit repair state across repair rounds. Given a failed rollout, the framework links failure hypotheses to candidate skill patches, selects local repairs through coverage-based attribution, retests the edited skill set in the environment, and uses retest outcomes to guide subsequent repair updates. The language model supplies structured repair factors, while the repair procedure records them, compares local skill patches by how well they address active failure explanations, and carries unsuccessful retest outcomes into later repair rounds. We evaluate RESKILL on ALFWorld and TextCraft across three model sizes under fixed repair budgets. RESKILL obtains the strongest final success in all six benchmark-model settings, improving average final success by 3.7 percentage points over direct repair and 3.3 points over hypothesis-conditioned repair. These results suggest that explicit attribution alone is insufficient; durable improvement emerges when attribution is integrated with repair selection and persistent retest-conditioned update.",
+      "authors": [
+        "Mengyi Deng",
+        "Xin Li",
+        "Duyi Pan",
+        "Zilin Wang",
+        "Zhiwei Li",
+        "Zhijiang Guo",
+        "Wei Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-14T14:55:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.15684v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "structured repair state iteratively improves agent skills from failure",
+      "llm_evidence_cn": "结构化修复状态使智能体技能迭代改进",
+      "llm_evidence": "结构化修复状态使智能体技能迭代改进",
+      "canonical_evidence": "结构化修复状态使智能体技能迭代改进",
+      "llm_tldr_en": "RESKILL maintains an explicit repair state linking failure hypotheses to skill patches, retesting edits in the environment and using outcomes to guide subsequent repairs of language agents.",
+      "llm_tldr_cn": "语言智能体日益依赖可复用技能，但失败后的修复常由不透明的一次性反思完成，模型直接生成技能补丁，既不显式维护失败解释与候选修复的关系，也无法利用失败重测指导后续修改。作者提出RESKILL结构化修复框架，在多次修复轮次中维护显式修复状态，将失败假设链接到候选补丁，通过覆盖度归因选择局部修复，在环境中重测并据结果更新。该方法使智能体技能可迭代自我改进，提升修复可靠性。",
+      "llm_tldr": "语言智能体日益依赖可复用技能，但失败后的修复常由不透明的一次性反思完成，模型直接生成技能补丁，既不显式维护失败解释与候选修复的关系，也无法利用失败重测指导后续修改。作者提出RESKILL结构化修复框架，在多次修复轮次中维护显式修复状态，将失败假设链接到候选补丁，通过覆盖度归因选择局部修复，在环境中重测并据结果更新。该方法使智能体技能可迭代自我改进，提升修复可靠性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.17331v1",
+      "source": "arxiv",
+      "title": "Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling",
+      "abstract": "Large language model (LLM) agents exhibit strong language-generation and problem-solving capabilities, yet suffer from three structural limitations: personality drift, non-evolutionary reflection, and the absence of a self-other boundary. Existing generative-agent simulations rely on static memory and fixed prompts, maintaining neither behavioral inertia nor endogenous self-evolution. We propose the Self-Emergence Agent Architecture (SEAA), which integrates three components: (i) a Hidden Markov Model (HMM) that encodes long-term behavioral and cognitive inertia as an editable state-transition matrix; (ii) a Reflexion-style verbal metacognition loop whose output updates the HMM parameters themselves, rather than merely being stored as text; and (iii) a multi-agent social environment in which initially identical agents continuously compare their behavior with others'. The three components form a closed loop: social action $\\to$ feedback $\\to$ self-reflection $\\to$ inertia update $\\to$ differentiated action. We state three falsifiable hypotheses and provide a reproducible experimental protocol with operational metrics. A language-model-free prototype shows the loop spontaneously breaks symmetry: initially identical agents consolidate distinct, stable personalities whereas matched controls do not. Experiments with a hosted LLM surface these differences as distinct first-person self-narratives, and a five-agent deliberation spontaneously develops social structure---a consensus hub and a unanimously rejected outlier---absent in the control. Following an epistemologically agnostic stance inspired by Zhuangzi, SEAA studies only observable behavioral emergence and makes no claim about subjective qualia. This work contributes a unified framework, a concrete architecture with pseudocode, mechanistic evidence, and a microscope-style sandbox for studying artificial-self emergence.",
+      "authors": [
+        "Xiaoyang Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-15T15:36:10+00:00",
+      "link": "https://arxiv.org/pdf/2609.17331v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "endogenous self-evolution of LLM agents via editable memory state and metacognition",
+      "llm_evidence_cn": "通过可编辑记忆状态与元认知实现LLM智能体内生自演化",
+      "llm_evidence": "通过可编辑记忆状态与元认知实现LLM智能体内生自演化",
+      "canonical_evidence": "通过可编辑记忆状态与元认知实现LLM智能体内生自演化",
+      "llm_tldr_en": "LLM agents suffer from personality drift, non-evolutionary reflection, and no self-other boundary, while existing simulations rely on static memory and fixed prompts. The Self-Emergence Agent Architecture combines a Hidden Markov Model of behavioral inertia, a Reflexion-style metacognition loop that edits the HMM, and social-contrastive self-modeling.",
+      "llm_tldr_cn": "LLM智能体虽具备强大语言与推理能力，却存在人格漂移、反思非进化以及缺乏自我-他者边界三大结构局限，现有生成式智能体模拟依赖静态记忆与固定提示。本文提出自涌现智能体架构SEAA，整合编码长期行为惯性的隐马尔可夫模型、其输出可直接更新HMM参数的反思式元认知循环，以及社会对比自我建模。该框架使智能体具备行为惯性与内生自演化能力，为持续进化的LLM智能体提供了可编辑状态与自建模的新范式。",
+      "llm_tldr": "LLM智能体虽具备强大语言与推理能力，却存在人格漂移、反思非进化以及缺乏自我-他者边界三大结构局限，现有生成式智能体模拟依赖静态记忆与固定提示。本文提出自涌现智能体架构SEAA，整合编码长期行为惯性的隐马尔可夫模型、其输出可直接更新HMM参数的反思式元认知循环，以及社会对比自我建模。该框架使智能体具备行为惯性与内生自演化能力，为持续进化的LLM智能体提供了可编辑状态与自建模的新范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
