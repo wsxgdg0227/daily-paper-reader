@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-20</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-21</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 2 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 6 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>2</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-20 21:22:38 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-21 22:50:31 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日速读2篇交互式语言智能体研究，聚焦失败归因与自我涌现架构。值得关注：RESKILL用显式失败归因加结构化修复提升智能体纠错能力，另一篇则以行为惯性HMM和反思元认知建模智能体的自我涌现。普通读者可从&quot;智能体如何从错误中学习、如何形成自我模型&quot;两条线索入手，优先读RESKILL了解可落地的修复思路。</p>
+<p>今日精读2篇、速读4篇，重点追问LLM生成GPU内核能否扛住真实工作负载，以及多智能体记忆如何协同进化。最值得看的是9.0分的GPU内核真实负载评测与8.0分的MACE自适应记忆图，前者关乎算力落地，后者关乎智能体长期协作。普通读者可先读这两篇精读，再按兴趣选看速读中的推理优化与公平压缩方向。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">0 篇</strong>
+    <strong class="dpr-home-dashboard-count">2 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach?">How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach?</span></li><li><span class="dpr-home-dashboard-paper-title" title="MACE: Memory-Agent Co-Evolution with Adaptive Memory Graphs for Multi-Agent Systems">MACE: Memory-Agent Co-Evolution with Adaptive Memory Graphs for Multi-Agent Systems</span></li></ul>
   </div>
-
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -91,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">2 篇</strong>
+    <strong class="dpr-home-dashboard-count">4 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents">RESKILL: Explicit Failure Attribution and Structured Repair for Interactive Language Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling">Self-Emergence Agent Architecture:Behavior-Inertia HMM, Reflexive Metacognition,and Social-Contrastive Self-Modeling</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="DENSE: Distilling Agent Trajectories into Evidence-Grounded Shortcut Trees for Self-Refinement">DENSE: Distilling Agent Trajectories into Evidence-Grounded Shortcut Trees for Self-Refinement</span></li><li><span class="dpr-home-dashboard-paper-title" title="DeepSeek-V4-Flash on AMD gfx90a: Correctness Recovery and Inference Performance Engineering">DeepSeek-V4-Flash on AMD gfx90a: Correctness Recovery and Inference Performance Engineering</span></li><li><span class="dpr-home-dashboard-paper-title" title="FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment">FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
 </section>
 </div>
 

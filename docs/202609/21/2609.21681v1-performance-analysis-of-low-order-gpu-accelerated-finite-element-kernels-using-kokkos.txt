@@ -1,0 +1,934 @@
+Title: Performance Analysis of Low-Order, GPU-accelerated Finite Element Kernels using Kokkos
+
+URL Source: https://arxiv.org/pdf/2609.21681v1
+
+Published Time: Mon, 21 Sep 2026 00:59:26 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Performance Analysis of Low-Order, GPU-accelerated Finite Element Kernels using Kokkos 
+
+Fabian B ¨ ohm 1, Nils Kohl 2, Harald K ¨ ostler 1,3 , Ulrich R ¨ ude 3,4,5 
+
+> 1
+
+Erlangen National High Performance Computing Center (NHR@FAU), Erlangen, Germany 
+
+> 2
+
+Department of Earth and Environmental Sciences, LMU Munich, Germany 
+
+> 3
+
+Chair for System Simulation (CS10), Friedrich–Alexander–Universit¨ at Erlangen–N¨ urnberg, Erlangen, Germany 
+
+> 4
+
+CERFACS, Toulouse, France 
+
+> 5
+
+V ˇ SB Technical University of Ostrava, Ostrava, Czech Republic 
+
+Abstract 
+
+We study performance portability for low-order, matrix-free finite element kernels, using the example of a vectorial, variable-coefficient PDE operator originating in geophysical models. Written in Kokkos, the kernel is compared on NVIDIA H100, AMD MI250X, AMD MI300A and Intel PVC Max 1550 GPUs. Owing to its low order and to optimizations that reduce the arithmetic, the kernel has a low arithmetic intensity, so that its performance is determined by how the finite element assembly is mapped onto the memory hierarchy. This is a dimension in which the architectures differ even within one vendor family, causing different performance characteristics. We examine how Kokkos’ hierarchical parallelism and shared scratch memory, which are used for the shared degrees of freedom of the conforming discretization, behave on each device. Finally, we show how portability gaps can be narrowed with tuning levers such as the size of the thread groups, the balance between occupancy and register use, and the atomic accumulation strategy at the end of the kernel. 
+
+Keywords 
+
+GPU, Kokkos, matrix-free, finite elements, performance portability, mantle convection, icosahedral grid 
+
+1 Introduction 
+
+Numerical simulation at scale requires powerful super-computers, and the supercomputer hardware landscape has turned toward GPU -based systems. The European supercomputers span all three GPU vendors: NVIDIA in JUPITER (J¨ ulich, Germany) and MareNostrum 5(Barcelona, Spain), AMD in LUMI-G (Kajaani, Finland) and Hunter (Stuttgart, Germany), and Intel in SuperMUC-NG Phase 2 (Munich, Germany). An application written in architecture-specific code is confined to the machines of one vendor. Exploiting all available resources in contrast requires portability across vendors. A single portable source, however, does not imply a single performance profile: GPU architectures differ in arithmetic throughput, cache hierarchy, coherence and atomic throughput, so the same kernel can achieve maximal roofline performance on one card and still be far below it on another. Several studies have compared finite-element GPU kernels across architectures. The CEED benchmarks compare matrix-free operator evaluation across codes and platforms (Fischer et al. 2020; Kolev et al. 2021). hipBone provides a portable Nek5000 proxy benchmarked on NVIDIA and AMD GPUs (Chalmers et al. 2023), the MARBL hydrodynamics code was converted from assembled matrices to MFEM’s matrix-free partial assembly, with RAJA kernel abstractions and Umpire memory management (Vargas et al. 2022), Albany demonstrated Kokkos-based (Trott et al. 2022; Edwards et al. 2014) portability of finite-element assembly across NVIDIA GPUs, Xeon Phi, and CPUs (Demeshko et al. 2019), deal.II provides a generic matrix-free framework (Kronbichler and Kormann 2012) that was extended to GPUs (Kronbichler and Ljungkvist 2019; Africa et al. 2024), and Settgast et al. (2023) presented matrix-free Laplace and elasticity kernels on V100, A100, and MI250X for geoscientific applications. HOMMEXX rewrote the spectral-element atmosphere dynamical core of E3SM in C++/Kokkos (Bertagna et al. 2019). Kokkos codes have also been compared across the GPUs outside the finite-element setting: LAMMPS-KOKKOS reports molecular dynamics on H100, MI250X, MI300A and PVC (Johansson et al. 2025), and kokkos-fft reports a spectral turbulence solver on A100, H100, MI250X and PVC (Asahi et al. 2025). The kernels studied in this paper originate from global mantle convection models. The Earth’s mantle is a
+
+∼2900 km thick layer of rock between crust and core           
+
+> 1Erlangen National High Performance Computing Center (NHR@FAU), Erlangen, Germany
+> 2Department of Earth and Environmental Sciences, LMU Munich, Germany
+> 3Chair for System Simulation (CS10), Friedrich–Alexander–Universit ¨ at Erlangen–N ¨ urnberg, Erlangen, Germany
+> 4CERFACS, Toulouse, France
+> 5V ˇ SB Technical University of Ostrava, Ostrava, Czech Republic
+> Corresponding author:
+> Fabian B ¨ ohm, Erlangen National High Performance Computing Center (NHR@FAU), Erlangen, Germany. Email: fabian.boehm@fau.de
+> Prepared using sagej.cls [Version: 2016/06/24 v1.10] arXiv:2609.21681v1 [cs.PF] 18 Sep 2026 2Journal Title XX(X)
+
+that, despite its high viscosity, flows over geologic time. This creeping motion drives plate tectonics and shapes the planet’s thermal evolution (Schubert et al. 2001). The flow is governed by a variant of Stokes (zero-Reynolds-number) equation combined with energy transport at very high Rayleigh number: the circulation is characterized by thin thermal boundary layers, narrow plumes, and sinking slabs (Schubert et al. 2001), structures that become very small (relative to domain size) with high Rayleigh number. Resolving them requires a grid spacing at the kilometre scale over the whole mantle. At that resolution the discretised systems reach on the order of 10 12 unknowns per timestep (Bauer et al. 2019; B¨ ohm et al. 2026). Assembling a sparse matrix at this size exceeds the main memory of the largest existing machines. Therefore, matrix-free operator evaluation (May et al. 2015; Kronbichler and Kormann 2012), which recomputes element contributions on the fly, is mandatory. Moreover, the mantle’s viscosity varies by several orders of magnitude over a few hundred kilometres (Lin et al. 2022; Stotz et al. 2018), which can be numerically challenging (Deubelbeiss and Kaus 2008; Heister et al. 2017). Such steep, near-discontinuous coefficients undercut the accuracy advantage of high-order elements, making low-order discretisations the method of choice. 
+
+Contribution 
+
+We see the following gap in the literature highlighted above: the cross-code comparisons are dominated by high-order operators with high arithmetic intensity. On the other hand, existing studies that analyze the performance of low-order matrix-free kernels on GPUs are with few exceptions limited to simple, constant-coefficient operators. This work contributes a study of performance portability through Kokkos (Trott et al. 2022; Edwards et al. 2014) for a low-order, matrix-free Finite Element kernel, compared across the GPU architectures of all three major vendors: NVIDIA H100, AMD MI250X and MI300A, and Intel Ponte Vecchio. We consider a production setting, where the kernel implements complex physics, that is a vectorial, variable-coefficient viscous operator and is highly optimized, e.g. the kernel uses the hierarchical team parallelism of Kokkos, and stages shared DoFs from the conforming discretization in team scratch memory. These are features on which portability depends, since the resources they map onto, i.e. the memory hierarchy of the card, differ substantially between architectures. Section 2 introduces the discretisation and the kernel. Section 3 presents the domain-specific optimisations that take it from a textbook baseline to the production kernel, detailing and justifying our claim of a high level of optimization, and Section 4 compares the kernel across the four architectures in terms of roofline placement, throughput, and memory utilisation. 
+
+2 TERRA-NG in a nutshell 
+
+The kernel’s structure follows from the discretisation and the solver it serves, so we summarise both here. The new code TERRA-NG is a GPU-enabled re-implementation of the older Terra-NEO code (Bauer et al. 2019) that was implemented with HyTeG (Kohl et al. 2019, 2024). A companion paper (B¨ ohm et al. 2026) describes TERRA-NG, i.e. the geophysics code in which the new GPU-kernels are eventually employed, including a more detailed description of the application-specific discretization with wedges, the solver hierarchy, the physical validation against community benchmarks, and results from production-level mantle-convection simulations at extreme scale. The current article here, in contrast, is focussed on the extensive performance and portabilty analysis of the central GPU-compute kernels, including detailed techniques of code optimization. Every kernel discussed here, including the variants of Table 1, is available at https://github.c om/mantleconvection/TERRA-NG .TERRA-NG solves the coupled Stokes–energy system of mantle convection, with momentum and mass balance 
+
+−∇ · 
+
+h
+
+2η ε(u) − 13 (∇ · u) Ii| {z }
+
+> viscous operator
+
++∇p′ = ¯ ρ ¯α T ′ ˆr,
+
+∇ ·  ¯ρ u = 0 ,
+
+(1) for velocity u and pressure perturbation p′, with the symmetric gradient ε(u) = 12
+
+ ∇u + ( ∇u)⊤, viscosity 
+
+η(x) and reference density and expansivity profiles ¯ρ(r),
+
+¯α(r). 
+
+> Grid.
+
+The Earth’s spherical surface is partitioned into ten spherical diamonds spanned by the twelve vertices of an icosahedral base grid, refined by recursive bisection into 
+
+2ℓ × 2ℓ curved quadrilaterals per diamond, and extruded through 2ℓ−1 radial layers. Each hexahedral cell is split implicitly into two wedge elements (Figure 1). The mesh is logically structured within each diamond, so an MPI rank holds the unknowns of its subdomains in a single Kokkos 4D view, indexed by (subdomain, lateral x, lateral y, radial layer), and recomputes the element geometry on the fly from a 2D lateral coordinate field and a 1D radial profile. Within a rank, Kokkos thread teams own radially extruded tiles of a subdomain, explained in Section 3.  
+
+> Discretisation.
+
+Momentum and mass balance are discre-tised on wedge elements, using the inf-sup stable W1-iso-
+
+W2/W 1 pair, where Wk denotes the wedge element space spanned by the tensor product of a degree-k triangular and a degree-k radial basis: velocity on the wedge mesh at level ℓ,pressure one level coarser. On the reference wedge ( ξ, η ≥ 0,
+
+ξ + η ≤ 1, ζ ∈ [−1, 1] ) the six scalar shape functions are the tensor products 
+
+Nj = N lat  
+
+> jmod 3
+
+(ξ, η ) N rad 
+
+> ⌊j/ 3⌋
+
+(ζ), j = 0 , . . . , 5, (2) with N lat 0 = 1 −ξ−η, N lat 1 = ξ, N lat 2 = η and N rad 0 = 
+
+> 12
+
+(1 −ζ), N rad 1 = 12 (1+ ζ), associating nodes 0–2 with the bottom and 3–5 with the top triangular face. Each wedge holds six nodes and three velocity components, giving eighteen velocity unknowns per element. No global matrix is assembled: e.g. the viscous operator in eq. (1) is applied matrix-free with element matrices 
+
+(Ae)ij =
+
+Z
+
+> Ωe
+
+μ
+
+h
+
+2 ε(φi) : ε(φj ) − 23 div( φi) div( φj )
+
+i
+
+dx
+
+(3)  
+
+> Prepared using sagej.cls
+
+B ¨ ohm et al. 3
+
+Figure 1. Left: the ten spherical diamonds of the icosahedral surface grid. Right: the radially extruded shell, exploded into the subdomains distributed across MPI ranks. 
+
+evaluated on-the-fly per wedge. The remainder of this paper focuses on the viscous operator. It is the component applied most often in asolve: TERRA-NG preconditions the velocity block with a multigrid V-cycle whose Chebyshev smoother applies it several times on every level of every cycle, so its cost dominates the Stokes solve. 
+
+Kernel Pseudo-Code. Listing 1 is the textbook variant of the matrix-free finite element operator, the baseline for the optimizations studied in the rest of the paper. Its members src and dst are Grid4DDataVec , our alias for a set of four-dimensional Kokkos::Views indexed by (sd, x, y, r ), the subdomain, lateral and radial index, one per velocity component. The operator is applied as a single 
+
+parallel for on each GPU and rank, followed by a fence and one MPI exchange of the halo layers. The body of that dispatch, operator() , is the per-hex-cell work and the subject of the rest of this paper. One thread handles one hex cell: it gathers that hex cell’s source DoFs src e , 8 nodes times 3 velocity components, so 
+
+24 values. It then walks both wedges and their quadrature points, evaluating the Jacobian and the viscosity once per quadrature point, and fills the two 18 × 18 element matrices 
+
+Ae entry by entry, 
+
+(Ae)ij += wq | det J| ηq
+
+h
+
+2 ε(φi) q : ε(φj ) q
+
+− 23 div φi q div φj q
+
+i
+
+.
+
+In a next step, the local matrix is applied to the gathered source DoFs, t = Ae s per wedge, where s collects the eighteen wedge-local source DoFs, six nodes times three velocity components. The result is scattered into the global destination with 24 atomic additions. One-thread-per-hex-cell makes for a straight-forward mapping of hexes to threads, while the split of each hex into two wedges is what admits the reduced integration scheme of a single quadrature point per wedge exploited in Section 3.                                                      
+
+> struct ViscousOperator_Textbook {Grid4DDataVec< real ,3> src_, dst_; Grid4DDataScalar< real >k_; // nodal viscosity
+> void apply() {
+> Kokkos ::parallel_for( MDRangePolicy<Rank<4>>({0,..}, {n_sd,nx,ny,nr}), *this );
+> Kokkos ::fence(); mpi_halo_exchange(dst_); }KOKKOS_FUNCTION
+> void operator ()( int sd, int x, int y, int r) const {Mat< real ,18,18> A[2] ={}; // one per wedge
+> ... // assemble entry by entry
+> Vec< real ,18> s[2] =gather_src(src_, sd, x, y, r); Vec< real ,18> t[2] ={A[0]*s[0], A[1]*s[1] }; scatter_atomic(dst_, sd, x, y, r, t); // 24 atomics
+> }};
+
+Listing 1: Textbook baseline for the viscous operator, with the assembly body elided. Section 3 turns it into the production kernel of Listing 2. 
+
+Mixed Precision. Every finite element vector in TERRA-NG is precision-templated on its scalar type, and the whole solver structure can be instantiated in reduced precision. TERRA-NG uses this to store the Krylov basis of the FGMRES restart cycle and the multigrid preconditioner in low precision. The leading precision, however, has to stay high: at the mesh resolutions targeted here, the round-off error of a lower format would dominate the discretization error, so that the asymptotic accuracy is no longer reached (Tamstorf et al. 2021; Bauer et al. 2025). We therefore only consider double precision throughout this paper. 
+
+3 Domain-Specific Optimisations 
+
+In this section we lay out the domain-specific optimiza-tions that the TERRA-NG kernels exploit. We denote the hex-cell counts per rank by (nsd , n x, n y , n r ). The path from the textbook baseline (Listing 1) to the production MV kernel is structured as the sequence of operator variants 
+
+textbook → arreduc → shmem → tuned 
+
+listed in Table 1. Listing 2 is the production MV kernel that this section arrives at. 
+
+Table 1. Operator variants and the kernel optimisation each one introduces.                
+
+> phase variant optimisation
+> textbook naive, textbook-style matrix-free MV
+> arreduc single quadrature point per wedge, code-generated element kernels, dimension-wise fused assemble-and-apply
+> shmem hierarchical parallelism, shared memory, and global memory coalescing
+> tuned register and occupancy tuning to the arch at hand
+> Prepared using sagej.cls
+
+4 Journal Title XX(X)  
+
+> 1
+
+void apply() { // host side  
+
+> 2
+
+team_size = t_x * t_y * t_r; // one thread per hex cell  
+
+> 3
+
+league = n_sd * lat_tiles*lat_tiles * r_tiles;  
+
+> 4
+
+TeamPolicy<LaunchBounds<maxT,minB>> policy(league,  
+
+> 5
+
+team_size);  
+
+> 6
+
+policy.set_scratch_size(0, PerTeam(tile_bytes));  
+
+> 7
+
+Kokkos ::parallel_for(policy, *this );  
+
+> 8
+
+Kokkos ::fence();  
+
+> 9
+
+mpi_halo_exchange(dst_);  
+
+> 10
+
+} 
+
+> 11 12
+
+KOKKOS_FUNCTION operator ()(team) { 
+
+> 13
+
+// work-item identification: team -> tile,  
+
+> 14
+
+// thread -> one hex cell of that tile  
+
+> 15
+
+(sd,x0,y0,r0) = tile_origin(team.league_rank());  
+
+> 16
+
+(tx,ty,tr) = cell_in_tile(team.team_rank());  
+
+> 17
+
+// this thread’s hex cell, global indices:  
+
+> 18
+
+x_cell = x0 + tx; y_cell = y0 + ty;  
+
+> 19
+
+r_cell = r0 + tr; // cell =(sd,x_cell,y_cell,r_cell)  
+
+> 20 21
+
+// stage the whole tile once: HBM -> scratch.  
+
+> 22
+
+par_for(TeamThreadRange(team, n_xy), [&](n) { 
+
+> 23
+
+// n -> (dx,dy): lateral node within the tile  
+
+> 24
+
+coords_sh(n,:) = grid_(sd, x0+dx, y0+dy, :); });  
+
+> 25
+
+par_for(TeamThreadRange(team, n_lev), [&](l) { 
+
+> 26
+
+// l from flat range: radial indices  
+
+> 27
+
+r_sh(l) = radii_(sd, r0+l); });  
+
+> 28
+
+par_for(TeamThreadRange(team, n_xy*n_lev), [&](t) { 
+
+> 29
+
+src_sh(n,:,l) = src_(sd, x0+dx,y0+dy,r0+l, :);  
+
+> 30
+
+// could also read coefficient k from a W_0 wedge-constant function instead of W_1  
+
+> 31
+
+k_sh(n,l) = k_(sd, x0+dx,y0+dy,r0+l); });  
+
+> 32
+
+team_barrier(); // the only barrier  
+
+> 33 34
+
+for (w = 0; w < 2; ++w) { // 2 wedges  
+
+> 35
+
+// one centroidal q-point; only r_mid, dr vary  
+
+> 36
+
+// radially, the lateral plane is reused  
+
+> 37
+
+J = jacobian(coords_sh(tx,ty), r_sh(tr), r_sh(tr+1));  
+
+> 38
+
+invJ = inverse(J);  
+
+> 39
+
+// one viscosity per wedge: arithmetic, geometric  
+
+> 40
+
+// or harmonic mean of its 6 corner values, or a 
+
+> 41
+
+// constant coefficient read per wedge  
+
+> 42
+
+kwJ = k_eval(k_sh) * |det J|;  
+
+> 43 44
+
+// gather: strain rate eps_u(di,dj) = 
+
+> 45
+
+// 0.5*(d_dj u_di + d_di u_dj) and div_u at the  
+
+> 46
+
+// q-point, accumulated over the 18 wedge source  
+
+> 47
+
+// DoFs (node n, component di)  
+
+> 48
+
+eps_u(:,:) = 0; div_u = 0;  
+
+> 49
+
+for (n = 0; n < 6; ++n) { // wedge nodes  
+
+> 50
+
+// shape gradient, reference -> physical  
+
+> 51
+
+grad_phi = transpose(invJ) * grad_reference[n];  
+
+> 52
+
+// node_of/lvl_of: wedge-local node n -> its  
+
+> 53
+
+// (lateral node, level) scratch slot  
+
+> 54
+
+for (di = 0; di < 3; ++di) { // velocity comp  
+
+> 55
+
+u_di = src_sh(node_of(n), di, lvl_of(n));  
+
+> 56
+
+for (dj = 0; dj < 3; ++dj) { // derivative dir  
+
+> 57
+
+u_dj = src_sh(node_of(n), dj, lvl_of(n));  
+
+> 58
+
+eps_u(di,dj) += 0.5 * ( u_di * grad_phi(dj) + u_dj * grad_phi(di) );  
+
+> 59
+
+} 
+
+> 60
+
+div_u += u_di * grad_phi(di);  
+
+> 61
+
+} 
+
+> 62
+
+} 
+
+> 63 64 65
+
+// scatter: test eps_u and div_u against each of  
+
+> 66
+
+// the 18 wedge test functions (node n, comp dj)  
+
+> 67
+
+// and add the residuals to the global vector;  
+
+> 68
+
+// atomic, since neighbouring cells share nodes  
+
+> 69
+
+for (n = 0; n < 6; ++n) { 
+
+> 70
+
+grad_phi = transpose(invJ) * grad_reference[n];  
+
+> 71
+
+for (di = 0; di < 3; ++di) { // 36 atomics / cell  
+
+> 72
+
+res = -2.0/3.0 * grad_phi(di) * div_u;  
+
+> 73
+
+for (dj = 0; dj < 3; ++dj) // 2 eps(u):eps(phi)  
+
+> 74
+
+res += 2.0 * eps_u(di,dj) * grad_phi(dj);  
+
+> 75
+
+// (ddx,ddy,ddr): corner offsets of wedge node  
+
+> 76
+
+// n within this thread’s hex  
+
+> 77
+
+atomic_add(&dst_(sd, x_cell+ddx, y_cell+ddy,  
+
+> 78
+
+r_cell+ddr, di), kwJ * res);  
+
+> 79
+
+} 
+
+> 80
+
+} 
+
+> 81
+
+} 
+
+> 82
+
+}
+
+Listing 2: Production MV kernel, host-side launch and team body. One team owns a tx ×ty ×tr tile of hex cells and stages its geometry, source and coefficient DoFs into scratch behind a single barrier. Per wedge the geometry is built from the one lateral coordinate plane, since only rmid 
+
+and ∆r/ 2 change radially, and a single centroidal quadrature point collapses the element integral. 
+
+arreduc : Single Quadrature Point per Wedge. 
+
+Mantle viscosity η varies by four to six orders of magnitude across the thin boundary layer at the lithosphere surface boundary. The established geodynamics response is one effective viscosity per hex cell, either as a centroidal evaluation or as an arithmetic, harmonic, or geometric per-hex-cell mean, because multi-point sampling across such a near-discontinuity produces non-physical pressure artefacts (Deubelbeiss and Kaus 2008; Heister et al. 2017). The finite-volume codes StagYY (Tackley 2008) and CitcomS (Zhong et al. 2000, 2008) build this directly into the discretisation. The wedge split inherited from TERRA’s original icosahedral discretisation (Baumgardner and Frederickson 1985) enables carrying a reduced-integration regime into a finite-element setting with a similar effect: a single centroidal quadrature point per wedge, requiring far less arithmetic than the standard six-point rules and evaluating the viscosity once. Its accuracy and stability are analysed in the companion paper (B¨ ohm et al. 2026), while we focus on its impact on performance compared to a full, 6 point quadrature scheme here. This is a change of discretisation, not only of implementation: the rule truncates the mixed bilinear terms and admits element-local hourglass modes. It is not a change of accuracy: the optimal discretisation order is retained, and hourglass control restores textbook multigrid convergence (B¨ ohm et al. 2026). The collapsed inner quadrature loop reduces to one Jacobian, one 
+
+η lookup, and one set of basis gradients per wedge, with the small negligible overhead of the hourglass control. In Listing 2 this is line 37: the geometry is evaluated once per wedge, at the centroid and the mid-radius, and no quadrature loop remains. 
+
+arreduc : SymPy-based Kernel Generation. The element-level arithmetic of every operator is produced by a SymPy-based code generator, following the approach of the HyTeG Operator Generator (B¨ ohm et al. 2025), that symbolically integrates the weak form for the chosen quadrature rule, applies source-level common-subexpression elimination, and emits scalar C++ expressions for the fused gather–scatter kernel. Geometry-dependent terms (Jacobians, determinants) are factored out where possible, removing hand-written element-level code, minimizing redundant floating-point operations, and making it cheap to add new operators. This is what underlies the gather and scatter loops of Listing 2, lines 49–77, although the low-level arithmetic is omitted in the pseudocode. 
+
+Prepared using sagej.cls B ¨ ohm et al. 5radii rk:
+
+> tr+1 scalars lateral coordinates: (tx+1)( ty+1) on the tile base src, dst, coefficient: per node of the tile
+
+Figure 2. Thread-team tiling and the per-tile scratch data. Left: one subdomain viewed from the side. Each colour marks one team, which owns a tx × ty × tr tile of hex cells (here 4 × 4 × 8, spanning the full radial extent) and processes them with one thread per hex cell. Right: the data each team stages into on-chip scratch memory for its tile: the (tx+1)( ty +1) lateral coordinates of the tile base (blue), from which each thread extrudes the geometry on-the-fly using the tr +1 per-layer radii (orange), and the source and coefficient values on every node of the tile (green). r0 r1 r2 r3 r4 r5 r6 r7 r8ux                   
+
+> uy
+> lateral position ( x0,y0)(x1,y0)
+> uz
+> t0t1t2t3t4t5t6t7t8
+> adjacent threads adjacent addresses:
+> one coalesced transaction memory address (LayoutRight: sd ,x,y,r-- radial index rinnermost)
+
+Figure 3. Memory layout of the grid data for a shell of only 8 radial cells, so 9 radial DoFs per lateral position. Each velocity component is one contiguous Grid4DDataScalar View. Within each View, Kokkos::LayoutRight places the radial index r innermost, so consecutive radial entries of one lateral position are contiguous in memory. Adjacent thread IDs of the cooperative TeamThreadRange load therefore hit adjacent addresses. 
+
+arreduc : Dimension-wise Fused Assemble-and-Apply. The production kernel never materializes the local element matrix Ae like the textbook, which would require nquad · d2 · n2 
+
+> w-dofs
+
+= nquad · 324 operations per wedge. Instead, it fuses the assembly of the local matrix and its matrix-vector multiplication. The resulting gather and scatter phases reduce the complexity to 
+
+nquad · d2 · 2 · nw-dofs = nquad · 108 . This fused assembly-and-application is a standard technique in matrix-free FE computations (Kronbichler and Kormann 2012). In contrast to precomputing and storing the per-quadrature-point Jacobians, our kernels recompute the geometry on-the-fly from the radially compressed coordinate storage, so no per-element geometry data is streamed from main memory. The same folding can be applied on the block-level of the d × d-vectorial viscous operator: treating the 3 × nw-dofs 
+
+shape functions as one set of vectorial shape functions coupled by a monolithic viscous operator instead of three sets of scalar shape functions coupled by a d × d-block operator gives the theoretical justification to also fold the nested dimensions loop, reducing complexity further to nquad · 2 ·
+
+d · 2 · nw-dofs = nquad · 72 . The two loops of Listing 2 at lines 49 and 77 are this fusion: the first accumulates the source into the strain rate for all 6 source DoFs per wedge and 3 velocity components. The second loop contracts the accumulated strain rate against every test gradient into the global destination. 
+
+shmem : Hierarchical Parallelism and Shared Memory. 
+
+Due to the continuous Galerkin discretization, every nodal source, coefficient and destination DoF is shared by up to eight hex cells (four lateral neighbours times two radial layers) and gathered once per hex-cell thread. A naive cell-per-thread or wedge-per-thread dispatch therefore loads the same data mostly redundantly from main memory, once per visiting thread. We exploit the second level of Kokkos’ parallelism, 
+
+TeamPolicy , to facilitate staging shared DoFs in shared memory. A team owns a tile of tx × ty × tr hex cells (Figure 2) and contains exactly NT = tx ty tr threads, one per hex cell. With the per-rank hex-cell counts 
+
+(nsd , n x, n y , n r ) from Section 2, the number of teams launched per rank is 
+
+nT = nsd 
+
+nx/t x
+
+  ny /t y
+
+  nr /t r
+
+,
+
+so the grid- and team-level dispatches together cover every hex cell exactly once. In case the global dimensions of the compute grid are not divisible cleanly by the team size in each dimension, threads are masked. In Listing 2 the team-based dispatch is set up at lines 2–3 and each thread decodes its tile origin and its hex cell within the tile at lines 15 and 16. Before any thread enters the per-hex-cell kernel, the team cooperatively stages the tile’s shared data into Kokkos scratch memory using TeamThreadRange parallel-fors (lines 21–32), closed by the single barrier. This includes 
+
+nxy = ( tx + 1)( ty + 1) lateral coordinates (which are later radially extruded on-the-fly by each thread), nlev = tr + 1 
+
+for the radii, and most importantly, the 4 · nxy · nlev nodal source and coefficient DoFs. A single team barrier() 
+
+follows, after which every geometry, source or coefficient access inside the kernel hits on-chip scratch rather than HBM. The tile dimensions are the central means to tune the code: NT must fit the vendor’s max threads-per-block, and the scratch footprint must fit the available on-chip memory per SM/CU/Xe-core. Neglecting DoFs on tile-boundaries, this reduces the amount of global loads from 8 to 1 per source and coefficient DoF.  
+
+> Prepared using sagej.cls
+
+6 Journal Title XX(X) 
+
+shmem : Global Memory Coalescing. After the coop-erative staging just described, no per-hex-cell access inside the kernel reaches HBM. The coalescing question there-fore moves to the TeamThreadRange loads that fill the scratch in the first place (Figure 3). Kokkos defaults to LayoutLeft on its GPU backends, which would place the subdomain index, a virtually unused axis with 
+
+nsd ∼ O (1) entries per rank, contiguous in memory and stride the radial accesses our kernel actually walks. We instead instantiate every grid data View explicitly with 
+
+Kokkos::LayoutRight so that the radial index r
+
+is innermost and adjacent radial entries are contigu-ous. Vector quantities are stored as structure-of-arrays via 
+
+Grid4DDataVec : each velocity component occupies its own Grid4DDataScalar View, and a thread loading all three components issues three independently contiguous transactions rather than one dimension-strided one. Inside the cooperative load, TeamThreadRange (team , n xy ·nlev )
+
+linearises the team’s threads over the (lateral-node, radial-level) pairs of the staged tile, with the radial level changing fastest, adjacent thread IDs hit adjacent addresses and every HBM transaction is fully coalesced across the warp, wave-front, or subgroup. 
+
+tuned : Architecture-Specific Tuning. Starting from the architecture-agnostic shmem kernel, the tuned 
+
+variant applies per-vendor adjustments. Note that this does not include vendor-specific instructions: all variants can run on all GPUs, as they are purely using C++ and Kokkos language constructs. In that sense also 
+
+tuned is architecture-agnostic. However, there are certain characteristics of the kernel, e.g. how many registers, how much scratch memory it requires and the shape of the tiles, that are better on one architecture or another, and that can be optimized for the GPU at hand. 
+
+tuned : Tile-size selection. The team-tile dimensions 
+
+(tx, t y , t r ) set the team size and the scratch footprint. They are swept per architecture and pinned to the value that maximises measured throughput, subject to the threads-per-block and on-chip-scratch limits of each vendor (NVIDIA SMs, AMD CUs, Intel Xe-cores). Section 4.3 reports that sweep. They enter Listing 2 at lines 2 and 6. 
+
+tuned : Cache vs. recompute trade-off, Occupancy and Atomics. Where shmem caches intermediate quanti-ties (Jacobians, basis gradients, geometry-derived terms) in registers or scratch, tuned selectively recomputes them on the fly to free registers and potentially hit a higher occupancy bin. In some cases, accumulators for e.g. the destination DoFs, which increases local memory, decreases occupancy but e.g. reduces number of atomics and arith-metic can also be advantageous. Furthermore, launch bounds let the programmer influence registers per thread against achieved occupancy manually. This is layed out in section 4.5 and section 4.6. 
+
+4 Cross-architecture Comparison 
+
+In this section we compare how the optimised kernel performs across the four GPU architectures, where it sits relative to each device’s roofline, and what the remaining tuning space looks like on each of them.             
+
+> Table 2. Compiler and MPI used on each machine. The same source is compiled with each vendor’s own toolchain.
+> machine compiler MPI MareNostrum 5 NVHPC 23.11 Open MPI (HPC-X 2.16) LUMI-G ROCm 6.3.4 Cray MPICH 8.1.32 Hunter ROCm 6.4.1 Cray MPICH 8.1.33 SuperMUC-NG 2 oneAPI 2025.2.0 Intel MPI 2021.16
+> Figure 4. Main-memory (HBM) roofline of TERRA-NG’s matrix-free MV kernel on H100 (MareNostrum 5), MI250X per GCD (LUMI-G), MI300A APU (Hunter), and PVC Max 1550 (SuperMUC-NG Phase 2). The four markers correspond to the variants of Table 1. Arrows indicate the optimisation trajectory
+
+textbook → arreduc → shmem → tuned .
+
+We profile with Nsight Compute on the H100, 
+
+rocprofv3 on MI250X and MI300A, and Intel Oneprof on PVC. Table 2 lists the compiler used on each machine. Table 3 summarises the per-device peak specifications of the four GPUs, as deployed in the respective host supercomputer, that the rooflines, throughput, and bandwidth figures of this section are placed against. For MI250X and PVC we report the per-GCD / per-tile values since these are the units the Kokkos backend addresses (the OAM module / package carries two of each).                           
+
+> Table 3. Per-device peak specifications of the four GPUs in their host supercomputer configuration. “scratch” is the on-chip programmer-managed memory per SM / CU / Xe-core (shared memory, LDS, SLM). “L2” is the device-level L2 cache (for MI300A the aggregate across the six XCDs, not counting the additional 256 MB Infinity Cache).
+> device HBM BW [TB/s] scratch [KB] L2 [MB] FP64 [TF] H100 SXM5 64 GB 2.68 228 50 33.5 MI250X / GCD 64 GB 1.6 64 823.9 MI300A APU 128 GB 5.3 64 24 61.3 PVC 1550 / tile 64 GB 1.638 128 204 26.0
+
+4.1 Roofline Placement 
+
+We first characterize the kernel and how our optimizations impact it with respect to speed-of-light measures in the roofline model. Figure 4 places each of the four operator  
+
+> Prepared using sagej.cls
+
+B ¨ ohm et al. 7 
+
+> Figure 5. Throughput (GDoF/s) on a single GPU of the matrix-free MV kernel of Listing 1 together with the optimizations from Section 3 applied. MI300A remains limited by the atomic scatter analysed in Section 4.5.
+
+variants on the main-memory (HBM) roofline of H100, MI250X (per GCD), MI300A, and PVC. The four markers from Table 1 thread through the same trajectory on every architecture: textbook sits far below the roof on most GPUs, arreduc reduces (redundant) arithmetic, dropping the numerator of the arithmetic intensity, thereby pulling the operating point left while raising throughput, 
+
+shmem eliminates redundant main-memory accesses by staging the shared DoFs in scratch memory, increasing the arithmetic intensity by reducing its denominator and climbing along the bandwidth ceiling, and tuned gives depending on the GPU another upwards boost and achieves a performance near the HBM knee. We observe that the same qualitative pattern holds on all four architectures, testifying some universality of the optimizations. However, the contribution of each phase varies vastly between vendors: the final tuning step, for example, tuned improves performance significantly on MI250X and PVC but only to a smaller extent on the H100. This might stem from a more mature compiler environment on NVIDIA, or from the AMD and Intel backends of Kokkos being less thoroughly optimised. In either case the NVIDIA toolchain already makes near-optimal choices for the tile size and for caching versus recomputing intermediate variables (the techniques described in section 3, tuned ), leaving manual trial-and-error tuning less to recover on NVIDIA and correspondingly more on the other architectures. 
+
+4.2 Throughput 
+
+The improved FLOPs performance and the shift towards the HBM roofline shown in the roofline plots Figure 4 are not pure performance improvements, but translate directly into gains on the ultimately relevant metric, operator throughput. Throughput here is the number of velocity DoFs the operator updates per second, Nvel /t apply , with Nvel the three velocity components on every node of the level-ℓ mesh and tapply 
+
+the wall time of a single matrix-free apply on one device. GDoF/s denotes 10 9 of them per second. Figure 5 reports the throughput of the matrix-free apply in GDoF/s across the same four-phase progression: on every 10 3                              
+
+> 10 2
+> 10 1
+> 10 0
+> 10 1
+> throughput [GDoF/s]
+> 2
+> 3
+> 4
+> 5
+> 678
+> H100 (MN5)
+> 2
+> 3
+> 4
+> 5
+> 678
+> MI250X / GCD (LUMI)
+> 10 310 410 510 610 710 810 9
+> DoFs 10 3
+> 10 2
+> 10 1
+> 10 0
+> 10 1
+> throughput [GDoF/s]
+> 2
+> 3
+> 4
+> 5
+> 678
+> MI300A APU (Hunter)
+> 10 310 410 510 610 710 810 9
+> DoFs
+> 2
+> 3
+> 4
+> 5
+> 678
+> PVC Max 1550 (SNG-2)
+> Figure 6. Throughput of the tuned MV kernel as a function of problem size, sweeping the refinement level ℓon a single device.
+
+architecture the throughput rises monotonically through 
+
+textbook → arreduc → shmem → tuned .The relative gains mirror the roofline picture: the final tuning step buys only 1.6× on H100, against 2.0× on MI300A, 
+
+3.2× on PVC and 6.1× on MI250X. Our code nonetheless runs fastest on the H100, and sometimes already before that step: at shmem the H100 delivers more throughput than MI250X and PVC reach even after tuning. Conversely, and mirroring its distance from the roof in Figure 4, the MI300A stays comparatively slow at 10 .9 GDoF/s although it is the newest and, on paper, the most capable device considered, with roughly twice the HBM bandwidth and peak FP64 rate of the H100 (Table 3). The kernel is appearently limited by other parts of the GPU than those top level specs. Figure 6 sweeps the refinement level on a single device and shows that the peak throughput is reached only once the device is saturated. Up to ℓ5 the grid is too small to fill the machine and the measurement is dominated by kernel-launch and latency overheads rather than by memory traffic. Saturation sets in between ℓ6 and ℓ7, and beyond ℓ7 the curves flatten into a plateau. The plateau value is the per-device asymptote used in fig. 5, and only levels in this regime are representative of production runs, where every device holds a saturating share of the global grid. 
+
+4.3 Tuned : Team-Tile Shape 
+
+We investigate how far we can push the throughput by finding optimal team-tile sizes tx, t y , t r . Kokkos exposes the overall team-size but how the team is spread laterally and radially is on the user. Figure 7 sweeps this space exhaustively at ℓ8.The optimum is the same on three of the four devices: H100 and both AMD parts peak at tx = ty = 4 , tr = 32 , and only PVC prefers a tile with dimensions closer to a square, 
+
+tr = 16 . Throughput varies by 5.5× across the feasible tiles on MI250X, 3.6× on H100, 3.5× on MI300A and 2.5×
+
+on PVC. The two extremes of the range fail for different  
+
+> Prepared using sagej.cls
+
+8 Journal Title XX(X) 24816 32 64                                            
+
+> 3.6 6.2 6.3 6.8 8.9 9.0 10.7 10.8 10.8 11.6 12.2 11.9 12.8 12.2
+> H100
+> 1.4 3.7 3.4 2.5 5.5 5.4 4.2 7.0 7.2 5.7 7.0 5.6 7.5 5.3
+> MI250X / GCD
+> 24824816 32 64
+> 3.1 4.1 4.1 5.1 6.4 6.3 7.2 8.4 8.4 9.3 9.8 10.1 10.9 9.7
+> MI300A APU
+> 248
+> 2.9 4.9 5.3 5.0 6.3 6.7 5.5 7.0 7.3 7.0 7.5 7.4 7.1 7.4 7.0 7.3
+> PVC Max 1550 (card)
+> 0246810 12
+> throughput [GDoF/s]
+> tx=ty
+> tr
+> OOM per-device optimum
+> Figure 7. Throughput of the
+
+tuned MV kernel over the team-tile parameter space, on a single device at ℓ8 (2.54 × 10 8
+
+> velocity DoFs). Hatched cells could not be run: they exceed the device’s work-group size or scratch-memory limit.
+
+reasons. Large teams exhaust the scratch memory and do not launch at all (hatched cells in Figure 7), while small teams run but amortise the cost of team administration, the cooperative loads, the barriers, and the halo staged once per team, over too little work, such that the smallest tr = 2 , t x =
+
+ty = 2 -tile is the slowest configuration on every architecture. Aspect ratio matters as much as size: at a fixed team size a flat lateral plate is always the worst choice. This is intuitive given the r-fastest-moving-dimension memory layout (fig. 3). Tiling mostly radially ( tx = 2 configs) performs well close to the optimum, but a certain degree of lateral reuse seems especially beneficial on MI250X. 
+
+4.4 Memory Utilisation 
+
+From arreduc onwards the kernel has low arithmetic intensity, lower than or at the roofline knee-point on all GPUs, so its speed is determined by how well it maps onto the memory hierarchy, including lower-level caches, rather than by how much arithmetic it performs. Figure 8 reports the HBM and L2 bandwidth achieved by the tuned 
+
+production MV kernel as a fraction of per-vendor peak. The kernel sustains a high fraction of the L2 bandwidth on most architectures, while the achieved HBM bandwidth stays comparatively low. On MI300A, that balance is inverted with a higher relative memory than L2 cache bandwidth. Using hardware counters, we observe that atomics are 
+
+87 % of all L2 requests on MI250X and 90 % on MI300A, so the L2 traffic is dominated by atomics. This is expected: the gather loading source and coefficient DoFs from main memory and scatter writing destination DoFs to main memory atomically amortise very differently over a team. The gather is staged in scratch once per team and then read only from scratch by every hex cell. The scatter cannot be amortised at all, since neighbouring teams and cells contribute to the same nodes and each cell must therefore accumulate into the global destination. Writing nxy = ( tx +1)( ty + 1) for the nodes of a lateral layer and nr = tr + 1   
+
+> Figure 8. Achieved HBM (solid) and L2 (hatched) bandwidth of the
+
+tuned production MV kernel as a fraction of per-vendor peak. 
+
+for the radial layers, a team stages 
+
+Ngather = 3 nxy 
+
+| {z } 
+
+> coordinates
+
++ 3 nxy nr
+
+| {z }
+
+> source
+
++ nxy nr
+
+| {z } 
+
+> viscosity
+
++ nr
+
+|{z} 
+
+> radii
+
+(4) DoFs/doubles to shared memory, while it scatters 
+
+Nscatter = tx · ty · tr
+
+| {z }
+
+> hex cells per team
+
+· 2 · 18 | {z }   
+
+> wedges ×DoFs per wedge
+
+(5) times with atomic additions. For a tile with e.g. tx = ty = 4 ,
+
+tr = 32 , we get Ngather = 3408 against Nscatter = 18 432 ,so the operator issues roughly five atomic requests for every value it reads. MI300A is an outlier with comparatively high memory traffic. It is an APU whose GPU and CPU share one address space, so an atomic has to be coherent with host accesses to the same address and not merely with the six XCDs and their private L2 caches. It therefore cannot be completed in a XCD-local L2 and is resolved in the data fabric, backed by Infinity Cache. This is documented behaviour rather than an artefact of our kernel: the CDNA2 ISA states that memory atomics are performed in the last level texture cache, i.e. the MI250X GCD’s L2, whereas the CDNA3 ISA states that they are performed in the data fabric and are therefore known to be atomic with host memory access (Advanced Micro Devices 2022, 2024). On MI300A, the operator therefore pays the L2 request traffic every device pays and, on top, the traffic a single-die device avoids, which causes the comparatively high memory-side bandwidth of 33 % in Figure 8. This is the reason for our code running slower on the MI300A than the older H100. 
+
+4.5 Tuned : Atomics vs Local Accumulator on MI300A 
+
+A remedy reduces the number of atomics: instead of atomically adding the destination DoFs during the scatter phase, we accumulate them in a private copy of the destination DoFs and flush with one atomic per DoF after the scatter loop. For that, two variants come to mind: first, storing the destination DoFs locally in a per-thread stack array where a thread holds only its own hex cell, whose two wedges scatter 2 · 6 · 3 DoFs but share four of their six nodes and so touch only 8 · 3 distinct ones per hex cell, giving 
+
+2 · 6 · 38 · 3 = 36 24 = 32 (6) fewer atomics, independently of the tile-size. Second, the destination DoFs for the whole tile can be held in team  
+
+> Prepared using sagej.cls
+
+B ¨ ohm et al. 9
+
+scratch at once, such that Nscatter collapses to the 3 nxy nr
+
+DoFs the team actually touches, and the reduction is 
+
+Nscatter 
+
+3 nxy nr
+
+= 12 txty tr
+
+(tx + 1)( ty + 1)( tr + 1) , (7) or 18 432 → 2 475 atomics per team, a factor of 7.4, for the example tx = ty = 4 , tr = 32 tile. In which memory that accumulator lives decides the impact on throughput, summarized in table 4. Held per hex cell as a C stack array (”per hex cell” row in table 4) it causes register spills of 208 B/lane, which drives down occupancy from 4 to 3 waves/SIMD. The per-hex-cell variant drastically tanks throughput because its spill goes to memory as well, raising the memory bandwidth drastically on both considered cards. Staged per team tile it lives in scratch, leaves the registers untouched and pushes occupancy to only 2 waves/SIMD (”per tile” row in table 4). That trade only pays where the atomics reach memory: MI250X resolves atomic writes in L2 cache, so reducing them does not yield throughput gain, but the reduced occupancy is a slight throughput loss. On the MI300A they go through the L2 cache, to infinity cache with much higher latency, so the reduction in atomics yields 
+
+27 % improved throughput, beating the H100 and achieving the highest throughput of all devices. Here, the same change of source results in a substantial performance gain on one architecture and a loss on another. 
+
+Table 4. Accumulating the destination DoFs before the atomic scatter, tile size 4/4/32 . Spill memory [B/lane], scratch [KB] and occupancy [waves/SIMD] are observed. L2 and memory are bandwidths in GB/s, throughput in GDoF/s. With the team-scratch accumulator for dst DoFs, MI300A exceeds the throughput it reaches in Figure 5, while the same change tanks throughput on MI250X.                                       
+
+> both devices MI250X MI300A accumulator spills scratch occup. L2 mem thrpt. L2 mem thrpt. none 031 4972 208 7.54 1220 1180 10 .90
+> per hex cell 208 31 3877 651 2.46 2084 2277 6.27
+> per tile/team 050 2212 178 6.50 384 503 13 .87
+
+4.6 Tuned : Launch Bounds 
+
+The compiler fixes registers, spill and occupancy when it compiles the team, and the accumulator in section 4.5 only changed them indirectly, by asking for more local memory in terms of additional registers or scratch. They can also be steered directly from the source, through the launch bounds. Kokkos exposes that hint as a policy template argu-ment, Kokkos::LaunchBounds<maxT,minB> . The first argument declares the largest team the kernel will be launched with, the second asks the compiler for a minimum degree of concurrency per compute unit, and thereby caps the register budget. That second argument is backend-specific: blocks per multiprocessor on CUDA, waves per execution unit on HIP. On HIP the compiler must fit each wave into 
+
+Rwave ≤ RSIMD 
+
+minB , (8) with RSIMD = 512 vector registers per SIMD on MI250X, and spills whatever does not fit into per-lane private memory. 0 1 2 3 4 5 6      
+
+> min. waves per EU
+> 050 100 150 200 250
+> private mem [B/lane]
+> compiler response
+> 0123456
+> min. waves per EU
+> 010 20 30 40
+> HBM traffic [GB]
+> cost
+> 01234567
+> occupancy [w/SIMD]
+> 02468
+> throughput [GDoF/s]
+
+Figure 9. Effect of the launch-bound hint on MI250X at ℓ8, tile 
+
+4/32 /1. Left: per-lane private memory allocated by the compiler and the achieved occupancy in waves per execution unit. The kernel’s own private footprint is 8 B/lane, everything above that is spilled registers. Right: HBM traffic measured with 
+
+rocprofv3 and throughput. 
+
+This is distinct from the team scratch of Section 3: team scratch is the on-chip shared memory the kernel stages its reused data in, whereas the private memory holding spills is backed by device memory. Spilled values are cached on their way there, so a spill is not automatically an HBM access, but it leaves the register file and competes for the same cache capacity as the staged data. Figure 9 sweeps minB on MI250X. For minB ≤ 3 the bound is not binding: the operator settles at 128 registers per wave, which by (8) already admits 512 /128 = 4 waves, so the setting LaunchBounds<512,2> asks for less than the compiler achieves and is without effect. At minB = 4 the cap binds at exactly 128 registers and spilling to memory begins, but at 56 B per lane it stays cheap: HBM traffic rises and throughput falls only slightly. At 5 and 6 waves per SIMD, registers per thread tighten to 102 and 85 , and the compiler meets it by spilling 184 and 280 bytes per lane. The kernel then has 64 % and 143 % increased HBM traffic. Throughput falls to 58 % and 30 % of the spill-free value. The operator is limited by cache traffic rather than by latency, so the extra waves through launch bounds buy nothing while the increased spill traffic worsens the bottleneck. 
+
+4.7 Scaling 
+
+We run the code on the supercomputers hosting the GPUs considered here: MareNostrum 5 (H100), LUMI-G (MI250X), Hunter (MI300A) and SuperMUC-NG Phase 2 (PVC). Figure 10 strong scales the viscous operator on these four machines. Each line holds one problem size fixed and spreads it over more devices, up to the strong-scaling limit at which the halo exchange and the shrinking per-device work stop paying for the added parallelism. On LUMI-G the sweep reaches 4096 GCDs. The same plot also carries a weak-scaling reading. Each step to the next model size multiplies the number of DoFs by eight, e.g. from 2 G to 16.1 G DoFs, so pairing it with an eight-fold increase in devices keeps the work per device constant. Read along that horizontal across models, we observe a roughly straight weak-scaling line, most clearly on LUMI-G from 254 M DoFs on 2 GCDs to 129 G DoFs on 
+
+1024 GCDs. Figure 10 shows that the kernel is portable and scalable across hundreds of GPUs on all machines. Scaling of the  
+
+> Prepared using sagej.cls
+
+10 Journal Title XX(X) 10 0
+
+> 10 1
+> 10 2
+
+MareNostrum 5 (H100, 4/node) 
+
+> no allocation / cluster limit
+
+LUMI-G (MI250X, 8 GCDs/node) 
+
+> 124816 32 64 128 256 512 1024 2048 4096 10 0
+> 10 1
+> 10 2
+
+SuperMUC-NG Ph.2 (PVC, 8 t/node) 
+
+> no allocation / cluster limit
+> 124816 32 64 128 256 512 1024 2048 4096
+
+Hunter (MI300A, 4/node) 
+
+> no allocation / cluster limit
+
+accelerators (GPUs / GCDs / tiles) ms / fine-level MV apply 
+
+0.5 M DoFs 4.1 M DoFs 32 M DoFs 254 M DoFs 2.0 G DoFs 16.1 G DoFs 129.0 G DoFs   
+
+> Figure 10. Strong scaling of a single fine-level matrix-free MV apply (the Stokes matrix-vector product inside the Krylov solve, including its halo exchange) of the
+
+tuned kernel, one line per problem size, labelled by its total number of velocity DoF. The shaded band marks device counts beyond the allocation available on that machine. 
+
+full coupled simulation, rather than of this single kernel, is reported in the companion paper (B¨ ohm et al. 2026). 
+
+Conclusion 
+
+We compared the performance portability of a low-order, matrix-free finite element operator across NVIDIA H100, AMD MI250X and MI300A, and Intel PVC Max 1550 GPUs. The kernel uses team-based GPU dispatch on tiles of elements of the grid, where each team stores shared degrees of freedom from the conforming discretization in scratch memory. We found that also a complex kernel like this can be written once in the hardware-agnostic constructs of Kokkos and still reach comparable node-level performance on every device, close to the knee of the roofline and to the attainable bandwidth on most of them. One caveat to this is are the few quantities that map directly onto hardware: the team-tile shape, and the scratch footprint it implies, influences throughput on a range of up to 5.5×, and its optimum has to be found manually. However, the optimal tile-shape was more or less universal over the considered cards. The exception is MI300A, which delivered less throughput than its specifications suggest for our code. As an APU it has to keep atomics coherent with host accesses, so the scatter is resolved in the data fabric rather than in a XCD-local L2, at higher latency. Accumulating the destination locally before scattering, thereby reducing atomics, recovers 27 % 
+
+on MI300A, but costs 13 % on MI250X, whose L2 cache already absorbs the atomics. This is a genuine portability gap: the same code change has opposite impact on two GPUs of the same vendor, and atomics have to be balanced against local accumulation of data and connected spill traffic on the architecture at hand. 
+
+Acknowledgements 
+
+The authors thank Gabriel Robl and Marcus Mohr for reading and reviewing the manuscript. The authors gratefully acknowledge the scientific support and HPC resources provided by the Erlangen National High Performance Computing Center (NHR@FAU) of the Friedrich– Alexander–Universit¨ at Erlangen–N¨ urnberg (FAU). The hardware is partially funded by the German Research Foundation (DFG). We acknowledge the EuroHPC Joint Undertaking for awarding this project access to the EuroHPC supercomputer LUMI, hosted by CSC (Finland) and the LUMI consortium through a EuroHPC Regular Access call (EHPC-BEN-2026B05-001).  
+
+> Prepared using sagej.cls
+
+B ¨ ohm et al. 11 
+
+We acknowledge EuroHPC Joint Undertaking for awarding us access to MareNostrum5 at BSC, Spain (EHPC-BEN-2026B04-050). The authors gratefully acknowledge the Gauss Centre for Supercomputing e.V. ( w w w . g a u s s- c e n t r e . eu ) for funding this project by providing computing time on the GCS Supercomputer SuperMUC-NG at Leibniz Supercomputing Centre (www.lrz.de ). The simulations were performed on the national supercomputer HPE Cray EX4000 Hunter at the High Performance Computing Center Stuttgart (HLRS). 
+
+Statements and declarations 
+
+Ethical considerations. This study did not involve human participants or animals, so ethical approval was not required. 
+
+Consent to participate. Not applicable. 
+
+Consent for publication. Not applicable. 
+
+Declaration of conflicting interests 
+
+The author(s) declared no potential conflicts of interest with respect to the research, authorship, and/or publication of this article. 
+
+Funding 
+
+The author(s) disclosed receipt of the following financial support for the research, authorship, and/or publication of this article: NHR funding is provided by federal and Bavarian state authorities. NHR@FAU hardware is partially funded by the German Research Foundation (DFG) – 440719683. The authors thank the NHR-Verein e.V. for supporting this work within the NHR Graduate School of National High Performance Computing (NHR). 
+
+AI disclosure 
+
+TERRA-NG contains code pieces that were developed with Claude Code (Anthropic) as an interactive coding assistant, under the close supervision of the authors, who gave detailed instructions and requirements for the code. All functionality, whether written by humans or with machine assistance, has been thoroughly reviewed and tested by the authors, who take full responsibility for it. During the preparation of this manuscript, the authors used Claude (Anthropic) to improve the readability and language of the text, while all structure and content were provided by the authors. No technical claims or interpretations are AI-generated. The authors reviewed and edited all content and take full responsibility for it. 
+
+Data availability statement 
+
+The source code of TERRA-NG, including every operator variant compared here, is openly available at https://gi thub.com/mantleconvection/TERRA-NG .
+
+References 
+
+Africa PC, Arndt D, Bangerth W, Blais B, Fehling M, Gassm¨ oller R, Heister T, Heltai L, Kinnewig S, Kronbichler M, Maier M, Munch P, Schreter-Fleischhacker M, Thiele JP, Turcksin B, Wells D and Yushutin V (2024) The deal.II library, version 9.6. Journal of Numerical Mathematics 32(4): 369–380. DOI: 10.1515/jnma-2024-0137. Asahi Y, Padioleau T, Zehner P, Bigot J and Lebrun-Grandi´ eD (2025) kokkos-fft: A shared-memory FFT for the Kokkos ecosystem. Journal of Open Source Software 10(111): 8391. DOI:10.21105/joss.08391. Bauer D, Kohl N, McCormick SF and Tamstorf R (2025) Multigrid with linear storage complexity. arXiv preprint arXiv:2511.19036 URL https://arxiv.org/abs/25 11.19036 .Bauer S, Huber M, Ghelichkhan S, Mohr M, R¨ ude U and Wohlmuth B (2019) Large-scale simulation of mantle convection based on a new matrix-free approach. Journal of Computational Science 
+
+31: 60–76. DOI:10.1016/j.jocs.2018.12.006. Baumgardner JR and Frederickson PO (1985) Icosahedral discretization of the two-sphere. SIAM Journal on Numerical Analysis 22(6): 1107–1115. DOI:10.1137/0722066. Bertagna L, Deakin M, Guba O, Sunderland D, Bradley AM, Tezaur IK, Taylor MA and Salinger AG (2019) HOMMEXX 1.0: a performance-portable atmospheric dynamical core for the Energy Exascale Earth System Model. Geoscientific Model Development 12(4): 1423–1441. DOI:10.5194/gmd-12-142 3-2019. B¨ ohm F, Bauer D, Kohl N, Alappat CL, Th¨ onnes D, Mohr M, K¨ ostler H and R¨ ude U (2025) Code generation and performance engineering for matrix-free finite element methods on hybrid tetrahedral grids. SIAM Journal on Scientific Computing 47(1): B131–B159. DOI:10.1137/24M1 653756. B¨ ohm F, Kohl N, Ilangovan P, Robl G, Rezaei F, Mohr M, Schuberth BS, K¨ ostler H, Bunge HP and R¨ ude U (2026) TERRA-NG: Extreme-scale, GPU-accelerated mantle convection. In preparation. Chalmers N, Mishra A, McDougall D and Warburton T(2023) HipBone: A performance-portable graphics processing unit-accelerated C++ version of the NekBone benchmark. 
+
+The International Journal of High Performance Computing Applications 37(5): 560–577. DOI:10.1177/109434202311 78552. Demeshko I, Watkins J, Tezaur IK, Guba O, Spotz WF, Salinger AG, Pawlowski RP and Heroux MA (2019) Toward performance portability of the Albany finite element analysis code using the Kokkos library. The International Journal of High Performance Computing Applications 33(2): 332–352. DOI:10.1177/1094342017749957. Deubelbeiss Y and Kaus B (2008) Comparison of eulerian and lagrangian numerical techniques for the stokes equations in the presence of strongly varying viscosity. Physics of the Earth and Planetary Interiors 171(1–4): 92–111. DOI:10.1016/j.pe pi.2008.06.023. Edwards HC, Trott CR and Sunderland D (2014) Kokkos: Enabling manycore performance portability through polymorphic mem-ory access patterns. Journal of Parallel and Distributed Com-puting 74(12): 3202–3216. DOI:10.1016/j.jpdc.2014.07.003. Fischer P, Min M, Rathnayake T, Dutta S, Kolev T, Dobrev V, Camier JS, Kronbichler M, Warburton T, ´ Swirydowicz K and Brown J (2020) Scalability of high-performance PDE solvers. 
+
+The International Journal of High Performance Computing Applications 34(5): 562–586. DOI:10.1177/109434202091 5762. Heister T, Dannberg J, Gassm¨ oller R and Bangerth W (2017) High accuracy mantle convection simulation through modern  
+
+> Prepared using sagej.cls
+
+12 Journal Title XX(X) 
+
+numerical methods – II: realistic models and problems. 
+
+Geophysical Journal International 210(2): 833–851. DOI: 10.1093/gji/ggx195. Johansson A, Weinberg E, Trott CR, McCarthy MJ and Moore SG (2025) LAMMPS-KOKKOS: Performance portable molecular dynamics across exascale architectures. arXiv preprint arXiv:2508.13523 DOI:10.48550/arXiv.2508.13523. Kohl N, Bauer D, B¨ ohm F and R¨ ude U (2024) Fundamental data structures for matrix-free finite elements on hybrid tetrahedral grids. International Journal of Parallel, Emergent and Distributed Systems 39(1): 51–74. Kohl N, Th¨ onnes D, Drzisga D, Bartuschat D and R¨ ude U (2019) The HyTeG finite-element software framework for scalable multigrid solvers. International Journal of Parallel, Emergent and Distributed Systems 34(5): 477–496. DOI:10.1080/1744 5760.2018.1506453. Kolev T, Fischer P, Min M, Dongarra J, Brown J, Dobrev V, Warburton T, Tomov S, Shephard MS, Abdelfattah A et al. (2021) Efficient exascale discretizations: High-order finite element methods. The International Journal of High Performance Computing Applications 35(6): 527–552. DOI: 10.1177/10943420211020803. Kronbichler M and Kormann K (2012) A generic interface for parallel cell-based finite element operator application. 
+
+Computers and Fluids 63: 135–147. DOI:10.1016/j.compfluid .2012.04.012. Kronbichler M and Ljungkvist K (2019) Multigrid for matrix-free high-order finite element computations on graphics processors. 
+
+ACM Transactions on Parallel Computing 6(1): 2:1–2:32. DOI: 10.1145/3322813. Lin YA, Colli L, Wu J and Schuberth BSA (2022) Where are the proto-South China Sea slabs? SE Asian plate tectonics and mantle flow history from global mantle convection modeling. Journal of Geophysical Research: Solid Earth 
+
+127(5): e2022JB024633. DOI:10.1029/2022JB024633. May DA, Brown J and Le Pourhiet L (2015) A scalable, matrix-free multigrid preconditioner for finite element discretizations of heterogeneous Stokes flow. Computer Methods in Applied Mechanics and Engineering 290: 496–523. DOI:10.1016/j.cm a.2015.03.014. Schubert G, Turcotte DL and Olson P (2001) Mantle Convection in the Earth and Planets . Cambridge: Cambridge University Press. DOI:10.1017/CBO9780511612879. Settgast RR, Dudouit Y, Castelletto N, Tobin WR, Corbett BC and Klevtsov S (2023) Performant low-order matrix-free finite element kernels on GPU architectures. arXiv preprint 
+
+arXiv:2308.09839. DOI:10.48550/arXiv.2308.09839. Stotz IL, Iaffaldano G and Davies DR (2018) Pressure-driven Poiseuille flow: A major component of the torque-balance governing Pacific plate motion. Geophysical Research Letters 
+
+45(1): 117–125. DOI:10.1002/2017GL075697. Tackley PJ (2008) Modelling compressible mantle convection with large viscosity contrasts in a three-dimensional spherical shell using the yin-yang grid. Physics of the Earth and Planetary Interiors 171(1–4): 7–18. DOI:10.1016/j.pepi.2008.08.005. Tamstorf R, Benzaken J and McCormick SF (2021) Discretization-error-accurate mixed-precision multigrid solvers. SIAM Journal on Scientific Computing 43(5): S420–S447. DOI: 10.1137/20M1349230. Trott CR, Lebrun-Grandi´ e D, Arndt D, Ciesko J, Dang V, Ellingwood N, Gayatri R, Harvey E, Hollman DS, Ibanez D, Liber N, Madsen J, Miles J, Poliakoff D, Powell A, Rajamanickam S, Simberg M, Sunderland D, Turcksin B and Wilke J (2022) Kokkos 3: Programming model extensions for the exascale era. IEEE Transactions on Parallel and Distributed Systems 33(4): 805–817. DOI:10.1109/TPDS.2 021.3097283. Vargas A, Stitt TM, Weiss K, Tomov VZ, Camier JS, Kolev T and Rieben RN (2022) Matrix-free approaches for GPU acceleration of a high-order finite element hydrodynamics application using MFEM, Umpire, and RAJA. The International Journal of High Performance Computing Applications 36(4): 492–509. DOI:10.1177/109434202211 00262. Zhong S, McNamara A, Tan E, Moresi L and Gurnis M (2008) A benchmark study on mantle convection in a 3-D spherical shell using CitcomS. Geochemistry, Geophysics, Geosystems 9(10): Q10017. DOI:10.1029/2008GC002048. Zhong S, Zuber MT, Moresi L and Gurnis M (2000) Role of temperature-dependent viscosity and surface plates in spherical-shell models of mantle convection. Journal of Geophysical Research: Solid Earth 105(B5): 11063–11082. DOI:10.1029/2000JB900003.

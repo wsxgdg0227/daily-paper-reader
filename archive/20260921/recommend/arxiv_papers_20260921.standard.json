@@ -1,0 +1,249 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-21T22:45:04.230609+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2609.21058v1",
+      "source": "arxiv",
+      "title": "How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach?",
+      "abstract": "Language models can now write GPU kernels that outperform PyTorch. We evaluate five model configurations on KernelBench level 1 and find that a frontier model produces correct kernels for 91.1% of problems and independently verified speedups on 22 of 56, including three convolutions, with a median of 1.235x. Open-weights models are far behind: the best reaches 30.4% correct with three verified speedups and solves zero convolutions.   We then ask a question the literature does not: what fraction of a real model's wall clock do such kernels govern? Profiling seven workloads across three domains, we find the addressable fraction ranges from 8.9% to 58.2%. On transformers, 80-86% of runtime is spent in cuBLAS GEMM and FlashAttention, bounding realistic end-to-end improvement at roughly 1%, and the fraction shrinks with model scale. On recommenders it is 58.2%, concentrated in a single embedding kernel. We introduce DLRM-Bench, 12 recommender kernel problems in KernelBench format, and measure a 41.7% win rate at a 1.552x median there, projecting 8.63% end-to-end.   Separately, we show that KernelBench's correctness check (torch.allclose with an absolute tolerance) is satisfied by a tensor of zeros on 4 of 60 level-1 problems. Two kernels in our own results exploited this before we detected them, including one scored at 283x that wrote 0.3% of its output buffer. We propose scale-invariant replacements and release all 879 evaluations.",
+      "authors": [
+        "Gaurav Agarwal",
+        "Ashish Garg",
+        "Isha Singhal"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AI"
+      ],
+      "published": "2026-09-17T20:26:23+00:00",
+      "link": "https://arxiv.org/pdf/2609.21058v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Evaluates how far LLM-generated GPU kernels reach on real workloads",
+      "llm_evidence_cn": "评估大模型生成的GPU内核在真实负载中的实际覆盖范围",
+      "llm_evidence": "评估大模型生成的GPU内核在真实负载中的实际覆盖范围",
+      "canonical_evidence": "评估大模型生成的GPU内核在真实负载中的实际覆盖范围",
+      "llm_tldr_en": "The paper measures how correct and fast LLM-written GPU kernels are on KernelBench, and how much of a real model's runtime such kernels can actually govern.",
+      "llm_tldr_cn": "该工作关注大模型生成的GPU内核究竟能在真实负载中发挥多大作用。作者在KernelBench一级任务上评测五种模型配置，前沿模型对91.1%的问题生成正确内核，并在56题中的22题取得独立验证的加速，中位加速1.235倍，而开源权重模型明显落后。随后作者进一步剖析真实模型运行时间中可被这些内核覆盖的比例，发现仅在8.9%到58.2%之间，Transformer负载大部分时间仍花在cuBLAS与FlashAttention上。这一结果揭示了大模型生成内核的现实收益上限，为后续优化方向提供重要参照。",
+      "llm_tldr": "该工作关注大模型生成的GPU内核究竟能在真实负载中发挥多大作用。作者在KernelBench一级任务上评测五种模型配置，前沿模型对91.1%的问题生成正确内核，并在56题中的22题取得独立验证的加速，中位加速1.235倍，而开源权重模型明显落后。随后作者进一步剖析真实模型运行时间中可被这些内核覆盖的比例，发现仅在8.9%到58.2%之间，Transformer负载大部分时间仍花在cuBLAS与FlashAttention上。这一结果揭示了大模型生成内核的现实收益上限，为后续优化方向提供重要参照。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How to generate optimized GPU kernels using large language models?",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.21533v1",
+      "source": "arxiv",
+      "title": "MACE: Memory-Agent Co-Evolution with Adaptive Memory Graphs for Multi-Agent Systems",
+      "abstract": "LLM-based multi-agent systems generate collaboration traces that record how agents plan tasks, verify intermediate results, and repair failures. Reusing these procedures requires preserving an action's prerequisites and the outputs needed by subsequent agents. Our empirical studies show that grouping these dependencies into functional memory units improves their retention, while connecting units increases retrieval of the units and links jointly required by a task. The preferred combination of units also changes between instructions and checklists, even when each combination's content is fixed across formats. Updating choices from the outcomes of each combination and format pairing outperforms scoring combinations and formats separately. These findings motivate MACE, a memory-agent co-evolution framework that adapts memory organization and agent memory use through execution feedback. Its MemGoG structure represents functional units as subgraphs of related conditions, actions, and outputs, connecting them through support, conflict, and repair relations. MACE Loop selects task-relevant units and relations within a memory budget and provides each agent with instructions or checklists for its current operation. It records the selected units, presentation formats, agent outputs, and task outcomes to update unit scores and relations for retrieval and inform subsequent presentation choices. Across eight benchmarks, MACE outperforms ten baselines with an average score of 81.11%, compared with 78.97% for the strongest baseline, SAGE.",
+      "authors": [
+        "Kairui Yang",
+        "Minghao An",
+        "Xunkai Li",
+        "Ziheng Yi",
+        "Zekai Chen",
+        "Guangyuan He",
+        "Rong-Hua Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-18T09:25:06+00:00",
+      "link": "https://arxiv.org/pdf/2609.21533v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "adaptive memory graphs for agent memory retention and retrieval",
+      "llm_evidence_cn": "面向智能体记忆存储与检索的自适应记忆图",
+      "llm_evidence": "面向智能体记忆存储与检索的自适应记忆图",
+      "canonical_evidence": "面向智能体记忆存储与检索的自适应记忆图",
+      "llm_tldr_en": "MACE organizes multi-agent collaboration traces into functional memory units and links, showing that grouping and connecting units improves retention and retrieval, and that updating choices from outcomes beats scoring separately.",
+      "llm_tldr_cn": "多智能体系统产生的协作轨迹蕴含可复用流程，但需保留动作前置条件与后续智能体所需输出，现有记忆方式难以有效组织。作者提出 MACE，将依赖关系分组为功能记忆单元并连接成自适应记忆图，从组合与格式配对的结果中更新选择。实验表明分组提升记忆保持、连接提升检索，为智能体记忆与检索机制提供了新方案。",
+      "llm_tldr": "多智能体系统产生的协作轨迹蕴含可复用流程，但需保留动作前置条件与后续智能体所需输出，现有记忆方式难以有效组织。作者提出 MACE，将依赖关系分组为功能记忆单元并连接成自适应记忆图，从组合与格式配对的结果中更新选择。实验表明分组提升记忆保持、连接提升检索，为智能体记忆与检索机制提供了新方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.21423v1",
+      "source": "arxiv",
+      "title": "DENSE: Distilling Agent Trajectories into Evidence-Grounded Shortcut Trees for Self-Refinement",
+      "abstract": "Online agent deployments produce abundant execution traces, while task-specific verification and expert annotation are costly to scale. We study how to distill these traces into reusable feedback without post-hoc outcome labels, drawing on their evidence of local progress, recovery, and unfinished requirements. We introduce DENSE (Distilling Evidence from Nested Subtask Executions), which organizes this evidence into evidence-grounded nested shortcut trees. DENSE compresses redundant attempts, reconciles issues across levels using recovery evidence, and summarizes completed branches while expanding unresolved ones, linking reusable progress to remaining obligations. We introduce REFIT, a source-paired protocol comparing feedback from shared initial trajectories under post-hoc outcome blindness, with environments and model contexts reset for fresh attempts at the same tasks. On Terminal-Bench 2.1, DENSE achieves the highest strict pass rate among tested non-privileged feedback methods across four recipient models. Relative to initial executions, strict pass rate improves by 7.12-15.64 pp, with 19.0-43.6% fewer observed recipient tokens in reruns. GPT-5.5 ablations support combining nested subtask analysis with shortcut construction and issue reconciliation. These findings point toward agent self-refinement through evidence-grounded trajectory reuse with less reliance on external supervision.",
+      "authors": [
+        "Siyuan Liu",
+        "Fan Yu",
+        "Dongyu Ru",
+        "Yizhu Liu",
+        "Yifan Yang",
+        "Xuezhi Cao",
+        "Xunliang Cai",
+        "Yixin Cao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-18T07:36:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.21423v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Distilling agent trajectories into reusable evidence-grounded feedback for self-refinement",
+      "llm_evidence_cn": "将智能体轨迹蒸馏为可复用、有证据支撑的反馈以支持自我精炼",
+      "llm_evidence": "将智能体轨迹蒸馏为可复用、有证据支撑的反馈以支持自我精炼",
+      "canonical_evidence": "将智能体轨迹蒸馏为可复用、有证据支撑的反馈以支持自我精炼",
+      "llm_tldr_en": "DENSE distills online agent execution traces into evidence-grounded nested shortcut trees without outcome labels, compressing redundant attempts and linking reusable progress to remaining obligations; REFIT compares feedback quality.",
+      "llm_tldr_cn": "在线智能体部署会产生大量执行轨迹，但任务级验证与专家标注难以规模化。DENSE将轨迹中的局部进展、恢复与未完成需求等证据组织为嵌套捷径树，压缩冗余尝试并在层级间协调问题，同时总结已完成分支、展开未解决分支。该工作还提出REFIT协议比较反馈质量，验证了无需结果标签即可获得可复用反馈。这为智能体的自我精炼提供了结构化记忆基础。",
+      "llm_tldr": "在线智能体部署会产生大量执行轨迹，但任务级验证与专家标注难以规模化。DENSE将轨迹中的局部进展、恢复与未完成需求等证据组织为嵌套捷径树，压缩冗余尝试并在层级间协调问题，同时总结已完成分支、展开未解决分支。该工作还提出REFIT协议比较反馈质量，验证了无需结果标签即可获得可复用反馈。这为智能体的自我精炼提供了结构化记忆基础。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.15627v1",
+      "source": "arxiv",
+      "title": "DeepSeek-V4-Flash on AMD gfx90a: Correctness Recovery and Inference Performance Engineering",
+      "abstract": "We present the enablement, correctness recovery, and performance engineering of DeepSeek-V4-Flash inference on AMD Instinct MI250 GPUs using the gfx90a/CDNA2 architecture. The system integrates native safetensors loading, tensor and expert parallelism, FP4 routed mixture-of-experts computation, FP8 dense projections, sparse attention, HIP graph execution, and OpenAI-compatible serving within SGLang. An initially fast execution path was found to be numerically incorrect because of a routed-expert W2 layout mismatch. We identify the output permutation, repair the weight layout at load time, and establish fixed-token and hash-based correctness checks before further optimization. On the corrected path, decode performance is improved through packed FP4 weights, INT8 activation quantization, CDNA2 dot-product instructions, peer-read all-reduce, and topology-aware kernel geometry. Prefill is accelerated using CDNA2 MFMA kernels, improved packed-weight reuse, reduced sparse-attention overhead, larger chunks, and retuned expert sorting. On four MI250 GCDs, TP4/EP1 native autoregressive decode reaches approximately 74.5 tok/s, while a 4,604-token prompt reaches 2.061-2.062 s TTFT, or approximately 2,234 input tok/s. The results show that efficient DeepSeek-V4-Flash inference on CDNA2 is limited not only by memory bandwidth, but also by FP4 execution-format mismatch, low-M utilization, and per-layer synchronization costs.",
+      "authors": [
+        "Siming Huang"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AR",
+        "cs.PF"
+      ],
+      "published": "2026-09-14T14:18:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.15627v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "performance engineering and optimization of LLM inference on AMD GPUs with kernel-level fixes",
+      "llm_evidence_cn": "在AMD GPU上对LLM推理进行性能工程与内核级优化",
+      "llm_evidence": "在AMD GPU上对LLM推理进行性能工程与内核级优化",
+      "canonical_evidence": "在AMD GPU上对LLM推理进行性能工程与内核级优化",
+      "llm_tldr_en": "The paper enables DeepSeek-V4-Flash inference on AMD MI250 GPUs, diagnosing a routed-expert weight-layout mismatch causing numerical errors, repairing it and adding correctness checks, then improving decode performance through careful performance engineering.",
+      "llm_tldr_cn": "在AMD Instinct MI250 GPU上部署DeepSeek-V4-Flash推理面临正确性与性能双重挑战。本文实现原生权重加载、张量与专家并行、FP4路由专家计算、FP8稠密投影及稀疏注意力等，并发现一条快速执行路径因路由专家W2布局不匹配而产生数值错误。作者定位输出置换、在加载时修复权重布局并建立固定token与哈希校验，随后在此基础上优化解码性能。该工作为跨架构大模型推理的正确性恢复与性能工程提供了实用方案。",
+      "llm_tldr": "在AMD Instinct MI250 GPU上部署DeepSeek-V4-Flash推理面临正确性与性能双重挑战。本文实现原生权重加载、张量与专家并行、FP4路由专家计算、FP8稠密投影及稀疏注意力等，并发现一条快速执行路径因路由专家W2布局不匹配而产生数值错误。作者定位输出置换、在加载时修复权重布局并建立固定token与哈希校验，随后在此基础上优化解码性能。该工作为跨架构大模型推理的正确性恢复与性能工程提供了实用方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.17786v1",
+      "source": "arxiv",
+      "title": "FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment",
+      "abstract": "Fairness-aware model compression requires selecting methods and configurations that balance accuracy, fairness, and deployment cost. These decisions become more difficult when compression methods are composed or the user's requirements change. In this paper, we propose FairCompressAgent (FCA), an agentic framework that integrates fairness-aware pruning, incremental quantization, and sparse low-rank factorization through a common operator interface. A language-model planner uses model profiles and measured outcomes to select compression configurations, while an execution layer performs compression, fine-tuning, evaluation, and constraint-based selection. FCA also supports requirement updates and reports the remaining violation when a request cannot be satisfied. Experiments on Fitzpatrick-17k with VGG-11 compare four search methods over 40 measured configurations. Under the accuracy-constrained request, FCA selects a compressed model with 59.54% less inference tensor storage, while validation average precision increases from 0.5141 to 0.5233 and equalized opportunity (EOpp) decreases from 0.2251 to 0.2168. It reaches the same final selection as one-shot planning with 7.33 versus 12 candidate evaluations on average, under their respective stopping policies. Repeated fine-tuning, held-out testing, and online requirement updates characterize the stability and interactive use of this compression workflow. The results demonstrate how measured feedback and explicit constraints support the selection and interactive refinement of fairness-aware compression configurations.",
+      "authors": [
+        "Yuanbo Guo",
+        "Yiyu Shi"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.AR"
+      ],
+      "published": "2026-09-15T19:52:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.17786v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "LLM planner iteratively selects compression configurations from measured outcomes without human intervention",
+      "llm_evidence_cn": "语言模型规划器依据实测结果自动迭代选择压缩配置，无需人工干预",
+      "llm_evidence": "语言模型规划器依据实测结果自动迭代选择压缩配置，无需人工干预",
+      "canonical_evidence": "语言模型规划器依据实测结果自动迭代选择压缩配置，无需人工干预",
+      "llm_tldr_en": "FairCompressAgent is an agentic framework that composes fairness-aware pruning, incremental quantization and sparse low-rank factorization behind a common operator interface, with an LLM planner choosing configurations from profiles and measured outcomes under changing requirements.",
+      "llm_tldr_cn": "公平性感知的模型压缩需要同时权衡精度、公平性与部署成本，当压缩方法组合或需求变化时配置选择尤为困难。FairCompressAgent提出智能体框架，通过统一算子接口集成公平性剪枝、增量量化与稀疏低秩分解，并由语言模型规划器依据模型画像与实测结果选择压缩配置。执行层负责压缩、微调、评估与约束选择，同时支持需求更新并报告剩余违规。该工作展示了智能体自动迭代搜索压缩配置的可行性。",
+      "llm_tldr": "公平性感知的模型压缩需要同时权衡精度、公平性与部署成本，当压缩方法组合或需求变化时配置选择尤为困难。FairCompressAgent提出智能体框架，通过统一算子接口集成公平性剪枝、增量量化与稀疏低秩分解，并由语言模型规划器依据模型画像与实测结果选择压缩配置。执行层负责压缩、微调、评估与约束选择，同时支持需求更新并报告剩余违规。该工作展示了智能体自动迭代搜索压缩配置的可行性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.21681v1",
+      "source": "arxiv",
+      "title": "Performance Analysis of Low-Order, GPU-accelerated Finite Element Kernels using Kokkos",
+      "abstract": "We study performance portability for low-order, matrix-free finite element kernels, using the example of a vectorial, variable-coefficient PDE operator originating in geophysical models. Written in Kokkos, the kernel is compared on NVIDIA H100, AMD MI250X, AMD MI300A and Intel PVC Max 1550 GPUs. Owing to its low order and to optimizations that reduce the arithmetic, the kernel has a low arithmetic intensity, so that its performance is determined by how the finite element assembly is mapped onto the memory hierarchy. This is a dimension in which the architectures differ even within one vendor family, causing different performance characteristics. We examine how Kokkos' hierarchical parallelism and shared scratch memory, which are used for the shared degrees of freedom of the conforming discretization, behave on each device. Finally, we show how portability gaps can be narrowed with tuning levers such as the size of the thread groups, the balance between occupancy and register use, and the atomic accumulation strategy at the end of the kernel.",
+      "authors": [
+        "Fabian Böhm",
+        "Nils Kohl",
+        "Harald Köstler",
+        "Ulrich Rüde"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF"
+      ],
+      "published": "2026-09-18T12:15:47+00:00",
+      "link": "https://arxiv.org/pdf/2609.21681v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Analyzes performance portability of GPU-accelerated finite element kernels across architectures",
+      "llm_evidence_cn": "分析GPU加速有限元内核在不同架构上的性能可移植性",
+      "llm_evidence": "分析GPU加速有限元内核在不同架构上的性能可移植性",
+      "canonical_evidence": "分析GPU加速有限元内核在不同架构上的性能可移植性",
+      "llm_tldr_en": "The paper studies performance portability of low-order matrix-free finite element GPU kernels written in Kokkos across NVIDIA, AMD and Intel GPUs.",
+      "llm_tldr_cn": "针对低阶无矩阵有限元内核在不同GPU架构上性能表现差异大的问题，作者以Kokkos实现一个来自地球物理模型的变系数矢量PDE算子。该内核算术强度低，性能主要取决于有限元装配如何映射到内存层级，而这正是各架构差异所在。研究在NVIDIA H100、AMD MI250X与MI300A以及Intel PVC Max 1550上对比，并考察Kokkos层次并行与共享暂存内存的使用方式。结果揭示了同一厂商家族内部架构间的性能差异，为GPU内核优化与可移植性设计提供指导。",
+      "llm_tldr": "针对低阶无矩阵有限元内核在不同GPU架构上性能表现差异大的问题，作者以Kokkos实现一个来自地球物理模型的变系数矢量PDE算子。该内核算术强度低，性能主要取决于有限元装配如何映射到内存层级，而这正是各架构差异所在。研究在NVIDIA H100、AMD MI250X与MI300A以及Intel PVC Max 1550上对比，并考察Kokkos层次并行与共享暂存内存的使用方式。结果揭示了同一厂商家族内部架构间的性能差异，为GPU内核优化与可移植性设计提供指导。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

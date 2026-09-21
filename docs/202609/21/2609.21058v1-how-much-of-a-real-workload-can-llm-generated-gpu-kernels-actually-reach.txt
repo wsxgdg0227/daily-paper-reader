@@ -1,0 +1,164 @@
+Title: How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach?
+
+URL Source: https://arxiv.org/pdf/2609.21058v1
+
+Published Time: Mon, 21 Sep 2026 00:13:08 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach? 
+
+Gaurav Agarwal ∗ Ashish Garg, PhD † Isha Singhal ‡
+
+September 21, 2026 
+
+Abstract 
+
+Language models can now write GPU kernels that outperform PyTorch. We evaluate five model configurations on KernelBench level 1 and find that a frontier model produces correct kernels for 91.1% of problems and independently verified speedups on 22 of 56, including three convolutions, with a median of 1 .235 ×. Open-weights models are far behind: the best reaches 30.4% correct with three verified speedups and solves zero convolutions. We then ask a question the literature does not: what fraction of a real model’s wall clock do such kernels govern? Profiling seven workloads across three domains, we find the addressable fraction ranges from 8.9% to 58.2%. On transformers, 80–86% of runtime is spent in cuBLAS GEMM and FlashAttention, bounding realistic end-to-end improvement at roughly 1%, and the fraction shrinks with model scale. On recommenders it is 58.2%, concentrated in a single em-bedding kernel. We introduce DLRM-Bench, 12 recommender kernel problems in KernelBench format, and measure a 41.7% win rate at a 1 .552 × median there, projecting 8.63% end-to-end. Separately, we show that KernelBench’s correctness check— torch.allclose with an ab-solute tolerance—is satisfied by a tensor of zeros on 4 of 60 level-1 problems. Two kernels in our own results exploited this before we detected them, including one scored at 283 × that wrote 0.3% of its output buffer. We propose scale-invariant replacements and release all 879 evaluations. 
+
+# 1 Introduction 
+
+Automated GPU kernel generation is an active area [9, 10], and KernelBench [6] has become its standard evaluation. Reported results take the form of a pass rate and a speedup distribution over benchmark problems. Those numbers answer “how good are the kernels?” They do not answer “does it matter?”. The quantity a practitioner needs is Amdahl’s ratio [1], end-to-end gain = X
+
+> ops
+
+si
+
+
+
+1 − 1
+
+σi
+
+
+
+, (1) where si is operation i’s share of wall clock and σi its speedup. A 1 .235 × speedup on an operation worth 3% of runtime yields a 0.6% improvement; the same speedup on an operation worth 40% yields 9%. Benchmark results supply σ and are silent on s.This paper measures s. Our contributions: 
+
+> ∗
+
+gaurav.iit219@gmail.com 
+
+> †
+
+ashish.philly@gmail.com 
+
+> ‡
+
+ishasinghal22@gmail.com 
+
+1arXiv:2609.21058v1 [cs.DC] 17 Sep 2026 1. The addressable fraction (§6). Across seven profiled workloads spanning transformers, CNNs and recommenders, it ranges from 8.9% to 58.2%—a 6 .5× spread—and is a property of the domain rather than the model or the method. 2. A correctness exploit (§5) in a widely used benchmark, with two worked examples that passed both its numerical check and its anti-cheat check, and a proposed fix. 3. A controlled backend measurement (§4.1): holding model, hardware, prompts and eval-uation fixed, switching CUDA to Triton moves pass@1 from 0.0% to 10.7%. 4. DLRM-Bench (§7), 12 recommender kernel problems, used to verify that win rates transfer to a new domain rather than assuming they do. 5. A taxonomy of ten measurement failures (§8) encountered while building the above, each of which produced a confident, wrong conclusion before detection. 
+
+# 2 Experimental setup 
+
+All experiments use two NVIDIA A100-80GB GPUs (Ampere, sm 80 ), torch 2.14.0+cu130, CUDA 13.0 and triton 3.8.0, at bf16 precision throughout. The benchmark is KernelBench level 1, problems 1–60 (single operations), with Triton [2] as the primary target and CUDA C++ as a control. Speedups are quoted against the fastest of three baselines: eager execution (cuBLAS), torch.compile 
+
+[3] with the inductor backend, and a pre-recorded inductor timing set measured on the same hard-ware. Decoding is greedy unless stated. 
+
+Denominator convention. Four problems are excluded from all rates because their correctness check is uninformative ( §5); all percentages are over n = 56 unless noted. 
+
+Scale. 879 evaluations and 874 generations across 19 experiments and five model configurations: Qwen2.5-Coder-14B-Instruct, Qwen2.5-Coder-32B-Instruct, DeepSeek-R1-Distill-Qwen-32B (MIT licensed), and GPT-5.6. 
+
+# 3 Verification methodology 
+
+Because the benchmark’s own correctness check proved insufficient ( §5), every claimed speedup was re-verified independently in an isolated process against four criteria: 1. Scale-invariant correctness : relative Frobenius error ∥ˆy − y∥F /∥y∥F < 2 × 10 −2 and maximum error normalised to tensor magnitude max |ˆy − y|/ max |y| < 5 × 10 −2. Absolute tolerances are unsafe when reference outputs are near zero. 2. Fraction of output written , compared against the reference’s own nonzero fraction. Catches kernels returning barely-touched buffers. 3. Operation invariants where they exist—softmax rows sum to one, normalisations have unit norm. These cannot be satisfied by accident. 4. Re-timing with the benchmark’s own timing function (cold L2, 5 warmup iterations, 100 trials, first discarded), against eager and torch.compile measured in the same process. 2Two methodological requirements emerged from getting them wrong. Random-init layers must be seeded immediately before constructing each model, or reference and candidate receive different weights; omitting this produced apparent 140% errors on three convolution kernels that were correct to bf16 rounding. And timing loops must not be hand-rolled: a custom loop that synchronised and idled between trials allowed GPU clocks to drop and caused a spurious retraction of a real result. 
+
+# 4 Model comparison 
+
+Configuration Correct Faster Convolutions Qwen2.5-Coder-14B, pass@1 10.7% 3.6% 0 / 8 Qwen2.5-Coder-14B, 3 rounds 16.1% 5.4% 0 / 8 Qwen2.5-Coder-32B, pass@1 17.9% 1.8% 0 / 8 Qwen2.5-Coder-32B, 3 rounds 30.4% 5.4% 0 / 8 Qwen2.5-Coder-32B, best-of-4 19.6% 5.4% 0 / 8 DeepSeek-R1-Distill-Qwen-32B 7.1% 1.8% 0 / 8 
+
+GPT-5.6 91.1% 39.3% 7 / 8 
+
+Table 1: KernelBench level 1, Triton, bf16, n = 56. “Faster” is claimed before independent verification. The gap between open and frontier models is not incremental. GPT-5.6’s compile failure rate is 0% against 68% for Qwen-32B. Convolutions are the sharpest discriminator: no open model solved one in any experiment or round, while GPT-5.6 solved seven of eight. Two secondary observations. Scaling 14B to 32B raised correctness but lowered the useful rate, the larger model writing correct but slower kernels. And reasoning distillation at matched scale performed worse than code specialisation (7.1% versus 30.4%). 
+
+4.1 The backend effect 
+
+Holding model, hardware, prompts, baselines and evaluation fixed and changing only the target language moves pass@1 from 0.0% (CUDA) to 10.7% (Triton). CUDA failures are 80% compile errors in host-side scaffolding—C++ templates, pybind naming, build configuration—so the model rarely reaches GPU logic at all. Triton failures occur inside the kernel body, on indexing and masking. Reports of a single KernelBench number should state which backend was used; the benchmark’s own prompt constructor defaults to Triton. 
+
+4.2 Verified speedups 
+
+Twenty-two kernels from GPT-5.6 passed full verification, with a median of 1 .235 × and a maximum of 3 .057 ×. Three claimed speedups were demoted on clean re-timing, indicating that single-shot harness timings run optimistic. Where the mechanism is visible it is algorithmic: the upper-triangular matmul writes exactly 50.01% of its output, skipping the lower triangle where PyTorch performs a dense matmul and masks. 34.3 Interventions that did not work 
+
+Asking the model to optimise an existing working kernel produced a portfolio speedup of 1 .000 ×
+
+over 11 kernels and two rounds; a kernel running 67 × slower than baseline was returned byte-identical. Exhaustive tile search over 12 configurations for 9 kernels yielded 1 .012 × aggregate with zero kernels crossing from slower to faster—the model’s stock configuration was already optimal or within 2% on seven of nine. Supplying exact tensor shapes in the prompt fixed a real defect for elementwise operations but left matmul tiles unchanged in 12 of 19 cases. Best-of-4 sampling tripled the useful rate but found no new speedups. 
+
+# 5 A correctness exploit 
+
+KernelBench establishes correctness with 
+
+> tolerance = get_tolerance_for_precision(precision) # fp32: 1e-4, fp16/bf16: 1e-2 torch.allclose(output, output_new, atol=tolerance, rtol=tolerance)
+
+This is an absolute tolerance. On any problem whose correct output is smaller in magnitude, a tensor of zeros satisfies it. Problem max |y| fp32 (1e-4) bf16 (1e-2) 
+
+23 Softmax 4.02e-06 gameable gameable 
+
+37 FrobeniusNorm 3.98e-05 gameable gameable 
+
+53 Min reduction 3.6e-03 ok gameable 
+
+39 L2Norm 6.8e-03 ok gameable Table 2: Four of 60 level-1 problems at bf16, two at fp32. 
+
+23 Softmax is 4096 × 393216, so every correct output element is ≈ 2.5 × 10 −6—four thousand times under the bf16 tolerance. Two kernels in our results exploited this: 
+
+Example A, scored 1.741 ×. Applies softmax to 1024-element chunks rather than rows. Acorrect softmax has rows summing to 1.0; this one’s sum to exactly 384 .0 = 393216 /1024. Values remain under the tolerance, so allclose passes. This result was treated as our best for two days. 
+
+Example B, scored 283 ×. Row sums of 0.0026 with only 0.3% of the output buffer written. Investigated only because 283 × is physically impossible for a memory-bound operation. Neither triggered the static anti-cheat checker, which looks for library calls; these kernels call none and simply do not perform the work. The graded structure of the benchmark invites its use as a reinforcement-learning reward, and these exploits arose at temperature 0.8 with no optimisation pressure. §3 gives the checks we propose instead; any one of the three detects both examples. 
+
+# 6 The addressable fraction 
+
+We profiled real workloads and classified every CUDA kernel as already-optimal (cuBLAS GEMM, FlashAttention [4], cuDNN convolution), addressable (elementwise, normalisation, soft-max, reductions, embedding), overhead (copies, layout transforms) or unclassified. 4Workload Mode Already optimal Addressable Realistic DeepSeek-R1-Distill-Llama-70B inference 85.9% 8.9% 1.32% Qwen2.5-Coder-14B training 64.4% 16.1% 2.39% Qwen2.5-Coder-14B inference 79.8% 16.8% 2.49% DLRM training 32.5% 41.9% 6.21% ResNet-50 inference 36.8% 46.1% —ResNet-50 training 29.0% 55.3% —
+
+DLRM inference 37.4% 58.2% 8.63% 
+
+Table 3: A 6 .5× spread using identical kernels and methods. “Realistic” applies the measured in-domain win rate and median speedup via Eq. 1. 
+
+Transformers. Every configuration lands between 8.9% and 16.8% addressable. The fraction 
+
+shrinks with scale : at 70B the GEMMs are larger and more compute-bound, and the top four cuBLAS kernels alone account for 82.8% of wall clock. This is adverse for any commercial case, since the workloads with the largest compute budgets have the least addressable work. Training is not better. Its addressable fraction is 16.1% against inference’s 16.8%, and a further 18.2% is consumed by the optimizer step, which is unbeatable by construction: 14 .7×10 9 parameters 
+
+× 6 bytes (read parameter, read gradient, write parameter) = 88 GB; at ≈ 1.5 TB/s achievable bandwidth this predicts 59 ms against 56 ms measured. 
+
+CNNs and recommenders. The addressable fraction is 2 .7–3 .5× larger, and concentrated rather than scattered. BatchNorm alone is 44.5% of a CNN training step; EmbeddingBag updateOutputKernel sum 
+
+alone is 37.4% of a DLRM inference step, and embedding plus indexing operations total 49.5% of DLRM training. A concentrated op family is a substantially better engineering target than a long tail. 
+
+# 7 DLRM-Bench 
+
+Table 3’s recommender projections initially used a win rate and median speedup transferred from KernelBench—an assumption about a domain for which no kernel had been generated. We therefore built DLRM-Bench, targeting the kernel surface of a DLRM-style recommender [5]: 12 KernelBench-format problems covering EmbeddingBag sum and mean pooling, plain gather, multi-table lookup, sparse scatter-add, gather with LayerNorm, weighted pooling, pairwise dot interac-tion, row normalisation, SparseLengthsSum, top-k ranking, and gather with bias and ReLU. Transferred assumption Measured in-domain Win rate 37.0% 41.7% (5 of 12) Median speedup 1.235 × 1.552 ×
+
+Maximum 3.057 × 6.917 ×
+
+Table 4: The assumption held and was conservative. The largest win, 6 .917 × on multi-table lookup, verifies bit-exact with 100% of output written. Its mechanism is visible in the generated source: one kernel performs all eight table lookups and 5writes the concatenated output directly, replacing eight separate gathers and a concatenation. This fusion opportunity exists in recommenders and is structurally absent from transformers. The four losses are equally informative. torch.compile already beats eager by 4 × on em-bedding lookups (0 .182 → 0.044 ms), so the bar in this domain is considerably higher than naive PyTorch. 
+
+Dogfooding. Our first draft initialised embedding tables such that one problem produced a maximum output of 0.0125—only 1 .25 × above the bf16 tolerance, reproducing the exact defect of 
+
+§5. After correcting the initialisation scale, zero of 12 problems are gameable, with a minimum margin of 38 .9×.
+
+# 8 Measurement failures 
+
+Ten measurement errors were identified over 19 experiments. Each produced a confident, wrong conclusion before detection. We report them because the rate is itself a finding about this kind of work. Representative examples: running each backend’s validator manually reported “100% cheated” when nothing had been tested; omitting the backend argument to the evaluator would have reported approximately 100% Triton compile failure when the harness could not execute any Triton kernel; flooring relative error at 10 −12 made three correct convolutions appear wrong by a factor of 10 11 ;and omitting a seed before constructing the candidate model gave it different random convolution weights than the reference. 
+
+Errors in this domain are symmetric. Two of the ten were hiding real results rather than manufacturing false ones, and both had to be fixed before three genuine convolution speedups became visible. A positive control—a hand-written known-good kernel pushed through the full pipeline—detected four of the ten. 
+
+# 9 Related work 
+
+KernelBench [6] provides the benchmark this work builds on, and a growing body of systems target it [9, 10]. The correctness-performance gap is established elsewhere and we do not claim it. Correct but Slow [7] studies 22 Triton and TileLang kernels and reports a TileLang LayerNorm passing KernelBench’s correctness check while running 300 × slower than PyTorch. KernelBenchX 
+
+[8] evaluates 176 tasks across 15 categories, finding 46.6% of correct kernels slower than eager, that iterative refinement raises compile rate while lowering average speedup, and that task category explains roughly three times more variance in correctness than method choice—a within-benchmark analogue of the domain effect in §6. Our §4 results are consistent with these and add little. What this work adds is the denominator: prior studies measure how good generated kernels are, while none measures what fraction of a real model’s runtime those kernels can touch. §5 also reports a distinct failure mode—kernels that are 
+
+incorrect and scored correct , rather than correct and slow. 
+
+# 10 Limitations 
+
+One host and one GPU type. KernelBench level 1 only; levels 2 and 3 are closer to production code. One batch size and shape per profile, and the compute/bandwidth balance shifts with both. 6One model per family. The CNN is a ResNet-50 topology written in plain torch.nn rather than a deployed vision pipeline. No training was performed; distillation was scoped but not run. The frontier model’s 91.1% will age, though the structural result should not. Bucket classification is pattern-based on kernel names and therefore approximate; one misclassification was found and corrected, and 99.5% or more of measured time was classified in every profile. 
+
+# 11 Conclusion 
+
+Frontier models write competitive GPU kernels today, and open models of the sizes we tested do not come close. But benchmark performance does not transfer to end-to-end impact on trans-formers, where the addressable fraction is 8.9–16.8% and shrinks with scale. It does transfer on recommenders, where 58.2% is addressable and a purpose-built benchmark confirms a 41.7% win rate. The practical implication is to profile a domain’s addressable fraction before generating kernels for it. Transformers are the worst available target precisely because they are the best optimised. 
+
+Artifacts. All 879 evaluations and 874 generations, the independent verifier, the profilers and DLRM-Bench are available at https://github.com/gauravapiscean/kernel-headroom .
+
+# References 
+
+[1] G. M. Amdahl. Validity of the single processor approach to achieving large scale computing capabilities. In AFIPS Spring Joint Computer Conference , 1967. [2] P. Tillet, H. T. Kung, and D. Cox. Triton: An intermediate language and compiler for tiled neural network computations. In Proc. 3rd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages (MAPL) , 2019. [3] J. Ansel et al. PyTorch 2: Faster machine learning through dynamic Python bytecode trans-formation and graph compilation. In ASPLOS , 2024. [4] T. Dao, D. Y. Fu, S. Ermon, A. Rudra, and C. R´ e. FlashAttention: Fast and memory-efficient exact attention with IO-awareness. arXiv:2205.14135 , 2022. [5] M. Naumov et al. Deep learning recommendation model for personalization and recommen-dation systems. arXiv:1906.00091 , 2019. [6] A. Ouyang, S. Guo, S. Arora, A. L. Zhang, W. Hu, C. R´ e, and A. Mirhoseini. KernelBench: Can LLMs write efficient GPU kernels? arXiv:2502.10517 , 2025. [7] T. Li, R. Rathnasuriya, and W. Yang. Correct but slow: An empirical study of the GPU kernel evaluation gap in modern domain-specific languages. arXiv:2607.04454 .[8] H. Wang, J. Zhang, K. Jiang, H. Wang, J. Chen, and J. Zhu. KernelBenchX: A comprehensive benchmark for evaluating LLM-generated GPU kernels. arXiv:2605.04956 .[9] L. Kong, J. Wei, H. Shen, and H. Wang. ConCuR: Conciseness makes state-of-the-art kernel generation. arXiv:2510.07356 .[10] M. Andrews and S. Witteveen. GPU Kernel Scientist: An LLM-driven framework for iterative kernel optimization. arXiv:2506.20807 .7

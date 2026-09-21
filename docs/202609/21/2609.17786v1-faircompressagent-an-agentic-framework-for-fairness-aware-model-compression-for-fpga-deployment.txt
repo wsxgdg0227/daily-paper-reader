@@ -1,0 +1,442 @@
+Title: FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment
+
+URL Source: https://arxiv.org/pdf/2609.17786v1
+
+Published Time: Thu, 17 Sep 2026 00:12:27 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment 
+
+Yuanbo Guo 
+
+Department of Computer Science and Engineering University of Notre Dame 
+
+Notre Dame, USA yguo6@nd.edu 
+
+Yiyu Shi 
+
+Department of Computer Science and Engineering University of Notre Dame 
+
+Notre Dame, USA yshi4@nd.edu 
+
+Abstract —Fairness-aware model compression requires select-ing methods and configurations that balance accuracy, fairness, and deployment cost. These decisions become more difficult when compression methods are composed or the user’s requirements change. In this paper, we propose FairCompressAgent (FCA), an agentic framework that integrates fairness-aware pruning, incre-mental quantization, and sparse low-rank factorization through a common operator interface. A language-model planner uses model profiles and measured outcomes to select compression con-figurations, while an execution layer performs compression, fine-tuning, evaluation, and constraint-based selection. FCA also sup-ports requirement updates and reports the remaining violation when a request cannot be satisfied. Experiments on Fitzpatrick-17k with VGG-11 compare four search methods over 40 measured configurations. Under the accuracy-constrained request, FCA selects a compressed model with 59.54% less inference tensor storage, while validation average precision increases from 0.5141 to 0.5233 and equalized opportunity (EOpp) decreases from 0.2251 to 0.2168. It reaches the same final selection as one-shot planning with 7.33 versus 12 candidate evaluations on average, under their respective stopping policies. Repeated fine-tuning, held-out testing, and online requirement updates characterize the stability and interactive use of this compression workflow. The results demonstrate how measured feedback and explicit constraints support the selection and interactive refinement of fairness-aware compression configurations. 
+
+Index Terms —deep learning, fairness, hardware efficiency, AI agent, FPGA. 
+
+I. I NTRODUCTION 
+
+As deep learning (DL) becomes increasingly adopted in different areas of daily life, its applications raise a variety of issues that need to be addressed. Among these concerns, fairness and efficiency are often treated as separate problems. To begin with, fairness concerns arise from discrimination in prediction outcomes, such as employment discrimination [1], [2], as well as disparities in prediction quality, such as healthcare inequity [2], [3]. DL models can influence peo-ple’s decisions, so applications supported by unfair models may contribute to systematic discrimination and disadvantage particular demographic groups. To deal with fairness issues, previous works majorly focus on algorithm optimization [4]– [6]. Meanwhile, model compression is one of the most useful approaches for deploying DL models locally with limited hard-ware resources [7], including FPGA platforms. For instance, pruning [8], [9] and quantization [10], [11] are two widely used techniques for model compression. Conventionally, how-ever, compression decisions mainly balance prediction quality and computational cost, without explicitly considering unequal performance across demographic groups. [12] also pointed out that model compression could disproportionately affect bias even when accuracy performance changes little. On top of that, FPGA deployment is particularly relevant to model compression. Available compute resources and memory bandwidth jointly constrain accelerator design, while on-chip storage influences data reuse and transfers to external mem-ory [13]. Low-precision designs further connect numerical representation with parallelism and dataflow [14]. Different compression methods address these constraints in different ways. For example, pruning changes connectivity of neurons, while quantization restricts how weights are represented. The resulting representation determines which storage and exe-cution opportunities a target design can exploit. Choosing a suitable compression configuration therefore requires consider-ing operator compatibility and resource requirements together with inference performance in terms of both accuracy and fairness [15]. Recent works start to explore the relationship between DL model fairness and hardware platforms [16]–[19]. Specifically, fairness-aware compression methods have been introduced to seek fairness improvements during compression, creating a trade-off among accuracy, fairness, and efficiency. Fair-Prune [20] addresses this problem through group-sensitive pruning, and FairQuantize [21] extends the idea to incremental weight quantization. In addition, sparse low-rank factorization offers another way to reduce model complexity [22], and FairLRF adapts it to group-sensitive compression [23]. There have also been a few works following these paths [24]. While all these methods provide different ways to address fairness through compression, choosing among them still requires deci-sions about compression strength, fine-tuning, layer coverage, and method order. arXiv:2609.17786v1 [cs.AI] 15 Sep 2026 Specify a model, annotated data, and requirements Accuracy, fairness, storage, and search budget FCA evaluates compression configurations Compare measured trade-offs under the requirements Inspect the selected model and report Review performance, resource use, and unmet constraints Accept the result or revise the requirements Continue with the accumulated observations Fig. 1. User interaction with FCA. The user supplies the task and requirements, inspects measured results, and can revise the bounds to continue with the accumulated evaluation records. 
+
+Joint compression search and language-model-assisted opti-mization provide foundations for coordinating these decisions. APQ jointly searches architecture, pruning, and quantization policies [25], while LLAMBO investigates language models within Bayesian optimization [26]. FairAgent uses language-model agents to support fairness-aware machine learning [27], and ProfilingAgent uses profiling results to guide model op-timization [28]. Applying these ideas to fairness-aware com-pression requires a common interface for compatible operators and explicit criteria for evaluating accuracy, fairness, and efficiency. To integrate these capabilities into comprehensive work-flows, we propose FairCompressAgent (FCA), an agentic framework for selecting and composing fairness-aware com-pression operators under user-defined requirements. FCA uses model profiles and evaluation results to guide compression choices and allows the user to revise requirements during the search. Figure 1 summarizes the interaction between the user and FCA. The main contributions of this paper are as follows:  
+
+> •
+
+We formulate fairness-aware compression as constrained configuration selection and organize pruning, quantiza-tion, and sparse low-rank factorization through a common perturbation view and executable interface.  
+
+> •
+
+We develop an agent architecture for adaptive compres-sion planning, with explicit constraint checks and support for requirement updates.  
+
+> •
+
+We evaluate the framework using 40 measured configu-rations, four search methods, repeated fine-tuning, held-out testing, and fresh online execution. FCA selects a model with 59.54% less inference tensor storage under the accuracy-constrained request and identifies the unmet constraint under a stricter fairness request. The source code for FairCompressAgent is available at https: //github.com/guoyb17/FairCompressAgent. II. P ROBLEM FORMULATION 
+
+A. Inputs and Accuracy Metrics 
+
+Consider a classification dataset D = {(xi, y i, a i)}Ni=1 ,where xi is the input, yi is the class label, and ai is a sensitive attribute. We focus on binary sensitive attributes, which divide the annotated samples into groups g ∈ { 0, 1}.Given a pre-trained model f (θ0), our objective is to find a compressed model that satisfies the user’s requirements on accuracy, fairness, and efficiency. Following FairPrune, FairQuantize and FairLRF, we use average precision as the main measure of accuracy perfor-mance. It is the mean of the macro precision values of the two demographic groups. For a fixed set of K classes, it is defined as 
+
+Pg = 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+Prec g,k , Pavg = P0 + P1
+
+2 , (1) where Prec g,k is the one-versus-rest precision of class k in group g. Precision is set to zero when no sample in that group is predicted as class k.
+
+B. Fairness and Efficiency Metrics 
+
+Equalized opportunity and equalized odds [29] have been widely used in previous research regarding fairness. For equalized opportunity, it is the difference of true negative rates (denoted as EOpp0) or true positive rates (denoted as EOpp1) of different demographic groups within each class of target attributes, followed by sum of them. For equalized odds (denoted as EOdd), it collects the difference of true positive rates plus difference of false positive rates. These metrics can be calculated by the following equations: 
+
+EOpp 0 = 
+
+> K
+
+X
+
+> k=1
+
+|T N R 1 
+
+> k
+
+− T N R 0
+
+> k
+
+|, (2) 
+
+EOpp 1 = 
+
+> K
+
+X
+
+> k=1
+
+|T P R 1 
+
+> k
+
+− T P R 0
+
+> k
+
+|, (3) 
+
+EOdd =
+
+> K
+
+X
+
+> k=1
+
+|T P R 1 
+
+> k
+
+− T P R 0 
+
+> k
+
++ F P R 1 
+
+> k
+
+− F P R 0
+
+> k
+
+|. (4) For all of EOpp0, EOpp1, and EOdd, the smaller the better. These metrics reflect the statistical differences of model performance on different demographic groups from different perspectives. Given that fairness for positive cases is usually more important in real world scenarios like disease diagnosis, we use EOpp1 as the representation of fairness metrics in this paper, denoted as EOpp below. A compressed model is represented by z = ( θ, ρ ), where 
+
+ρ specifies its executable form, including factor layers and constrained weights. We measure storage S(ρ) as the bytes occupied by inference parameter and buffer tensors, excluding optimizer state, training masks, and file headers. The storage measurement therefore reflects the representation used for inference. Execution cost additionally depends on how the representation maps to the target architecture. The present experiments use dense FP32 tensors, including the factors of low-rank layers. C. Constrained Configuration Selection 
+
+A configuration π = (( o1, η 1), . . . , (oT , η T )) specifies compression operators ot, their order, and settings ηt. Each configuration starts from the supplied baseline and produces a candidate zπ . The three objectives are higher Pavg , lower EOpp, and smaller storage: 
+
+min 
+
+> π
+
+ −Pavg (zπ ), EOpp( zπ ), S (ρπ ). (5) The user specifies acceptable average precision loss ϵP , an EOpp upper bound dmax , and, optionally, a storage-ratio upper bound smax :
+
+Pavg (zπ ) ≥ Pavg (z0) − ϵP , (6) 
+
+EOpp( zπ ) ≤ dmax , (7) 
+
+S(ρπ )/S (ρ0) ≤ smax . (8) Among feasible observations, the experiments select minimum storage, then maximum Pavg , then minimum EOpp, with candidate identifiers breaking any remaining ties. III. F AIRNESS -A WARE COMPRESSION OPERATORS 
+
+A. A Common Group-Sensitive Score 
+
+Different weights can contribute unequally to the prediction performance of different demographic groups, and second-order sensitivity provides a promising basis for ranking weight perturbations [30]. FairPrune and FairQuantize use this ob-servation to decide which weights to modify, while FairLRF applies a related score to low-rank factors [20], [21], [23]. We organize these existing methods as compression operators with a common scoring and evaluation interface. Let Lg (θ) be the mean loss on a fixed scoring subset for group g. For a weight perturbation ∆, the Taylor expansion gives 
+
+Lg (θ + ∆) − Lg (θ) = ∇L⊤ 
+
+> g
+
+∆ + 12 ∆⊤Hg ∆ + Rg (∆) , (9) where Hg is the group-specific Hessian and Rg contains higher-order terms. The operators use the following diagonal quadratic score: 
+
+si = 12 ∆2 
+
+> i
+
+(hu,i − βh p,i ) , β ≥ 0, (10) Here hg,i is the ith diagonal entry of Hg , and u and p are the reference underperforming and better-performing groups. The experiment fixes these roles as Light and Dark from the baseline comparison throughout search. A smaller score favors changes with less estimated loss impact on group u relative to group p. The hyper-parameter β adjusts the local ranking, while (7) governs the measured fairness of the resulting model. The local score ranks proposed modifications. Full evalua-tion after fine-tuning determines whether the resulting model satisfies the user’s requirements. 
+
+B. Pruning and Incremental Quantization 
+
+For FairPrune, removing a weight sets it to zero, giving 
+
+∆i = −θi in (10) [20]. The operator selects the required number of lowest-scoring eligible weights within each target tensor. A cumulative mask keeps these weights at zero during subsequent fine-tuning. For FairQuantize, the displacement is ∆i = Q(θi)−θi [21]. The implementation uses a signed power-of-two mapping, 
+
+Q(w) = 
+
+(
+
+0, w = 0 ,
+
+sign( w) 2 round(log 2 |w|), w̸ = 0 . (11) The squared displacement in (10) accounts for the size of each quantization change. Following incremental network quantiza-tion [31], the selected values are frozen while the remaining weights receive fine-tuning updates. Previously frozen entries remain fixed during subsequent increments. The resulting power-of-two weights provide a representation that can be mapped to a compatible quantized execution backend. 
+
+C. Sparse Low-Rank Factorization 
+
+For a linear layer with m inputs and n outputs, write its weight matrix in input-by-output coordinates as W ∈ Rm×n.Truncated singular value decomposition gives 
+
+W ≈ Ur Σr V ⊤ 
+
+> r
+
+, (12) where r is the retained rank. Sparse low-rank factorization further removes selected factor entries [22]. FairLRF [23] determines where this sparsity is applied using group-sensitive scores. Let q = ⌊αr ⌋ be the retained prefix of singular directions. For row i of Ur , its tail-removal score is 
+
+SUi =
+
+> r
+
+X 
+
+> j=q+1 12
+
+U 2
+
+> ij
+
+ hUu,ij − βh Up,ij 
+
+ . (13) The corresponding expression scores the tail of each column of 
+
+V ⊤ 
+
+> r
+
+. The lowest-scoring rows and columns receive tail removal according to a sparsification fraction. Curvature is computed in the factor coordinates with the singular values fixed during scoring. We use the quadratic tail sum in (13) throughout this study. After sparsification, singular values are absorbed into one factor, and inference uses two consecutive linear maps with the original bias applied at the output. Their matrix storage is 
+
+r(m + n) FP32 elements, compared with mn for the original layer. The factor masks are preserved during fine-tuning. The evaluated factorization operator targets fully connected layers. 
+
+D. Composition of Operators 
+
+We denote the three operators by P , Q, and L. Besides individual operators, FCA supports P → Q and L → Q. For 
+
+P → Q, quantization acts on the remaining unpruned weights, and all pruning zeros are preserved. For L → Q, the quantizer operates directly on the executable factors and recomputes curvature after the low-rank transformation and its fine-tuning stage. Factor sparsity remains fixed during quantization and further fine-tuning. The executor restores frozen values after each optimizer step and clears their gradients and momentum updates. Order matters because the same representation property need not survive the reverse composition. For example, factor-izing a quantized matrix generally produces factors outside its original quantization codebook. Similarly, factorizing a pruned matrix need not preserve its zeros. These reverse orders are therefore excluded from the present configuration catalogue. 
+
+E. Operator Information for Planning 
+
+The planner receives each operator’s supported layers, set-tings, and representation changes. For a linear layer, two dense factors reduce matrix storage when r < mn/ (m + n).The executor exposes storage for the retained rank, while evaluation supplies average precision and EOpp after fine-tuning. Pruning masks and quantized values specify constraints for subsequent transformations. This information lets FCA compare individual methods and compatible compositions under the same selection rule. IV. FCA A RCHITECTURE 
+
+A. Planning, Execution, and Evaluation 
+
+Reasoning-and-action agents provide a precedent for inter-leaving planning with tool feedback [32]. Figure 2 presents the three main components of FCA: a language-model planner, a compression executor, and an evaluator. The planner receives baseline performance, group coverage, layer dimensions, sup-ported configurations, and the user’s constraints and search budget. It selects from a finite catalog of individual operators and compatible compositions. Each configuration specifies the operator sequence, target layers, compression strength, and group-weighting parameter β. The planner combines structural information, such as the relationship between retained rank and tensor storage, with queried evaluation results to select a configuration and explain its choice. The executor handles model transformations and fine-tuning, while the evaluator measures Pavg , EOpp, group coverage, inference tensor storage, and execution cost. Typed tool interfaces restrict the planner to supported configurations and operations, including evaluation, comparison, requirement updates, and report export. Images, individual predictions, and model weights remain local; compact profiles and queried outcomes enter the planner’s context. 
+
+B. State and Decision Cycle 
+
+The session state at step t consists of the current re-quirements Ct, remaining budget bt, and evaluation records 
+
+Et. Each record stores the configuration, measured metrics, execution cost, completion status, and saved model reference. Before an evaluation, FCA checks that the requested con-figuration is supported and that sufficient budget remains. A repeated request retrieves its existing record. For a new con-figuration in online execution, the executor performs compres-sion, fine-tuning, and validation from the supplied baseline. FCA then updates Et and bt and applies the selection rule in Section II under Ct. Failed evaluations remain in the record with their status. 
+
+C. Measured Feedback and Requirement Updates 
+
+For controlled comparison of search methods, FCA retrieves measured outcomes and execution times from a shared pre-evaluated candidate set. The planner receives only queried outcomes, and each distinct query contributes its recorded execution time to the accumulated model evaluation time. This replay protocol keeps the candidate measurements identical across search methods. When the user revises a requirement, the update tool records the instruction, changes Ct, and reapplies the selection rule to 
+
+Et without further model execution. Each reported selection retains the requirements under which it was made. 
+
+D. Stopping and Unmet Constraints 
+
+Each session has limits on distinct evaluations, accumulated model evaluation time, and language-model requests. The planner may stop earlier when the observed trade-offs are sufficient for its response. When the observed set contains no feasible candidate, FCA reports the unmet request and identifies the smallest normalized violation for diagnosis: 
+
+v(z) = 
+
+ Pavg (z0) − Pavg (z) − ϵP
+
+ϵP
+
+
+
+> +
+
++
+
+ EOpp( z) − dmax 
+
+dmax 
+
+
+
+> +
+
++ 1S
+
+ S(ρ)/S (ρ0) − smax 
+
+smax 
+
+
+
+> +
+
+,
+
+(14) where [t]+ = max(0 , t ) and 1S enables the optional storage bound. All denominators are positive in the experimental requests. The diagnostic model carries an infeasible status, and the reported component violations show which requirements remain unsatisfied. A change to a bound requires a user instruction. V. E XPERIMENTS AND RESULTS 
+
+A. Experiment Setup 1) Dataset and Backbone: The experiments are conducted on Fitzpatrick-17k [33], a clinical image dataset for classifying 114 dermatological conditions. Following previous works, we group Fitzpatrick types 1–3 as Light and types 4–6 as Dark, using skin tone as the sensitive attribute. We use a pre-trained VGG-11 [34] adapted to 112 × 112 
+
+inputs and 114 outputs. The supplied checkpoint is fixed across experiments and is denoted as Vanilla. Evaluation uses RGB conversion, a shorter-side resize to 128 pixels, and a center crop, with pixel values scaled to [0 , 1] . Fine-tuning uses random cropping and horizontal flipping. 
+
+2) Compression Configurations: The pre-evaluated candi-date set contains 5×2×2×2 = 40 configurations: five operator sequences, two layer sets, two strengths, and β ∈ { 5/9, 1}.Layer set A contains FC-2, the 4096 × 4096 hidden classifier layer; set B contains both FC-1 and FC-2, with FC-1 having 
+
+4608 × 4096 weights in input-by-output coordinates. The output classifier layer remains fixed. Mild and strong settings Task specification 
+
+> Model and annotated data
+> Requirements and budget
+
+Operator library 
+
+> P, Q, L, P→Q, L→Q
+> Scoring and compatibility
+
+Model and report 
+
+> Selected model and metrics
+> Feasibility or remaining gap
+
+LLM planner 
+
+> Inspect evaluation results
+> Select and explain choices
+> Adapt the search or stop
+
+Compression executor 
+
+> Group-sensitive scoring
+> Compress and fine-tune
+> Save the resulting model
+
+Evaluator and selector 
+
+> Avg. precision, EOpp,
+> storage
+> Check the active constraints
+> Select the observed model
+
+Evaluation records  
+
+> Configurations, metrics, costs and status
+> Requirements, notes and model references
+> Model
+> profile
+> Config. Model
+> Selection
+> Execution
+> record
+> Measured
+> outcomes
+> Measured
+> feedback
+
+Fig. 2. Overall architecture of FCA. The planner selects configurations using the model profile, user requirements, and accumulated evaluation records. The operator library supplies compatible transformations to the executor, and the evaluator returns measured outcomes to the shared session record. Constraint-based selection produces the chosen model and report; the feedback path supports subsequent planning and requirement updates. 
+
+use pruning or quantization fractions of 0.10 and 0.30, or retained ranks of 1024 and 512 for L, respectively. For both ranks, FairLRF sparsifies 20% of factor rows or columns and retains half of their rank coordinates. Scoring uses 256 fixed, class-covering training samples per group and signed diagonal Hessians of the mean cross-entropy loss. All configurations receive two fine-tuning epochs. For P
+
+or Q, the target fraction is reached in two equal increments, each followed by one epoch. For L, both epochs follow factorization and sparsification; each stage of a two-operator configuration receives one epoch. This shared fine-tuning budget provides a common basis for comparing configurations. 
+
+3) User Requirements and Search Methods: The preferred trade-off among accuracy, fairness, and efficiency can be significantly different across various situations. For simplicity, we consider two straightforward requests fixed before search. Request U permits a maximum Pavg loss of one percentage point, requires EOpp no worse than Vanilla, and has no storage upper bound. Request F permits an average precision loss of up to three percentage points, requires EOpp ≤ 0.20 , and limits storage to 80% of Vanilla. Both requests are applied to validation measurements during search. Feasibility checks use full-precision measurements. To compare with FCA, we adopt random search [35], a tree-structured Parzen estimator (TPE) [36], and one-shot LLM planning as baseline methods, together with Vanilla as their common starting point. TPE uses a constrained multivariate categorical model with exact acquisition maximization over the unobserved catalogue. Each search method receives the same three initial observations, one mild configuration from each individual operator family. These observations count toward the limits of 12 distinct candidates and 120 model minutes per session. Random search samples without replace-
+
+TABLE I WITHIN -FAMILY SELECTION UNDER U ON VALIDATION . E ACH COMPRESSION FAMILY CONTAINS EIGHT CONFIGURATIONS . S ETTING GIVES LAYER SET , STRENGTH (MILD OR STRONG ), AND β. S ELECTION FOLLOWS THE COMMON RULE OF MINIMUM STORAGE AMONG FEASIBLE OBSERVATIONS . N/A DENOTES NOT APPLICABLE TO VANILLA ; -
+
+> INDICATES THAT NO FEASIBLE CONFIGURATION IS AVAILABLE
+
+.Method Feas. Setting Pavg ↑ EOpp ↓ S/S 0 ↓
+
+Vanilla N/A N/A 0.5141 0.2251 1.0000 
+
+P 0/8 – – – –
+
+Q 0/8 – – – –
+
+L 5/8 B/s/1 0.5233 0.2168 0.4046 
+
+P → Q 3/8 A/m/1 0.5124 0.2239 1.0000 
+
+L → Q 2/8 B/m/ 5/9 0.5243 0.2216 0.5953 
+
+ment. One-shot planning commits to nine further candidates before receiving their outcomes, while FCA adapts subsequent choices and can stop early. We conduct three runs per search method under each request, yielding 24 search trajectories. Both language-model search methods use GLM-5.3-Flash with the same generation settings and per-response allowance. All search methods query the same pre-evaluated candidate set, with unqueried results kept hidden. Accumulated model evaluation time includes the queried configuration’s prepara-tion, scoring, fine-tuning, validation, and I/O. Language-model request time is reported separately. The main comparison combines the completed LLM runs with the corresponding Random/TPE reference trajectories. 
+
+B. Results of the Compression Operators 
+
+Figure 3 shows that the operator and its configuration both influence the resulting trade-off. Among the 40 configurations, 10 satisfy U: five from L, three from P → Q, and two from 
+
+L → Q. The individual P and Q configurations fall outside 0.49 0.50 0.51 0.52   
+
+> Average precision Pavg (higher is better)
+> 0.220 0.225 0.230 0.235 0.240 0.245
+> EOpp (lower is better)
+> Vanilla EOpp PQLP→Q L→Q Vanilla Fig. 3. Validation outcomes of all 40 compression configurations. Lower-right points have higher precision and lower EOpp. The dashed line is the Vanilla EOpp upper bound used by U.
+
+the feasible region under the evaluated fine-tuning budget. Feasible configurations therefore span several families and require evaluation at the configuration level. Table I reports the best U-feasible configuration within each family. The best candidate in the set is L on both hidden clas-sifier layers with rank 512 and β = 1 . It has Pavg = 0 .5233 ,
+
+EOpp = 0.2168 , and 73,385,928 inference tensor bytes, corresponding to a 59.54% storage reduction from Vanilla. Validation precision increases by 0.918 percentage points and EOpp decreases by 0.00829. These measurements describe the complete configuration after compression and fine-tuning. The composition results illustrate the need for feedback. Adding quantization to this L configuration gives Pavg =0.5146 and EOpp = 0.2365 at the same tensor storage, placing the resulting L → Q candidate outside U. Meanwhile, 
+
+P → Q supplies three feasible configurations even though the evaluated individual P and Q families supply none. Thus, both the operator sequence and its settings affect the attain-able accuracy–fairness trade-off. FCA evaluates the complete configuration before accepting it under the user’s constraints. The storage ratios of P , Q, and P → Q remain 1.0 because their inference tensors are stored densely in FP32. 
+
+C. Comparison of Search Methods 
+
+Table II compares search method outcomes. Under U, both one-shot planning and FCA select the best feasible configura-tion in the candidate set in all three runs, with median storage ratio 0.4046. Random and TPE have median storage ratio 0.5953. The shared initialization already includes a U-feasible low-rank candidate, so this comparison measures improvement in storage among feasible selections. The model selected by FCA requires 32.04% less storage than the median storage requirement of models selected by Random or TPE. FCA evaluates 7.33 candidates on average under U, com-pared with 12 for one-shot planning, with corresponding accu-mulated model evaluation times of 13.66 and 22.11 minutes. Its adaptive stopping policy saves evaluations once it has identified a satisfactory trade-off. One-shot planning executes its committed list, so the comparison reflects the complete policies, including their different stopping rules. Under F, the lowest EOpp in the entire candidate set is 0.2168, above the upper bound of 0.20. All search methods therefore report an unmet request. FCA, one-shot planning, and TPE reach the same median violation of 0.0839, compared with 0.1059 for Random. The 0.8 storage bound also rules out dense P , Q, and P → Q representations from their known storage requirements. This case illustrates how structural infor-mation guides the search while measured group performance determines the remaining feasibility gap. Figure 4 shows the evolution of the selected storage and violation as observations accumulate. 
+
+D. Repeated Fine-Tuning and Held-Out Testing 
+
+We evaluate three distinct compression configurations se-lected from a designated search run and fixed before test evaluation. Each configuration is compressed and evaluated from the same checkpoint. The selected configurations are 
+
+L with A/strong/ 5/9, B/mild/1, and B/strong/1. Matching existing measurements for these configurations are reused. Table III reports held-out performance. For B/strong/1, the average precision on the test set is 0.5357 compared with 0.5275 for Vanilla, while EOpp is 0.2562 compared with 0.2650 for Vanilla. Meanwhile, it reaches 59.54% storage reduction. 
+
+E. Planning Cost 
+
+Table IV reports the computational cost of planning. Under U, FCA uses 22 requests and 75,421 completion tokens across the three runs, compared with three requests and 69,653 tokens for one-shot planning. The accumulated request durations are 15.80 and 18.82 minutes, respectively. Together with the candidate counts in Table II, these results describe the cost of producing the same final U selection. The stricter F request requires more interaction. FCA uses 35 requests and 154,014 completion tokens, compared with three requests and 67,774 tokens for one-shot planning, and both reach the same least-violating model. The separate re-quest and model-time measurements characterize the cost of the complete search workflow. 
+
+F. Online Execution and User Feedback 
+
+Two online cases evaluate fresh compression configurations under a six-candidate limit per case. In both cases, immediate reselection from existing observations is verified before further model evaluations. Under U, the user increases the permitted average precision loss from one to two percentage points. The final selection is L with A/strong/ 5/9, yielding validation Pavg = 0 .5184 ,EOpp = 0 .2186 , and storage ratio 0.7225. Under F, the user tightens the EOpp upper bound from 0.20 to 0.19. FCA reports L with B/strong/1 as infeasible, with normalized violation 0.1410. The report identifies EOpp as the unsatisfied constraint. TABLE II REPLAY OF SEARCH METHODS ON THE SAME PRE -EVALUATED CANDIDATE SET , WITH THREE RUNS PER ROW . S TORAGE , PRECISION , AND EO PP ARE COORDINATE -WISE MEDIANS OVER FEASIBLE FINAL SELECTIONS ; v IS THE MEDIAN NORMALIZED VIOLATION OVER ALL RUNS . Q UERIES AND MODEL MINUTES ARE MEANS . A LL 24 TRAJECTORIES IN THE MAIN COMPARISON COMPLETE .Request Method Feasible S/S 0 ↓ Pavg ↑ EOpp ↓ v ↓ Queries Model min U Random 3/3 0.5953 0.5243 0.2212 0.0000 12.00 21.91 U TPE 3/3 0.5953 0.5233 0.2186 0.0000 12.00 21.78 U One-shot 3/3 0.4046 0.5233 0.2168 0.0000 12.00 22.11 U FCA 3/3 0.4046 0.5233 0.2168 0.0000 7.33 13.66 F Random 0/3 – – – 0.1059 12.00 21.91 F TPE 0/3 – – – 0.0839 12.00 21.93 F One-shot 0/3 – – – 0.0839 12.00 22.13 F FCA 0/3 – – – 0.0839 10.67 19.53 0 5 10 15 20 
+
+Accumulated model evaluation time (min) 
+
+> 0.4 0.5 0.6 0.7 0.8
+> Best feasible storage / vanilla
+
+(a) Accuracy-constrained request U     
+
+> 0510 15 20
+
+Accumulated model evaluation time (min) 
+
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Lowest normalized violation
+
+(b) Fairness-constrained request F 
+
+> Random TPE One-shot FCA
+
+Fig. 4. Search progress under U and F. Thin lines show individual runs and thick lines show point-wise medians; endpoint dots mark stopping times. The last observation is carried forward for the median after a session stops. U shows feasible storage and F shows the lowest observed violation. The horizontal axis reports the accumulated recorded cost of queried model evaluations; language-model request time is reported separately. TABLE III HELD -OUT RESULTS FOR THREE DISTINCT COMPRESSION CONFIGURATIONS SELECTED BEFORE TEST EVALUATION .Configuration: layers/strength/ β S/S 0 ↓ Pavg ↑ EOpp ↓
+
+Vanilla 1.0000 0.5275 0.2650 
+
+L: A/s/ 5/9 0.7225 0.5491 0.2641 
+
+L: B/m/1 0.5953 0.5355 0.2636 
+
+L: B/s/1 0.4046 0.5357 0.2562 TABLE IV LANGUAGE -MODEL COST SUMMED OVER THREE RUNS PER ROW .COMPLETION TOKENS INCLUDE REPORTED REASONING TOKENS . API 
+
+> MINUTES MEASURE REQUEST DURATIONS AND EXCLUDE MODEL EXECUTION AND THE SEPARATE ONLINE CASES
+
+.Request Method Requests Completion tokens API min U One-shot 3 69,653 18.82 U FCA 22 75,421 15.80 F One-shot 3 67,774 19.10 F FCA 35 154,014 38.65 
+
+VI. D ISCUSSION 
+
+A. Implications for Compression Selection 
+
+The composition results show that an additional operator can change the accuracy–fairness trade-off of an existing com-pression configuration. This makes the complete configuration the appropriate unit of comparison for compression selection. The U and F results further illustrate how the requested trade-off determines feasibility: a model accepted under U can remain infeasible under F despite its storage reduction. FCA makes these differences explicit by associating each recommendation with the measured metrics and the constraints used for selection. 
+
+B. Representation-Aware Design 
+
+The FPGA considerations in Section I explain why com-pression should be organized around the resulting represen-tation. Pruning changes connectivity, quantization constrains arithmetic values, and factorization replaces a layer with smaller matrix operations. Their suitability depends on the resources and execution patterns supported by the target de-sign. FCA expresses these distinctions through operator de-scriptions and compatible operator sequences, and uses model-level constraints to preserve the user’s accuracy and fairness requirements during selection. Following the analysis in [15], such organization makes deployment assumptions explicit and supports extending fairness evaluation to target hardware. VII. C ONCLUSION 
+
+In this paper, we proposed FairCompressAgent, an agentic framework for selecting fairness-aware compression configu-rations under user-defined requirements. FCA combines prun-ing, quantization, and sparse low-rank factorization through a common operator interface and connects planning to mea-sured model transformations. Experiments on Fitzpatrick-17k demonstrate a 59.54% reduction in inference tensor storage for the model selected on validation under the accuracy-constrained request, together with explicit reporting of unmet constraints and online adaptation to revised requirements. The shared evaluation record connects these selections to repro-ducible model execution and supports continued refinement as the user’s requirements evolve. REFERENCES [1] J. Dastin, “Amazon scraps secret ai recruiting tool that showed bias against women,” in Ethics of data and analytics . Auerbach Publications, 2022, pp. 296–299. [2] C. Ferrara, G. Sellitto, F. Ferrucci, F. Palomba, and A. De Lucia, “Fairness-aware machine learning engineering: how far are we?” Em-pirical software engineering , vol. 29, no. 1, p. 9, 2024. [3] Z. Obermeyer, B. Powers, C. Vogeli, and S. Mullainathan, “Dissecting racial bias in an algorithm used to manage the health of populations,” 
+
+Science , vol. 366, no. 6464, pp. 447–453, 2019. [4] G. Xu, H. Fan, and Y. Shi, “Group-conditioned representation modu-lation for fair skin disease diagnosis,” in MICCAI Student Board 2026 EMERGE Workshop: Empowering Medical Information Computing and Research through Early-career Guidance and Expertise , 2026. [5] G. Xu, Y. Duan, Z. Liu, X. Li, M. Jiang, M. Lemmon, W. Jin, and Y. Shi, “Incorporating rather than eliminating: Achieving fairness for skin disease diagnosis through group-specific experts,” in International Conference on Medical Image Computing and Computer-Assisted Inter-vention . Springer, 2025, pp. 284–294. [6] C.-H. Chiu, H.-W. Chung, Y.-J. Chen, Y. Shi, and T.-Y. Ho, “Toward fairness through fair multi-exit framework for dermatological disease diagnosis,” in International Conference on Medical Image Computing and Computer-Assisted Intervention . Springer, 2023, pp. 97–107. [7] S. Han, H. Mao, and W. J. Dally, “Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding,” arXiv preprint arXiv:1510.00149 , 2015. [8] S. Han, J. Pool, J. Tran, and W. Dally, “Learning both weights and con-nections for efficient neural network,” Advances in neural information processing systems , vol. 28, 2015. [9] J.-H. Luo, J. Wu, and W. Lin, “Thinet: A filter level pruning method for deep neural network compression,” in Proceedings of the IEEE international conference on computer vision , 2017, pp. 5058–5066. [10] B. Jacob, S. Kligys, B. Chen, M. Zhu, M. Tang, A. Howard, H. Adam, and D. Kalenichenko, “Quantization and training of neural networks for efficient integer-arithmetic-only inference,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2018, pp. 2704– 2713. [11] S. Zhou, Y. Wu, Z. Ni, X. Zhou, H. Wen, and Y. Zou, “Dorefa-net: Training low bitwidth convolutional neural networks with low bitwidth gradients,” arXiv preprint arXiv:1606.06160 , 2016. [12] S. Hooker, N. Moorosi, G. Clark, S. Bengio, and E. Denton, “Charac-terising bias in compressed models,” arXiv preprint arXiv:2010.03058 ,2020. [13] C. Zhang, P. Li, G. Sun, Y. Guan, B. Xiao, and J. Cong, “Optimizing fpga-based accelerator design for deep convolutional neural networks,” in Proceedings of the 2015 ACM/SIGDA international symposium on field-programmable gate arrays , 2015, pp. 161–170. [14] Y. Umuroglu, N. J. Fraser, G. Gambardella, M. Blott, P. Leong, M. Jahre, and K. Vissers, “Finn: A framework for fast, scalable binarized neural network inference,” in Proceedings of the 2017 ACM/SIGDA interna-tional symposium on field-programmable gate arrays , 2017, pp. 65–74. [15] Y. Guo, Z. Yan, X. Yu, Q. Kong, J. Xie, K. Luo, D. Zeng, Y. Wu, Z. Jia, and Y. Shi, “Hardware design and the fairness of a neural network,” 
+
+Nature Electronics , vol. 7, no. 8, pp. 714–723, 2024. [16] S. S. Mugdho, Y. Guo, E. G. Rogers, W. Zhao, Y. Shi, and C. Wang, “Fairxbar: Improving the fairness of deep neural networks with non-ideal in-memory computing hardware,” in 2025 Design, Automation & Test in Europe Conference (DATE) . IEEE, 2025, pp. 1–7. [17] Y. Sheng, J. Yang, J. Li, J. Alaina, X. Xu, Y. Shi, J. Hu, W. Jiang, and L. Yang, “Data-algorithm-architecture co-optimization for fair neural networks on skin lesion dataset,” in International Conference on Medical Image Computing and Computer-Assisted Intervention . Springer, 2024, pp. 153–163. [18] R. Qin, Y. Hu, Z. Yan, J. Xiong, A. Abbasi, and Y. Shi, “Fl-nas: Towards fairness of nas for resource constrained devices via large language models,” in 2024 29th Asia and South Pacific Design Automation Conference (ASP-DAC) . IEEE, 2024, pp. 429–434. [19] Y. Sheng, J. Yang, Y. Wu, K. Mao, Y. Shi, J. Hu, W. Jiang, and L. Yang, “The larger the fairer? small neural networks can achieve fairness for edge devices,” in Proceedings of the 59th ACM/IEEE Design Automation Conference , 2022, pp. 163–168. [20] Y. Wu, D. Zeng, X. Xu, Y. Shi, and J. Hu, “Fairprune: Achieving fairness through pruning for dermatological disease diagnosis,” in Medical Image Computing and Computer Assisted Intervention–MICCAI 2022: 25th International Conference, Singapore, September 18–22, 2022, Proceed-ings, Part I . Springer, 2022, pp. 743–753. [21] Y. Guo, Z. Jia, J. Hu, and Y. Shi, “Fairquantize: Achieving fairness through weight quantization for dermatological disease diagnosis,” in 
+
+International Conference on Medical Image Computing and Computer-Assisted Intervention . Springer, 2024, pp. 329–338. [22] S. Swaminathan, D. Garg, R. Kannan, and F. Andres, “Sparse low rank factorization for deep neural network compression,” Neurocomputing ,vol. 398, pp. 185–196, 2020. [23] Y. Guo, J. Xia, and Y. Shi, “Fairlrf: Achieving fairness through sparse low rank factorization,” arXiv preprint arXiv:2511.16549 , 2025. [24] Q. Kong, C.-H. Chiu, D. Zeng, Y.-J. Chen, T.-Y. Ho, J. Hu, and Y. Shi, “Achieving fairness through channel pruning for dermatological disease diagnosis,” in International Conference on Medical Image Computing and Computer-Assisted Intervention . Springer, 2024, pp. 24–34. [25] T. Wang, K. Wang, H. Cai, J. Lin, Z. Liu, H. Wang, Y. Lin, and S. Han, “Apq: Joint search for network architecture, pruning and quantization policy,” in 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . IEEE, 2020, pp. 2075–2084. [26] T. Liu, N. Astorga, N. Seedat, and M. van der Schaar, “Large language models to enhance bayesian optimization,” in International Conference on Learning Representations , vol. 2024, 2024, pp. 31 252–31 284. [27] Y. Dai, L. Zhang, F. Luo, M. Chowdhury, and Y. Wu, “Fairagent: De-mocratizing fairness-aware machine learning with llm-powered agents,” in 2025 IEEE International Conference on Data Mining Workshops (ICDMW) . IEEE, 2025, pp. 2597–2601. [28] S. Jafari, A. Sarkar, M. Bilwal, and A. Jannesari, “Profilingagent: Profiling-guided agentic reasoning for adaptive model optimization,” 
+
+arXiv preprint arXiv:2509.05584 , 2025. [29] M. Hardt, E. Price, and N. Srebro, “Equality of opportunity in supervised learning,” Advances in neural information processing systems , vol. 29, 2016. [30] Y. LeCun, J. Denker, and S. Solla, “Optimal brain damage,” Advances in neural information processing systems , vol. 2, 1989. [31] A. Zhou, A. Yao, Y. Guo, L. Xu, and Y. Chen, “Incremental network quantization: Towards lossless cnns with low-precision weights,” arXiv preprint arXiv:1702.03044 , 2017. [32] S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao, “React: Synergizing reasoning and acting in language models,” arXiv preprint arXiv:2210.03629 , 2022. [33] M. Groh, C. Harris, L. Soenksen, F. Lau, R. Han, A. Kim, A. Koochek, and O. Badri, “Evaluating deep neural networks trained on clinical im-ages in dermatology with the fitzpatrick 17k dataset,” in 2021 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW) . IEEE, 2021, pp. 1820–1828. [34] K. Simonyan and A. Zisserman, “Very deep convolutional networks for large-scale image recognition,” arXiv preprint arXiv:1409.1556 , 2014. [35] J. Bergstra and Y. Bengio, “Random search for hyper-parameter opti-mization.” Journal of machine learning research , vol. 13, no. 2, 2012. [36] J. Bergstra, R. Bardenet, Y. Bengio, and B. Kégl, “Algorithms for hyper-parameter optimization,” Advances in neural information processing systems , vol. 24, 2011.

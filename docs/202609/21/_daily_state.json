@@ -1,0 +1,105 @@
+{
+  "date": "20260921",
+  "date_label": "",
+  "generated_at": "2026-09-21 22:50:31 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.21058v1",
+      "route": "202609/21/2609.21058v1-how-much-of-a-real-workload-can-llm-generated-gpu-kernels-actually-reach",
+      "title": "How Much of a Real Workload Can LLM-Generated GPU Kernels Actually Reach?",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "评估大模型生成的GPU内核在真实负载中的实际覆盖范围",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    },
+    {
+      "paper_id": "2609.21533v1",
+      "route": "202609/21/2609.21533v1-mace-memory-agent-co-evolution-with-adaptive-memory-graphs-for-multi-agent-systems",
+      "title": "MACE: Memory-Agent Co-Evolution with Adaptive Memory Graphs for Multi-Agent Systems",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向智能体记忆存储与检索的自适应记忆图",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    },
+    {
+      "paper_id": "2609.21423v1",
+      "route": "202609/21/2609.21423v1-dense-distilling-agent-trajectories-into-evidence-grounded-shortcut-trees-for-self-refinement",
+      "title": "DENSE: Distilling Agent Trajectories into Evidence-Grounded Shortcut Trees for Self-Refinement",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "将智能体轨迹蒸馏为可复用、有证据支撑的反馈以支持自我精炼",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    },
+    {
+      "paper_id": "2609.15627v1",
+      "route": "202609/21/2609.15627v1-deepseek-v4-flash-on-amd-gfx90a-correctness-recovery-and-inference-performance-engineering",
+      "title": "DeepSeek-V4-Flash on AMD gfx90a: Correctness Recovery and Inference Performance Engineering",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "在AMD GPU上对LLM推理进行性能工程与内核级优化",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    },
+    {
+      "paper_id": "2609.17786v1",
+      "route": "202609/21/2609.17786v1-faircompressagent-an-agentic-framework-for-fairness-aware-model-compression-for-fpga-deployment",
+      "title": "FairCompressAgent: An Agentic Framework for Fairness-Aware Model Compression for FPGA Deployment",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "语言模型规划器依据实测结果自动迭代选择压缩配置，无需人工干预",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    },
+    {
+      "paper_id": "2609.21681v1",
+      "route": "202609/21/2609.21681v1-performance-analysis-of-low-order-gpu-accelerated-finite-element-kernels-using-kokkos",
+      "title": "Performance Analysis of Low-Order, GPU-accelerated Finite Element Kernels using Kokkos",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "分析GPU加速有限元内核在不同架构上的性能可移植性",
+      "first_seen_at": "2026-09-21 22:50:31 UTC",
+      "updated_at": "2026-09-21 22:50:31 UTC"
+    }
+  ]
+}
