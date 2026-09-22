@@ -1,0 +1,319 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-22T21:40:24.710057+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2609.24663v1",
+      "source": "arxiv",
+      "title": "Beyond Endpoint Performance: Process-Level Evaluation of Self-Evolving Agents",
+      "abstract": "Self-evolving agents convert interaction feedback into persistent artifacts, such as memories or skills, which in turn guide subsequent decisions. As these artifacts are iteratively updated throughout an experience stream, the capabilities they support may evolve. Consequently, endpoint performance alone offers an incomplete view of self-evolution. Process-level evaluation is therefore essential to identify when a target capability emerges and whether later updates strengthen, preserve, or weaken it. Motivated by this, we propose \\textsc{EvoPathBench}, a benchmark that tracks individual capabilities during artifact-level self-evolution. EvoPathBench fixes the base model, tools, freezes evolving artifacts at successive checkpoints, and evaluates the target capability on held-out episodes. This benchmark evaluates agent self-evolution using public trading data and calibrated trajectories. It tests three capabilities: generalization to unseen tasks, retention after unrelated learning, and rule adaptation to new evidence. Experimental results show that gains on similar unseen tasks often weaken under distribution shift, retention losses are concentrated in a minority of evolution paths, and no method achieves reliable rule adaptation. Moreover, while self-evolution enables agents to generate candidate artifacts with substantial held-out gains, the selected updates consistently fall short of realizing this potential. Together, these findings establish capability-level process evaluation as a foundation for analyzing self-evolution, identifying candidate evaluation and selection as key targets for improvement.",
+      "authors": [
+        "Hongqiang Lin",
+        "Chao Liu",
+        "Xiaofan Bai",
+        "Xuan Jin",
+        "Yuhong Li",
+        "Nenggan Zheng",
+        "Xipeng Cao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-21T14:28:06+00:00",
+      "link": "https://arxiv.org/pdf/2609.24663v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "process-level evaluation of self-evolving agents and evolving memory artifacts",
+      "llm_evidence_cn": "自进化智能体及演化记忆产物的过程级评估",
+      "llm_evidence": "自进化智能体及演化记忆产物的过程级评估",
+      "canonical_evidence": "自进化智能体及演化记忆产物的过程级评估",
+      "llm_tldr_en": "EvoPathBench tracks individual capabilities during artifact-level self-evolution by freezing evolving memories or skills at checkpoints, revealing when capabilities emerge and whether later updates strengthen, preserve, or weaken them.",
+      "llm_tldr_cn": "自进化智能体把交互反馈转化为记忆或技能等持久产物，并据此指导后续决策，但仅看终点性能无法完整刻画其演化过程。本文提出EvoPathBench基准，固定基础模型与工具，在连续检查点冻结演化产物并逐项评估能力。实验能够识别目标能力何时出现，以及后续更新是增强、保持还是削弱该能力。该工作为自进化智能体的过程级评估与机制理解提供了新基准。",
+      "llm_tldr": "自进化智能体把交互反馈转化为记忆或技能等持久产物，并据此指导后续决策，但仅看终点性能无法完整刻画其演化过程。本文提出EvoPathBench基准，固定基础模型与工具，在连续检查点冻结演化产物并逐项评估能力。实验能够识别目标能力何时出现，以及后续更新是增强、保持还是削弱该能力。该工作为自进化智能体的过程级评估与机制理解提供了新基准。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.24971v1",
+      "source": "arxiv",
+      "title": "DolphinBench: Mapping the Pareto Frontier of Agent Memory",
+      "abstract": "Agents today often take real-world actions that depend on long-term memory and context recall over time. However, most current memory benchmarks are built for a conversational question-answer format, where the question itself signals that some fact must be retrieved, and often which one. Moreover, benchmarks rarely require anything beyond accuracy from submissions, allowing memory systems to make unreasonable cost/time tradeoffs to achieve higher scores.   We present DolphinBench, a benchmark that evaluates memory directly through an agent's task completion. DolphinBench includes three knowledge-work personas with roughly 500k tokens of user messages per persona and evaluates agents on tasks that depend on information from that history. We verify all 200 tasks per persona by running an agent with and without the relevant history, requiring success with it and failure without it.   Finally, we require all evaluations to report total cost and latency alongside accuracy, which enables us to evaluate agent memory systems holistically. No existing memory benchmark combines all three. The dataset and evaluation code are available at https://dolphinbench.ai.",
+      "authors": [
+        "Soumil Rathi",
+        "Deshraj Yadav",
+        "Taranjeet Singh"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-21T17:54:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.24971v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "benchmark for agent long-term memory and context recall through task completion",
+      "llm_evidence_cn": "通过任务完成度评测智能体长期记忆与上下文检索",
+      "llm_evidence": "通过任务完成度评测智能体长期记忆与上下文检索",
+      "canonical_evidence": "通过任务完成度评测智能体长期记忆与上下文检索",
+      "llm_tldr_en": "Agent memory benchmarks use conversational QA that hints which fact to retrieve and score only accuracy. DolphinBench instead evaluates memory through task completion, with three knowledge-work personas of about 500k tokens and 200 verified tasks each.",
+      "llm_tldr_cn": "现有智能体记忆基准多采用对话问答形式，问题本身已暗示需检索的事实，且只考核准确率，导致记忆系统以不合理的成本换取高分。本文提出DolphinBench，通过智能体任务完成情况直接评估记忆，构建三类知识工作者画像，每人约50万token历史消息，并为每个画像设计200项依赖历史信息的任务。该基准同时刻画准确率与成本的时间帕累托前沿，为长时程记忆系统评估提供更贴近真实部署的标准。",
+      "llm_tldr": "现有智能体记忆基准多采用对话问答形式，问题本身已暗示需检索的事实，且只考核准确率，导致记忆系统以不合理的成本换取高分。本文提出DolphinBench，通过智能体任务完成情况直接评估记忆，构建三类知识工作者画像，每人约50万token历史消息，并为每个画像设计200项依赖历史信息的任务。该基准同时刻画准确率与成本的时间帕累托前沿，为长时程记忆系统评估提供更贴近真实部署的标准。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.24972v1",
+      "source": "arxiv",
+      "title": "RRSI: Regularized Recursive Self-Improvement of Agent Harnesses",
+      "abstract": "An LLM agent's capability is largely magnified by its harness, namely the prompts, control flow, tooling, memory, and context management surrounding the frozen backbone model. Recent methods increasingly automate this process by iteratively proposing and selecting component-wise edits of an agent harness, practically establishing a form of recursive self-improvement (RSI) at the agent-system level. However, such recursive evolution may overfit by memorizing the training tasks, showing large in-distribution gains that shrink or even vanish on out-of-distribution benchmarks. We introduce Regularized Recursive Self-Improvement of Agent Harnesses (RRSI), which incorporates the principles of regularizations into harness self-improvement by constraining the evolution candidate proposal and selection. The proposer operates with a temporally annealed budget, limiting how many edits a candidate can bundle, and it encourages unexplored trajectories based on evolution history. The selector is equipped with a critic and a pruner: the critic screens benchmark-specific proposals, while the pruner, removes changes that are too small, too expensive, or no longer useful. Together these constraints favor reusable agent mechanisms over benchmark-specific ones or even noises. Across eight benchmarks spanning coding, agentic workspace and engineering design tasks, RRSI gains up to 14.1 points on the split it evolves against and up to 4.7 points on the five out-of-distribution benchmarks, while producing a harness that runs on 30% fewer policy tokens than the unregularized evolution. Code is available at https://github.com/google-research/rrsi and project page is https://regularized-rsi.com/.",
+      "authors": [
+        "Peng Xia",
+        "Rujun Han",
+        "Zifeng Wang",
+        "Yanfei Chen",
+        "Yufan Zhang",
+        "Yoonho Lee",
+        "Chengsong Huang",
+        "Han Yu",
+        "Zhongying CuiZhu",
+        "Yifei Ming",
+        "Huaxiu Yao",
+        "Burak Gokturk",
+        "Tomas Pfister",
+        "Chen-Yu Lee"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-21T17:54:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.24972v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "recursive self-improvement of agent harness without human intervention",
+      "llm_evidence_cn": "无需人工干预的智能体harness递归自我改进",
+      "llm_evidence": "无需人工干预的智能体harness递归自我改进",
+      "canonical_evidence": "无需人工干预的智能体harness递归自我改进",
+      "llm_tldr_en": "RRSI adds regularization to recursive self-improvement of LLM agent harnesses, constraining component-wise edits of prompts, memory, and context so that in-distribution gains no longer vanish on out-of-distribution benchmarks.",
+      "llm_tldr_cn": "智能体能力很大程度取决于其harness，即提示、控制流、工具、记忆与上下文管理，近期方法通过迭代地提出并选择组件级编辑实现自动化的递归自我改进。然而这种演化容易记忆训练任务而过拟合，导致分布内提升在分布外大幅缩水甚至消失。本文提出RRSI，把正则化原则引入harness自我改进，约束演化过程。实验显示该方法在保持分布内增益的同时提升了分布外泛化。该工作为智能体系统的自动化递归自我改进提供了更稳健的范式。",
+      "llm_tldr": "智能体能力很大程度取决于其harness，即提示、控制流、工具、记忆与上下文管理，近期方法通过迭代地提出并选择组件级编辑实现自动化的递归自我改进。然而这种演化容易记忆训练任务而过拟合，导致分布内提升在分布外大幅缩水甚至消失。本文提出RRSI，把正则化原则引入harness自我改进，约束演化过程。实验显示该方法在保持分布内增益的同时提升了分布外泛化。该工作为智能体系统的自动化递归自我改进提供了更稳健的范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.21483v1",
+      "source": "arxiv",
+      "title": "Weave: Fine-Grained Dynamic SM Scheduling in an MoE Megakernel for Compute-Communication Overlap",
+      "abstract": "Mixture-of-Experts (MoE) inference under expert parallelism (EP) turns each MoE layer into a distributed computation with costly dispatch and combine communication. State-of-the-art systems reduce this cost through communication-computation overlap, splitting the GPU's SMs for communication and computation respectively. However, this approach still leaves GPU resources wasted along two dimensions. Spatially, the best SM split is determined by each layer's routing result and varies across layers and GPUs, so fixed policies mismatch the workload and waste either NVLink bandwidth or compute throughput. Temporally, complex MoE data dependencies introduce bubbles that leave SMs idle.   We present Weave, to our knowledge the first MoE overlap system that performs fine-grained dynamic SM scheduling - deciding per layer and per GPU by routing results at runtime. Once routing completes, each layer's communication and computation volumes become known; Weave exploits this predictability through a lightweight cost model running inside the persistent megakernel: a spatial scheduler partitions SMs into communication workers and computation workers to match the communication/computation throughput ratio, and a temporal scheduler coordinates the two worker groups to minimize SM idleness. On 4x H100 SXM GPUs across six mainstream MoE models, Weave achieves a 2.89x geometric-mean MoE-layer speedup and a 1.33x geometric-mean end-to-end speedup over five state-of-the-art baselines.",
+      "authors": [
+        "Ziyu Huang",
+        "Yangjie Zhou",
+        "Chenhao Zhu",
+        "Zihan Liu",
+        "Jinyu Liu",
+        "Shulai Zhang",
+        "Xingxun Tang",
+        "Hongzhe Yan",
+        "Xinhao Luo",
+        "Minyi Guo",
+        "Xiu Lin",
+        "Yinghao Yu",
+        "Guodong Yang",
+        "Liping Zhang",
+        "Shixuan Sun",
+        "Jingwen Leng"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-18T08:34:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.21483v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "fine-grained dynamic SM scheduling in a megakernel to overlap compute and communication on GPUs",
+      "llm_evidence_cn": "在巨型内核中细粒度动态调度SM以重叠GPU计算与通信",
+      "llm_evidence": "在巨型内核中细粒度动态调度SM以重叠GPU计算与通信",
+      "canonical_evidence": "在巨型内核中细粒度动态调度SM以重叠GPU计算与通信",
+      "llm_tldr_en": "MoE inference under expert parallelism wastes GPU resources because fixed SM-split policies mismatch routing and idle bubbles appear. Weave performs fine-grained dynamic SM scheduling within a megakernel, adapting the split to each layer and overlapping computation with communication.",
+      "llm_tldr_cn": "专家并行下的MoE推理将每层变成含昂贵分发与合并通信的分布式计算，现有通信-计算重叠方案采用固定SM划分策略，与逐层变化的负载不匹配，浪费NVLink带宽或算力，且数据依赖导致SM空闲。本文提出Weave，在巨型内核中实现细粒度动态SM调度，按每层路由结果自适应划分并重叠计算与通信。该工作提升了GPU资源利用率与内核执行性能，属于GPU内核执行优化的代表性系统。",
+      "llm_tldr": "专家并行下的MoE推理将每层变成含昂贵分发与合并通信的分布式计算，现有通信-计算重叠方案采用固定SM划分策略，与逐层变化的负载不匹配，浪费NVLink带宽或算力，且数据依赖导致SM空闲。本文提出Weave，在巨型内核中实现细粒度动态SM调度，按每层路由结果自适应划分并重叠计算与通信。该工作提升了GPU资源利用率与内核执行性能，属于GPU内核执行优化的代表性系统。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.22682v1",
+      "source": "arxiv",
+      "title": "Self-Organizing Agent Teams Learn to Reason Together",
+      "abstract": "Collective intelligence depends not only on what team members know, but also on how they organize their work. When the structure of a solution is unknown, useful roles and divisions of labor cannot be specified in advance; teams must learn from experience how to organize reasoning as it unfolds. Human teams routinely adapt this way, while existing AI agent teams rely on fixed protocols, explicit task decomposition, or routing. We introduce Self-Organizing Agent Teams (SAT), fixed teams of AI agents that learn reusable strategies from prior collaborations to organize roles, conversational phases, participation, and information flow. These strategies enable what we call collaborative computation: agents exchange, challenge, repair, and synthesize partial reasoning into solutions no member produced independently. In two independent settings, we learn teamwork strategies that transfer unchanged to unseen benchmarks, using only 15 mathematics and 25 graduate-level knowledge problems. Across five mathematics and physics benchmarks, self-organizing teams average 66.7% accuracy, versus 48.8% for their strongest member, 58.7% for compute-matched inference by that agent, and 59.0% for a perfect router over members' independent answers; on AIME 2026, they exceed this router by 13.4 points. Because gains vary across benchmarks, we ask when self-organizing collaboration helps. Across eight benchmarks, demonstrability (the organizational-psychology construct of whether a team can distinguish correct from incorrect reasoning) strongly tracks improvement over the strongest member (Spearman $ρ=0.90$, $p=0.005$): teams benefit most when correct reasoning can be recognized once it appears. More broadly, these results suggest that organization itself can become an agent capability: agent teams can learn how to reason together and produce solutions their members could not reach independently.",
+      "authors": [
+        "Aneesh Pappu",
+        "Mirac Suzgun",
+        "Yongchan Kwon",
+        "Federico Bianchi",
+        "Batu El",
+        "Mykel J. Kochenderfer",
+        "Hancheng Cao",
+        "James Zou"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-09-19T01:27:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.22682v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agents learn reusable strategies from prior collaborations to self-organize",
+      "llm_evidence_cn": "智能体从过往协作中学习可复用策略实现自组织",
+      "llm_evidence": "智能体从过往协作中学习可复用策略实现自组织",
+      "canonical_evidence": "智能体从过往协作中学习可复用策略实现自组织",
+      "llm_tldr_en": "Self-Organizing Agent Teams let fixed teams of AI agents learn reusable strategies from prior collaborations, organizing roles, phases and information flow without fixed protocols.",
+      "llm_tldr_cn": "当解决方案结构未知时，角色分工无法预先设定，团队须从经验中学习如何组织推理，而现有AI智能体团队依赖固定协议与显式任务分解。本文提出自组织智能体团队SAT，让固定团队从过往协作中学习可复用策略，自行组织角色、对话阶段、参与度与信息流。这些策略支持智能体交换、质疑、修复并综合部分推理。该工作体现智能体依靠经验积累持续自我改进，对自进化机制有参考价值。",
+      "llm_tldr": "当解决方案结构未知时，角色分工无法预先设定，团队须从经验中学习如何组织推理，而现有AI智能体团队依赖固定协议与显式任务分解。本文提出自组织智能体团队SAT，让固定团队从过往协作中学习可复用策略，自行组织角色、对话阶段、参与度与信息流。这些策略支持智能体交换、质疑、修复并综合部分推理。该工作体现智能体依靠经验积累持续自我改进，对自进化机制有参考价值。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.22765v1",
+      "source": "arxiv",
+      "title": "Quality over Quantity: Diversity-Aware Data Selection for Efficient Verilog Code Generation",
+      "abstract": "Large Language Models (LLMs) have shown remarkable potential in Verilog code generation, yet existing datasets contain con siderable noise and redundancy. Prior data selection methods address only isolated quality aspects, neglect the global diversity of the training set, and cannot capture Verilog-specific structural semantics. To bridge this gap, we propose VeriSelector, the first data selection framework for Verilog code generation that jointly optimizes quality and diversity. We formulate the selec tion problem as a constrained bi-objective subset selection problem and solve it via a three-stage approximation. For quality, a multi-granularity pipeline first verifies functional correctness through testbench simulation and then filters misaligned samples via Instruction-Following Difficulty (IFD) scoring. For diversity, 109-dimensional Verilog-specific structural features (AST, CFG, and Netlist) are fused with textual embeddings for clustering-based diversity modeling. A proportional adaptive sampling strat egy then allocates per-cluster quotas guided by IFD ranks, with a provable distribution preservation guarantee. Experiments on three LLMs and three benchmarks show that VeriSelector outperforms full-dataset training and state-of-the-art baselines us ing only 20%-25% of the data, achieving Performance Retention Rates above 118% and reducing training time by over 80%. Notably, VeriSelector improves average Pass@1 by 18.49%-29.43% over full-dataset training and by 1.36%-7.95% over the best-performing baseline across all evaluated models.",
+      "authors": [
+        "Yiheng Shen",
+        "Wei Zheng",
+        "Xiao Wei",
+        "Hao Shen",
+        "Xiang Chen",
+        "Guang Yang"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-19T04:46:42+00:00",
+      "link": "https://arxiv.org/pdf/2609.22765v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LLM-based Verilog code generation with quality-diversity data selection",
+      "llm_evidence_cn": "基于大模型的Verilog代码生成与质量多样性数据选择",
+      "llm_evidence": "基于大模型的Verilog代码生成与质量多样性数据选择",
+      "canonical_evidence": "基于大模型的Verilog代码生成与质量多样性数据选择",
+      "llm_tldr_en": "LLM Verilog code generation datasets contain noise and redundancy, and prior data selection ignores global diversity and Verilog semantics. VeriSelector formulates quality-diversity selection as a constrained bi-objective subset problem solved by a three-stage approximation with testbench-verified functional correctness.",
+      "llm_tldr_cn": "大模型在Verilog代码生成上潜力显著，但现有数据集噪声与冗余严重，既有数据选择方法只关注单一质量维度，忽视训练集全局多样性，也难以刻画Verilog特有的结构语义。本文提出VeriSelector，首个同时优化质量与多样性的Verilog代码生成数据选择框架，将选择问题建模为受约束的双目标子集选择并分三阶段近似求解，质量侧通过测试平台仿真验证功能正确性。",
+      "llm_tldr": "大模型在Verilog代码生成上潜力显著，但现有数据集噪声与冗余严重，既有数据选择方法只关注单一质量维度，忽视训练集全局多样性，也难以刻画Verilog特有的结构语义。本文提出VeriSelector，首个同时优化质量与多样性的Verilog代码生成数据选择框架，将选择问题建模为受约束的双目标子集选择并分三阶段近似求解，质量侧通过测试平台仿真验证功能正确性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24862v1",
+      "source": "arxiv",
+      "title": "When Tomorrow Becomes Today: Self-Evolving Policies for Agentic Time-Series Forecasting",
+      "abstract": "Agentic time series forecasting concerns systems whose underlying mechanisms evolve, making the relative effectiveness of numerical models, reasoning strategies, and intervention rules inherently time-varying. Consequently, a time series agent must adapt the forecasts it produces and the orchestration policy that determines which components to trust and how to coordinate them. The deployment process naturally provides supervision for this adaptation as forecast horizons elapse and realized targets reveal the effectiveness of earlier decisions. Committing all numerical expert forecasts and candidate agent paths before target observation allows each realized outcome to evaluate the entire alternative set, providing delayed feedback without additional annotation. However, existing time series agents primarily incorporate prior experience through forecast refinement, reflection, or retrieval, without systematically converting realized outcomes into persistent updates to the joint orchestration policy governing later origins. To exploit this delayed feedback systematically, we introduce TimEvolve, a frozen-backbone time series agent that converts each realized outcome into persistent joint updates of expert trust, agent path selection, and intervention strength. A temporally ordered predict, reveal, and update protocol applies this feedback to subsequent forecasts. Experiments across eight Time-MMD domains show that TimEvolve achieves the best average MSE and MAE ranks among fifteen methods and the lowest errors on both metrics in seven domains. These results demonstrate the value of learning forecasting policies from the futures encountered during deployment.",
+      "authors": [
+        "Yifan Hu",
+        "Xilin Dai",
+        "Zhiyuan Qu",
+        "Yiding Liu",
+        "Zewei Dong",
+        "Jiang-ming Yang",
+        "Qiang Xu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-21T16:33:59+00:00",
+      "link": "https://arxiv.org/pdf/2609.24862v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "self-evolving policies adapting agents without human intervention",
+      "llm_evidence_cn": "无需人工干预的智能体自演化策略",
+      "llm_evidence": "无需人工干预的智能体自演化策略",
+      "canonical_evidence": "无需人工干预的智能体自演化策略",
+      "llm_tldr_en": "This paper proposes self-evolving policies for agentic time-series forecasting, letting the agent adapt forecasts and orchestration using delayed feedback from realized targets, since it commits all candidate paths before observation.",
+      "llm_tldr_cn": "智能体时间序列预测中底层机制不断演化，数值模型、推理策略与干预规则的相对有效性随时间变化，智能体必须持续调整预测与组件编排策略。作者提出自演化策略，利用预测部署中随视界展开的延迟反馈进行自适应。通过预先提交所有专家预测与候选路径，每个实现结果可评估整个备选集。该工作展示了无需人工干预的智能体自演化与策略改进机制。",
+      "llm_tldr": "智能体时间序列预测中底层机制不断演化，数值模型、推理策略与干预规则的相对有效性随时间变化，智能体必须持续调整预测与组件编排策略。作者提出自演化策略，利用预测部署中随视界展开的延迟反馈进行自适应。通过预先提交所有专家预测与候选路径，每个实现结果可评估整个备选集。该工作展示了无需人工干预的智能体自演化与策略改进机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

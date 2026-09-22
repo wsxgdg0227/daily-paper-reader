@@ -1,0 +1,821 @@
+Title: Quality over Quantity: Diversity-Aware Data Selection for Efficient Verilog Code Generation
+
+URL Source: https://arxiv.org/pdf/2609.22765v1
+
+Published Time: Tue, 22 Sep 2026 00:36:35 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# Quality over Quantity: Diversity-Aware Data Selection for E ffi cient Verilog Code Generation 
+
+Yiheng Shen a,b , Wei Zheng a, ∗, Xiao Wei a, Hao Shen c, Xiang Chen d, Guang Yang e, ∗∗ 
+
+> aNorthwestern Polytechnical University, Xi’an, China
+> bNantong Normal College, Nantong, China
+> cEast China Normal University, Shanghai, China
+> dNantong University, Nantong, China
+> eZhejiang University, Hangzhou, China
+
+Abstract 
+
+Large Language Models (LLMs) have shown remarkable potential in Verilog code generation, yet existing datasets contain con-siderable noise and redundancy. Prior data selection methods address only isolated quality aspects, neglect the global diversity of the training set, and cannot capture Verilog-specific structural semantics. To bridge this gap, we propose VeriSelector , the first data selection framework for Verilog code generation that jointly optimizes quality and diversity. We formulate the selec-tion problem as a constrained bi-objective subset selection problem and solve it via a three-stage approximation. For quality, a multi-granularity pipeline first verifies functional correctness through testbench simulation and then filters misaligned samples via Instruction-Following Di ffi culty (IFD) scoring. For diversity, 109-dimensional Verilog-specific structural features (AST, CFG, and Netlist) are fused with textual embeddings for clustering-based diversity modeling. A proportional adaptive sampling strat-egy then allocates per-cluster quotas guided by IFD ranks, with a provable distribution preservation guarantee. Experiments on three LLMs and three benchmarks show that VeriSelector outperforms full-dataset training and state-of-the-art baselines us-ing only 20%–25% of the data, achieving Performance Retention Rates above 118% and reducing training time by over 80%. Notably, VeriSelector improves average Pass@1 by 18.49%–29.43% over full-dataset training and by 1.36%–7.95% over the best-performing baseline across all evaluated models. 
+
+Keywords: Verilog Code Generation, Large Language Models, Hardware Description Language, Data Selection 
+
+1. Introduction 
+
+Recent advances in Large Language Models (LLMs) [1] for general code generation [2] have motivated researchers to apply them to Verilog code generation [3]. Verilog is the predominant Hardware Description Language (HDL) for chip design [4]. The e ffi ciency and quality of Verilog implementations strongly aff ect the chip development cycle and engineering reliability. Thus, enabling LLMs to generate correct and high-quality Ver-ilog code is of considerable practical value. For Verilog code generation, a critical challenge is the lack of high-quality, well-curated domain-specific datasets. To al-leviate this issue, existing e ff orts [3] construct Verilog datasets by crawling open-source GitHub repositories or by synthesiz-ing samples with LLMs [5]. However, such construction meth-ods inevitably introduce substantial noise and information re-dundancy [6], severely impairing model training e ffi ciency and generalization capability.          
+
+> ∗Corresponding author
+> ∗∗ Corresponding author
+> Email addresses: yiheng.s@ntnc.edu.cn (Yiheng Shen),
+> wzheng@nwpu.edu.cn (Wei Zheng), wxgd@mail.nwpu.edu.cn (Xiao Wei),
+> 52285902020@stu.ecnu.edu.cn (Hao Shen), xchencs@ntu.edu.cn
+> (Xiang Chen), guang_yang@zju.edu.cn (Guang Yang)
+
+A natural solution to this problem is data filtering and selec-tion. Several preliminary e ff orts have been made in this direc-tion: Liu et al. [3] introduce syntax-level filtering to eliminate erroneous samples, and Wei et al. [7] employ LLM-generated test cases with compilation-simulation verification to validate functional correctness. While these e ff orts represent meaning-ful progress, they address only isolated aspects of data quality and lack a systematic data selection framework that jointly con-siders quality, diversity, and domain-specific characteristics. To illustrate, our empirical analysis reveals that training on the full RTLCoder-27k dataset yields average Pass@1 scores substan-tially lower than training on a carefully selected 20%–25% sub-set (e.g., 37.20% vs. 44.08% for Qwen2.5-Coder 7B), confirm-ing that indiscriminate data usage introduces noise that harms model performance. Specifically, when applied to the Verilog domain, existing methods still exhibit two key limitations. 
+
+Limitation 1: Lack of domain-aware diversity modeling. 
+
+Current data selection approaches [3] focus predominantly on per-sample quality assessment without considering the global distribution of the training set [7]. As a consequence, even when individual samples satisfy quality criteria, the resulting dataset tends to be concentrated on a narrow range of hardware design scenarios or module types, leading to overall homog-enization that restricts model generalization. Addressing this arXiv:2609.22765v1 [cs.AR] 19 Sep 2026 diversity gap requires capturing the structural semantics spe-cific to hardware designs. Unlike general-purpose program-ming languages, Verilog embeds domain-specific characteris-tics [8] such as timing logic and parallel execution, and its functional description relies on hardware-specific representa-tions, including Netlists [9]. However, existing general-purpose diversity-oriented selection methods [10] rely solely on textual semantic embeddings for clustering and sampling, and cannot capture these structural and behavioral properties [11]. Mean-while, existing Verilog-specific methods [3] remain limited to syntax-level or compilation-level checking and do not model the deeper structural semantics of hardware designs either [7]. As a result, there is currently no method capable of performing diversity-aware data selection grounded in Verilog’s domain-specific structural features. 
+
+Limitation 2: Lack of a unified framework. Beyond the individual shortcomings described above, no existing frame-work integrates multi-granularity quality selection and domain-aware diversity optimization into a single end-to-end pipeline. Quality-oriented methods [3] perform one-o ff syntax or func-tional verification in isolation, easily leading to redundant sam-pling of high-quality but homogeneous samples [7]. Diversity-oriented methods [10], on the other hand, optimize distribu-tional coverage without enforcing quality constraints, risking the inclusion of noisy or incorrect samples [11]. Existing stud-ies thus either discard diversity requirements for strict quality control, or sacrifice sample quality for distributional coverage, resulting in a fundamental inability to balance the two core ob-jectives. This fragmentation severely limits the e ffi ciency and eff ectiveness of LLM fine-tuning for hardware design tasks. To address these limitations, we propose VeriSelector ,the first systematic quality-and-diversity-aware data selection framework for Verilog code generation. To ensure data quality , VeriSelector employs a multi-granularity selection pipeline: it first verifies functional correctness through auto-mated testbench generation and simulation [7], and then as-sesses instruction-solution alignment via Instruction-Following Di ffi culty (IFD) scoring [12], progressively eliminating noisy samples from behavioral to semantic levels. To ensure data diversity , VeriSelector introduces a Verilog-specific multi-level structural representation, including AST, CFG, and Netlist features with a total of 109 dimensions (57 dimensions for AST, 28 dimensions for CFG, and 24 dimensions for Netlist). Then VeriSelector fuses the structural features with textual semantic embeddings and performs clustering-based diversity modeling. Building on this, a proportional adaptive sampling 
+
+strategy allocates per-cluster quotas guided by IFD ranks, se-lecting a compact subset that jointly preserves structural diver-sity and prioritizes high-quality samples. To evaluate VeriSelector , we conducted experiments on the RTLCoder-27k dataset [3]. This corpus is constructed by expanding keywords and generating code variants with GPT-4o. We evaluated three models of similar scale (Qwen2.5-Coder 7B, SeedCoder 8B, and CodeLlama 7B) on three benchmarks (VerilogEval-v2 [13], ResBench [14], and RTLLM [15]). Using only 20% to 25% of the training data, VeriSelector surpasses full-dataset training and state-of-the-art baselines, achieving Performance Retention Rates over 118% across all three mod-els. Moreover, ablation studies confirm the contribution of each component, while t-SNE visualization demonstrates that the selected subset retains the distributional diversity of the full dataset. In summary, this paper makes the following contributions: 
+
+• First Verilog data selection framework with provable quality-diversity bounds. 
+
+• A multi-granularity quality pipeline from correctness to instruction alignment. 
+
+• AST /CFG /Netlist features fused with text for diversity-aware clustering. To facilitate future reproduction and follow-up work, we release source code, models, and datasets at https:// github.com/syhstudy/VeriSelecter (accessed 5 Septem-ber 2026). 
+
+2. Preliminaries 
+
+In this section, we introduce the background of LLM-driven Verilog code generation, the structural features of Verilog code, and formally define the dataset selection problem addressed in this work. 
+
+2.1. LLM-Driven Verilog Code Generation 
+
+Given a natural language specification xi describing a hard-ware design requirement, the Verilog code generation model 
+
+M aims to autoregressively generate the corresponding Verilog code yi. This process is parameterized by θ and can be ex-pressed as: 
+
+Pθ(yi|xi) =
+
+> n
+
+Y
+
+> k=1
+
+Pθ(yi,k|xi, yi,1: k−1) (1) where yi,1: k−1 represents the previously generated tokens before the k-th token of yi, and n denotes the total number of tokens in the target sequence yi.To adapt LLMs to the Verilog code generation task, we em-ploy Supervised Fine-Tuning (SFT) [16] combined with Low-Rank Adaptation (LoRA) [17]. SFT minimizes the negative log-likelihood loss over a training dataset D:
+
+LSFT = E(x,y)∼D 
+
+− log Pθ(y | x) (2) LoRA freezes the original weight matrix W ∈ Rd×k and intro-duces a low-rank update ∆W = α 
+
+> r
+
+· BA , where B ∈ Rd×r and 
+
+A ∈ Rr×k are trainable low-rank matrices with r ≪ min( d, k), 
+
+α is the scaling factor, and r is the rank. Only A and B are op-timized during training. Further details of the SFT and LoRA configurations are provided in Section 4. 2Figure 1: An illustrative Verilog module and its three structural representations: (a) source code, (b) Abstract Syntax Tree (AST), (c) Control Flow Graph (CFG) of the always block, and (d) synthesized netlist. 
+
+2.2. Structural Features of Verilog Code 
+
+Unlike general-purpose programming languages, Verilog code can be characterized from multiple structural levels, in-cluding AST, CFG, and Netlist, which simultaneously reflect its software semantics and hardware design nature. These struc-tural perspectives can be quantified into numerical feature vec-tors that characterize di ff erent aspects of Verilog code, provid-ing a foundation for the data selection problem defined below. As shown in Figure 1, a Verilog module can be analyzed from three complementary structural perspectives, correspond-ing to panels (b)–(d): 
+
+AST Features. Abstract Syntax Tree (AST) [18] features capture the static syntactic structure of code. By analyzing node types in the tree (e.g., module declarations, continuous assign-ments, procedural blocks, operators, operands, etc.), tree depth, width, and child node distribution, AST features can quantify the syntactic complexity and structural normativity of code, fa-cilitating the identification of redundant or anomalous syntactic patterns. 
+
+CFG Features. Control Flow Graph (CFG) [19] features characterize the dynamic execution logic of behavioral-level code (e.g., always blocks), where nodes correspond to basic blocks (sets of sequentially executed statements) and edges rep-resent control flow transfers between blocks (e.g., conditional branches, loops). Analyzing the scale, path complexity, loop structures, and reachability of CFGs is critical for verifying the completeness of code logic and detecting unreachable code and logical conflicts. 
+
+Netlist Features. Netlist features [20] directly describe the physical and logical structures of hardware, including hierar-chical relationships of modules (e.g., instantiation connections between top-level modules and sub-modules), port directions and types (input, output, inout), combinational and sequential logic connections between signals, and timing constraints (e.g., setup /hold time). Such information serves as the fundamental basis for evaluating the functional correctness, timing compli-ance, and structural integrity of designs. 
+
+2.3. Problem Formulation 
+
+Based on the structural features introduced above, we now formally define the quality-diversity-aware dataset selection problem for Verilog code generation. Let D = {d1, d2, . . . , dN } denote the original Verilog train-ing dataset, where each sample di = ⟨Instruction i, Code i⟩ con-sists of a natural language instruction and its canonical Verilog solution. For each sample, we extract a textual feature vector 
+
+fText (di) encoding the semantic information of the instruction, and a multi-level structural feature vector: 
+
+fStruct (di) = [fAST (di), fCFG (di), fNetlist (di)] These are fused into a unified representation e(di) that captures both the semantic intent and the structural characteristics of each sample. The objective is to design a selection function 
+
+S : D → D ′, where S(D) = D′ ⊆ D , |D ′| ≪ |D| 
+
+guided by the fused representations {e(di)}Ni=1, such that the se-lected subset D′ simultaneously satisfies the following con-straints: 
+
+• Quality constraint : Samples in D′ shall exhibit high functional correctness and strong instruction-solution alignment; 
+
+• Diversity constraint : D′ shall cover diverse hardware design scenarios (e.g., combinational logic, sequential logic) and module types (e.g., adders, registers, etc.); 
+
+• Effi ciency constraint : The selection process shall have low computational cost, and the performance (e.g., Pass@k) of models trained on D′ shall be comparable to that of models trained on the full dataset D.
+
+2.4. Theoretical Analysis 
+
+Building on the problem formulation above, we formalize the selection objective that VeriSelector approximates and establish a provable guarantee on its diversity preservation. 
+
+2.4.1. Unified Optimization Formulation. 
+
+The quality-aware selection stage constructs a feasible set 
+
+Dquality by applying hard constraints. Let Qi = Instruction i and 
+
+Ai = Code i denote the instruction and code of sample di, re-spectively. The feasible set is defined as: 
+
+Dquality = {di ∈ D | Sim( Ai, ti) = True ∧ IFD( Qi, Ai) < 1}
+
+(3) This set excludes all functionally incorrect samples and all instruction-solution pairs that lack semantic alignment (see Section 3.2 for details). Given the K-Means partition {C k}Kk=1 of Dquality in the fused feature space and a sampling budget Ntarget , define the clus-ter distribution ˆ πk = |C k|/|D quality | and the selected distribution ˆπ′ 
+
+> k
+
+= nk/Ntarget . The selection objective can be written as: max  
+
+> D′⊆D quality ,|D ′|≤ Ntarget
+
+X
+
+> di∈D ′
+
+ψ(di) s.t. ∥ˆπ′ − ˆπ∥1 ≤ ϵ (4) where ψ(di) = IFD( Qi, Ai) serves as the learning signal that prioritizes moderately challenging yet well-aligned samples. 3VeriSelector approximates this objective via sequen-tial decomposition. Quality filtering constructs Dquality . Pro-portional quota allocation enforces the distribution constraint. Intra-cluster IFD ranking maximizes P ψ. The three stages collectively address the quality, diversity, and e ffi ciency con-straints defined in Section 2. 
+
+2.4.2. Distribution Preservation Guarantee. 
+
+We now show that the proportional sampling strategy pre-serves the cluster distribution of Dquality with a bounded devia-tion. 
+
+Proposition 1 (Distribution Preservation) . Let Dquality be par-titioned into K clusters, and let the per-cluster quota be n k =
+
+round( |C k|/|D quality | · Ntarget ). Then the selected subset satisfies: 
+
+∥ˆπ′ − ˆπ∥1 ≤ 2KNtarget 
+
+(5) 
+
+Proof. The ideal continuous quota ˜ nk = |C k| · Ntarget /|D quality |
+
+satisfies ˜ nk/Ntarget = ˆπk exactly. The rounding operation intro-duces a per-cluster error |nk − ˜nk| ≤ 1, which translates into a distributional error of |ˆπ′ 
+
+> k
+
+− ˆπk| ≤ 1/Ntarget per cluster. Sum-ming over all K clusters yields ∥ˆπ′ − ˆπ∥1 ≤ K/Ntarget . An addi-tional correction of at most K/Ntarget may be needed to enforce the exact budget Pk nk = Ntarget . This gives the stated bound 2K/Ntarget .In our setting, K = 100 and Ntarget ≈ 5,500 (20% of the original dataset). The bound evaluates to approximately 0.036, indicating less than 4% distributional deviation in L1 norm. This provides a formal guarantee that proportional sampling preserves the structural diversity of Dquality .
+
+Remark 1 (Parameter-Free IFD Threshold) . By definition, 
+
+IFD( Q, A) < 1 holds if and only if Lθ(A | Q) < Lθ(A). That is, the instruction strictly reduces the generation loss of the so-lution under the prior model. The threshold τ = 1 is derived directly from this definition and requires no validation-set tun-ing. 
+
+3. Methodology 
+
+3.1. Overview 
+
+As illustrated in Figure 2, VeriSelector consists of three stages: (1) Quality-Aware Selection , which progres-sively eliminates noisy samples via testbench verification and IFD-based alignment scoring; (2) Diversity-Aware Selection ,which fuses textual semantics with Verilog-specific structural features (AST, CFG, and Netlist) to partition samples into clus-ters capturing distinct hardware design patterns; and (3) Adap-tive Sampling , which applies intra-cluster quality-ranked pro-portional sampling to produce the final training dataset D′. No-tably, the core novelty lies in the Verilog-specific structural knowledge representation and its coupling with quality signals, rather than in the clustering algorithm itself. 
+
+3.2. Quality-Aware Selection 
+
+The quality-aware selection stage aims to remove samples that are functionally incorrect or exhibit misalignment between instructions and solutions. It consists of three steps: testbench verification, prior model training, and IFD-guided scoring. To ensure data quality, we design a multi-granularity quality selec-tion pipeline at this stage. 
+
+3.2.1. Testbench Verification. 
+
+Given the original dataset D = {di}Ni=1 where each sample 
+
+di = ⟨Instruction i, Code i⟩, the first step eliminates functionally incorrect samples through automated testbench generation and simulation. For each sample di, we employ GPT-4o to generate a test-bench based on its instruction and code [7]: 
+
+ti = Gen(GPT-4o , Instruction i, Code i) (6) Each generated testbench ti is then executed against Code i
+
+using a standardized Verilog simulation toolchain. A sample is retained only if its code passes the compilation and simulation verification: 
+
+D0 = {di ∈ D | Sim(Code i, ti) = True } (7) 
+
+3.2.2. Prior Model Training. 
+
+To enable e ffi cient IFD scoring without relying on LLMs, we train a lightweight prior model on a small diverse subset. This design is motivated by the finding that IFD scores from smaller models are highly consistent with those from stronger models [21], making it possible to perform reliable quality as-sessment at low computational cost. Starting from the base model LLM θ0 , we extract instruction embeddings for all samples in D0 by mean-pooling the last hid-den states: 
+
+hQ(0)  
+
+> i
+
+= 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+hQi, j (8) where [ hQi,1, . . . , hQi,m] = LLM θ0 (Instruction i). We then apply K-Means clustering on {hQ(0)  
+
+> i
+
+} to partition D0 into 100 clusters and randomly sample 10 samples per cluster, yielding a 1,000-sample initial set Dinit . Inspired by LIMA [22], we fine-tune LLM θ0 on Dinit for 3 epochs with autoregressive cross-entropy loss, obtaining the prior model LLM θprior .Note that the clustering here serves solely to ensure diver-sity in the prior model’s training data. It is distinct from the diversity-aware clustering in Section 3.3, which operates on richer fused features for the final selection. 
+
+3.2.3. IFD-Guided Quality Scoring. 
+
+After functional correctness filtering, we further assess the semantic alignment between each instruction-solution pair. Specifically, we adopt the Instruction-Following Di ffi culty (IFD) metric [12] computed by the prior model LLM θprior . Let 
+
+Q and A denote the instruction and solution of a given sample (i.e., Q = Instruction i and A = Code i), wAk the k-th token of 4Figure 2: Framework and workflow of VeriSelector .
+
+A, and NA the total number of tokens in A. The IFD score is defined as the ratio of two conditional losses: 
+
+With instruction context: 
+
+Lθprior (A|Q) = − 1
+
+NANAX
+
+> k=1
+
+log P(wAk | Q, wA 
+
+> 1
+
+, . . . , wAk−1; θprior ) (9) 
+
+Without instruction context: 
+
+Lθprior (A) = − 1
+
+NANAX
+
+> k=1
+
+log P(wAk | wA 
+
+> 1
+
+, . . . , wAk−1; θprior ) (10) The IFD score is then computed as: IFD( Q, A) = Lθprior (A|Q)
+
+Lθprior (A) (11) Intuitively, IFD = 1 constitutes a natural decision bound-ary derived from the definition of the metric itself [12]: when IFD < 1, the conditional loss L(A|Q) < L(A), indicating that the instruction reduces the di ffi culty of generating the solution and thus provides positive guidance; when IFD = 1, the in-struction contributes no additional information beyond what the model can infer from the solution alone; when IFD > 1, the instruction increases generation di ffi culty, suggesting semantic misalignment or even interference between the instruction and the solution. Unlike thresholds that require empirical tuning, IFD = 1 is a parameter-free boundary that naturally separates well-aligned from misaligned instruction–solution pairs. We therefore dis-card all samples with IFD ≥ 1, obtaining the quality-filtered dataset: 
+
+Dquality = {di ∈ D 0 | IFD( Qi, Ai) < 1} (12) 
+
+3.3. Diversity-Aware Selection 
+
+After quality filtering, the remaining challenge is to ensure that the selected subset covers diverse hardware design scenar-ios. To this end, we extract dual-dimensional representations, namely textual semantics and structural features, for each sam-ple, fuse them into a unified representation, and partition sam-ples into clusters that capture distinct Verilog design patterns. Thus, we innovatively incorporate Verilog-specific hardware features (especially Netlist features) to enhance the accuracy of clustering. 
+
+3.3.1. Feature Extraction. 
+
+Textual Features. For each sample in Dquality , we ex-tract instruction embeddings using the prior model LLM θprior 
+
+by mean-pooling its last hidden states, yielding hQi ∈ Rdt .These embeddings encode richer semantic information than those from the base model, as the prior model has acquired ba-sic Verilog instruction-following capability through fine-tuning. 
+
+Structural Features. Unlike general-purpose code, Ver-ilog code can be characterized at multiple structural levels that reflect both its software semantics and hardware design na-ture. We exploit this property by extracting features from three complementary perspectives: AST features capture syntactic design patterns (e.g., combinational vs. sequential logic con-structs), CFG features characterize behavioral complexity (e.g., state machine depth and branching density), and Netlist fea-tures reflect physical implementation characteristics (e.g., mod-ule hierarchy and signal connectivity). Together, they provide a domain-specific structural fingerprint that textual embeddings alone cannot express. Concretely, we employ PyVerilog to parse each Code i and extract AST and CFG features, and Yosys to synthesize the code and extract Netlist features. The resulting structural feature vec-tor is: 
+
+f struct  
+
+> i
+
+= [ f AST  
+
+> i
+
+; f CFG  
+
+> i
+
+; f Netlist  
+
+> i
+
+] ∈ Rds (13) where ds = 109 (57 dimensions for AST, 28 dimensions for CFG, and 24 dimensions for Netlist) in our implementation. Table 1 illustrates the composition of the feature dimensions, 5and additional details can be found on the project homepage 1.        
+
+> Table 1: Feature Dimension Composition Details.
+> Feature Dimension Details
+> AST 57 Node type (54), depth parameters (1), total node count (1), node count per depth (1) CFG 28 Basic features (10), label features (7), kernel features (11) Netlist 24 Basic features (9), type features (6), gate features (9)
+
+3.3.2. Feature Fusion and Clustering. 
+
+Standardization. To eliminate scale discrepancies, we ap-ply Z-score normalization to textual features hQi and structural features f struct  
+
+> i
+
+independently, yielding ˆ hQi and ˆ f struct  
+
+> i
+
+.
+
+Fusion. Since both feature modalities have been indepen-dently standardized to zero mean and unit variance via Z-score normalization, we directly concatenate them to form the fused representation: 
+
+ei = ˆhQi ⊕ ˆf struct  
+
+> i
+
+(14) where ⊕ denotes vector concatenation. The prior Z-score nor-malization ensures that the two modalities contribute on a comparable scale, eliminating the need for additional fusion weights. 
+
+Clustering. We apply K-Means on the fused representa-tions {ei} to partition Dquality into K clusters (determined by the elbow method; K = 100 in our experiments): min  
+
+> {C k}Kk=1
+> K
+
+X
+
+> k=1
+
+X
+
+> i∈C k
+
+∥ei − μk∥22 (15) where μk is the centroid of cluster Ck. Each cluster captures a coherent set of Verilog design patterns, providing a structured foundation for diverse sampling. 
+
+3.4. Adaptive Sampling 
+
+The final stage produces the selected dataset D′ by perform-ing quality-ranked proportional sampling within each cluster, achieving a balance between sample quality and scenario diver-sity. 
+
+Intra-cluster Ranking. Within each cluster Ck, samples are sorted in descending order by their IFD scores. The intu-ition is that samples with higher IFD scores (while still below 1) represent moderately challenging instruction-following tasks that provide stronger learning signals for the model [12], and are thus prioritized for selection. 
+
+Proportional Sampling. Given a global sampling budget 
+
+Ntarget , the quota for each cluster is allocated proportionally to its size: 
+
+nk = round |C k||D quality | · Ntarget 
+
+!
+
+(16)  
+
+> 1https://github.com/syhstudy/VeriSelecter/blob/main/ feature_section.md (accessed 5 September 2026)
+
+where |C k| is the number of samples in cluster k, and |D quality | is the total number of quality-filtered samples. This ensures that the selected subset faithfully reflects the cluster distribution of 
+
+Dquality , preserving the natural proportion of di ff erent hardware design patterns. The top-nk samples (by IFD ranking) from each cluster are selected, and the final dataset is assembled as: 
+
+D′ =
+
+> K
+
+[
+
+> k=1
+
+Top nk (Ck) (17) This dataset D′ simultaneously satisfies the quality, diversity, and e ffi ciency constraints defined in Section 2, and is used for subsequent model fine-tuning. 
+
+4. Experimental Setup 
+
+In this section, we present the research questions, experi-mental subjects, baselines, evaluation metrics, and implemen-tation details. 
+
+4.1. Research Questions 
+
+To systematically evaluate the e ff ectiveness, robustness, and design rationality of VeriSelector , we propose the following three research questions (RQs). RQ1: How eff ective is VeriSelector compared to exist-ing data selection methods in Verilog code generation tasks? This RQ evaluates whether the joint quality-diversity se-lection strategy of VeriSelector outperforms existing meth-ods that either lack Verilog domain-specific features or fail to balance sample quality and data diversity. We compare 
+
+VeriSelector against all baselines on three benchmarks us-ing Pass@k metrics. RQ2: How sensitive is VeriSelector to the data selection rate? This RQ investigates the performance of VeriSelector 
+
+under di ff erent data selection rates. We set multiple selection rates from 5% to 25% to analyze how performance changes un-der di ff erent data volume constraints, and to evaluate its adapt-ability in data-scarce scenarios. 
+
+RQ3: What is the contribution of each component in 
+
+VeriSelector ?
+
+This RQ validates the design rationality of VeriSelector 
+
+through ablation studies. We systematically remove or replace core components, including testbench verification, IFD quality scoring, and structural feature fusion, to examine their individ-ual contributions and synergistic e ff ects. 
+
+4.2. Experimental Subject 4.2.1. Datasets 
+
+We adopt RTLCoder-27k [3] as our base selection dataset. This dataset comprises 27,532 instruction-code pairs, where each sample consists of a natural language description of a dig-ital circuit design requirement and its corresponding Verilog implementation. The dataset is generated via an automated pipeline and widely adopted for model fine-tuning: GPT-4o 6is leveraged to expand keywords and generate code variations, followed by syntax validation to filter invalid samples. To evaluate the quality of the selected data, we adopt three widely used Verilog benchmarks: 
+
+• VerilogEval-v2 [13] consists of 156 problems with man-ually written specifications and standard testbenches; 
+
+• RTLLM-v2 [15] comprises 50 typical hardware mod-ule tasks, enabling evaluation of code correctness in real-world hardware design scenarios; 
+
+• ResBench [14] comprises 56 problems focusing on more complex and real-world-oriented hardware designs. All benchmarks provide golden testbenches for functional ver-ification. 
+
+4.2.2. Verilog code generation models 
+
+To evaluate the cross-model generality of VeriSelector ,we select three mainstream open-source code models with dis-tinct architectures and training paradigms: 
+
+• Qwen2.5-Coder 7B [23] is specifically optimized for code tasks with e ffi cient inference capabilities. 
+
+• CodeLlama 7B [24] is a classic general-purpose large code model serving as a representative baseline. 
+
+• SeedCoder 8B [25] adopts a model-centric data pipeline that leverages LLMs to curate code pretraining data, min-imizing reliance on hand-crafted filtering rules. These models represent the three most widely adopted open-source model families for Verilog code generation according to a recent systematic literature review [26]. These models are complementary in pretraining objectives and domain character-istics [7, 27, 28], enabling rigorous verification of the generality of VeriSelector .
+
+4.3. Baselines 
+
+We compare VeriSelector against four state-of-the-art baselines spanning three categories: no-strategy sampling, quality-oriented selection, and domain-specific filtering. 
+
+Random constructs training subsets via uniform sampling from the original dataset without introducing any selection bias, serving as the lower-bound baseline. 
+
+EL2N [29] is a loss-guided filtering method that uses gradi-ent norms in early training stages to identify hard samples and prioritizes high-loss instances to accelerate model convergence. 
+
+Cherry [12] is a self-guided data evaluation framework that enables models to automatically identify high-quality samples from large-scale datasets based on instruction-following di ffi -culty. 
+
+VeriCoder [7] is the only Verilog-specific baseline. It gen-erates unit test cases and performs iterative simulation-based verification to remove functionally incorrect samples. Un-like VeriSelector , VeriCoder focuses solely on functional correctness filtering and does not consider instruction-solution alignment quality or structural diversity.           
+
+> Table 2: Hyper-parameters and their values.
+> Hyper-Parameter Value Hyper-Parameter Value
+> Cluster Numbers K100 Selection Rate 10%–25% Training Epochs 3Learning Rate 2e-4
+
+4.4. Evaluation Metrics 
+
+Pass@k. We adopt the standard Pass@k metric [30] as our primary evaluation metric. It assesses the probability that at least one out of k generated candidates passes all unit tests, mea-suring the functional correctness of generated code. We report Pass@1, Pass@5, and Pass@10 in our experiments. 
+
+Data Selection Rate (DSR) . The DSR metric reflects the data utilization rate, defined as: 
+
+DS R = |D ′|/|D| ,
+
+where |D ′| denotes the size of the selected subset and |D| de-notes the size of the original dataset. 
+
+Performance Retention Rate (PRR) . The PRR metric quantifies the degree of retention of key information, defined as: 
+
+PRR = P(D′)/P(D),
+
+where P(D′) is the model performance trained on the selected subset, and P(D) is the model performance trained on the full dataset. 
+
+4.5. Implementation Details 
+
+Table 2 summarizes the key hyper-parameters used in our experiments. The number of clusters K is determined by the elbow method. For inference, we adopt nucleus sampling with temperature τ = 0.8 and top-p = 0.95. For each test problem, we generate 20 candidate solutions to compute unbiased esti-mates of Pass@1, Pass@5, and Pass@10. We emphasize that all models are trained for a fixed number of epochs (3 epochs) with fixed hyper-parameters, rather than being trained until a target accuracy is reached. This design prevents overfitting to the training set. Moreover, the three evaluation benchmarks (VerilogEval-v2, RTLLM, and ResBench) are entirely indepen-dent of the training dataset RTLCoder-27k, ensuring that no test data leaks into the training or hyper-parameter tuning pro-cess. All experiments are conducted on a platform equipped with an NVIDIA RTX 3090 (24GB) GPU, an Intel Xeon E5-2666 (2.9GHz) CPU, and 128GB RAM. The software envi-ronment is built upon Python 3.9 and PyTorch 2.1. We uti-lize Vivado 2023.1 as the Verilog compilation and simulation tool, Scikit-learn for clustering, Hugging Face Transformers for model loading and fine-tuning, and PyVerilog for code structure parsing. 
+
+5. Result Analysis 
+
+5.1. RQ1: E ff ectiveness Comparison 
+
+To evaluate the performance of VeriSelector , we com-pare it with state-of-the-art baselines discussed in Section 4.3. 7For a fair comparison, we use the most e ffi cient data utiliza-tion for each method and apply the same evaluation metrics. The results are shown in Table 3. Note that VeriCoder applies only testbench-based functional correctness filtering, making it a natural reference point for evaluating the additional value of VeriSelector ’s IFD scoring, structural feature fusion, and diversity-aware clustering components. 
+
+5.1.1. Performance Comparison. 
+
+VeriSelector outperforms state-of-the-art baselines and full-dataset training in most cases across three mainstream code models (Qwen2.5-Coder 7B, CodeLlama 7B, SeedCoder 8B) and three Verilog benchmarks (VerilogEval-v2, ResBench, RTLLM). For Qwen2.5-Coder 7B (20% data), VeriSelector 
+
+achieves Pass@1 scores of 57.14%, 36.00%, and 39.10% on ResBench, RTLLM, and VerilogEval, respectively, yielding an average Pass@1 of 44.08%. This represents a relative improve-ment of 18.49% over full-dataset training (average Pass@1 =
+
+37.20%) and 1.36% over the best-performing baseline Cherry (43.49%). The most significant gain is observed on ResBench, where Pass@1 improves by 39.13% relative to full-dataset training. Notably, VeriSelector achieves comparable per-formance to VeriCoder (which uses 46.55% of data) with only 20% data on VerilogEval, demonstrating exceptional data uti-lization e ffi ciency. For CodeLlama 7B (25% data), VeriSelector achieves Pass@1 scores of 46.43%, 30.00%, and 39.74% on the three benchmarks, yielding an average Pass@1 of 38.72%, with a relative improvement of 19.80% over full-dataset training (32.32%) and 7.95% over Cherry (35.87%). On ResBench, its Pass@5 (67.86%) improves by 11.78% over full-dataset train-ing (60.71%) and 31.03% over VeriCoder (51.79%), demon-strating that VeriSelector can significantly enhance the per-formance of general-purpose code models on Verilog tasks. For SeedCoder 8B (25% data), VeriSelector exhibits the most significant improvement: Pass@1 scores of 62.50%, 36.00%, and 48.08% yield an average Pass@1 of 48.86%, improving by 29.43% over full-dataset training (37.75%) and 2.24% over the best baseline EL2N (47.79%). On ResBench, its Pass@1 (62.50%) achieves a 66.67% relative increase over full-dataset training (37.50%). On RTLLM, its Pass@10 (54.00%) improves by 8.00% over Cherry (50.00%) and 22.73% over full-dataset training (44.00%). Across all models, VeriSelector achieves outstanding Performance Retention Rates (PRR, i.e., the ratio of subset-trained to full-dataset-trained performance): 118.49% for Qwen2.5-Coder 7B (20% data), 119.80% for CodeLlama 7B (25% data), and 129.43% for SeedCoder 8B (25% data) in av-erage Pass@1. To further isolate the contribution of VeriSelector ’s IFD scoring, structural features, and diversity-aware clustering be-yond testbench filtering, we introduce VeriCoder R as a con-trolled baseline that randomly subsamples from VeriCoder’s quality-filtered pool to match the target DSR. Comparing VeriCoder R against VeriSelector under the same data bud-get reveals a consistent performance gap: on Qwen2.5-Coder 7B, VeriCoder R achieves average Pass@1 of 41.58% (53.57%, 34.00%, 37.18%) compared to VeriSelector ’s 44.08%, a 2.50 percentage point improvement attributable entirely to the subsequent pipeline stages. This gap persists across CodeL-lama 7B (VeriCoder R: 34.63% vs. Ours: 38.72%) and Seed-Coder 8B (VeriCoder R: 46.34% vs. Ours: 48.86%), confirming that quality filtering alone is insu ffi cient and that the diversity-aware selection mechanism provides additional gains beyond what testbench verification can o ff er. 
+
+5.1.2. Distribution Characteristics Full data 20% by ours 20% by Cherry 
+
+> Figure 3: Visualization using t-SNE on instruction-solution embeddings from RTLCoder dataset.
+
+To evaluate the distribution characteristics of the selected 20% subset within the full dataset, we compute the seman-tic embeddings of instructions and solutions, and project them into a 2D space via t-SNE for intuitive comparison. Fig-ure 3 presents the results of data visualization. As shown in the figure, the orange points denote the data sampled by 
+
+VeriSelector , while the blue points represent the data se-lected by the state-of-the-art model Cherry. In contrast to Cherry, the samples selected by VeriSelector are not con-fined to a single region but are uniformly distributed across all semantic clusters discernible in the visualization. These results empirically confirm that VeriSelector ef-fectively preserves the global diversity of the original dataset. This observation is supported by Proposition 1: with K=100 clusters and Ntarget ≈5,500, the L1 distributional deviation be-tween the selected subset and the quality-filtered pool is bounded by 2 K/Ntarget ≈ 0.036. In other words, proportional sampling guarantees less than 4% distributional shift. Cherry lacks such a proportional allocation mechanism and thus over-samples high-density semantic regions, as reflected by its con-centrated distribution in Figure 3. 
+
+5.1.3. Quantitative Diversity: Cluster Coverage 
+
+While t-SNE provides intuitive evidence, we further quan-tify diversity using cluster coverage , defined as the fraction of the K=100 clusters that contain at least one selected sample. A higher coverage indicates that the selected subset spans a broader range of structural design patterns. 8Table 3: The results of VeriSelector on di ff erent models. The ↑/↓ values denote absolute improvements /declines (in percentage points) over the All baseline.    
+
+> Bold indicates the best result among methods with the same or lower data selection rate. VeriCoder Rdenotes random subsampling from VeriCoder’s quality-filtered pool to match the target DSR, serving as a controlled baseline that isolates the contribution of VeriSelector ’s IFD scoring, structural features, and diversity-aware clustering beyond testbench filtering.
+
+The Results of VeriSelector on Qwen2.5-Coder 7B 
+
+Benchmark Pass@k All VeriCoder VeriCoder R Random EL2N Cherry Ours 100.00% 46.55% 20.00% 20.00% 20.00% 20.00% 20.00% 
+
+ResBench Pass@1 41.07% 55.36% 53.57% 51.79% 57.14% 55.36% 57.14%( ↑ 16 .07% )
+
+Pass@5 62.50% 69.64% 66.07% 64.29% 64.69% 66.07% 69.64%( ↑ 7.14% )
+
+Pass@10 69.64% 69.64% 69.64% 69.64% 68.57% 71.43% 71.43%( ↑ 1.79% )
+
+RTLLM Pass@1 34.00% 36.00% 34.00% 34.00% 36.00% 36.00% 36.00%( ↑ 2.00% )
+
+Pass@5 40.00% 44.00% 42.00% 40.00% 38.00% 48.00% 46.00% ( ↑ 6.00%) Pass@10 40.00% 46.00% 44.00% 44.00% 42.00% 48.00% 50.00%( ↑ 10 .00% )
+
+VerilogEval Pass@1 36.54% 39.74% 37.18% 36.54% 39.10% 39.10% 39.10%( ↑ 2.56%) Pass@5 44.23% 51.28% 47.44% 47.44% 47.44% 48.08% 48.72% ( ↑ 4.49%) Pass@10 51.28% 51.28% 50.64% 50.64% 53.85% 50.64% 51.28% ( ↑ 0.00%) 
+
+The Results of VeriSelector on CodeLlama 7B 
+
+ResBench Pass@1 35.71% 35.71% 44.64% 44.64% 42.86% 46.43% 46.43%( ↑ 10 .72% )
+
+Pass@5 60.71% 51.79% 60.71% 58.93% 58.93% 64.29% 67.86%( ↑ 7.15% )
+
+Pass@10 55.36% 62.50% 64.29% 62.50% 66.07% 69.64% 69.64%( ↑ 14 .28% )
+
+RTLLM Pass@1 26.00% 30.00% 24.00% 22.00% 20.00% 24.00% 30.00%( ↑ 4.00% )
+
+Pass@5 34.00% 36.00% 34.00% 33.97% 36.00% 36.00% 38.00%( ↑ 4.00% )
+
+Pass@10 44.00% 38.00% 40.00% 40.00% 40.00% 42.00% 42.00% ( ↓ 2.00%) VerilogEval Pass@1 35.26% 32.05% 35.26% 33.97% 33.97% 37.18% 39.74%( ↑ 4.48% )
+
+Pass@5 42.95% 39.74% 42.95% 42.95% 43.59% 41.67% 46.15%( ↑ 3.20% )
+
+Pass@10 45.51% 42.31% 46.15% 44.87% 48.08% 46.15% 48.08%( ↑ 2.57% )
+
+The Results of VeriSelector on SeedCoder 8B 
+
+ResBench Pass@1 37.50% 51.79% 53.57% 51.79% 55.36% 51.79% 62.50%( ↑ 25 .00% )
+
+Pass@5 57.14% 71.43% 75.00% 75.00% 69.64% 64.29% 76.79%( ↑ 19 .65% )
+
+Pass@10 66.07% 82.14% 80.36% 78.57% 80.36% 73.21% 85.71%( ↑ 19 .64% )
+
+RTLLM Pass@1 36.00% 42.00% 38.00% 38.00% 38.00% 38.00% 36.00% ( ↑ 0.00%) Pass@5 38.00% 48.00% 44.00% 42.00% 44.00% 44.00% 46.00% ( ↑ 8.00%) Pass@10 44.00% 48.00% 50.00% 48.00% 50.00% 50.00% 54.00%( ↑ 10 .00% )
+
+VerilogEval Pass@1 39.74% 46.15% 47.44% 46.79% 50.00% 43.29% 48.08% ( ↑ 8.34%) Pass@5 50.64% 51.92% 52.56% 51.92% 52.56% 51.28% 53.85%( ↑ 3.21% )
+
+Pass@10 53.21% 55.13% 55.77% 55.77% 55.77% 56.41% 56.41%( ↑ 3.20% )
+
+9Table 4: Cluster coverage (%) of di ff erent methods at DSR = 20%. 
+
+Method Coverage (%) 
+
+EL2N 72.00 Cherry 78.00 VeriCoder R 88.00 Ours 100.00   
+
+> Table 5: McNemar’s test comparing VeriSelector against Cherry on Pass@1 (SeedCoder 8B).
+
+Benchmark n00 n01 n10 n11 p-value 
+
+ResBench 29 3 16 8 0.0059 RTLLM 22 3 17 8 0.0036 VerilogEval 82 9 31 34 0.0009 As shown in Table 4, VeriSelector achieves 100% clus-ter coverage by design: the proportional sampling mechanism first reserves one sample per cluster before distributing the re-mainder, guaranteeing that every cluster is represented in the selected subset. VeriCoder R achieves 88% coverage: although its quality-filtered pool removes erroneous samples, some small clusters lose all members during filtering, leaving 12 clusters uncovered. Cherry and EL2N exhibit substantially lower cover-age (78% and 72%, respectively) because their quality-oriented scoring concentrates on high-scoring samples that tend to reside in common design pattern clusters, systematically neglecting rare but structurally distinct clusters. The 28% coverage gap between EL2N and VeriSelector directly translates to the performance advantages observed in Table 3: missing clusters correspond to underrepresented design patterns that the model fails to learn. 
+
+5.1.4. Significance Testing 
+
+To rigorously verify that the performance improvement of 
+
+VeriSelector is not attributable to random error, we perform statistical analysis on model-generated results using McNe-mar’s test [31]. This test is applicable to paired binary outcomes and aims to compare sample di ff erences where one method suc-ceeds while the other fails. The test statistic χ2 is calculated as follows: 
+
+χ2 = (|n01 − n10 | − 1) 2
+
+n01 + n10 
+
+,
+
+where n01 denotes the number of samples for which Cherry pre-dicts correctly but VeriSelector predicts incorrectly, and n10 
+
+denotes the number of samples for the opposite case. Compared with the best-performing general-purpose base-line Cherry, VeriSelector achieves statistically significant performance improvements across all three benchmarks. As shown in Table 5, consistent trends of n10 > n01 are observed on ResBench, RTLLM, and VerilogEval, with the correspond-ing p-values all below 0.01. These results demonstrate that the advantages of VeriSelector over Cherry are not attributable to random variation but are statistically significant. Answer to RQ1 
+
+VeriSelector consistently outperforms state-of-the-art baselines on most evaluation scenarios, even un-der unified data budgets. Quantitative diversity analysis confirms that VeriSelector achieves superior cluster coverage, and statistical significance testing validates the reliability of the improvements. 
+
+5.2. RQ2: Sensitivity Analysis 
+
+To investigate the impact of DSR on the performance of 
+
+VeriSelector , we tested DSR values ranging from 5% to 100% on the three models, with results presented in Table 6. 
+
+Full dataset is not optimal. Training on all data (DSR =100%) is not the optimal choice, as all three models per-form significantly worse on full data than on the selected sub-sets. For Qwen2.5-Coder 7B, the average Pass@1 on full data is 37.20%, which is 6.88 percentage points lower than the op-timal value of 44.08% at 20% DSR (a relative improvement of 18.49%). For CodeLlama 7B, the average Pass@1 on full data is 32.32%, 6.40 percentage points lower than the optimal value of 38.72% at 25% DSR (a relative improvement of 19.80%). For SeedCoder 8B, the average Pass@1 on full data is 37.75%, 11.11 percentage points lower than the optimal value of 48.86% at 25% DSR (a relative improvement of 29.43%). This confirms that redundant information in the original dataset interferes with the model’s learning of core Verilog design knowledge. 
+
+Inverted U-shaped relationship. DSR exhibits an inverted U-shaped relationship with model performance, with perfor-mance peaks concentrated in the 15%–25% range. Figure 4 presents the trend. Qwen2.5-Coder 7B achieves optimal perfor-mance at 20% DSR, with an average Pass@1 of 44.08%. Both CodeLlama 7B and SeedCoder 8B perform best at 25% DSR, with average Pass@1 values of 38.72% and 48.86%, respec-tively. Notably, SeedCoder 8B attains a Pass@1 of 62.50% on the ResBench benchmark at 25% DSR, representing a 66.67% relative increase over full-dataset training. Even at an extremely low DSR of 5%, all three models still outperform full-dataset training (by 9.22%, 6.28%, and 4.86% in relative terms for Qwen2.5-Coder 7B, CodeLlama 7B, and SeedCoder 8B, re-spectively), validating VeriSelector ’s ability to select high-value samples. However, DSR below 10% leads to a slight per-formance decline due to insu ffi cient data coverage. Considering both performance gains and data e ffi ciency, the optimal configurations are: 20% DSR for Qwen2.5-Coder 7B (PRR =118.49%), and 25% DSR for CodeLlama 7B and SeedCoder 8B (PRR of 119.80% and 129.43%, respec-tively). This configuration reduces data requirements by 75%– 80% while achieving relative performance improvements of 18.49%–29.43%. 
+
+Theoretical interpretation. The inverted U-shaped trend is consistent with the classical bias-noise trade-o ff in supervised learning [32]. At low DSR, the selected subset has insu ffi cient coverage of hardware design patterns, leading to underfitting. At high DSR, redundant and misaligned samples accumulate, 10 Table 6: The Results of VeriSelector on Di ff erent Models Under Di ff erent Data Selection Rates. 
+
+Benchmark Pass@k 100.00% 46.55% 25.00% 20.00% 15.00% 10.00% 5.00% 
+
+The Results of VeriSelector on Qwen2.5-Coder 7B Under Di ff erent Data Selection Rates 
+
+ResBench Pass@1 41.07% 55.36% 55.36% 57.14% 58.93% 57.14% 55.36% Pass@5 62.50% 69.64% 71.43% 69.64% 67.86% 69.64% 62.50% Pass@10 69.64% 69.64% 69.64% 71.43% 73.21% 75.00% 71.43% RTLLM Pass@1 34.00% 36.00% 36.00% 36.00% 34.00% 36.00% 30.00% Pass@5 40.00% 44.00% 40.00% 46.00% 44.00% 40.00% 40.00% Pass@10 40.00% 46.00% 48.00% 50.00% 42.00% 42.00% 50.00% 
+
+VerilogEval Pass@1 36.54% 39.74% 39.74% 39.10% 37.82% 37.18% 36.54% Pass@5 44.23% 51.28% 48.08% 48.72% 46.15% 44.87% 44.87% Pass@10 51.28% 51.28% 49.36% 51.28% 46.79% 49.36% 48.72% 
+
+The Results of VeriSelector on CodeLlama 7B Under Di ff erent Data Selection Rates 
+
+ResBench Pass@1 35.71% 35.71% 46.43% 50.00% 48.21% 46.43% 46.43% Pass@5 60.71% 51.79% 67.86% 57.14% 58.93% 55.36% 67.86% 
+
+Pass@10 55.36% 62.50% 69.64% 69.64% 62.50% 64.29% 64.29% RTLLM Pass@1 26.00% 30.00% 30.00% 26.00% 30.00% 22.00% 22.00% Pass@5 34.00% 36.00% 38.00% 34.00% 36.00% 36.00% 32.00% Pass@10 44.00% 38.00% 42.00% 38.00% 38.00% 42.00% 34.00% VerilogEval Pass@1 35.26% 32.05% 39.74% 38.46% 33.97% 33.33% 34.62% Pass@5 42.95% 39.74% 46.15% 44.87% 42.95% 44.23% 39.10% Pass@10 45.51% 42.31% 48.08% 48.08% 46.79% 44.87% 44.87% 
+
+The Results of VeriSelector on SeedCoder 8B Under Di ff erent Data Selection Rates 
+
+ResBench Pass@1 37.50% 51.79% 62.50% 62.50% 55.36% 53.57% 50.00% Pass@5 57.14% 71.43% 76.79% 76.79% 80.36% 75.00% 75.00% Pass@10 66.07% 82.14% 85.71% 78.57% 80.36% 80.36% 78.57% RTLLM Pass@1 36.00% 42.00% 36.00% 36.00% 38.00% 36.00% 32.00% Pass@5 38.00% 48.00% 46.00% 42.00% 48.00% 48.00% 46.00% Pass@10 44.00% 48.00% 54.00% 54.00% 54.00% 52.00% 48.00% VerilogEval Pass@1 39.74% 46.15% 48.08% 44.87% 43.59% 46.15% 48.08% 
+
+Pass@5 50.64% 51.92% 53.85% 55.13% 51.92% 52.56% 53.85% Pass@10 53.21% 55.13% 56.41% 53.21% 55.13% 55.77% 55.77% 11 (a) DSR on Avg Pass@1 (b) DSR on Avg Pass@5 (c) DSR on Avg Pass@10 
+
+> Figure 4: Data selection rate analysis under di ff erent evaluation metrics.
+
+degrading the signal-to-noise ratio of the training set. The op-timal DSR represents the point where the marginal coverage gain is o ff set by the marginal noise intake. This also explains why full-dataset training (DSR =100%) consistently underper-forms: the RTLCoder-27k dataset, constructed via automated keyword expansion, contains non-trivial noise that penalizes models when included without filtering. Answer to RQ2 The performance of VeriSelector exhibits an in-verted U-shaped trend with increasing DSR, with the optimal range at 20%–25%. This configuration maxi-mizes performance gains while reducing training data volume, validating the e ff ectiveness of the selection method. 
+
+5.3. RQ3: Component Analysis 
+
+To systematically validate the contributions of each compo-nent in VeriSelector , we conduct ablation studies on three benchmarks (ResBench, RTLLM, and VerilogEval) with aver-age Pass@k, as illustrated in Figure 5. Note that the VeriCoder baseline in RQ1 already serves as a natural ablation of the test-bench verification component, as it retains only functional cor-rectness filtering without IFD scoring, structural features, or diversity-aware clustering. The results in Table 3 show that 
+
+VeriSelector consistently outperforms VeriCoder in average performance while using substantially less data (20%–25% vs. 46.55%), confirming the added value of the subsequent pipeline stages. Below, we focus on finer-grained ablations of the re-maining components. 
+
+(a) AST. Removing the AST leads to drops in average Pass@k of 4.50%, 6.07%, and 3.23% on ResBench, RTLLM, and VerilogEval, respectively. This demonstrates that the hier-archical syntactic representation provided by the AST serves as the foundation for the model to master Verilog syntax rules and generate structurally well-formed code. 
+
+(b) CFG. Ablating the CFG results in average Pass@k de-creases of 8.10%, 6.07%, and 5.54% across the three bench-marks, highlighting the critical role of CFG in modeling execution-flow logic, which is especially important for control-flow-intensive tasks such as ResBench. 
+
+(c) Netlist. Notably, removing the Netlist causes the most severe single-component degradation: average Pass@k drops by 11.72%, 12.11%, and 7.85% on ResBench, RTLLM, and VerilogEval. This directly validates that Netlist, as a funda-mental hardware structural representation, plays a core role in capturing Verilog semantics and ensuring generated code com-plies with physical implementation constraints. 
+
+(d) Structure. When the entire structural module (AST, CFG, and Netlist combined) is removed, average Pass@k re-ductions are 7.20%, 6.57%, and 5.54% on the three bench-marks. Notably, these drops are smaller than those caused by removing Netlist alone (11.72%, 12.11%, and 7.85%). We at-tribute this to a feature space consistency eff ect. Removing only Netlist leaves AST and CFG in the fusion, but the result-ing feature space lacks the hardware-implementation semantics that Netlist encodes. K-Means then clusters in this incomplete space, producing distorted partitions that misgroup structurally distinct samples. The corrupted cluster structure propagates through proportional sampling, ultimately degrading training quality. In contrast, removing all structural features causes the pipeline to fall back to a pure textual embedding space. Al-though this space loses all structural information, it is internally consistent: clustering operates on a coherent representation, and proportional sampling remains meaningful. This consis-tency partially compensates for the information loss, resulting in a smaller overall degradation. The finding highlights that 
+
+feature space coherence matters more than feature volume in fusion-based selection pipelines. 
+
+(e) Cluster. To investigate the impact of the diversity clus-tering strategy on model capability, we ablate the Cluster mod-ule. It results in Pass@k drops of 2.69% and 6.07% on Res-Bench and RTLLM, respectively. This indicates that the diver-sity strategy groups structurally similar code samples into co-12 Figure 5: Ablation studies of di ff erent components. 
+
+herent clusters, helping the model capture Verilog-specific pat-terns and improve adaptability to diverse scenarios. However, on VerilogEval, average Pass@k increases slightly by 0.45%, a negligible change. A possible explanation is that VerilogEval’s problem distribution is relatively concentrated, and the cluster-ing strategy provides limited additional diversity benefit in this scenario. Such dataset-dependent e ff ects reveal that diversity clustering is a context-aware strategy, whose e ff ectiveness de-pends on the complexity and diversity characteristics of the tar-get benchmark. 
+
+(f) Prior Model. To evaluate the contribution of the prior model, we ablate the Prior Model module. After removal, av-erage Pass@k decreases by 2.69%, 3.02%, and 1.85% on Res-Bench, RTLLM, and VerilogEval, respectively. Although the performance gain is smaller than that of the structural informa-tion module, the consistent performance drop across all bench-marks confirms that the prior model provides more domain-aware embeddings for both IFD scoring and feature extraction, contributing to more e ff ective quality assessment and diversity-aware selection. 
+
+5.3.1. Feature Importance Analysis 
+
+To further validate that the 109-dimensional structural fea-tures encode meaningful and non-redundant information, we conduct a feature importance analysis using Random For-est [33]. We train a Random Forest classifier to predict which cluster each sample belongs to, using the structural features as input, and measure the importance of each feature dimension via mean decrease in impurity. Figure 6 presents the feature importance scores grouped by feature category. The results reveal three key observa-tions. First, high-importance features are distributed across all three groups (AST, CFG, and Netlist), confirming that each group captures distinct and complementary structural informa-tion rather than redundant signals. Second, Netlist features ex-hibit the highest average importance, consistent with the abla-tion finding that removing Netlist causes the most severe per-formance degradation. Third, the importance distribution is non-uniform within each group, indicating that certain struc-tural dimensions (e.g., gate type distribution in Netlist, branch-ing density in CFG) are particularly informative for distinguish-ing hardware design patterns. 
+
+5.3.2. Comparison with Alternative Code Representations 
+
+A natural question is whether the proposed 109-dimensional handcrafted structural features can be replaced by learned code representations. To investigate this, we consider two categories of alternatives: pretrained code embeddings and graph neural networks (GNNs). 
+
+Pretrained code embeddings. We compare against Code-BERT [34] and UniXcoder [35], two widely adopted pretrained code models. For each Verilog sample, we feed the solution code into the pretrained encoder and extract the [CLS] token representation as the code embedding vector ( d=768 for both models). This embedding replaces the 109-dimensional struc-tural feature vector ˆ f struct  
+
+> i
+
+in the fusion step (Eq. 5): after Z-score normalization, it is concatenated with the textual embed-ding ˆ hQi to form the fused representation for downstream clus-tering and adaptive sampling. All other pipeline stages remain identical. As shown in Table 7, our handcrafted structural features consistently outperform both pretrained code embeddings de-spite having substantially lower dimensionality (109 vs. 768). 13 1 15 29 43 57 71 85 99 109    
+
+> Feature Dimension Index
+> 0.00 0.02 0.04 0.06 0.08 0.10
+> Average Importance Score  AST (57) CFG (28) Netlist (24) AST features CFG features Netlist features Figure 6: Feature importance scores of the 109 structural dimensions, grouped by AST (blue), CFG (orange), and Netlist (green). Higher values indicate greater contribution to cluster discrimination. Table 7: Comparison of structural representations on Qwen2.5-Coder 7B (DSR
+> =20%). “Ours” denotes the 109-dimensional handcrafted features. Average Pass@1 (%) is reported.
+
+Method Dim. ResBench RTLLM VerilogEval 
+
+CodeBERT 768 51.79% 32.00% 35.90% UniXcoder 768 53.57% 34.00% 37.18% Ours 109 57.14% 36.00% 39.10% 
+
+Specifically, our features improve average Pass@1 over Code-BERT by 5.35, 4.00, and 3.20 percentage points on ResBench, RTLLM, and VerilogEval, respectively. UniXcoder narrows the gap slightly owing to its cross-modal pretraining objective, yet still falls short by 3.57, 2.00, and 1.92 percentage points. These results indicate that the advantage of our approach stems not from increased feature dimensionality but from the hardware-grounded semantics encoded by AST, CFG, and Netlist fea-tures. Pretrained code embeddings are trained on general-purpose programming languages and primarily capture token-level and syntactic patterns; they lack explicit representations of gate-level topology, signal connectivity, and module hierarchy that are essential for distinguishing Verilog design patterns. 
+
+Why not GNN-based representations? An alternative ap-proach is to apply graph neural networks directly on AST, CFG, or Netlist graphs to learn node-level or graph-level embed-dings. We deliberately chose handcrafted features over GNN embeddings for three reasons. First, GNN training requires a task-specific supervised objective (e.g., graph classification la-bels), which is unavailable in our data selection setting where no ground-truth quality or diversity labels exist. Second, Ver-ilog programs exhibit extreme variability in graph size: the AST of a simple combinational module may contain tens of nodes, while a complex sequential controller can produce thou-sands. This variability causes severe mini-batch imbalance and padding overhead for GNN training, and the resulting embed-dings are sensitive to graph size rather than structural semantics. Third, our handcrafted features are interpretable and hardware-grounded: each dimension corresponds to a well-defined struc-tural property (e.g., gate type distribution, branching density, module hierarchy depth), enabling the feature importance anal-ysis presented above. GNN embeddings, by contrast, lack such interpretability. The empirical results in Table 7 further validate that domain-specific handcrafted features, despite their lower dimensionality, outperform general-purpose learned represen-tations for Verilog data selection. 
+
+5.3.3. Analysis of Contributing Factors 
+
+The consistent superiority of VeriSelector across mod-els and benchmarks stems from three contributing factors that operate synergistically. First, quality filtering removes noise at complementary granularities: testbench verification elimi-nates functionally incorrect samples, while IFD scoring dis-cards semantically misaligned instruction-solution pairs. Their sequential application ensures that the surviving samples are both behaviorally correct and pedagogically e ff ective. Sec-ond, structural features capture hardware semantics invisible to textual embeddings. The pronounced contribution of Netlist features in the ablation study and feature importance analysis above reflects the fundamental property that Verilog programs are ultimately synthesized into physical circuits. Netlist fea-tures encode gate-level topology and signal connectivity that textual embeddings cannot express, which also explains why 
+
+VeriSelector achieves the largest gains on SeedCoder 8B. Third, proportional sampling prevents distributional collapse. Without diversity-aware allocation, quality-only selection tends to over-represent common design patterns. The proportional mechanism, backed by Proposition 1, bounds the distributional deviation to less than 4%, ensuring that rare but important de-sign patterns are retained. 14 Answer to RQ3 All components contribute positively to the overall per-formance. The VeriCoder baseline validates the test-bench verification stage, while finer-grained ablations confirm the necessity of structural features, diversity clustering, and the prior model. Feature importance analysis demonstrates that AST, CFG, and Netlist fea-tures capture complementary structural information, and comparison with pretrained code embeddings vali-dates the advantage of domain-specific handcrafted fea-tures. The three contributing factors (quality filter-ing, structural semantics, proportional sampling) oper-ate synergistically to maximize the signal-to-noise ratio and distributional coverage of the training subset. 
+
+6. Discussion 
+
+6.1. Relationship Analysis 
+
+To explore the relationship between model parameter size and the optimal data selection rate (DSR), we extend our sensi-tivity analysis to a smaller-scale model: Qwen2.5-Coder 1.5B. Combined with the results of the three larger models reported in Table 6, we compare the optimal DSR across four models spanning 1.5B to 8B parameters. As shown in Table 10, Qwen2.5-Coder 1.5B achieves its best performance at a DSR of 15%, with average Pass@1 /5/10 scores of 41.66%, 52.60%, and 57.88%, respectively. This rep-resents a 51.03% relative improvement in average Pass@1 over full-dataset training (27.59%). In contrast, the three larger mod-els in Table 6 require higher DSRs to reach their performance peaks: Qwen2.5-Coder 7B peaks at 20% DSR (average Pass@1 
+
+= 44.08%), while both CodeLlama 7B and SeedCoder 8B peak at 25% DSR (average Pass@1 = 38.72% and 48.86%, respec-tively). 
+
+> Table 8: Summary of optimal DSR across models of di ff erent sizes.
+
+Model Parameters Optimal DSR 
+
+Qwen2.5-Coder 1.5B 1.5B 15% Qwen2.5-Coder 7B 7B 20% CodeLlama 7B 7B 25% SeedCoder 8B 8B 25% Table 8 summarizes the optimal DSR for each model. Aclear trend emerges: as model parameter size increases, the op-timal DSR shifts upward. The smallest model (1.5B) achieves peak performance with only 15% of the data, whereas the 7B– 8B models require 20%–25%. This phenomenon can be at-tributed to the di ff erence in learning capacity across model scales. Smaller models possess limited representational band-width, making them more susceptible to noise in the train-ing data; consequently, they benefit most from aggressive data pruning that maximizes the signal-to-noise ratio (SNR) of the training subset. Larger models, with greater learning capacity, can absorb a broader range of training patterns without overfit-ting to noise, and thus require a larger volume of high-quality data to fully realize their performance potential. This finding has practical implications for deploying 
+
+VeriSelector : practitioners should calibrate the data selec-tion rate based on the target model’s parameter scale, using lower DSRs for smaller models and moderately higher DSRs for larger ones, rather than applying a fixed ratio across all model sizes. 
+
+6.2. Diversified Generation vs Diversified Selection 
+
+> Table 9: Diversified Generation vs Diversified Selection on Qwen2.5-Coder 7B.
+
+Benchmark Metric FAC_Synthesis Ours 
+
+ResBench Pass@1 42.86% 57.14% 
+
+Pass@5 58.93% 69.64% 
+
+Pass@10 67.86% 71.43% 
+
+RTLLM Pass@1 30.00% 36.00% 
+
+Pass@5 34.00% 46.00% 
+
+Pass@10 44.00% 50.00% 
+
+VerilogEval Pass@1 32.69% 39.10% 
+
+Pass@5 44.23% 48.72% 
+
+Pass@10 45.51% 51.28% 
+
+Both data diversity and data quality are critical for e ff ective fine-tuning. While VeriSelector achieves diversity through 
+
+selection from existing data, an alternative paradigm is to syn-thesize diverse data directly. To compare these two strate-gies, we adopt FAC_Synthesis [36] as a representative of the diversity-driven generation approach. FAC_Synthesis lever-ages Sparse Autoencoders (SAEs) to identify under-covered features in the training corpus and employs contrastive sam-ple pairs to guide LLMs to generate data that activates these missing features, using Feature Activation Coverage (FAC) as an interpretable diversity metric in the feature space. In contrast, VeriSelector promotes diversity through a fundamentally di ff erent mechanism: it fuses textual seman-tic embeddings with Verilog-specific structural features (AST, CFG, and Netlist) into a unified representation, and applies clustering-based adaptive sampling to ensure broad coverage of diverse hardware design patterns within the existing dataset. To ensure a fair comparison, we apply FAC_Synthesis to generate the same volume of Verilog training data and fine-tune Qwen2.5-Coder 7B under identical settings. As shown in Ta-ble 9, VeriSelector consistently outperforms the diversity-driven generation baseline FAC_Synthesis across all three benchmarks and all evaluation metrics. Specifically, we achieve a 33.31% improvement in Pass@1 (57.14% vs. 42.86%) and maintain a 5.26% lead at Pass@10 (71.43% vs. 67.86%) on ResBench. On RTLLM, we observe a 20.00% boost in Pass@1 (36.00% vs. 30.00%) and a significant 35.29% improvement in Pass@5 (46.00% vs. 34.00%). On VerilogEval, Pass@1 15 Table 10: Result Analysis of VeriSelector on Qwen2.5-Coder 1.5B Under Di ff erent Sampling Rates. 
+
+Benchmark Pass@k 100.00% 46.55% 25.00% 20.00% 15.00% 10.00% 5.00% 
+
+ResBench Pass@1 28.57% 46.43% 48.21% 51.79% 51.79% 50.00% 44.64% Pass@5 58.93% 61.71% 60.71% 60.71% 69.64% 62.50% 64.29% Pass@10 64.29% 64.29% 64.29% 62.50% 75.00% 78.57% 60.71% RTLLM Pass@1 26.00% 26.00% 28.00% 26.00% 36.00% 32.00% 20.00% Pass@5 32.00% 36.00% 34.00% 34.00% 42.00% 40.00% 28.00% Pass@10 34.00% 40.00% 38.00% 42.00% 48.00% 50.00% 30.00% VerilogEval Pass@1 28.21% 37.18% 35.90% 37.82% 37.18% 35.26% 28.85% Pass@5 38.46% 43.59% 42.95% 42.31% 46.15% 46.79% 39.74% Pass@10 43.59% 43.59% 46.15% 44.87% 50.64% 49.36% 38.46% Avg Pass@1 27.59% 36.54% 37.37% 38.54% 41.66% 39.09% 31.16% Pass@5 43.13% 47.10% 45.89% 45.67% 52.60% 49.76% 44.01% Pass@10 47.29% 49.29% 49.48% 49.79% 57.88% 59.31% 43.06% increases by 19.61% (39.10% vs. 32.69%) and Pass@10 im-proves by 12.68% (51.28% vs. 45.51%). These results con-firm that diversified selection is a more e ff ective and practical strategy than diversified generation for enhancing Verilog code generation performance, especially in specialized domains like Verilog RTL synthesis. 
+
+6.3. Generalization to Additional Model Scales 
+
+To further validate the generalizability of VeriSelector 
+
+across a wider range of model architectures and parameter scales, we extend our evaluation to two additional models: Qwen2.5-Coder-14B (14B parameters) and Qwen3.5-4B (4B parameters). This extension allows us to examine whether the conclusions drawn from 1.5B–8B models hold at both larger and more recent scales.     
+
+> Table 11: Results of VeriSelector on additional models at DSR =20% (av-erage Pass@1, %). “All” denotes full-dataset training.
+
+Qwen3.5-4B Qwen2.5-Coder-14B All 40.20% 42.50% 
+
+Random 43.50% 45.80% 
+
+Cherry 46.80% 48.60% 
+
+Ours 48.30% 50.20% PRR 120.15% 118.12% As shown in Table 11, both models confirm the e ff ec-tiveness of VeriSelector under a fixed DSR of 20%. For Qwen3.5-4B, VeriSelector achieves an average Pass@1 of 48.30%, representing a 20.15% relative improvement over full-dataset training (40.20%) and outperforming Random (+4.80 pp) and Cherry ( +1.50 pp). For Qwen2.5-Coder-14B, VeriSelector achieves a higher average Pass@1 of 50.20%, with a relative improvement of 18.12% over full-dataset training (42.50%) and consistent gains over Random (+4.40 pp) and Cherry ( +1.60 pp). Notably, both models sur-pass the Qwen2.5-Coder 7B result (44.08%) in absolute perfor-mance, validating that VeriSelector ’s quality-diversity co-optimization paradigm scales favorably with both model ca-pacity and architectural advancement. These results extend the generalizability of our conclusions from 1.5B–8B to 1.5B–14B parameters across five distinct architectures, reinforcing the ro-bustness of VeriSelector as a model-agnostic data selection framework. 
+
+6.4. Computational Cost Analysis 
+
+Table 12 summarizes the theoretical time complexity of each pipeline stage, where N is the dataset size, K the num-ber of clusters, dt the textual embedding dimension, ds=109 the structural feature dimension, d=dt+ds, and T the number of K-Means iterations. The dominant stages (testbench verification, structural feature extraction) are O(N) and embarrassingly par-allel across samples.  
+
+> Table 12: Per-stage computational complexity of VeriSelector .
+
+Stage Complexity Parallelizable 
+
+Testbench Verification O(N) ✓
+
+Prior Model Training O(NKd t) ✗
+
+IFD Scoring O(N) ✓
+
+Structural Feature Extraction O(N) ✓
+
+Feature Fusion & Clustering O(T NKd ) ✗
+
+Adaptive Sampling O(N log N) ✗
+
+To complement the theoretical analysis, Table 13 reports the actual wall-clock time of each preprocessing stage on RTLCoder-27k using a single NVIDIA RTX 3090 GPU. The total preprocessing overhead is approximately 1 hour, which is modest compared to the downstream fine-tuning cost. More-over, this cost is amortized across all downstream models, since 16 the same selected subset can be reused for fine-tuning multiple architectures.   
+
+> Table 13: Actual preprocessing time of each VeriSelector pipeline stage on RTLCoder-27k ( N=27 ,000).
+
+Stage Wall Time Hardware 
+
+Testbench Verification ∼25 min 1×RTX 3090 Prior Model Training ∼12 min 1×RTX 3090 IFD Scoring ∼8 min 1×RTX 3090 Structural Feature Extraction ∼15 min CPU (parallel) Feature Fusion & Clustering <1 min CPU Adaptive Sampling <1 min CPU 
+
+Total Preprocessing ∼61 min –Table 14 further compares the end-to-end time (prepro-cessing + fine-tuning) of VeriSelector against all baselines across three models. All experiments use identical training set-tings: batch size 2, gradient accumulation steps 8, 3 epochs, learning rate 2e-4, and LoRA with r=32, α=32. 
+
+> Table 14: End-to-end time cost comparison of di ff erent methods.
+
+Method Qwen2.5-Coder CodeLlama SeedCoder 
+
+All 15.1h 17.3h 19.8h VeriCoder 8.7h 9.2h 10.5h Random 2.5h 2.7h 2.5h EL2N 5.8h 6.3h 7.8h Cherry 3.3h 3.5h 4.1h Ours 2.7h 3.0h 3.6h 
+
+VeriSelector achieves end-to-end time costs comparable to random sampling (2.7–3.6h vs. 2.5h) while delivering sub-stantially better performance. In contrast, EL2N incurs sig-nificant overhead (5.8–7.8h) due to gradient computation, and VeriCoder (8.7–10.5h) retains 46.55% of the data, resulting in higher training cost despite its simpler filtering pipeline. Over-all, VeriSelector reduces total time by over 80% compared to full-dataset training (82.1% for Qwen2.5-Coder 7B, 82.6% for CodeLlama 7B, 81.8% for SeedCoder 8B), with the reduc-tion ratio remaining stable regardless of model size. 
+
+6.5. Sensitivity to the Number of Clusters K 
+
+The number of clusters K is a critical hyper-parameter that controls the granularity at which diversity is modeled during adaptive sampling. When K is too small, semantically distinct design patterns are conflated into a single cluster, diminishing the diversity resolution of the proportional allocation. Con-versely, an excessively large K over-partitions coherent design families into singleton-like clusters, amplifying noise in the al-location ratios and degrading the quality of the selected subset. To quantify this sensitivity, we sweep K ∈{50 , 75 , 100 , 125 , 150 } while holding the model (Qwen2.5-Coder 7B) and the data selection rate (DSR = 20%) fixed. Table 15 reports the average Pass@1 across the three bench-marks for each setting.     
+
+> Table 15: Sensitivity of average Pass@1 (%) to the number of clusters Kon Qwen2.5-Coder 7B (DSR =20%).
+
+K 50 75 100 125 150 Avg Pass@1 42.03 43.26 44.08 43.51 42.74 Performance exhibits a clear inverted-U trend: average Pass@1 rises from 42.03% ( K=50) to a peak of 44.08% (K=100), then gradually declines to 42.74% ( K=150). The ascending phase reflects the benefit of finer-grained diversity modeling: more clusters allow the proportional sampler to dis-tinguish and preserve a wider spectrum of hardware design patterns. The descending phase indicates the onset of over-fragmentation, where clusters become too small to yield mean-ingful proportional quotas, and the allocation degenerates to-ward uniform random sampling. Notably, performance remains within a 2% margin of the optimum for K ∈ [75 , 150], sug-gesting that VeriSelector is robust to moderate perturbations around the default setting ( K=100). In practice, we recommend 
+
+K=100 as a sensible default, and note that selecting K in pro-portion to the square root of the dataset size (i.e., K ≈ √N)provides a simple rule of thumb that empirically aligns with the observed optimum. 
+
+6.6. Cluster Interpretability Analysis 
+
+To verify that the learned clusters correspond to meaning-ful hardware design categories rather than arbitrary partitions, we conduct a qualitative analysis of representative clusters at 
+
+K=100 on the quality-filtered RTLCoder-27k dataset. We manually inspect the top-ranked samples (by IFD score) from 20 randomly selected clusters and classify them by hard-ware design category. Table 16 presents five representative clusters.             
+
+> Table 16: Representative clusters and their dominant hardware design cate-gories.
+> Cluster Dominant Category Purity (%)
+> #12 Combinational arithmetic (adders, multipliers) 85 #37 Finite state machines (FSMs) 78 #54 Memory interfaces (FIFO, RAM controllers) 82 #71 Clock domain crossing & synchronizers 76 #89 Counter & timer modules 88
+
+The average category purity across the 20 inspected clus-ters is 81.8%, indicating that the majority of samples within each cluster share a coherent hardware design function. This correspondence arises naturally from the structural features: FSM clusters exhibit distinctive CFG patterns (cyclic struc-tures, high branching density), arithmetic clusters show char-acteristic Netlist features (specific gate type distributions dom-inated by arithmetic gates), and memory interface clusters have 17 unique AST patterns (instantiation-heavy module hierarchies). These observations confirm that the Verilog-specific structural features e ff ectively encode hardware design semantics, en-abling the clustering step to produce interpretable and function-ally meaningful partitions without requiring explicit category labels. 
+
+6.7. Threats to Validity 
+
+Internal Validity Threats. The primary threat to internal valid-ity lies in the accuracy of method implementation. To mitigate this issue to the greatest extent possible: we directly reuse pub-licly available implementations for open-source baseline mod-els, and reproduce models in strict accordance with the original descriptions in baseline papers when o ff -the-shelf implementa-tions are unavailable. Meanwhile, we have carefully validated our proposed method. To address the limitations of baseline models, we also selected prevalent methods from related re-search fields. Additionally, we adopted fixed random seeds to ensure the randomness of sampling processes. Another potential threat concerns the testbench verification stage. We adopt the testbench generation approach of Veri-Coder [7] without further validating the quality of the gener-ated testbenches, which may introduce false positives or false negatives. However, improving testbench generation is orthog-onal to our goal of data selection. Moreover, our results show that the downstream IFD scoring and diversity-aware selection eff ectively compensate for such noise, as VeriSelector con-sistently outperforms the VeriCoder baseline that relies solely on testbench filtering. 
+
+External Validity Threats. The primary threats to ex-ternal validity stem from the use of a single dataset and the lack of industrial-grade Verilog benchmarks. Rely-ing on a single dataset may impede the comprehensive evaluation of VeriSelector ’s eff ectiveness. We evalu-ated VeriSelector on three general-purpose benchmarks (VerilogEval-v2, RTLLM, and ResBench), which demonstrates its generalizability, yet these benchmarks do not fully represent industrial-grade requirements. 
+
+Construct Validity Threats. Threats to construct validity pertain to the metrics used to evaluate the performance of 
+
+VeriSelector and comparative methods. We adopt Pass@k 
+
+as the core evaluation metric; while it e ff ectively assesses the functional correctness of Verilog code, it does not capture other domain-specific quality attributes of HDLs such as timing cor-rectness and resource utilization. This is a common limitation shared by all existing Verilog code generation benchmarks. We partially mitigate the risk of metric bias by evaluating across three complementary benchmarks with di ff erent problem distri-butions and di ffi culty levels, and by applying McNemar’s test to confirm the statistical reliability of the observed improvements. Nevertheless, developing HDL-specific evaluation metrics that go beyond functional correctness remains an important direc-tion for future work. 
+
+7. Related Work 
+
+7.1. Verilog Code Generation Methods 
+
+The widening productivity gap in modern integrated circuit design has made automated Verilog generation a critical EDA research direction. Driven by large language models (LLMs), natural language-to-synthesizable RTL Verilog generation has advanced significantly. We categorize existing methods as fol-lows: 
+
+Training-Free & Multi-Agent Collaborative Methods. 
+
+Training-free methods enhance performance without parameter updates for resource-constrained scenarios. Pearce et al. [37] pioneered DAVE, demonstrating English-to-Verilog feasibility, while Blocklove et al. [38] integrated EDA tool feedback for it-erative self-correction to improve syntactic correctness and syn-thesizability. For complex workflows, multi-agent systems de-compose tasks into specialized subtasks with graph-based plan-ning and EDA feedback for scalable designs. However, these methods are limited by base LLM domain knowledge and fo-cus on module-level correctness with limited system-on-chip (SoC) support. 
+
+Supervised Fine-Tuning for Domain Adaptation. SFT on Verilog-specific datasets bridges the domain gap between gen-eral code LLMs and hardware design. Thakur et al. [4] pro-posed VeriGen, the first comprehensive SFT framework fine-tuned on GitHub and textbook data, outperforming general models. Wei et al. [7] adopted Low-Rank Adaptation (LoRA) for parameter-e ffi cient tuning, reducing costs while maintain-ing performance. Nevertheless, SFT relies on static instruction-code pairs, lacking dynamic EDA feedback for power, perfor-mance, and area (PPA) optimization. 
+
+Reinforcement Learning for Alignment Optimization. 
+
+RL aligns generated Verilog with hardware requirements via EDA environment interaction. Wang et al. [39] developed a code-structure-guided RL framework using Abstract Syntax Tree (AST) similarity as reward to improve structural valid-ity. Despite outperforming SFT, these frameworks struggle with multi-objective optimization balancing correctness, PPA, and security. Overall, existing methods have advanced this field, but still su ff er from three core limitations: insu ffi cient hardware aware-ness, excessive focus on module-level tasks, and inadequate comprehensive alignment. This work addresses these issues from the perspective of datasets. 
+
+7.2. General-Purpose Data Selection Methods 
+
+In general-purpose data selection for LLM pre-training and fine-tuning, mainstream methods fall into three paradigms: quality-oriented, diversity-oriented, and e ffi ciency-oriented se-lection. 
+
+Quality-Oriented Selection. Early data cleaning uses rule-based filtering and deduplication to remove low-quality text. Rae et al. [40] validated its value for large-scale pre-training, while Dodge et al. [41] noted risks of bias and coverage loss. Later works built systematic pipelines: Penedo et al. [42] ap-plied strict filtering and educational subset extraction for better performance. Model-based scoring has also become popular, where Paul et al. [29] scored samples by training dynamics for 18 Table 17: Comparison of representative data selection methods.                                                
+
+> Method Quality Filtering Diversity Modeling Domain-Specific Features Unified Pipeline Target Domain
+> EL2N [29] Loss-based scoring ✗✗✗General Cherry [12] IFD scoring ✗✗✗General Diversify [10] ✗Embedding clustering ✗✗General SMART [11] ✗Submodular optimization ✗✗General RTLCoder [3] Syntax filtering ✗✗✗Verilog VeriCoder [7] Testbench verification ✗✗✗Verilog
+> VeriSelector (Ours) Testbench +IFD Structural clustering AST +CFG +Netlist ✓Verilog
+
+eff ective pruning. Gunasekar et al. [43] enhanced reasoning using textbook-style data, and code-domain works focused on license compliance. 
+
+Diversity-Oriented Selection. Diversity-oriented meth-ods improve coverage and reduce redundancy, often using embedding-space clustering. Yu et al. [10] reweighted clusters to reduce homogeneity, while submodular optimization max-imizes coverage. Renduchintala et al. [11] optimized task-level coverage, and Liu et al. [44] balanced diversity via do-main ratio tuning. Beyond textual embeddings, graph-based representations have been shown to capture structural depen-dencies in other domains [45, 46, 47, 48]. Ali et al. [49] em-ployed dynamic graph convolutional networks to model spatio-temporal structural correlations. Alsarhan et al. [50] proposed a hierarchical graph convolutional architecture that captures multi-level granularity through hyper-graph partitioning. Ali et al. [51] further showed that multi-graph learning combined with clustering-based feature correlation can improve representation quality. In addition, attention-driven multimodal fusion [52] is e ff ective for integrating heterogeneous information sources. These findings motivate our use of Verilog-specific structural features (AST, CFG, and Netlist) fused with textual embed-dings for diversity-aware data selection. 
+
+Effi ciency-Oriented Selection. Effi ciency-oriented meth-ods pursue low-cost subset selection under computational con-straints. Proxy models are widely used to estimate sample util-ity [53]; Li et al. [21] used small models to filter data for large ones, cutting costs sharply. Deduplication also improves e ffi -ciency and reduces overfitting [54]. However, general methods are not tailored to Verilog, which has strict syntax, hierarchical modules, and hardware-specific criteria. Existing code-oriented works only handle general corpus cleaning, without Verilog-specific optimization. 
+
+VeriSelector fills this gap by unifying quality-aware filter-ing, Verilog-specific structural feature extraction, and diversity-aware sampling. 
+
+7.3. Verilog-Specific Data Selection Methods 
+
+In contrast to well-studied data selection in NLP, research on data selection for Verilog code generation remains prelimi-nary. To mitigate Verilog dataset scarcity and low quality, Liu et al. [3] proposed a Verilog-specific data generation and cleaning pipeline with automated syntax filtering to remove invalid sam-ples and ensure training data reliability. To address missing test cases, Wei et al. [7] used GPT-4o to generate unit tests and val-idated functional correctness via compilation and simulation. However, these methods only focus on syntactic and compila-tion checks, without modeling the implicit logic and functional patterns in Verilog designs. Unlike existing individual solutions, VeriSelector is the first framework that systematically optimizes both quality and diversity for Verilog data selection. Its core contribution is in-tegrating multi-granularity quality filtering (testbench verifica-tion and IFD alignment scoring) with Verilog-specific struc-tural representations (AST, CFG, Netlist), enabling diversity-aware selection that unifies general data selection techniques and domain-specific demands of Verilog code generation. To provide a clear positioning of VeriSelector relative to existing methods, Table 17 summarizes the key character-istics of representative data selection approaches across five dimensions: quality filtering mechanism, diversity modeling capability, domain-specific feature utilization, whether a uni-fied pipeline is provided, and the target domain. As shown, 
+
+VeriSelector is the only framework that jointly addresses all five aspects for the Verilog code generation domain. 
+
+8. Conclusion and Future Work 
+
+This study addresses the lack of systematic data selec-tion methods for Verilog code generation. We propose 
+
+VeriSelector , the first framework that jointly optimizes data quality and diversity for this domain, integrating multi-granularity quality filtering with Verilog-specific structural fea-ture representations for diversity-aware selection. Experi-ments on three LLMs and three benchmarks demonstrate that 
+
+VeriSelector achieves state-of-the-art performance using only 20%–25% of the training data. Future work will focus on the following aspects: (1) Vali-dating VeriSelector on additional LLMs of varying sizes to investigate its e ff ectiveness; (2) Evaluating VeriSelector on other HDLs to explore its generalizability. 
+
+Acknowledgement 
+
+The authors would like to thank the editors and the anony-mous reviewers for their insightful comments and suggestions, which have substantially improved the quality of this work. Guang Yang is supported by the Postdoctoral Fellowship Pro-gram of CPSF under Grant Number GZC20260902. 19 References 
+
+[1] G. Yang, Y. Zhou, W. Cheng, X. Zhang, X. Chen, T. Y. Zhuo, K. Liu, X. Zhou, D. Lo, T. Chen, Less is more: Docstring compression in code generation, ACM Trans-actions on Software Engineering and Methodology 35 (2) (2026) 1–31. doi:10.1145 /3735636. [2] G. Yang, Y. Zhou, X. Chen, W. Zheng, X. Hu, X. Zhou, D. Lo, T. Chen, Code-diting: Automatic evaluation of code generation without references or test cases, in: 2025 40th IEEE /ACM International Conference on Automated Software Engineering (ASE), IEEE, 2025, pp. 154–165. doi:10.1109 /ASE63991.2025.00021. [3] S. Liu, W. Fang, Y. Lu, J. Wang, Q. Zhang, H. Zhang, Z. Xie, Rtlcoder: Fully open-source and effi cient llm-assisted rtl code generation technique, IEEE Transactions on Computer-Aided Design of Inte-grated Circuits and Systems 44 (4) (2024) 1448–1461. doi:10.1109 /TCAD.2024.3483089. [4] S. Thakur, B. Ahmad, H. Pearce, B. Tan, B. Dolan-Gavitt, R. Karri, S. Garg, Verigen: A large language model for verilog code generation, ACM Transactions on Design Automation of Electronic Systems 29 (3) (2024) 1–31. doi:10.1145 /3643681. [5] R. Li, L. B. Allal, Y. Zi, N. Muennigho, D. Ko-cetkov, C. Mou, M. Marone, C. Akiki, J. Li, J. Chim, et al., Starcoder: may the source be with you!, Trans-actions on Machine Learning Research 2023 (2023). doi:10.48550 /arXiv.2305.06161. [6] N. Kandpal, E. Wallace, C. Ra ff el, Deduplicating train-ing data mitigates privacy risks in language models, in: Proceedings of the 39th International Conference on Ma-chine Learning, Vol. 162, PMLR, 2022, pp. 10697–10707. doi:10.48550 /arXiv.2202.06539. [7] A. Wei, H. Tan, T. Suresh, D. Mendoza, T. S. Teixeira, K. Wang, C. Trippel, A. Aiken, Veri-coder: Enhancing llm-based rtl code generation through functional correctness validation, in: NeurIPS 2025 Fourth Workshop on Deep Learning for Code, 2025. doi:10.48550 /arXiv.2504.15659. [8] A. Lööw, The simulation semantics of synthesis-able verilog, Proceedings of the ACM on Program-ming Languages 9 (OOPSLA1) (2025) 1295–1320. doi:10.1145 /3720484. [9] C. Wolf, J. Glaser, J. Kepler, Yosys-a free verilog synthe-sis suite, in: Proceedings of the 21st Austrian Workshop on Microelectronics (Austrochip), Vol. 97, 2013, pp. 1–6. URL https://yosyshq.net/yosys/files/ yosys-austrochip2013.pdf 
+
+[10] S. Yu, L. Chen, S. Ahmadian, M. Fadaee, Diversify and conquer: Diversity-centric data selection with itera-tive refinement, arXiv preprint arXiv:2409.11378 (2024). doi:10.48550 /arXiv.2409.11378. [11] H. K. Renduchintala, S. Bhatia, G. Ramakrishnan, Smart: Submodular data mixture strategy for instruction tun-ing, in: Findings of the Association for Computa-tional Linguistics: ACL 2024, 2024, pp. 12916–12934. doi:10.18653 /v1 /2024.findings-acl.766. [12] M. Li, Y. Zhang, Z. Li, J. Chen, L. Chen, N. Cheng, J. Wang, T. Zhou, J. Xiao, From quantity to quality: Boosting llm performance with self-guided data selection for instruction tuning, in: Proceedings of the 2024 Con-ference of the North American Chapter of the Association for Computational Linguistics: Human Language Tech-nologies (Volume 1: Long Papers), 2024, pp. 7602–7635. doi:10.18653 /v1 /2024.naacl-long.421. [13] M. Liu, N. Pinckney, B. Khailany, H. Ren, Verilogeval: Evaluating large language models for verilog code gener-ation, in: 2023 IEEE /ACM International Conference on Computer Aided Design (ICCAD), IEEE, 2023, pp. 1–8. doi:10.1109 /ICCAD57390.2023.10323812. [14] C. Guo, T. Zhao, Resbench: A resource-aware benchmark for llm-generated fpga designs, in: Proceedings of the 15th International Symposium on Highly E ffi cient Accel-erators and Reconfigurable Technologies, 2025, pp. 25– 34. doi:10.1145 /3728179.3728192. [15] Y. Lu, S. Liu, Q. Zhang, Z. Xie, Rtllm: An open-source benchmark for design rtl generation with large language model, in: 2024 29th Asia and South Pacific Design Au-tomation Conference (ASP-DAC), IEEE, 2024, pp. 722– 727. doi:10.1109 /ASP-DAC58780.2024.10473904. [16] L. Ouyang, J. Wu, X. Jiang, D. Almeida, C. Wain-wright, P. Mishkin, C. Zhang, S. Agarwal, K. Slama, A. Ray, et al., Training language models to follow in-structions with human feedback, Advances in Neural In-formation Processing Systems 35 (2022) 27730–27744. doi:10.52202 /068431-2011. [17] E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, W. Chen, et al., Lora: Low-rank adaptation of large language models., in: Inter-national Conference on Learning Representations, 2022. doi:10.48550 /arXiv.2106.09685. [18] U. Alon, M. Zilberstein, O. Levy, E. Yahav, A general path-based representation for predicting program prop-erties, ACM SIGPLAN Notices 53 (4) (2018) 404–419. doi:10.1145 /3296979.3192412. [19] F. E. Allen, Control flow analysis, ACM SIGPLAN No-tices 5 (7) (1970) 1–19. doi:10.1145 /390013.808479. 20 [20] Z. Wang, C. Bai, Z. He, G. Zhang, Q. Xu, T.-Y. Ho, B. Yu, Y. Huang, Functionality matters in netlist representation learning, in: Proceedings of the 59th ACM /IEEE Design Automation Conference, 2022, pp. 61–66. doi:10.1145 /3489517.3530410. [21] M. Li, Y. Zhang, S. He, Z. Li, H. Zhao, J. Wang, N. Cheng, T. Zhou, Superfiltering: Weak-to-strong data filtering for fast instruction-tuning, in: Proceedings of the 62nd An-nual Meeting of the Association for Computational Lin-guistics (Volume 1: Long Papers), 2024, pp. 14255– 14273. doi:10.18653 /v1 /2024.acl-long.769. [22] C. Zhou, P. Liu, P. Xu, S. Iyer, J. Sun, Y. Mao, X. Ma, A. Efrat, P. Yu, L. Yu, et al., Lima: Less is more for alignment, Advances in Neural Information Processing Systems 36 (2023) 55006–55021. doi:10.52202 /075280-2400. [23] B. Hui, J. Yang, Z. Cui, J. Yang, D. Liu, L. Zhang, T. Liu, J. Zhang, B. Yu, K. Lu, et al., Qwen2. 5-coder technical report, arXiv preprint arXiv:2409.12186 (2024). doi:10.48550 /arXiv.2409.12186. [24] B. Roziere, J. Gehring, F. Gloeckle, S. Sootla, I. Gat, X. E. Tan, Y. Adi, J. Liu, R. Sauvestre, T. Re-mez, et al., Code llama: Open foundation mod-els for code, arXiv preprint arXiv:2308.12950 (2023). doi:10.48550 /arXiv.2308.12950. [25] B. Seed, Y. Zhang, J. Su, Y. Sun, C. Xi, X. Xiao, S. Zheng, A. Zhang, K. Liu, D. Zan, et al., Seed-coder: Let the code model curate data for itself, arXiv preprint arXiv:2506.03524 (2025). doi:10.48550 /arXiv.2506.03524. [26] G. Yang, W. Zheng, X. Chen, D. Liang, P. Hu, Y. Yang, S. Peng, Z. Li, J. Feng, X. Wei, K. Sun, D. Ma, H. Cheng, Y. Shen, X. Hu, T. Y. Zhuo, D. Lo, Large language model for verilog code generation: Literature review and the road ahead, ACM Computing SurveysJust Accepted (2026). doi:10.1145 /3841636. [27] M. Gao, J. Zhao, Z. Lin, W. Ding, X. Hou, Y. Feng, C. Li, M. Guo, Autovcoder: A systematic frame-work for automated verilog code generation using llms, in: 2024 IEEE 42nd International Conference on Computer Design (ICCD), IEEE, 2024, pp. 162–169. doi:10.1109 /ICCD63220.2024.00033. [28] P. Yubeaton, A. Nakkab, W. Xiao, Verithoughts: Enabling automated verilog code generation using reasoning and formal verification, Advances in Neural Information Pro-cessing Systems (NeurIPS) (2025). doi:10.52202 /085713-0288. [29] M. Paul, S. Ganguli, G. K. Dziugaite, Deep learning on a data diet: Finding important examples early in training, Advances in Neural Information Processing Systems 34 (2021) 20596–20607. doi:10.48550 /arXiv.2107.07075. [30] M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. D. O. Pinto, J. Kaplan, H. Edwards, Y. Burda, N. Joseph, G. Brockman, et al., Evaluating large language models trained on code, arXiv preprint arXiv:2107.03374 (2021). doi:10.48550 /arXiv.2107.03374. [31] Q. McNemar, Note on the sampling error of the di ff erence between correlated proportions or per-centages, Psychometrika 12 (2) (1947) 153–157. doi:10.1007 /BF02295996. [32] P. Domingos, A unified bias-variance decomposi-tion, in: Proceedings of the 17th International Con-ference on Machine Learning, 2000, pp. 231–238. doi:10.5555 /645529.657784. [33] L. Breiman, Random forests, Machine Learning 45 (1) (2001) 5–32. doi:10.1023 /A:1010933404324. [34] Z. Feng, D. Guo, D. Tang, N. Duan, X. Feng, M. Gong, L. Shou, B. Qin, T. Liu, D. Jiang, M. Zhou, Codebert: A pre-trained model for programming and natural lan-guages, in: Findings of the Association for Computa-tional Linguistics: EMNLP 2020, 2020, pp. 1536–1547. doi:10.18653 /v1 /2020.findings-emnlp.139. [35] D. Guo, S. Lu, N. Duan, Y. Wang, M. Zhou, J. Yin, Unix-coder: Unified cross-modal pre-training for code repre-sentation, in: Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics, 2022, pp. 7212–7225. doi:10.18653 /v1 /2022.acl-long.499. [36] Z. Li, X. Wu, Y. Li, L. Hu, N. Liu, Less is enough: Synthesizing diverse data in feature space of llms, arXiv preprint arXiv:2602.10388 (2026). doi:10.48550 /arXiv.2602.10388. [37] H. Pearce, B. Tan, R. Karri, Dave: Deriving automati-cally verilog from english, in: Proceedings of the 2020 ACM /IEEE Workshop on Machine Learning for CAD, 2020, pp. 27–32. doi:10.1145 /3380446.3430634. [38] J. Blocklove, S. Thakur, B. Tan, H. Pearce, S. Garg, R. Karri, Automatically improving llm-based verilog gen-eration using eda tool feedback, ACM Transactions on Design Automation of Electronic Systems 30 (6) (2025) 1–26. doi:10.1145 /3723876. [39] N. Wang, B. Yao, J. Zhou, Y. Hu, X. Wang, Z. Jiang, N. Guan, Large language model for verilog gener-ation with code-structure-guided reinforcement learn-ing, in: 2025 IEEE International Conference on LLM-Aided Design (ICLAD), IEEE, 2025, pp. 164–170. doi:10.1109 /ICLAD65226.2025.00025. [40] J. W. Rae, S. Borgeaud, T. Cai, K. Millican, J. Ho ff mann, F. Song, J. Aslanides, S. Hender-son, R. Ring, S. Young, et al., Scaling language models: Methods, analysis & insights from train-ing gopher, arXiv preprint arXiv:2112.11446 (2021). doi:10.48550 /arXiv.2112.11446. 21 [41] J. Dodge, M. Sap, A. Marasovi´ c, W. Agnew, G. Ilharco, D. Groeneveld, M. Mitchell, M. Gardner, Documenting large webtext corpora: A case study on the colossal clean crawled corpus, in: Proceedings of the 2021 Confer-ence on Empirical Methods in Natural Language Process-ing, 2021, pp. 1286–1305. doi:10.18653 /v1 /2021.emnlp-main.98. [42] G. Penedo, H. Kydlíˇ cek, A. Lozhkov, M. Mitchell, C. Raf-fel, L. Von Werra, T. Wolf, et al., The fineweb datasets: Decanting the web for the finest text data at scale, Ad-vances in Neural Information Processing Systems 37 (2024) 30811–30849. doi:10.52202 /079017-0970. [43] S. Gunasekar, Y. Zhang, J. Aneja, C. C. T. Mendes, A. Del Giorno, S. Gopi, M. Javaheripi, P. Kau ff -mann, G. de Rosa, O. Saarikivi, et al., Textbooks are all you need, arXiv preprint arXiv:2306.11644 (2023). doi:10.48550 /arXiv.2306.11644. [44] Q. Liu, X. Zheng, N. Muennigho ff , G. Zeng, L. Dou, T. Pang, J. Jiang, M. Lin, Regmix: Data mixture as re-gression for language model pre-training, in: The Thir-teenth International Conference on Learning Representa-tions, 2025. doi:10.48550 /arXiv.2407.01492. [45] G. Yang, Y. Jiang, S. Wang, K. Chen, Vinsfusion-line: Binocular vision inertial navigation real-time slam system based on line features, Cy-bernetics and Systems 57 (2) (2026) 350–375. arXiv:https: // doi.org /10.1080 /01969722.2025.2606002, doi:10.1080 /01969722.2025.2606002. URL https://doi.org/10.1080/01969722.2025. 2606002 
+
+[46] J. Chen, Z. Shao, H. Zhu, Y. Chen, Y. Li, Z. Zeng, Y. Yang, J. Wu, B. Hu, Sustainable interior design: A new approach to intelligent design and auto-mated manufacturing based on grasshopper, Com-puters & Industrial Engineering 183 (2023) 109509. doi:https: // doi.org /10.1016 /j.cie.2023.109509. URL https://www.sciencedirect.com/science/ article/pii/S0360835223005338 
+
+[47] X. Gu, J. Chen, Progressive degradation-aware distillation for robust indoor object detection, Scientific ReportsAd-vance online publication (2026). doi:10.1038 /s41598-026-63984-0. URL https://www.nature.com/articles/ s41598-026-63984-0 
+
+[48] H. Lv, C. Li, J. Dai, Y. Zhang, Z. Fan, Y. Tan, D. Wang, B. Xie, Lightweight framework for un-derground pipeline recognition and spatial localization based on multiview 2-d gpr images, IEEE Transactions on Geoscience and Remote Sensing 63 (2025) 1–15. doi:10.1109 /TGRS.2025.3645032. [49] A. Ali, Y. Zhu, M. Zakarya, Exploiting dynamic spatio-temporal graph convolutional neural networks for city-wide tra ffi c flows prediction, Neural Networks 145 (2022) 233–247. doi:10.1016 /j.neunet.2021.10.021. [50] T. Alsarhan, S. S. Ali, I. I. Ganapathi, A. Ali, N. Werghi, PH-GCN: Boosting human action recogni-tion through multi-level granularity with pair-wise hy-per GCN, IEEE Access 12 (2024) 162608–162621. doi:10.1109 /ACCESS.2024.3477321. [51] A. Ali, H. Y. Naeem, A. Sharafian, L. Qiu, Z. Wu, X. Bai, Dynamic multi-graph spatio-temporal learn-ing for citywide tra ffi c flow prediction in transporta-tion systems, Chaos, Solitons & Fractals 199 (2025). doi:10.1016 /j.chaos.2025.116898. [52] A. Ali, et al., Exploiting attention-driven weather-aware multimodal spatio-temporal fusion for urban tra ffi c flow prediction, Future Generation Computer Systems (2026). doi:10.1016 /j.future.2026.108559. [53] D. Mekala, A. Nguyen, J. Shang, Smaller language mod-els are capable of selecting instruction-tuning training data for larger language models, in: Findings of the Association for Computational Linguistics: ACL 2024, 2024, pp. 10456–10470. doi:10.18653 /v1 /2024.findings-acl.623. [54] K. Lee, D. Ippolito, A. Nystrom, C. Zhang, D. Eck, C. Callison-Burch, N. Carlini, Deduplicating training data makes language models better, in: Proceedings of the 60th Annual Meeting of the Association for Computa-tional Linguistics (Volume 1: Long Papers), 2022, pp. 8424–8445. doi:10.18653 /v1 /2022.acl-long.577. 22

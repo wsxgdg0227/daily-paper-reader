@@ -1,0 +1,121 @@
+{
+  "date": "20260922",
+  "date_label": "",
+  "generated_at": "2026-09-22 21:47:44 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.24663v1",
+      "route": "202609/22/2609.24663v1-beyond-endpoint-performance-process-level-evaluation-of-self-evolving-agents",
+      "title": "Beyond Endpoint Performance: Process-Level Evaluation of Self-Evolving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化智能体及演化记忆产物的过程级评估",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.24971v1",
+      "route": "202609/22/2609.24971v1-dolphinbench-mapping-the-pareto-frontier-of-agent-memory",
+      "title": "DolphinBench: Mapping the Pareto Frontier of Agent Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "通过任务完成度评测智能体长期记忆与上下文检索",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.24972v1",
+      "route": "202609/22/2609.24972v1-rrsi-regularized-recursive-self-improvement-of-agent-harnesses",
+      "title": "RRSI: Regularized Recursive Self-Improvement of Agent Harnesses",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "无需人工干预的智能体harness递归自我改进",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.21483v1",
+      "route": "202609/22/2609.21483v1-weave-fine-grained-dynamic-sm-scheduling-in-an-moe-megakernel-for-compute-communication-overlap",
+      "title": "Weave: Fine-Grained Dynamic SM Scheduling in an MoE Megakernel for Compute-Communication Overlap",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "在巨型内核中细粒度动态调度SM以重叠GPU计算与通信",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.22682v1",
+      "route": "202609/22/2609.22682v1-self-organizing-agent-teams-learn-to-reason-together",
+      "title": "Self-Organizing Agent Teams Learn to Reason Together",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体从过往协作中学习可复用策略实现自组织",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.22765v1",
+      "route": "202609/22/2609.22765v1-quality-over-quantity-diversity-aware-data-selection-for-efficient-verilog-code-generation",
+      "title": "Quality over Quantity: Diversity-Aware Data Selection for Efficient Verilog Code Generation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "基于大模型的Verilog代码生成与质量多样性数据选择",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    },
+    {
+      "paper_id": "2609.24862v1",
+      "route": "202609/22/2609.24862v1-when-tomorrow-becomes-today-self-evolving-policies-for-agentic-time-series-forecasting",
+      "title": "When Tomorrow Becomes Today: Self-Evolving Policies for Agentic Time-Series Forecasting",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "无需人工干预的智能体自演化策略",
+      "first_seen_at": "2026-09-22 21:47:44 UTC",
+      "updated_at": "2026-09-22 21:47:44 UTC"
+    }
+  ]
+}
