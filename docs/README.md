@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-22</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-23</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
     <strong class="dpr-home-dashboard-count">共 7 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>3</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>4</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-22 21:47:44 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-23 22:34:55 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,10 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日扫过7篇论文，精读3篇、速读4篇，重点落在自进化Agent评测与Agent记忆前沿。</p>
-<p>最值得看的是两篇8.0分精读：一篇把自进化Agent从端点表现推进到过程级评估，另一篇用DolphinBench勾勒Agent记忆的帕累托前沿；速读里MoE大内核调度、Agent团队协同推理与Verilog数据选择也各得7.0分。</p>
-<p>普通读者可优先读这两篇8.0分工作，关注“过程指标”和“记忆权衡”，再按兴趣补速读方向。</p>
+<p>今日共生成 7 篇推荐（精读 2 篇，速读 5 篇）</p>
+<p>精读：《Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents》（9.0/10）, 《Recursive self-improvement of AI research agents》（8.0/10）</p>
+<p>速读：《AkasicMEM: Governed Enterprise Memory for Agents》（7.0/10）, 《Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents》（7.0/10）, 《Splyce: SIMD Vectorization of Sparse Coiteration》（6.0/10）</p>
+<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +81,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">3 篇</strong>
+    <strong class="dpr-home-dashboard-count">2 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Beyond Endpoint Performance: Process-Level Evaluation of Self-Evolving Agents">Beyond Endpoint Performance: Process-Level Evaluation of Self-Evolving Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="DolphinBench: Mapping the Pareto Frontier of Agent Memory">DolphinBench: Mapping the Pareto Frontier of Agent Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="RRSI: Regularized Recursive Self-Improvement of Agent Harnesses">RRSI: Regularized Recursive Self-Improvement of Agent Harnesses</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents">Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Recursive self-improvement of AI research agents">Recursive self-improvement of AI research agents</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +94,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">4 篇</strong>
+    <strong class="dpr-home-dashboard-count">5 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Weave: Fine-Grained Dynamic SM Scheduling in an MoE Megakernel for Compute-Communication Overlap">Weave: Fine-Grained Dynamic SM Scheduling in an MoE Megakernel for Compute-Communication Overlap</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Organizing Agent Teams Learn to Reason Together">Self-Organizing Agent Teams Learn to Reason Together</span></li><li><span class="dpr-home-dashboard-paper-title" title="Quality over Quantity: Diversity-Aware Data Selection for Efficient Verilog Code Generation">Quality over Quantity: Diversity-Aware Data Selection for Efficient Verilog Code Generation</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="AkasicMEM: Governed Enterprise Memory for Agents">AkasicMEM: Governed Enterprise Memory for Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents">Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Splyce: SIMD Vectorization of Sparse Coiteration">Splyce: SIMD Vectorization of Sparse Coiteration</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
 </section>
 </div>
 

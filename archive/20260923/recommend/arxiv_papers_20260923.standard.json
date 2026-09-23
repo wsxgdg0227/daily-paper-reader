@@ -1,0 +1,290 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-23T22:28:38.072675+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2609.23986v1",
+      "source": "arxiv",
+      "title": "Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents",
+      "abstract": "Agentic memory is becoming essential for long-horizon AI agents, yet many existing systems rely on autoregressive LLMs to control how memories are organized, retrieved, and used, placing expensive generation on the critical path of memory operations. We introduce \\textbf{\\method}, a new agentic memory architecture inspired by System-One/System-Two cognition. System One captures fast, lightweight decision-making, whereas System Two performs slower, deliberative reasoning. Jev-Mem brings this division of labor to agentic memory through a dedicated System-One control plane, a structured multi-relational memory plane, and a System-Two reasoning plane. The System-One controller governs memory typing and relational organization during construction, and dynamically performs query routing, retrieval-budget allocation, graph traversal, candidate scoring, and adaptive stopping during retrieval. System Two is invoked only for complex reasoning and answer synthesis. This design improves both memory effectiveness and system efficiency: on LoCoMo Jev-Mem achieves an overall LLM-as-a-Judge score of 0.777, an 11.0\\% relative improvement over the strongest baseline, while reducing memory construction time to 158\\,s, a 6.6$\\times$ speedup over the fastest competing memory system, and lowering average query latency to 0.93\\,s, a 36.7\\% reduction.",
+      "authors": [
+        "Dongming Jiang",
+        "Yi Li",
+        "Bingzhe Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-21T01:43:12+00:00",
+      "link": "https://arxiv.org/pdf/2609.23986v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "agentic memory architecture for storing, organizing and retrieving memories",
+      "llm_evidence_cn": "面向智能体的记忆架构，组织与检索记忆",
+      "llm_evidence": "面向智能体的记忆架构，组织与检索记忆",
+      "canonical_evidence": "面向智能体的记忆架构，组织与检索记忆",
+      "llm_tldr_en": "Existing agentic memory systems place expensive autoregressive LLM generation on the critical path of memory operations. Jev-Mem introduces a System-One/System-Two inspired architecture with a fast control plane, a structured multi-relational memory plane, and a deliberative reasoning plane to organize and retrieve memories efficiently.",
+      "llm_tldr_cn": "智能体记忆对长时程AI智能体愈发重要，但现有系统依赖自回归LLM来控制记忆的组织、检索与使用，把昂贵的生成放在记忆操作的关键路径上。Jev-Mem借鉴System-One/System-Two认知，设计轻量快速的控制面、结构化多关系记忆面与审慎推理面。其中控制面负责记忆类型划分与关系组织，并动态调度检索。该架构在保持记忆质量的同时显著降低记忆操作开销，提升长时程智能体效率。",
+      "llm_tldr": "智能体记忆对长时程AI智能体愈发重要，但现有系统依赖自回归LLM来控制记忆的组织、检索与使用，把昂贵的生成放在记忆操作的关键路径上。Jev-Mem借鉴System-One/System-Two认知，设计轻量快速的控制面、结构化多关系记忆面与审慎推理面。其中控制面负责记忆类型划分与关系组织，并动态调度检索。该架构在保持记忆质量的同时显著降低记忆操作开销，提升长时程智能体效率。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.26457v1",
+      "source": "arxiv",
+      "title": "Recursive self-improvement of AI research agents",
+      "abstract": "AI agents are beginning to automate research and development across the AI stack, from improving training efficiency to optimizing inference. A natural next step is to improve the research efficiency of the agents themselves. When an AI research agent's own code is the object of optimization, each accepted rewrite becomes the agent that the next round edits. We refer to this loop as recursive self-improvement. Its significance lies in a long-standing trend, in which increased cumulative spending on R&D yields diminishing returns. Sustained self-improvement offers a way to counter this trend. We present AIDE^2, a system that implements this loop for a frontier AI research agent. It proposes changes to its own code, benchmarks modified versions of itself on a suite of AI R&D tasks, and keeps the changes that perform best on hidden evaluations. In an autonomous 8-day run, AIDE^2 discovered seven successive improvements, ranging from a new search policy to memory mechanisms that compress and manage the agent's growing context. These gains generalize to four held-out benchmarks spanning machine learning engineering, heuristic algorithm engineering, and physics-based weather forecasting, the last of which is out of distribution from the selection tasks. On all four, the strongest discovered agent matches or exceeds a human-engineered production research agent that ranks among the strongest on FML-Bench. On a separate held-out task family, the discovered agents also exhibit reduced reward hacking, a property the loop never explicitly optimized for: the rate falls from 55% to 32% during the run, 7 percentage points below the human-engineered agent. Together, these results show that an AI research agent can improve its own research efficiency through recursive self-improvement, and that these gains transfer to tasks and domains the loop never encountered.",
+      "authors": [
+        "Dhruv Srikanth",
+        "Bingchen Zhao",
+        "Dixing Xu",
+        "Yuxiang Wu",
+        "Zhengyao Jiang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG",
+        "cs.SE"
+      ],
+      "published": "2026-09-22T14:12:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.26457v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Recursive self-improvement loop in which an AI research agent rewrites and benchmarks its own code",
+      "llm_evidence_cn": "AI研究智能体重写并评测自身代码的递归自改进循环",
+      "llm_evidence": "AI研究智能体重写并评测自身代码的递归自改进循环",
+      "canonical_evidence": "AI研究智能体重写并评测自身代码的递归自改进循环",
+      "llm_tldr_en": "AI research agents can automate R&D but improving their own research efficiency remains hard. The authors formalize recursive self-improvement and build AIDE^2, which proposes edits to its own code and benchmarks the modified versions of itself.",
+      "llm_tldr_cn": "AI智能体已能自动化从训练效率到推理优化的AI研发，但提升智能体自身的研究效率仍是难题，且研发投入回报递减。作者提出递归自改进概念，并实现AIDE^2系统，让前沿AI研究智能体提出对自身代码的修改，并在AI研发基准套件上评测改进后的自身版本。被接受的改写即成为下一轮被编辑的智能体，形成持续自改进循环，为对抗研发回报递减提供了路径。",
+      "llm_tldr": "AI智能体已能自动化从训练效率到推理优化的AI研发，但提升智能体自身的研究效率仍是难题，且研发投入回报递减。作者提出递归自改进概念，并实现AIDE^2系统，让前沿AI研究智能体提出对自身代码的修改，并在AI研发基准套件上评测改进后的自身版本。被接受的改写即成为下一轮被编辑的智能体，形成持续自改进循环，为对抗研发回报递减提供了路径。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.25563v1",
+      "source": "arxiv",
+      "title": "AkasicMEM: Governed Enterprise Memory for Agents",
+      "abstract": "Agent memory enables enterprise agents to retain knowledge acquired during work and reuse it across tasks and agents, turning execution experience into persistent organizational knowledge. Realizing this potential requires both source--memory integration, through which enterprise sources and accumulated memory can be utilized together, and memory governance, through which shared memory remains subject to organizational policies throughout its lifecycle. These requirements interact when information from enterprise sources persists in memory. As this information is repeatedly derived and reused under changing principals and policies, source restrictions may be bypassed, resulting in information leakage. Preventing such leakage requires authorization continuity, under which source restrictions remain effective throughout source-to-memory and memory-to-memory derivation and reuse. Existing approaches address these concerns individually, but do not treat source--memory integration, memory governance, and authorization continuity as combined core design targets across the memory lifecycle. We define Governed Enterprise Memory as agent memory designed around this combined scope and present AkasicMEM as its realization. AkasicMEM realizes authorization continuity through transitive lineage, policy composition during memory formation, and policy re-evaluation during retrieval. It is built on GraphAI's AkasicDB, a unified vector--graph--relational database whose storage and execution substrate enables the underlying operations of these mechanisms to be jointly optimized and executed.",
+      "authors": [
+        "Jeongmin Bae",
+        "Yongjae Kim",
+        "Kyoung Hur",
+        "Donghyoung Han",
+        "Min-Soo Kim"
+      ],
+      "primary_category": "cs.DB",
+      "categories": [
+        "cs.DB",
+        "cs.AI"
+      ],
+      "published": "2026-09-22T01:53:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.25563v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agent memory storing and reusing knowledge across tasks",
+      "llm_evidence_cn": "智能体记忆跨任务存储与复用知识",
+      "llm_evidence": "智能体记忆跨任务存储与复用知识",
+      "canonical_evidence": "智能体记忆跨任务存储与复用知识",
+      "llm_tldr_en": "AkasicMEM addresses enterprise agent memory that persists work experience across tasks while preventing information leakage, combining source-memory integration with lifecycle governance to guarantee authorization continuity.",
+      "llm_tldr_cn": "企业智能体需要把工作中获得的知识长期保留并跨任务复用，但共享记忆在主体与策略变化时可能绕过来源限制造成信息泄露。论文提出AkasicMEM，通过来源-记忆集成和全生命周期记忆治理两条主线，保证授权连续性。该框架使执行经验转化为持久组织知识的同时抑制泄漏风险。其为智能体记忆结构与企业级治理提供了可落地的设计。",
+      "llm_tldr": "企业智能体需要把工作中获得的知识长期保留并跨任务复用，但共享记忆在主体与策略变化时可能绕过来源限制造成信息泄露。论文提出AkasicMEM，通过来源-记忆集成和全生命周期记忆治理两条主线，保证授权连续性。该框架使执行经验转化为持久组织知识的同时抑制泄漏风险。其为智能体记忆结构与企业级治理提供了可落地的设计。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.19410v1",
+      "source": "arxiv",
+      "title": "Splyce: SIMD Vectorization of Sparse Coiteration",
+      "abstract": "Sparse tensor contractions are bottlenecked by sparse-sparse coiteration loops that resist standard loop vectorization. We present Splyce, an auto-vectorization framework in MLIR that overcomes this through a dual-path execution model. By decoupling coordinate intersection from pointer management via selective predication, Splyce inherently eliminates data-dependent branches as a side effect, allowing modern superscalar engines to maximize instruction-level parallelism and hide memory latency. Beyond simple branch elimination, our transformation exposes independent computation that can be executed concurrently, increasing functional-unit utilization that would otherwise be constrained by sequential dependencies. Evaluation across foundational sparse tensor kernels demonstrates performance ranging from 1.96X to 2.86X on synthetic inputs, with consistent speedups sustained across a vast majority of irregular real-world datasets from the SuiteSparse collection. Ultimately, Splyce demonstrates that by converting unpredictable control-flow into a predictable data stream, compiler-driven speculation can effectively reconcile the memory efficiency of compressed storage with the execution-unit throughput of modern superscalar architectures.",
+      "authors": [
+        "Kabilan Mahathevan",
+        "Poorna Gunathilaka",
+        "Kirshanthan Sundararajah"
+      ],
+      "primary_category": "cs.PL",
+      "categories": [
+        "cs.PL",
+        "cs.AR",
+        "cs.PF"
+      ],
+      "published": "2026-09-16T20:47:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.19410v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "auto-vectorization optimizing sparse tensor kernel execution",
+      "llm_evidence_cn": "自动向量化优化稀疏张量内核执行",
+      "llm_evidence": "自动向量化优化稀疏张量内核执行",
+      "canonical_evidence": "自动向量化优化稀疏张量内核执行",
+      "llm_tldr_en": "Splyce is an MLIR auto-vectorization framework that decouples coordinate intersection from pointer management, eliminating data-dependent branches to speed up sparse tensor contraction kernels.",
+      "llm_tldr_cn": "稀疏张量收缩的性能瓶颈在于稀疏-稀疏协同迭代循环难以被标准循环向量化。论文提出Splyce，一个基于MLIR的自动向量化框架，通过选择性谓词化将坐标求交与指针管理解耦，从而消除数据相关分支并暴露可并行的独立计算。在多种基础稀疏张量内核上的评估显示，该方法提升了指令级并行与功能单元利用率，有效隐藏内存延迟。其为稀疏算子内核的编译优化提供了通用手段。",
+      "llm_tldr": "稀疏张量收缩的性能瓶颈在于稀疏-稀疏协同迭代循环难以被标准循环向量化。论文提出Splyce，一个基于MLIR的自动向量化框架，通过选择性谓词化将坐标求交与指针管理解耦，从而消除数据相关分支并暴露可并行的独立计算。在多种基础稀疏张量内核上的评估显示，该方法提升了指令级并行与功能单元利用率，有效隐藏内存延迟。其为稀疏算子内核的编译优化提供了通用手段。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.26760v1",
+      "source": "arxiv",
+      "title": "Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents",
+      "abstract": "Large language model (LLM) agents often handle streams of related tasks, yet standard harnesses repeatedly ask the model to reconstruct the same control decisions inside each task's context. We study whether task feedback can instead turn recurring control into reusable executable code, while reserving LLM calls for task-specific semantic reasoning. We introduce Growing Harness, a failure-guided training paradigm that learns the agent harness itself from a strategy-free scaffold that exposes fixed model and tool interfaces but encodes no task-solving controller. Function-level execution traces localize each failure to a bounded code surface, an optimizer repairs a window of failures jointly, and a success-first held-out gate rolls back repair sequences that harm prior capability. Accepted edits accumulate in one shared harness, allowing its control structure to emerge from task feedback. Across BrowseComp-Plus and WebArena-Verified with three deployment models from 4B to 120B parameters, Growing Harness achieves the highest mean success in five of six benchmark-model settings and trails the best mean by 0.7 pp. in the sixth. Relative to a Tool-Calling agent, it reduces LLM calls by 76.0-91.8% and deployed-agent inference cost by 74.4-98.6%. On WebArena-Verified, its success remains 44.7-45.3% across model scales, whereas Tool-Calling falls to 6.7% with the 4B model. Ablations show that trace-local edits, joint repair, and gate-based rollback each improve final success. These results show that persistent program growth can move recurring control out of model context and into low-cost code, yielding reusable specialist agents that remain effective with smaller deployment models.",
+      "authors": [
+        "Laizhen Li",
+        "Jiarui Li",
+        "Juanjuan Zhao",
+        "Kejiang Ye",
+        "Ye Li",
+        "Cheng-zhong Xu",
+        "Xitong Gao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.SE"
+      ],
+      "published": "2026-09-22T17:40:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.26760v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Learns the agent harness itself by turning recurring control into reusable executable code via failure-guided optimization",
+      "llm_evidence_cn": "通过失败引导优化把反复控制固化为可复用可执行代码并学习智能体框架",
+      "llm_evidence": "通过失败引导优化把反复控制固化为可复用可执行代码并学习智能体框架",
+      "canonical_evidence": "通过失败引导优化把反复控制固化为可复用可执行代码并学习智能体框架",
+      "llm_tldr_en": "LLM agent harnesses rebuild control decisions inside each task context. Growing Harness learns the harness itself via failure-guided optimization, turning recurring control into reusable code while reserving LLM calls for semantic reasoning.",
+      "llm_tldr_cn": "标准LLM智能体框架需在每个任务上下文中重复重建相同的控制决策，造成冗余与低效。作者提出Growing Harness，从无策略脚手架出发，利用失败引导的优化器把反复出现的控制逻辑固化为可复用可执行代码，仅将任务特定的语义推理留给大模型调用。实验表明该范式能定位并联合修复失败窗口，稳定提升任务表现。其意义在于把智能体控制从上下文中解耦，形成可复用的专家智能体。",
+      "llm_tldr": "标准LLM智能体框架需在每个任务上下文中重复重建相同的控制决策，造成冗余与低效。作者提出Growing Harness，从无策略脚手架出发，利用失败引导的优化器把反复出现的控制逻辑固化为可复用可执行代码，仅将任务特定的语义推理留给大模型调用。实验表明该范式能定位并联合修复失败窗口，稳定提升任务表现。其意义在于把智能体控制从上下文中解耦，形成可复用的专家智能体。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.22335v1",
+      "source": "arxiv",
+      "title": "KerColle: Unlocking Fine-Grained GPU Concurrency in Vision-Language-Action Models",
+      "abstract": "Vision-Language-Action (VLA) models have emerged as foundational models for next-generation robotics. High VLA inference throughput is critical for meeting the control-rate requirements of robots. VLA models comprise two phases, a vision-language model (VLM) and an action head, that can be decoupled and executed asynchronously and concurrently across independent robot requests. Through a detailed characterization of four state-of-the-art VLAs, we observe that GPUs are severely underutilized in VLA inference as the Cooperative Thread Array (CTA) scheduler of GPU is unable to fully overlap the two independent phases of VLA execution. We identify that this inefficiency is caused by head-of-line blocking in the hardware thread-block dispatcher.   We demonstrate that prior scheduling frameworks do not address the challenges posed by VLA concurrency. First, the independent phases across different robot requests each comprise numerous kernels, and at any given time, there are different combinations of kernels that are executed in parallel. This makes static or ahead-of-time scheduling policies largely ineffective. Second, many of the action-head operators are short-running kernels and there are numerous such kernels. This leaves no headroom for online profiling or preemption-based mechanisms. To address these challenges, we present KerColle, a lightweight GPU scheduling framework that leverages online Streaming Multiprocessor (SM) utilization and individual kernel resource requirements to intelligently and dynamically co-schedule kernels to efficiently overlap the two phases of execution by (1) mitigating head-of-line blocking, and (2) co-scheduling kernels with complementary resource requirements. We demonstrate in simulation, across two GPU architectures, for 4 state-of-the-art VLA models, that KerColle delivers throughput gains of up to $28\\%$.",
+      "authors": [
+        "Anna Li",
+        "Christina Giannoula",
+        "Nandita Vijaykumar"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.RO"
+      ],
+      "published": "2026-09-16T15:57:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.22335v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU underutilization and thread-block scheduling for high-throughput inference",
+      "llm_evidence_cn": "GPU 利用率不足与线程块调度，面向高吞吐推理优化",
+      "llm_evidence": "GPU 利用率不足与线程块调度，面向高吞吐推理优化",
+      "canonical_evidence": "GPU 利用率不足与线程块调度，面向高吞吐推理优化",
+      "llm_tldr_en": "KerColle characterizes four VLA models to show GPU underutilization caused by head-of-line blocking in the thread-block dispatcher, and enables fine-grained concurrency between the VLM and action-head phases.",
+      "llm_tldr_cn": "针对视觉-语言-动作模型推理需满足机器人控制频率、而 GPU 利用率严重不足的问题，作者刻画四类先进 VLA 模型，定位到硬件线程块调度器的队头阻塞导致 VLM 与动作头两阶段无法充分重叠。本文提出 KerColle 以实现细粒度 GPU 并发。该工作提升了 GPU 利用率与 VLA 推理吞吐，为异构阶段模型的并发执行提供优化方向。",
+      "llm_tldr": "针对视觉-语言-动作模型推理需满足机器人控制频率、而 GPU 利用率严重不足的问题，作者刻画四类先进 VLA 模型，定位到硬件线程块调度器的队头阻塞导致 VLM 与动作头两阶段无法充分重叠。本文提出 KerColle 以实现细粒度 GPU 并发。该工作提升了 GPU 利用率与 VLA 推理吞吐，为异构阶段模型的并发执行提供优化方向。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.25286v1",
+      "source": "arxiv",
+      "title": "Learned Enterprise Data Comprehension: Compression and Routing for Data Agents",
+      "abstract": "Structured-data agents in enterprise settings must reason over complex data environments whose relevant evidence is distributed across schemas, relationships, policies, and recurring business roles. Modern agentic systems often address this burden through reusable markdown-style memory or skill files that preserve previously discovered information for later queries, reducing the need to rediscover the same structure repeatedly. This is useful, but it obscures a natural division of labor: agents are well suited to semantic reasoning, while learned systems are well suited to predicting and organizing recurring structure. We introduce latent equivalence learning to bridge this gap. The framework separates persistent task-relevant identities from their dataset-relative realizations. In our realization, supporting and opposing evidence shape support-realized Gaussian prototypes that learn how those identities are expressed in a particular data environment, while soft-membership profiles retain distinctions lost under a hard assignment. A separate learned query-prototype system represents recurring evidential requirements and maps them through a learned compatibility function into the same persistent identity structure. This identity-factorized, query-conditioned routing materializes the relevant dataset-specific evidence for downstream reasoning, allowing the agent to operate over an already organized evidential state rather than reconstructing cross-schema structure at every query. On the Data Agent Benchmark, spanning 54 queries across 12 heterogeneous datasets, our full implementation achieves 94.67% dataset-macro stratified Pass@1 over five complete trials and 258/270 successful raw query attempts, compared with 55.51% for the benchmark's Claude Opus 4.6 reference agent, ranking first among 40 leaderboard entries at submission.",
+      "authors": [
+        "Ethan Torres",
+        "Eric Mills"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-21T18:27:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.25286v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reusable markdown-style memory or skill files preserving discovered information for later queries",
+      "llm_evidence_cn": "可复用记忆或技能文件保存已发现信息供后续查询",
+      "llm_evidence": "可复用记忆或技能文件保存已发现信息供后续查询",
+      "canonical_evidence": "可复用记忆或技能文件保存已发现信息供后续查询",
+      "llm_tldr_en": "Structured-data agents must reason over evidence spread across schemas and policies, often using reusable memory or skill files. This work proposes latent equivalence learning to separate persistent task identities from structure, dividing semantic reasoning and organization.",
+      "llm_tldr_cn": "企业环境中的结构化数据智能体需在分散于模式、关系、策略与业务角色的证据上推理，负担沉重。现有智能体系统常用可复用的markdown式记忆或技能文件保存已发现信息，减少重复探索，但模糊了分工。本文提出潜在等价学习方法，将持久任务相关身份与结构分离，让智能体负责语义推理、学习系统负责预测与组织结构。该框架缓解了重复发现结构的问题，为数据智能体的记忆与检索提供更清晰的分工。",
+      "llm_tldr": "企业环境中的结构化数据智能体需在分散于模式、关系、策略与业务角色的证据上推理，负担沉重。现有智能体系统常用可复用的markdown式记忆或技能文件保存已发现信息，减少重复探索，但模糊了分工。本文提出潜在等价学习方法，将持久任务相关身份与结构分离，让智能体负责语义推理、学习系统负责预测与组织结构。该框架缓解了重复发现结构的问题，为数据智能体的记忆与检索提供更清晰的分工。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

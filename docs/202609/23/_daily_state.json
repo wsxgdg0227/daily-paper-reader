@@ -1,0 +1,121 @@
+{
+  "date": "20260923",
+  "date_label": "",
+  "generated_at": "2026-09-23 22:34:55 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.23986v1",
+      "route": "202609/23/2609.23986v1-jev-mem-system-one-controlled-agentic-memory-for-efficient-ai-agents",
+      "title": "Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向智能体的记忆架构，组织与检索记忆",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.26457v1",
+      "route": "202609/23/2609.26457v1-recursive-self-improvement-of-ai-research-agents",
+      "title": "Recursive self-improvement of AI research agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "AI研究智能体重写并评测自身代码的递归自改进循环",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.25563v1",
+      "route": "202609/23/2609.25563v1-akasicmem-governed-enterprise-memory-for-agents",
+      "title": "AkasicMEM: Governed Enterprise Memory for Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体记忆跨任务存储与复用知识",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.26760v1",
+      "route": "202609/23/2609.26760v1-grow-the-harness-not-the-context-from-strategy-free-scaffolds-to-reusable-specialist-agents",
+      "title": "Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过失败引导优化把反复控制固化为可复用可执行代码并学习智能体框架",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.19410v1",
+      "route": "202609/23/2609.19410v1-splyce-simd-vectorization-of-sparse-coiteration",
+      "title": "Splyce: SIMD Vectorization of Sparse Coiteration",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "自动向量化优化稀疏张量内核执行",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.22335v1",
+      "route": "202609/23/2609.22335v1-kercolle-unlocking-fine-grained-gpu-concurrency-in-vision-language-action-models",
+      "title": "KerColle: Unlocking Fine-Grained GPU Concurrency in Vision-Language-Action Models",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "GPU 利用率不足与线程块调度，面向高吞吐推理优化",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    },
+    {
+      "paper_id": "2609.25286v1",
+      "route": "202609/23/2609.25286v1-learned-enterprise-data-comprehension-compression-and-routing-for-data-agents",
+      "title": "Learned Enterprise Data Comprehension: Compression and Routing for Data Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "可复用记忆或技能文件保存已发现信息供后续查询",
+      "first_seen_at": "2026-09-23 22:34:55 UTC",
+      "updated_at": "2026-09-23 22:34:55 UTC"
+    }
+  ]
+}
