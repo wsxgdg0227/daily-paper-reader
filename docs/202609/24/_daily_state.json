@@ -1,0 +1,153 @@
+{
+  "date": "20260924",
+  "date_label": "",
+  "generated_at": "2026-09-24 21:59:04 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.27279v1",
+      "route": "202609/24/2609.27279v1-ensimem-entity-structured-indexing-for-long-term-agent-memory",
+      "title": "EnSIMem: Entity-Structured Indexing for Long-Term Agent Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "实体结构化长期智能体记忆与检索索引",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.27334v1",
+      "route": "202609/24/2609.27334v1-just-in-time-memory-learning-to-curate-task-adaptive-memory-for-llm-agents",
+      "title": "Just-in-Time Memory: Learning to Curate Task-Adaptive Memory for LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向LLM智能体的任务自适应记忆整理与检索",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.28003v1",
+      "route": "202609/24/2609.28003v1-learning-from-failures-heterogeneous-graph-memory-for-small-language-model-tool-using-agents",
+      "title": "Learning from Failures: Heterogeneous Graph Memory for Small Language Model Tool-Using Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "异构图记忆保留失败动作因果上下文以支持检索",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.27175v1",
+      "route": "202609/24/2609.27175v1-self-evolving-multimedia-verification-through-memory-consolidation-of-contestation-experiences",
+      "title": "Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "带记忆整合与检索的自进化智能体",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.27214v1",
+      "route": "202609/24/2609.27214v1-verified-learning-for-compiler-optimization-an-llm-guided-architecture-with-formal-control",
+      "title": "Verified Learning for Compiler Optimization: An LLM-Guided Architecture with Formal Control",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "大模型引导的编译器优化与代码重写生成",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.27298v1",
+      "route": "202609/24/2609.27298v1-statecomp-learning-when-to-compress-history-in-long-horizon-agents",
+      "title": "StateComp: Learning When to Compress History in Long Horizon Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "决定何时压缩智能体交互历史的框架",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.25537v1",
+      "route": "202609/24/2609.25537v1-compressing-long-context-into-answer-aligned-memory-embeddings-for-llm-inference",
+      "title": "Compressing Long Context into Answer-Aligned Memory Embeddings for LLM Inference",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向推理的查询引导记忆选择与压缩",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.25869v1",
+      "route": "202609/24/2609.25869v1-decoupling-logical-masks-from-gpu-execution-for-dynamic-block-sparse-attention",
+      "title": "Decoupling Logical Masks from GPU Execution for Dynamic Block-Sparse Attention",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将掩码与GPU执行解耦的稀疏注意力运行时",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    },
+    {
+      "paper_id": "2609.27332v1",
+      "route": "202609/24/2609.27332v1-stable-geometry-with-divergent-task-evidence-for-efficient-long-horizon-agent-compression",
+      "title": "Stable Geometry with Divergent Task Evidence for Efficient Long-Horizon Agent Compression",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于任务证据的智能体历史记忆压缩",
+      "first_seen_at": "2026-09-24 21:59:04 UTC",
+      "updated_at": "2026-09-24 21:59:04 UTC"
+    }
+  ]
+}

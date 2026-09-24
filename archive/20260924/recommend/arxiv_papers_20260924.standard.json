@@ -1,0 +1,377 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-24T21:51:16.798371+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2609.27279v1",
+      "source": "arxiv",
+      "title": "EnSIMem: Entity-Structured Indexing for Long-Term Agent Memory",
+      "abstract": "An agent that interacts with users over long periods must recall facts, preferences, events, and changes from a continuously growing interaction history. Existing memory systems often compress interactions into generic summaries or retrieve anonymous text chunks, making it difficult for an agent to identify the correct entity, property, and supporting evidence. We present EnSIMem, an entity-structured long-term memory architecture for an agent. During offline construction, the system organizes interactions into theme-coherent episodes and builds dialogue-grounded index entries of the form [entity][entity type][property:value]. Each entry preserves its source turns, temporal information, and available multimodal fields. During online interaction, the agent's request is decomposed into evidence requirements whose properties are aligned with the memory index. Entity-property lookup and adaptive retrieval then collect the evidence needed for point, temporal, compositional, and aggregation reasoning. The agent generates its response from the preserved source evidence rather than from lossy memory summaries. On long-term agent-memory benchmarks, EnSIMem achieves high answer accuracy while maintaining compact contexts and favorable online efficiency. These results show that entity-structured indexing and episode-level provenance provide a reliable foundation for long-term memory in agents. The code of our model is available at https://github.com/RamonMeng/EnSIMem.",
+      "authors": [
+        "Xuanyu Meng",
+        "Xing Fan",
+        "Xinyi Fan",
+        "Chenlei Guo",
+        "Yixuan Xie",
+        "Jiawei Han"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-23T03:09:15+00:00",
+      "link": "https://arxiv.org/pdf/2609.27279v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "entity-structured long-term agent memory with retrieval index",
+      "llm_evidence_cn": "实体结构化长期智能体记忆与检索索引",
+      "llm_evidence": "实体结构化长期智能体记忆与检索索引",
+      "canonical_evidence": "实体结构化长期智能体记忆与检索索引",
+      "llm_tldr_en": "Long-term agents must recall entities and facts, but existing memory compresses interactions into generic summaries or anonymous chunks. EnSIMem builds entity-structured index entries of entity, type and property-value with source turns and time, improving retrieval of the correct entity, property and evidence.",
+      "llm_tldr_cn": "长期与用户交互的智能体需要回忆事实、偏好与变化，但现有记忆系统常把交互压缩成泛化摘要或匿名文本块，难以定位正确实体与证据。本文提出EnSIMem，一种实体结构化的长期记忆架构，离线阶段将交互组织为主题连贯片段并构建[实体][类型][属性:值]索引条目，保留来源轮次、时间与多模态信息，在线阶段据此检索。该设计显著提升智能体存储与检索长期信息的能力，为智能体记忆研究提供了结构化方案。",
+      "llm_tldr": "长期与用户交互的智能体需要回忆事实、偏好与变化，但现有记忆系统常把交互压缩成泛化摘要或匿名文本块，难以定位正确实体与证据。本文提出EnSIMem，一种实体结构化的长期记忆架构，离线阶段将交互组织为主题连贯片段并构建[实体][类型][属性:值]索引条目，保留来源轮次、时间与多模态信息，在线阶段据此检索。该设计显著提升智能体存储与检索长期信息的能力，为智能体记忆研究提供了结构化方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.27334v1",
+      "source": "arxiv",
+      "title": "Just-in-Time Memory: Learning to Curate Task-Adaptive Memory for LLM Agents",
+      "abstract": "Agentic memory systems reuse past experience to improve future performance, yet most existing designs curate memory at write time: once a task is completed, its trajectory is distilled into a fixed artifact, such as a reflection, workflow, skill, or reasoning strategy, that is later retrieved by similarity. This forces the system to decide what is worth remembering before the future query is known, irreversibly discarding information and producing a query-independent summary that must serve many possible downstream tasks. Learning such a write-time curator is also difficult because the value of a storage decision may only become apparent when a relevant query arrives, potentially many tasks later, creating a long-horizon credit-assignment problem. We instead retain raw trajectories and defer curation until read time, when the current task is known. Given the retrieved traces and the new task, a memory curator synthesizes a compact, task-adaptive payload tailored to the immediate need. Because this payload is consumed on the same task, the curator can be trained directly from immediate task success, avoiding delayed utility signals and the need to artificially group related tasks. Across ALFWorld, WebShop, and $τ^2$-bench, our Just-in-Time Memory (JitMem) consistently outperforms no-memory agents as well as heuristic and learned write-time memory methods, improving over the strongest baseline by 16.2, 16.3, and 3.9 absolute success-rate points, respectively. Notably, even an untrained curator is already competitive with or surpasses these baselines, showing that task-adaptive read-time curation itself is a major source of the gain; training the curator further compounds the improvement.",
+      "authors": [
+        "Yefan Zhou",
+        "Yang Li",
+        "Zeyu Leo Liu",
+        "Semih Yavuz",
+        "Shafiq Joty"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-23T04:14:53+00:00",
+      "link": "https://arxiv.org/pdf/2609.27334v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "agentic memory curation with query-adaptive retrieval for LLM agents",
+      "llm_evidence_cn": "面向LLM智能体的任务自适应记忆整理与检索",
+      "llm_evidence": "面向LLM智能体的任务自适应记忆整理与检索",
+      "canonical_evidence": "面向LLM智能体的任务自适应记忆整理与检索",
+      "llm_tldr_en": "Agentic memory systems curate memory at write time, irreversibly discarding information before the future query is known; Just-in-Time Memory instead learns a query-adaptive curator that decides what to retain when the query arrives.",
+      "llm_tldr_cn": "现有智能体记忆系统在写入时即把轨迹蒸馏为固定摘要，因无法预知未来查询而造成不可逆的信息丢失。本文提出即时记忆机制，将记忆整理推迟到查询到达时进行任务自适应筛选，并针对存储决策价值延迟显现的长时程信用分配难题设计学习式整理器。结果表明延迟整理能保留更贴合下游任务的信息，优于写入端固定的反思或技能摘要。该工作把记忆整理时机从写入端转向查询端，为智能体长期经验复用提供新思路。",
+      "llm_tldr": "现有智能体记忆系统在写入时即把轨迹蒸馏为固定摘要，因无法预知未来查询而造成不可逆的信息丢失。本文提出即时记忆机制，将记忆整理推迟到查询到达时进行任务自适应筛选，并针对存储决策价值延迟显现的长时程信用分配难题设计学习式整理器。结果表明延迟整理能保留更贴合下游任务的信息，优于写入端固定的反思或技能摘要。该工作把记忆整理时机从写入端转向查询端，为智能体长期经验复用提供新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.28003v1",
+      "source": "arxiv",
+      "title": "Learning from Failures: Heterogeneous Graph Memory for Small Language Model Tool-Using Agents",
+      "abstract": "Small and medium-sized language models offer cost-effective executors for tool-using agents, making them attractive for local and large-scale deployment. However, in long-horizon and stateful environments, they often make structural errors such as missing required observations, performing premature writes, repeating failed calls, and violating action preconditions. These errors can lead to incorrect state updates, policy violations, and costly or irreversible consequences, making reliable tool execution a critical deployment challenge. Existing fine-tuning approaches require substantial data and computation, while flat memory may retrieve failed actions without preserving their causal context or safety conditions. In this paper, we propose FRESH, a Failure-aware Retrieval framework over Experience-Structured Heterogeneous graphs, which transforms historical successes and failures into structured external experience for tool-using agents. By explicitly modeling the dependencies among tasks, actions, errors, repairs, and execution conditions, FRESH helps frozen language models reuse reliable strategies, avoid recurring failures, and make safer decisions in stateful tool interactions. Experiments on $τ$-Bench and AppWorld with multiple open-source models show that FRESH consistently improves task success and tool-use reliability over no-memory agents and representative memory-based baselines.",
+      "authors": [
+        "Jiaxing Li",
+        "Lei Song",
+        "Rui Dong",
+        "Youyong Kong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-23T12:31:39+00:00",
+      "link": "https://arxiv.org/pdf/2609.28003v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "heterogeneous graph memory preserving causal context of failed actions for retrieval",
+      "llm_evidence_cn": "异构图记忆保留失败动作因果上下文以支持检索",
+      "llm_evidence": "异构图记忆保留失败动作因果上下文以支持检索",
+      "canonical_evidence": "异构图记忆保留失败动作因果上下文以支持检索",
+      "llm_tldr_en": "Small language model tool-using agents make structural errors in stateful environments; this work builds a heterogeneous graph memory that preserves causal context and safety conditions of failed actions, improving reliable tool execution without fine-tuning.",
+      "llm_tldr_cn": "中小规模语言模型作为工具调用智能体成本低廉，但在长时程有状态环境中易出现漏观测、过早写入、重复失败调用与违反前置条件等结构性错误。现有微调方法依赖大量数据与算力，扁平记忆又可能检索到失败动作却丢失其因果上下文与安全条件。本文提出面向失败经验的异构图记忆，保留动作的前提与后果关系以支撑可靠检索。该设计无需微调即可提升工具执行的可靠性，适合本地与大规部署。",
+      "llm_tldr": "中小规模语言模型作为工具调用智能体成本低廉，但在长时程有状态环境中易出现漏观测、过早写入、重复失败调用与违反前置条件等结构性错误。现有微调方法依赖大量数据与算力，扁平记忆又可能检索到失败动作却丢失其因果上下文与安全条件。本文提出面向失败经验的异构图记忆，保留动作的前提与后果关系以支撑可靠检索。该设计无需微调即可提升工具执行的可靠性，适合本地与大规部署。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.27175v1",
+      "source": "arxiv",
+      "title": "Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences",
+      "abstract": "Multimedia verification requires not only accurate decisions but also traceable evidence, reliable human correction, and safe reuse of prior experience. Existing systems often lack explicit mechanisms for revising intermediate reasoning or preventing harmful knowledge transfer. We present SEMV (Self-Evolving Multimedia Verification), a self-evolving multi-agent framework that treats provenance-bearing arguments as the interface between evidence, reasoning, human contestation, and memory. SEMV combines arena-based quantitative bipolar argumentation (A-QBAF), causal and scoped revision, and verification-gated memory consolidation with explicit conflict retention. On COSMOS benchmark, SEMV achieves 91.88% accuracy versus 89.10% for the strongest comparable baseline. Verified memory reduces negative transfer from 5.7% to 0.2%. On CTR benchmark, constructed from reviewer contestations, scoped causal revision corrects 96.7% of initial errors while saving 52.8% compute. MV2026 Grand Challenge dataset further supports evidence-grounded, temporally consistent reporting. These results show that SEMV can evolve through verified experience while keeping accumulated knowledge and subsequent decisions traceable, revisable, and contestable.",
+      "authors": [
+        "Truong Thanh Hung Nguyen",
+        "Vo Thanh Khang Nguyen",
+        "Hoang-Loc Cao",
+        "Phuc Ho",
+        "Truong Thinh Nguyen",
+        "Van Pham",
+        "Hung Cao"
+      ],
+      "primary_category": "cs.MM",
+      "categories": [
+        "cs.MM",
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2026-09-23T00:18:36+00:00",
+      "link": "https://arxiv.org/pdf/2609.27175v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "self-evolving agent with memory consolidation and retrieval",
+      "llm_evidence_cn": "带记忆整合与检索的自进化智能体",
+      "llm_evidence": "带记忆整合与检索的自进化智能体",
+      "canonical_evidence": "带记忆整合与检索的自进化智能体",
+      "llm_tldr_en": "Multimedia verification needs traceable evidence and safe reuse of experience; SEMV is a self-evolving multi-agent framework coupling argumentation, causal revision and verification-gated memory consolidation.",
+      "llm_tldr_cn": "多媒体验证不仅需要准确判断，还要求证据可追溯、可人工修正并安全复用既往经验，而现有系统缺乏修正中间推理与防止有害知识迁移的机制。作者提出SEMV，一个自进化多智能体框架，将带来源的论辩作为证据、推理、人工质疑与记忆之间的接口，结合论辩式量化、因果与范围化修订以及验证门控的记忆整合。在COSMOS基准上取得91.88%准确率，优于89.10%的基线。",
+      "llm_tldr": "多媒体验证不仅需要准确判断，还要求证据可追溯、可人工修正并安全复用既往经验，而现有系统缺乏修正中间推理与防止有害知识迁移的机制。作者提出SEMV，一个自进化多智能体框架，将带来源的论辩作为证据、推理、人工质疑与记忆之间的接口，结合论辩式量化、因果与范围化修订以及验证门控的记忆整合。在COSMOS基准上取得91.88%准确率，优于89.10%的基线。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25537v1",
+      "source": "arxiv",
+      "title": "Compressing Long Context into Answer-Aligned Memory Embeddings for LLM Inference",
+      "abstract": "Large language model (LLM) inference is constrained by the quadratic scaling of self-attention and the linear scaling of the KV cache, increasing latency, energy consumption, and GPU memory demand as context length scales. Existing soft-compression methods either lack query-guided memory selection at inference time, train without answer-targeted supervision, or couple compression tightly to a specific decoder architecture. We propose a Context-to-Answer-Aligned Memory Compression (CMC) framework, which compresses long input contexts into compact Context Memory Embeddings (CMEs) aligned to any frozen decoder's embedding space, reducing inference costs without modifying decoder weights. CMC introduces a two-tier KV cache that combines question-guided CME selection with a local context window, and trains the compressor with answer-targeted distillation from a frozen LLM. Experiments across nine encoder-decoder combinations and four QA benchmarks show that CMC consistently outperforms the baseline, achieving up to 7.3 EM and 4.0 F1 point gains on SQuAD, while reducing inference time and energy consumption by up to 20% and peak reserved GPU memory by up to 50% at 3,000 generation tokens. Ablation studies confirm that each architectural component and training objective contributes to the performance.",
+      "authors": [
+        "Md Mostafizer Rahman",
+        "Md Faizul Ibne Amin",
+        "Md Shahajada Mia",
+        "Yutaka Watanobe",
+        "Fang Liu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-22T01:10:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.25537v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "query-guided memory selection and compression for LLM inference",
+      "llm_evidence_cn": "面向推理的查询引导记忆选择与压缩",
+      "llm_evidence": "面向推理的查询引导记忆选择与压缩",
+      "canonical_evidence": "面向推理的查询引导记忆选择与压缩",
+      "llm_tldr_en": "CMC compresses long contexts into answer-aligned memory embeddings placed in a frozen decoder's space, using a two-tier KV cache and query-guided selection to cut inference cost without touching decoder weights.",
+      "llm_tldr_cn": "针对大语言模型推理中自注意力二次复杂度与KV缓存线性增长带来的延迟、能耗和显存压力，论文提出上下文到答案对齐记忆压缩框架CMC。该方法把长上下文压缩成对齐任意冻结解码器嵌入空间的紧凑记忆嵌入，并设计两层KV缓存与推理时查询引导的记忆选择，无需修改解码器权重即可降低推理成本。实验表明该方案能在保持性能的同时显著缓解长上下文推理开销，为高效长上下文推理提供了可迁移方案。",
+      "llm_tldr": "针对大语言模型推理中自注意力二次复杂度与KV缓存线性增长带来的延迟、能耗和显存压力，论文提出上下文到答案对齐记忆压缩框架CMC。该方法把长上下文压缩成对齐任意冻结解码器嵌入空间的紧凑记忆嵌入，并设计两层KV缓存与推理时查询引导的记忆选择，无需修改解码器权重即可降低推理成本。实验表明该方案能在保持性能的同时显著缓解长上下文推理开销，为高效长上下文推理提供了可迁移方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27214v1",
+      "source": "arxiv",
+      "title": "Verified Learning for Compiler Optimization: An LLM-Guided Architecture with Formal Control",
+      "abstract": "Compiler optimizations traditionally rely on handcrafted heuristics that often fail to generalize across programs and architectures. We investigate whether large language models can participate in compiler optimization through a verification-centered systems architecture that couples generative rewriting with formal equivalence checking. Using lazification in LLVM IR as a case study, we fine-tune a code-centric LLM on transformations produced by Wyvern and embed Alive2 into a feedback loop that enforces semantic preservation for every generated rewrite. Correctness is enforced externally as a runtime control layer rather than learned implicitly.   During inference, candidate transformations are symbolically validated and regenerated when necessary, ensuring accepted rewrites satisfy formal constraints. On the LLVM test suite, the fine-tuned model reproduces core optimization behaviors while applying fewer transformations overall. Although Wyvern remains faster on most benchmarks, 9.8% achieve comparable or improved runtime under the learned system, with no semantic violations observed. Verification overhead remains bounded and convergence stable. These results demonstrate that generative AI components can be safely integrated into compiler pipelines through deterministic validation and structured feedback, offering a scalable architectural pattern for trustworthy AI-driven software infrastructure.",
+      "authors": [
+        "Dev Pratap Singh",
+        "Rong Feng",
+        "Suman Saha"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE"
+      ],
+      "published": "2026-09-23T01:22:34+00:00",
+      "link": "https://arxiv.org/pdf/2609.27214v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LLM-guided compiler optimization generating code rewrites",
+      "llm_evidence_cn": "大模型引导的编译器优化与代码重写生成",
+      "llm_evidence": "大模型引导的编译器优化与代码重写生成",
+      "canonical_evidence": "大模型引导的编译器优化与代码重写生成",
+      "llm_tldr_en": "Fine-tunes a code-centric LLM to generate LLVM IR compiler rewrites, embedding Alive2 verification in a feedback loop so every transformation is symbolically validated for semantic preservation.",
+      "llm_tldr_cn": "编译器优化长期依赖难以跨程序与架构泛化的手工启发式规则。本文提出以验证为中心的系统架构，将生成式重写与形式化等价性检查结合，以LLVM IR中的惰性化为例，微调代码大模型并在反馈回路中嵌入Alive2，保证每次生成的改写语义不变。该方法把正确性作为运行时控制层外部强制，而非隐式学习，为可信的大模型编译器优化提供了新范式。",
+      "llm_tldr": "编译器优化长期依赖难以跨程序与架构泛化的手工启发式规则。本文提出以验证为中心的系统架构，将生成式重写与形式化等价性检查结合，以LLVM IR中的惰性化为例，微调代码大模型并在反馈回路中嵌入Alive2，保证每次生成的改写语义不变。该方法把正确性作为运行时控制层外部强制，而非隐式学习，为可信的大模型编译器优化提供了新范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25869v1",
+      "source": "arxiv",
+      "title": "Decoupling Logical Masks from GPU Execution for Dynamic Block-Sparse Attention",
+      "abstract": "Attention computation makes inference expensive in video diffusion transformers (vDiTs), which generate videos through iterative denoising. Block-sparse attention (BSA) reduces   this cost by computing only blocks selected by a logical mask, which specifies attention interactions to compute. However, coupling logical block geometry to execution choices   limits adaptation to varying masks and graphics processing units (GPUs), while runtime kernel specialization can incur preparation overhead that outweighs execution time savings.   We present Tessera, a specialized runtime for dynamic BSA that decouples logical masks from GPU execution while preserving specified attention interactions. Its physical mapping   layer retains, combines, or subdivides logical attention blocks into physical tiles suited to different attention mask shapes and GPU architectures. Its task organization layer   groups and schedules tiles within GPU tasks to reuse data, expose parallelism, and overlap data movement with computation. Finally, profile-guided regime selection enables low-   overhead execution plan selection through a lookup table constructed from offline profiling. We implement Tessera with specialized CUDA kernels supporting four NVIDIA GPU   generations. Evaluated on 2,315 real attention masks and industrial video diffusion models, Tessera achieves up to 6.79x BSA request speedup over baseline systems in the evaluated   video diffusion models.",
+      "authors": [
+        "Shanghao Liu",
+        "Xiaoyun Yu",
+        "Wanting Li",
+        "Wenqi Jiang"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-22T08:33:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.25869v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "runtime decoupling masks from GPU execution for sparse attention kernels",
+      "llm_evidence_cn": "将掩码与GPU执行解耦的稀疏注意力运行时",
+      "llm_evidence": "将掩码与GPU执行解耦的稀疏注意力运行时",
+      "canonical_evidence": "将掩码与GPU执行解耦的稀疏注意力运行时",
+      "llm_tldr_en": "Presents Tessera, a runtime for dynamic block-sparse attention that decouples logical masks from GPU execution, avoiding runtime kernel specialization overhead while adapting to varying masks and GPUs.",
+      "llm_tldr_cn": "视频扩散Transformer通过迭代去噪生成视频，注意力计算开销高昂，块稀疏注意力仅计算逻辑掩码选中的块以降本。但将逻辑块几何与执行选择耦合会限制对变化掩码与不同GPU的适应，运行时内核特化又可能带来超过收益的准备开销。本文提出专用运行时Tessera，将逻辑掩码与GPU执行解耦，同时保留指定的注意力交互，其物理映射层可保留、合并或细分块。",
+      "llm_tldr": "视频扩散Transformer通过迭代去噪生成视频，注意力计算开销高昂，块稀疏注意力仅计算逻辑掩码选中的块以降本。但将逻辑块几何与执行选择耦合会限制对变化掩码与不同GPU的适应，运行时内核特化又可能带来超过收益的准备开销。本文提出专用运行时Tessera，将逻辑掩码与GPU执行解耦，同时保留指定的注意力交互，其物理映射层可保留、合并或细分块。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27298v1",
+      "source": "arxiv",
+      "title": "StateComp: Learning When to Compress History in Long Horizon Agents",
+      "abstract": "Long-horizon agents continuously accumulate interaction history during task execution, yet the importance of past interactions changes as the agent state evolves. Existing context management methods largely compress history based on fixed windows, periodic schedules, or current relevance, overlooking a more fundamental question: when has a past interaction become safe to replace? Premature compression may remove information still needed for future actions, while overly conservative retention leads to substantial context overhead. To address this, we propose State Conditioned Compression (StateComp), a framework that determines when historical interactions can be safely compressed according to the current agent state. StateComp constructs KEEP and READY supervision through a two-stage annotation procedure and trains an imbalance-aware router on hidden representations from a frozen language model. A bounded state representation further reduces the cost of evaluating long histories, while adjacent READY interactions are grouped into continuous spans and replaced with compact summaries during execution. Experiments on WorkBuddyBench show that StateComp reduces total agent and summarization tokens by 52.27% while maintaining task performance, and achieves a 12.67-fold speedup in representation extraction.",
+      "authors": [
+        "Mingxuan Wang",
+        "Hongyue Chen",
+        "Yinglong Guo",
+        "Fei Luo",
+        "Chao Ning",
+        "Bo Wang",
+        "Guorun Yao",
+        "Yanbiao Ma",
+        "Jungong Han"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-23T03:34:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.27298v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "framework deciding when to compress agent interaction history",
+      "llm_evidence_cn": "决定何时压缩智能体交互历史的框架",
+      "llm_evidence": "决定何时压缩智能体交互历史的框架",
+      "canonical_evidence": "决定何时压缩智能体交互历史的框架",
+      "llm_tldr_en": "StateComp is a framework that determines when past interactions can be safely compressed based on current agent state, building KEEP and READY signals to manage long-horizon agent memory and context.",
+      "llm_tldr_cn": "长时程智能体在执行中不断累积交互历史，而过去交互的重要性随状态演化而变化，现有上下文管理方法按固定窗口或当前相关性压缩，忽略了何时才可安全替换这一问题。本文提出状态条件压缩框架 StateComp，依据当前智能体状态构建 KEEP 与 READY 信号，判断历史交互何时可被安全压缩。实验表明该方法能在保留必要信息的同时降低上下文开销。该工作为智能体记忆的高效存储与检索管理提供了新机制。",
+      "llm_tldr": "长时程智能体在执行中不断累积交互历史，而过去交互的重要性随状态演化而变化，现有上下文管理方法按固定窗口或当前相关性压缩，忽略了何时才可安全替换这一问题。本文提出状态条件压缩框架 StateComp，依据当前智能体状态构建 KEEP 与 READY 信号，判断历史交互何时可被安全压缩。实验表明该方法能在保留必要信息的同时降低上下文开销。该工作为智能体记忆的高效存储与检索管理提供了新机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.27332v1",
+      "source": "arxiv",
+      "title": "Stable Geometry with Divergent Task Evidence for Efficient Long-Horizon Agent Compression",
+      "abstract": "Long horizon agents accumulate growing interaction histories that increase context and inference costs. We find that geometric redundancy alone is an insufficient criterion for safe compression. Although agent histories exhibit strong low dimensional structure, similar global geometry can preserve very different amounts of task evidence. At identical retained block counts, evidence aware selection raises next action Top 3 retention from 0.31 to 0.69, while centroid similarity remains 0.98. Controlled replacement further shows that action related information can be substantially altered while global geometric measures remain nearly unchanged. Motivated by this gap between geometry and evidence, we introduce Geometry Guided Evidence Preserving Memory (GEM), a training free compressor that protects task and execution evidence before using geometric residuals to complete coverage. GEM reduces mean combined token usage from 2.69M to 2.11M per task, a 21.4% reduction, while maintaining comparable task reward. Our results show that efficient agent history compression should optimize for preserved task evidence rather than geometric coverage alone.",
+      "authors": [
+        "Mingxuan Wang",
+        "Fei Luo",
+        "Bo Wang",
+        "Guorun Yao",
+        "Yinglong Guo",
+        "Chao Ning",
+        "Hongyue Chen",
+        "Yanbiao Ma",
+        "Jungong Han"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-23T04:09:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.27332v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agent history compression using task-evidence aware memory selection",
+      "llm_evidence_cn": "基于任务证据的智能体历史记忆压缩",
+      "llm_evidence": "基于任务证据的智能体历史记忆压缩",
+      "canonical_evidence": "基于任务证据的智能体历史记忆压缩",
+      "llm_tldr_en": "The paper shows geometric redundancy is insufficient for safe agent-history compression and proposes geometry-guided, evidence-aware selection, raising next-action Top-3 retention from 0.31 to 0.69 at equal budget.",
+      "llm_tldr_cn": "长时程智能体不断积累交互历史，导致上下文与推理成本持续上升，而仅依据几何冗余进行压缩并不安全。论文发现全局几何相似的历史块所保留的任务证据可能差异很大，据此提出几何引导的证据优先压缩方法，用动作相关信息而非单纯相似度决定保留内容。实验显示在相同保留块数下，下一动作Top3保留率从0.31提升到0.69，而质心相似度仍为0.98，说明证据感知压缩更能保住智能体决策所需信息。",
+      "llm_tldr": "长时程智能体不断积累交互历史，导致上下文与推理成本持续上升，而仅依据几何冗余进行压缩并不安全。论文发现全局几何相似的历史块所保留的任务证据可能差异很大，据此提出几何引导的证据优先压缩方法，用动作相关信息而非单纯相似度决定保留内容。实验显示在相同保留块数下，下一动作Top3保留率从0.31提升到0.69，而质心相似度仍为0.98，说明证据感知压缩更能保住智能体决策所需信息。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

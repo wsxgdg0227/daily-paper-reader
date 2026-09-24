@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-23</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-24</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 7 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 9 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>2</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>3</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>6</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-23 22:34:55 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-24 21:59:04 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,10 +69,8 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日共生成 7 篇推荐（精读 2 篇，速读 5 篇）</p>
-<p>精读：《Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents》（9.0/10）, 《Recursive self-improvement of AI research agents》（8.0/10）</p>
-<p>速读：《AkasicMEM: Governed Enterprise Memory for Agents》（7.0/10）, 《Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents》（7.0/10）, 《Splyce: SIMD Vectorization of Sparse Coiteration》（6.0/10）</p>
-<p>这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。</p>
+<p>9月24日日报成功收录9篇，精读3篇，LLM Agent长期记忆与任务自适应记忆成为焦点。</p>
+<p>最值得看的是9.0分的《EnSIMem》实体结构化索引，以及8</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -81,12 +79,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">2 篇</strong>
+    <strong class="dpr-home-dashboard-count">3 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents">Jev-Mem: System-One-Controlled Agentic Memory for Efficient AI Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Recursive self-improvement of AI research agents">Recursive self-improvement of AI research agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EnSIMem: Entity-Structured Indexing for Long-Term Agent Memory">EnSIMem: Entity-Structured Indexing for Long-Term Agent Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="Just-in-Time Memory: Learning to Curate Task-Adaptive Memory for LLM Agents">Just-in-Time Memory: Learning to Curate Task-Adaptive Memory for LLM Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Learning from Failures: Heterogeneous Graph Memory for Small Language Model Tool-Using Agents">Learning from Failures: Heterogeneous Graph Memory for Small Language Model Tool-Using Agents</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>2</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>3</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -94,12 +92,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">5 篇</strong>
+    <strong class="dpr-home-dashboard-count">6 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="AkasicMEM: Governed Enterprise Memory for Agents">AkasicMEM: Governed Enterprise Memory for Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents">Grow the Harness, Not the Context: From Strategy-Free Scaffolds to Reusable Specialist Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Splyce: SIMD Vectorization of Sparse Coiteration">Splyce: SIMD Vectorization of Sparse Coiteration</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences">Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences</span></li><li><span class="dpr-home-dashboard-paper-title" title="Verified Learning for Compiler Optimization: An LLM-Guided Architecture with Formal Control">Verified Learning for Compiler Optimization: An LLM-Guided Architecture with Formal Control</span></li><li><span class="dpr-home-dashboard-paper-title" title="StateComp: Learning When to Compress History in Long Horizon Agents">StateComp: Learning When to Compress History in Long Horizon Agents</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
 </section>
 </div>
 

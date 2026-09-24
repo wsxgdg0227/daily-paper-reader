@@ -1,0 +1,1891 @@
+Title: Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences
+
+URL Source: https://arxiv.org/pdf/2609.27175v1
+
+Published Time: Thu, 24 Sep 2026 00:23:21 GMT
+
+Number of Pages: 48
+
+Markdown Content:
+# Self-Evolving Multimedia Verification through Memory Consolidation of Contestation Experiences 
+
+## Truong Thanh Hung Nguyen 1* , Vo Thanh Khang Nguyen 2, Hoang-Loc Cao 1,Phuc Ho 1, Truong Thinh Nguyen 3, Van Pham 1, and Hung Cao 1* 1University of New Brunswick, Fredericton, New Brunswick, Canada 
+
+2FPT Software, Quy Nhon, Vietnam 
+
+3University of Science and Technology of Hanoi, Hanoi, Vietnam 
+
+*Address correspondence to: {hung.ntt,hung.cao }@unb.ca 
+
+Abstract 
+
+Multimedia verification requires not only accurate decisions but also traceable evidence, reliable human correction, and safe reuse of prior experience. Existing systems often lack explicit mechanisms for revising intermediate reasoning or preventing harmful knowledge transfer. We present SEMV ( Self-Evolving Multimedia Verification ), a self-evolving multi-agent framework that treats provenance-bearing arguments as the interface between evidence, reasoning, human contestation, and memory. SEMV combines arena-based quantitative bipolar argumentation (A-QBAF), causal and scoped revision, and verification-gated memory consolidation with explicit conflict retention. On COSMOS benchmark, SEMV achieves 91.88% accuracy versus 89.10% for the strongest comparable baseline. Verified memory reduces negative transfer from 5.7% to 0.2%. On CTR benchmark, constructed from reviewer contestations, scoped causal revision corrects 96.7% of initial errors while saving 52.8% compute. MV2026 Grand Challenge dataset further supports evidence-grounded, temporally consistent reporting. These results show that SEMV can evolve through verified experience while keeping accumulated knowledge and subsequent decisions traceable, revisable, and contestable. 
+
+# 1 Introduction 
+
+Multimedia verification determines not only whether images or videos are authentic, but also whether their accompanying narratives correctly describe what happened, where and when it occurred, and who was involved. Authentic media can therefore be misleading when reused in a false context, producing out-of-context (OOC) cheapfakes [1, 2]. COSMOS [1] studies this problem through image-caption consistency, while the Multimedia Verification Grand Challenges require evidence-rich investigation of provenance, time, location, entities, motivation, and forensic authenticity [2]. 1arXiv:2609.27175v1 [cs.MM] 23 Sep 2026 Current systems remain limited in how their verification state can be inspected, corrected, and reused. Classifiers compress heterogeneous evidence into a final label, while tool-augmented language models may generate detailed reports without explicit provenance and conflict constraints. Human feedback is also commonly applied only after inference, making it difficult to identify whether an error originates from decomposition, retrieval, validation, reasoning, or aggregation. These limitations are especially consequential in open-world verification, where evidence availability changes and correct decisions may depend on incomplete or conflicting sources. We introduce SEMV ( Self-Evolving Multimedia Verification )1, a multi-agent framework in which the argument serves as the interface between perception, external evidence, reasoning, and human review. Evidence-grounded support and attack arguments are associated with explicit subclaims, provenance, verification status, and decomposable strengths, then resolved using an arena-based quantitative bipolar argumentation framework (A-QBAF) [3, 4]. The resulting argumentative state directly governs subclaim decisions, uncertainty, contestation, and subsequent memory updates rather than serving only as a post-hoc explanation. SEMV further introduces causal contestability and verified self-evolution . Human feedback is routed to the earliest affected pipeline stage, after which only its downstream dependency cone is re-computed while independent results are preserved [5–8]. Experiences generated through verification and contestation are staged rather than immediately reused, then checked for provenance, support, duplication, and conflict before consolidation. This verification-gated policy reduces the risk that agents indiscriminately follow experiences outside their applicable context [9]. Building on our previous multi-agent verification framework [10] and arena-based reasoning ap-proach [11], this paper makes the following contributions: 1. We formalize SEMV as a cooperative multi-agent verification framework with structured case state, typed agent communication, provenance-constrained arguments, A-QBAF propagation, uncertainty estimation, and deterministic decision aggregation (Sec. 3–4). 2. We introduce adaptive causal contestation , which routes interventions to affected pipeline stages, performs dependency-aware localized recomputation, preserves traces, and quantifies intervention locality (Sec. 4.5). 3. We develop verification-gated self-evolution through staged experience verification, multi-case consolidation, conflict retention, frozen evaluation snapshots, and metrics that distinguish beneficial transfer from negative transfer (Sec. 4.6). 4. We establish a comprehensive evaluation of predictive performance, statistical significance, re-port quality, calibration, contestability, memory-transfer safety, and computational cost across Gemma4-31B [12], Nemotron-3-Nano-Omni-30B [13], Qwen3.6-35B [14], and InternVL3.5-38B [15], together with qualitative trace analysis (Sec. 5–6).  
+
+> 1Our implementation is publicly available at https://github.com/Analytics-Everywhere-Lab/SEMV
+
+22 Related Work 
+
+## 2.1 Multimedia Verification 
+
+Multimedia verification asks whether media is authentic and whether it is presented in its original factual context. Cheapfakes include low-cost manipulations such as cropping, splicing, speed changes, selective editing, and re-staging, as well as misleading use of unaltered media [16]. OOC misuse is a prominent case in which authentic media is falsely associated with an event, location, time, person, or motivation [1, 17]. Verification has therefore expanded from image-text consistency classification toward evidence-grounded investigation. Existing methods broadly follow three directions. Representation and feature-fusion approaches combine cross-modal semantics, caption generation, natural-language or visual entailment, and aux-iliary linguistic signals [18–21]. External-evidence methods retrieve and assess web evidence using cycle consistency, relevance-aware reranking, or retrieval–stance–explanation pipelines [17, 22, 23]. More recent LLM/VLM systems enrich contextual reasoning through prompted relation extraction, generated visual context, multimodal comparison, source and metadata retrieval, and dynamic tool-assisted investigation [24–28]. Recent multimedia verification challenges further emphasize case-level investigation and struc-tured reporting. Multimedia Verification Grand Challenges [2] introduced source discovery, manipu-lation analysis, and detailed reports, motivating systems that combine forensic, semantic, temporal, geospatial, OSINT, retrieval, and multimodal reasoning [10, 29, 30]. MV2026 formalizes these requirements through a professional rubric covering provenance, evidence URLs, location, time, en-tities, motivation, forensic authenticity, and report quality [2]. Recent systems accordingly explore multilingual evidence-based reasoning [31] and multi-agent verification [32]. Our preliminary A-QBAF framework instead represents retrieved evidence as provenance-bearing support and attack arguments in local quantitative bipolar argument graphs [11]. However, it does not address selective propagation of corrections or safe reuse of verified experience , which motivate our proposed SEMV. Table 1 summarizes these distinctions. 
+
+## 2.2 From Explainability to Contestability 
+
+Explainability exposes the basis of a decision, whereas contestability enables users to act on that basis by identifying disputed components, justifying challenges, and obtaining revised decisions while preserving the original trace, thereby supporting interaction, redress, and accountability throughout the decision lifecycle. Prior research [5, 6, 8] frames contestable AI as a dynamic human-machine process in which explanations are examined, objections are evaluated, and successful challenges trigger revision. Computational argumentation operationalizes this process through explicit and editable rea-soning objects. Abstract frameworks encode attacks among arguments, bipolar frameworks add support relations, and quantitative variants propagate numerical argument strengths toward a con-clusion under a gradual semantics [3, 4, 33, 34]. Unlike free-form rationales, argument graphs expose which propositions support or attack a claim, how strongly they contribute, and how an intervention 3Table 1:  Capability comparison of evidence-grounded multimedia verification approaches.  ✓ denotes an explicit mechanism,  △ denotes partial, implicit, or terminal-stage support, and – denotes that the capability is absent or not documented. The comparison concerns reported system mechanisms, not capabilities that a general-purpose backbone might exhibit without explicit control. 
+
+> Approach  MM  OS  PV  EV  FA  GT  CD  MA  AG  HI  RG  VM  Verification Output
+> La  et al.  [18, 19]  ✓ – – △ – – – – – – – – Cross-modal visual- caption-based verdict Tran  et al.  [20]  ✓ ✓ △ ✓ – – – – – – – – Unsupervised ensemble verdict Abdelnabi et al. [17]  ✓ ✓ △ ✓ – – – – – – – – Evidence-conditioned pair verdict MOCHEG [23]  ✓ ✓ ✓ ✓ – – – – – – △ – Verdict and generated explanation RED-DOT [22]  ✓ ✓ △ ✓ – – – – – – – – Evidence-reranked pair verdict DEFAME [28]  ✓ ✓ ✓ ✓ △ △ △ – – – ✓ – Structured multimodal fact-check Phan  et al.  [29]  ✓ ✓ ✓ ✓ ✓ ✓ – △ – – ✓ – Expert report and public summary
+> Aegis  [30]  ✓ ✓ ✓ ✓ ✓ ✓ – – – – ✓ – Structured OSINT verification report Le  et al.  [10]  ✓ ✓ ✓ ✓ △ ✓ △ ✓ – – ✓ – Six-stage verification report DeepVerify [31]  ✓ ✓ ✓ ✓ ✓ △ – – – – ✓ – Evidence-based explainable report MOSAIV [32]  ✓ ✓ △ △ ✓ ✓ △ ✓ – – ✓ – Agent-swarm verification report A-QBAF [11]  ✓ ✓ ✓ ✓ △ ✓ ✓ ✓ ✓ ✓ ✓ – Contestable argument-grounded report
+> SEMV (Ours)  ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ Contestable self-evolving case report
+> Legend:  MM = multimodal/VLM reasoning; OS = open-Web or OSINT retrieval; PV = explicit source provenance; EV = evidence relevance, sufficiency, or stance validation; FA = media forensic authenticity; GT = geospatial and temporal reasoning; CD = explicit claim decomposition; MA = multi-agent orchestration; AG = formal support–attack argumentation; HI = human intervention or contestation; RG = structured report generation; VM = verified cross-case self-evolving memory. For HI,  △ denotes terminal review without localized causal revision, whereas  ✓ denotes intervention over intermediate verification objects.
+
+4changes the inference. Argumentative language models have applied this structure to claim verifi-cation [35], while a growing family of systems now develops quantitative bipolar frameworks over retrieved evidence [36], globally contestable decision-support systems [37], and methods for adjusting argument or relation strengths to produce desired outcomes [38, 39]. SEMV differs from this line in the granularity of the intervention: prior work contests the argument graph, whereas SEMV routes a contestation to the earliest pipeline stage that can repair it, which may be claim decomposition, retrieval, or validation rather than the graph itself. 
+
+## 2.3 Self-Evolution through Memory Consolidation 
+
+Whereas contestability repairs the current case, memory-based adaptation transfers experience to future decisions. Early methods such as Reflexion, Agent-Pro, and SAGE use feedback and self-reflection to store episodic lessons, revise behavioral policies, and retain useful information across in-teractions [40–42]. Later approaches move toward cross-episode abstraction: ExpeL extracts reusable insights and examples [43], MetaReflection converts failed trials into semantic instructions [44], and Contextual Experience Replay synthesizes trajectory summaries in a dynamic buffer [45]. Recent work further studies memory organization and consolidation. A-MEM builds dynamically linked records [46], RecMem consolidates only after semantically similar experiences recur [47], and ICAL converts inefficient visual trajectories and human feedback into corrected examples [48]. Beyond memory itself, agent symbolic learning optimizes prompts, tools, and workflows through language-based analogues of backpropagation [49]. These systems also expose risks that motivate our verification-gated design. Repeated LLM rewriting can cause semantic drift [50], agents may follow retrieved experiences despite poor applicability [9], and locally valid but non-transferable memories can induce negative transfer. Accordingly, memory evaluation should separate immediate correction from downstream transfer and measure both benefit and harm. Long-term memory should additionally preserve provenance, scope, conflicts, and reuse outcomes [51]. We define self-evolution as a closed loop in which contestation and outcome-grounded experience produce candidate knowledge that is verified, consolidated into external memory, and reused in future decisions, while model parameters and agent structure remain fixed (Fig. 1). Accordingly, we adopt the following operational definition: 
+
+> Definition 2.1
+> Self-Evolution through Memory Consolidation with Contestation Experiences
+
+A self-evolving agent through memory consolidation with contestation experiences persistently adapts its future decisions through a closed-loop, non-parametric process in which autonomous outcomes and human contestations produce provenance-preserving experience, candidate lessons are verified and consolidated across cases into external memory, and relevant knowledge is se-lectively reused and attributed in subsequent decisions without modifying the underlying model parameters. 
+
+Memory consolidation goes beyond accumulation by filtering insufficiently grounded records, merging duplicates, aggregating independent support, preserving unresolved conflicts, abstracting 5Past Interactions    
+
+> New Task Outcome Reason / Act New Task Outcome / Feedback Reason / Act
+
+Accumulated experience is transformed into reusable knowledge that improves future behavior 
+
+Memory Consolidation 
+
+> Resolve
+> Conflicts
+
+Experience Memory 
+
+> Unstructured
+> Accumulation
+
+EXPERIENCE ACCUMULATION 
+
+WITHOUT SELF-EVOLUTION 
+
+> Conflicting
+> Observations
+> Revise /
+> Update
+
+SELF-EVOLUTION THROUGH 
+
+MEMORY CONSOLIDATION WITH CONTESTABILITY   
+
+> Redundant
+> Experiences
+> Noisy Info Select /
+> Filter Merge /
+> Deduplicate
+> Human
+> Contestation
+> Growing memory size
+> Forget /
+> Prune
+
+Consolidated Memory 
+
+> Reusable
+> Knowledge
+> Generalized
+> Patterns
+> Failure
+> Lessons
+> Structured
+> memory
+
+Memory grows by accumulation, 
+
+but quality does not necessarily improve Figure 1: Conceptual design of Self-Evolution through Memory Consolidation with Contestation Experiences framework. Without consolidation, past interactions accumulate as potentially noisy, redundant, unstructured, or conflicting experiences. With consolidation, human contestation, and memory operations such as filtering, deduplication, conflict resolution, revision, and pruning, ac-cumulated experience is transformed into structured reusable knowledge, generalized patterns, and failure lessons for future tasks. recurrent patterns, and tracking whether retrieved knowledge improves or harms later decisions. The lifecycle comprises: 
+
+> 1. Experience Capture 2. Human Contestation 3. Post-Prediction Reflection 4. Verification and Staging 7. Reuse and Transfer 6. Long-Term Promotion 5. Multi-Experience Consolidation
+> Future cases
+
+1. Experience Capture: record trajectories, outcomes, evidence, provenance, and human or en-vironmental feedback. 
+
+2. Human Contestation: allow a human reviewer to challenge and revise the system’s reasoning, evidence, or decision through supported contestation actions, while preserving an explicit record of what was contested and how the case state changed. 
+
+3. Post-Prediction Reflection: derive case-specific observations, failure explanations, and can-didate patterns that may generalize beyond the current experience. 
+
+4. Verification and Staging: assess the grounding, correctness, novelty, and applicable scope of each candidate before retaining it in short-term memory. 65. Multi-Experience Consolidation: group related candidates, merge duplicates, aggregate in-dependent support, preserve conflicting observations, and abstract recurrent knowledge. 
+
+6. Long-Term Promotion: promote sufficiently supported and stable knowledge while isolating uncertain or conflicting records for further evidence or review. 
+
+7. Reuse and Transfer: retrieve relevant consolidated knowledge for later cases and record where it influences planning, evidence acquisition, argument construction, validation, and subsequent outcomes. For multimedia verification, this lifecycle requires a strict epistemic boundary between evidence about the current case and experience derived from previous cases. SEMV enforces this boundary formally in Def. 3.1 and instantiates the lifecycle in Sec. 4.6. 
+
+# 3 Preliminaries 
+
+## 3.1 Problem Definition 
+
+Verification Instance and Output Let a multimedia verification instance be: 
+
+x =
+
+D
+
+Vx, c 0, ζ, E(0) , δ 
+
+E
+
+, (1) where Vx = {mj }nx 
+
+> j=1
+
+contains one or more images or videos. c0 denotes the main textual claim, 
+
+ζ contains optional contextual metadata, E(0) is optional user- or dataset-supplied evidence, and δ
+
+identifies the dataset adapter and its output contract. The system returns: 
+
+F (x) = ⟨ˆy, p, γ, J , T , Ξ⟩ , (2) where p ∈ ∆( Yδ ) is the predicted probability distribution over the dataset-compatible label space and ˆ y = arg max y p(y) is the predicted label. The value γ ∈ [0 , 1] is the confidence assigned to ˆ y
+
+and is used for calibration, selective prediction, and escalation, which is computed by Eq. 19. The justification J is human- and machine-readable, T is an auditable execution trace, and Ξ contains case-level uncertainty and escalation codes. For COSMOS, let: 
+
+YCOSMOS = {NOOC , OOC }, pi = pi(OOC ), bi =
+
+
+
+1, yi = OOC ,
+
+0, yi = NOOC ,
+
+(3) where pi is the predicted probability of the OOC class and bi ∈ { 0, 1} is the corresponding binary ground-truth indicator. The mapping from the internal argumentative score to pi is given in Eq. 20 For MV2026, YMV contains the adapter-defined labels for verified, mostly verified, partially verified, false-context, manipulated or synthetic, and insufficient-evidence outcomes. Because un-certainty is an abstention outcome rather than an official task label, it is represented by Ξ and is not included in YMV .7Case Evidence and Arguments After input canonicalization, the supplied evidence E(0) is incorporated into the initial current-case evidence set E0. Subsequent retrieval and analysis produce the evolving evidence set Et.An evidence item e records its identifier, source, observed content, reliability re, relevance qe,media or temporal location λe, provenance ρe, and uncertainty codes ωe. An argument a records its identifier, associated subclaim, stance σa, text ta, cited evidence identifiers E(a), cited memory identifiers M (a), grounding-verifier outcome va, strength wa, and uncertainty codes ωa:
+
+e = ⟨id e, src e, obs e, r e, q e, λ e, ρ e, ω e⟩ ,a = ⟨id a, k, σ a, t a, E (a), M (a), v a, w a, ω a⟩ , (4) where k indexes a scoped subclaim, va ∈ { 0, 1}, wa ∈ [0 , 1], and σa ∈ { sup , att , mix , neu }, correspond-ing to support , attack , mixed , and neutral positions. The output-level codes Ξ aggregate unresolved or decision-relevant codes from the local sets ωe and ωa.Because E(a) stores identifiers rather than evidence objects, define IDs( Et) = {id e : e ∈ E t} and let the evidence resolved for argument a at state st be: 
+
+Et(a) = {e ∈ E t : id e ∈ E(a)} . (5) 
+
+Definition 3.1 (Epistemic admissibility) . At state st, an argument a is epistemically admissible if and only if it cites at least one current-case evidence item, every cited identifier resolves in the current evidence set, every resolved item has provenance, and the grounding verifier accepts the evidence–argument relation: Adm t(a) = 1 ⇐⇒ E(a)̸ = ∅ ∧ E(a) ⊆ IDs( Et) ∧ ^
+
+> e∈E t(a)
+
+[ρe̸ = ⊥] ∧ [va = 1] . (6) Retrieved memory may guide planning and argument construction, but M (a) cannot replace E(a)in Eq. 6. This requirement links every admissible argument to current-case evidence, which is what makes provenance validation, human contestation, and execution replay possible. Arguments that fail are not discarded. They remain visible in the trace and are marked inadmissible as verified evidence. If retained for reasoning, they contribute only with the grounding-aware discounted weighting defined in Eq. 14, preserving diagnostic information without assigning them verified status. 
+
+## 3.2 Multi-Agent Transition System 
+
+We model SEMV as a cooperative, partially observable multi-agent transition system: 
+
+S = ⟨A , S, {U i}i∈A , L, {Ωi, π i}i∈A , P, T, I⟩ . (7) where A = {A1, . . . , A n} is the set of functional agents, S is the shared case-state space, Ui is the action set of agent i, and L is the set of structured inter-agent messages. The local observation 8function Ω i : S → O i exposes only the fields needed by agent i, while πi : Oi × L ∗ → ∆( Ui)selects an action from that local view and the received message history. The dependency graph P
+
+specifies forward order and downstream invalidation, T governs state transitions, and I contains the invariants that every committed state must satisfy. The global state after logical step t is 
+
+st = ⟨Bt, Ct, Et, G Et , Rt, Gt, {Qk,t }k∈C t ,D t, Y t, Mt, Ht, Ξt, Tt⟩. (8) containing the canonical case bundle Bt, scoped claims Ct, normalized evidence Et, evidence graph 
+
+GEt , research plans Rt, arguments Gt, claim-level A-QBAFs Qk,t , subclaim and final decisions Dt
+
+and Yt, memory view Mt, human reviews Ht, uncertainty codes Ξ t, and append-only trace Tt.For u ∈ U i, let Pre i(st, u ) denote the stage prerequisites of agent i. The transition semantics are 
+
+T (st, i, u ) = 
+
+
+
+s′, Pre i(st, u ) ∧ s′ |= I,
+
+⊥, otherwise ,
+
+(9) where ⊥ is a rejected update. An agent action is therefore not committed merely because it returns a syntactically valid object; it must also preserve the system-wide constraints. 
+
+Definition 3.2 (Valid case state) . A state s is valid, written s |= I, when it jointly satisfies 
+
+s |= I ⇐⇒ Iid (s) ∧ Iprov (s) ∧ Iarg (s) ∧ Iqbaf (s) ∧ Itrace (s) ∧ Igold (s) ∧ Ifreeze (s) ∧ Iout (s). (10) The constraints require unique case-local identifiers, provenance for normalized evidence, correct admissibility status and grounding-aware discounted weighting for every argument entering an A-QBAF, and existing endpoints for every A-QBAF edge. They also require the new trace to extend rather than overwrite the previous trace, prohibit access to hidden supervision before prediction, prohibit memory mutation during frozen evaluation, and require the final label to belong to the active dataset contract. State updates are committed sequentially to preserve these invariants. Independent extraction, retrieval, and claim-level reasoning operations execute concurrently, but their results enter the shared state only after validation. Table S2 in the Supplementary Material summarizes the agent roles. 
+
+# 4 Methodology 
+
+Fig. 2a divides SEMV into six modules. Modules A–E verify the current case by standardizing inputs, extracting multimodal evidence, decomposing and researching claims, constructing evidence-grounded bipolar arguments, and producing a contestable decision. Module F runs only after eligible supervision becomes available, consolidating grounded experience into reusable external memory without updating model parameters. 9B. MULTIMODAL MEDIA 
+
+EVIDENCE EXTRACTION 
+
+A. INPUT CANONICALIZATION 
+
+Image/Video 
+
+Main Claim 
+
+& Context  Canonical 
+
+Case Bundle 
+
+Dataset 
+
+Adapter 
+
+C. CLAIM, MEMORY, AND EXTERNAL 
+
+EVIDENCE RETRIEVAL 
+
+Golden Memory 
+
+Pool Retrieval 
+
+Research Planner Subclaims 
+
+who 
+
+what 
+
+where 
+
+when 
+
+authenticity 
+
+context 
+
+main claim 
+
+> Case/Manual/
+> Cached Evidence
+> Online Reverse-Image
+> Search (Yandex)
+> Fact-check/News/
+> Geolocation Search
+
+Evidence Canonicalization + Provenance Tracking 
+
+Evidence Graph Construction 
+
+Metadata Extraction 
+
+Scene-Aware Video 
+
+Keyframes 
+
+Optical Character 
+
+Recognition (OCR) 
+
+Automatic Speech 
+
+Recognition (ASR) 
+
+Vision-Language Models 
+
+(VLM) 
+
+Forensic Analysis 
+
+Local Reverse-Image 
+
+Search (pHash, CLIP-FAISS) Claim Decomposition 
+
+into Scoped Subclaims 
+
+D. ARGUMENTATION AND REASONING 
+
+1. Evidence 
+
+Ranking  2. Support/ 
+
+Attack Argument 
+
+Generation 
+
+3. Argument 
+
+Verification  4. Argument 
+
+Scoring  5. Clash 
+
+Resolution  6. A-QBAF 
+
+Graph 
+
+Construction 
+
+and Propagation 
+
+Central Claim 
+
+Base Score: 0.50 
+
+> Support: 0.50
+> Support: 0.40
+> Attack: 0.30
+> Attack: 0.20
+
+A-QBAF Result 
+
+Propagated Score: 0.57 
+
+“Weakly Supported” 
+
+E. HUMAN-CONTESTABLE DECISION VERIFICATION 
+
+F. SELF-EVOLUTION THROUGH MEMORY CONSOLIDATION 
+
+Final Verification 
+
+Final Verification 
+
+(Label + Confidence) 
+
+Structured 
+
+Report 
+
+Human Contestation 
+
+Accept  Reject  Edit  Add 
+
+Uncertainty Escalation 
+
+Memory Bank 
+
+Update  Post-Prediction 
+
+Reflection 
+
+Fail-closed Candidate 
+
+Verification 
+
+Memory 
+
+Consolidation 
+
+Retrieval and 
+
+Evaluation Isolation 
+
+Memory Bank 
+
+Subclaim 
+
+Decisions  Final Decision 
+
+Aggregation 
+
+Human-Readable 
+
+Report 
+
+Arena-based Quantitative Bipolar Argumentation 
+
+Framework (A-QBAF) 
+
+> Multimedia Evicences
+
+Human reviewer inspects 
+
+generated arguments 
+
+Optional 
+
+Evidence 
+
+Human 
+
+Reviewer 
+
+Contestable Actions: 
+
+Forward Inference  Human-Contestation Revision  Self-Evolution Update 
+
+Human-
+
+Readable 
+
+Report 
+
+a) Framework Architecture 
+
+b) Report Format 
+
+Case Summary:  Videos show black smoke and fire at a light-yell ow building in central Rafah, Gaza. 
+
+Evidence & Provenance:  The earliest located video was posted by Quds News Network on X at 14:36 on May 10. A longer video posted by photographer Moaz Al-Hams at 15:27 provides clearer visual evidence. 
+
+Location Verification:  Coordinates: 31.27805, 34.251062. 
+
+Facade details, rooftop structures, and nearby power lines match independent street-level and satellite references. 
+
+Temporal Verification:  The building was intact on March 9. No earlier instance of the fire was located before 14:36 on May 10, bounding the event to this interval. 
+
+Assessment:  Verified. The available evidence supports the videos depict a burning building at the identified location in Rafah. Figure 2: SEMV framework and report format. a) End-to-end architecture for multimedia verifica-tion, human contestation, and memory-based self-evolution. Solid, blue dashed, and green dashed arrows denote forward inference, contestation-driven revision, and self-evolution updates, respec-tively. b) Human-readable report format summarizing the case, evidence and provenance, location and temporal verification, and final assessment. 10 4.1 Module A: Input Canonicalization 
+
+Multimedia benchmarks differ in folder layout, metadata fields, label spaces, and reporting require-ments. Module A isolates these differences through a dataset-specific adapter Bx = Can δ (x). The resulting bundle contains the normalized textual input, media manifest, source groupings, available time and location context, optional supplied claims and evidence, and run and output settings. For each asset, the adapter assigns a stable case-local identifier and records its media type, case role, path, source group, sequence position, language hints, and available context. Paths and schema fields are validated before execution, while content hashes are added later by the metadata extractor when the files are available. The adapter also translates the internal decision into the benchmark label space. Evaluation-only annotations remain inaccessible during inference and can be exposed to reflection only after the first-pass report is committed. Canonicalization therefore provides both schema interoperability and the leakage boundary for subsequent reasoning. 
+
+## 4.2 Module B: Multimodal Media Evidence Extraction 
+
+Module B converts each canonical asset into localized, provenance-bearing observations. Let Ext( mj )denote the enabled extractors applicable to asset mj . The complete media-derived evidence set is: 
+
+Emedia  
+
+> x
+
+= [ 
+
+> mj∈V x
+
+[ 
+
+> g∈Ext( mj)
+
+g(mj ; c0, ζ ). (11) The extractor family covers metadata inspection, scene-aware keyframe extraction, optical character recognition (OCR), automatic speech recognition (ASR), VLM-based visual interpretation, forensic analysis, and local reverse-image search; the specific tools, versions, and per-tool thresholds are listed in Sec. A3 in Supplementary Material to keep this section focused on the verification logic. For images, the original asset serves as the visual target; a SHA-256 digest supports integrity checking and duplicate detection, and the VLM returns structured observations covering scene, salient objects, visible people, embedded text, and location, time, event, and authenticity cues. For videos, scene boundaries are detected and the temporal midpoint of each scene is decoded, retaining at most Kf representative frames ( Kf = 8 by default); when scene detection yields no usable boundaries, timestamps are sampled uniformly. Near-duplicate frames are removed by perceptual-hash distance, and the audio stream is transcribed with segment timestamps. Missing dependencies, unreadable media, and empty tool outputs are represented as uncertainty items rather than being interpreted as evidence for manipulation or false context. All tools return the common evidence representation in Eq. 4. 
+
+## 4.3 Module C: Claim, Memory, and External Evidence Retrieval 
+
+Scoped Claim Decomposition A broad caption may contain several independently verifiable statements. To make failures localizable, the decomposition agent produces: 
+
+Cx = Dec (Bx, Emedia  
+
+> x
+
+) = {ck}Kk=1 . (12) 11 Each subclaim stores an identifier, statement, claim type, initial queries, and case, media, segment, source, or event scope. The default dimensions are what , where , when , who , why , and authentic-ity . Deterministic fallbacks complete missing or malformed model output so that the configured dimensions remain available. 
+
+Retrieval from Consolidated Memory For each ck, the memory agent searches only active long-term records. The query combines the claim, task scope, case context, media observations, temporal signals, and geolocation cues. Records are ranked by a weighted combination of semantic similarity, task and scope compatibility, agreement with the observed evidence pattern, consolidated confidence, independent support, and prior successful use; the weights are listed in Sec. A4 in Supplementary Material. A record must pass separate semantic and final-score gates. Equivalent records are deduplicated before the top Km candidates are returned ( Km = 5 by default). Retrieved memory can change the verification questions, search queries, and reasoning checks, but by Def. 3.1 it is never inserted into the current-case evidence set. 
+
+Research Planning and External Retrieval The research planner turns each subclaim into verification questions, search queries, preferred source types, and uncertainty checks, enriched with OCR text, ASR phrases, visual cues, dates or coordinates, reverse-search matches, geolocation can-didates, and any applicable memory guidance. The retriever combines supplied or cached evidence with enabled web, news, fact-checking, geolocation, and online reverse-image services. A retrieval gap produces an uncertainty observation rather than a fabricated source. The trace distinguishes memory that was merely retrieved from memory that actually influenced a plan. The resulting evidence pool is: 
+
+Ex = Norm E(0) ∪ E media  
+
+> x
+
+∪
+
+> K
+
+[
+
+> k=1
+
+Eext 
+
+> k
+
+!
+
+. (13) Normalization completes provenance records, merges repeated identifiers, retains the strongest avail-able reliability and relevance values for a duplicate, and combines uncertainty codes. The evidence graph then links subclaims to usable evidence and evidence to source-provenance records. Before argument construction, evidence is ranked per subclaim, human-rejected items are excluded, and the ten highest-ranked items are passed to the argumentation agents by default. 
+
+## 4.4 Module D: Argumentation and Reasoning 
+
+Proponent and Opponent Construction For each subclaim, proponents and opponents con-struct support and attack arguments from the same ranked evidence pool. Every generated argument must return current-case evidence identifiers and may separately disclose memory identifiers that shaped its construction. Unknown evidence identifiers are removed or repaired only when they resolve to a current-case item; an argument with no resolvable evidence fails admissibility. The argument verifier then assesses whether the linked evidence supports the argument text. Missing evidence, malformed verifier output, or verifier unavailability sets va = 0 and records a uncertainty code. 12 Argument Strength For the resolved evidence Et(a), let ra and qa denote mean source reliability and claim relevance. Let dsrc  
+
+> a
+
+= min( nsrc  
+
+> a
+
+/3, 1) and dmod  
+
+> a
+
+= min( nmod  
+
+> a
+
+/2, 1) measure source and modality diversity, where nsrc  
+
+> a
+
+and nmod  
+
+> a
+
+count distinct sources and modalities. Let prov a be the fraction of resolved items carrying provenance and ℓa = clip( |ta|/280 , 0.25 , 1) a length-normalized specificity proxy. The strength passed to the A-QBAF is: 
+
+wa = clip  ηv (a) ηu(a)0.20 ra + 0 .25 qa + 0 .15 dsrc  
+
+> a
+
++ 0 .15 dmod  
+
+> a
+
++ 0 .20 prov a + 0 .05 ℓa
+
+, 0, 1, (14) where ηv (a) = 1 for a verified argument and 0 .25 otherwise, and ηu(a) = 0 .85 when uncertainty is present and 1 otherwise. Each component lies in [0 , 1], so wa ∈ [0 , 1] by construction, and the clip is defensive only. The score rewards relevant, well-provenanced, independently corroborated arguments. We use grounding-aware discounted weighting , whereby arguments that fail verification remain traceable but receive reduced influence through ηv (a) rather than being treated as verified evidence. This preserves diagnostic information while distinguishing provisional influence from ad-missible support. We note that ℓa is a proxy that rewards argument length rather than informational specificity directly. It carries the smallest weight in Eq. 14, and we report a sensitivity analysis over all six weights in Sec. A6 in the Supplementary Material. 
+
+A-QBAF Construction and Propagation We adopt A-QBAF as the reasoning substrate be-cause its support/attack relations and quantitative argument strengths provide an editable decision state through which accepted interventions can be propagated to the resulting judgment [3]. For each subclaim ck, the reasoning agent constructs the claim-centered QBAF: 
+
+Qk = ⟨Vk, R + 
+
+> k
+
+, R − 
+
+> k
+
+, β k⟩, Vk = {ck} ∪ G k, (15) where R+ 
+
+> k
+
+and R− 
+
+> k
+
+contain support and attack edges from arguments to the central subclaim, and the neutral base value is βk(ck) = 0 .5. Mixed and neutral arguments remain in the audit trace but do not create bipolar edges. The total support, total attack, and net argumentative effect are: 
+
+Sk = X 
+
+> (a,c k)∈R+
+> k
+
+wa, Ak = X 
+
+> (a,c k)∈R−
+> k
+
+wa, ∆k = Sk − Ak. (16) Using the saturating influence function g(ν) = max( ν, 0) 2/[1 + max( ν, 0) 2], the propagated claim score is: 
+
+ψk = clip( βk + (1 − βk) g(∆ k) − βk g(−∆k), 0, 1) . (17) Since Vk contains only the central subclaim and its direct arguments, Qk forms a star graph to keep each argument directly linked to both its current-case evidence (Def. 3.1) and the subclaim it informs. Conflicting evidence is represented as competing support and attack on the same subclaim, providing a compact and traceable case representation. Accordingly, Eq. 17 applies the gradual semantics to this structure. Two properties follow directly and are stated here because they govern the interpretation of the decision thresholds introduced below. First, with βk = 0 .5 and g ∈ [0 , 1), the map is strictly 13 monotone in ∆ k and confined to (0 , 1), so the outer clip never binds. Second, inverting Eq. 17 shows that the decision bands correspond to fixed thresholds on the net evidence weight, with ψk > 0.70 requiring ∆ k > 0.816 and ψk > 0.55 requiring ∆ k > 0.333. A single verified argument with maximal component scores attains wa = 1, so one such argument is sufficient to reach the supported band. The function also saturates quickly (∆ k = 2 ⇒ ψk = 0 .90;∆ k = 5 ⇒ ψk = 0 .98), and ψk therefore carries little resolution beyond ∆ k ≈ 3. When the strongest support and attack both reach 0 .55 and differ by at most 0 .25, the clash resolver flags a major factual conflict, reduces the competing argument scores, and re-propagates the graph. The score is converted to a subclaim decision by: 
+
+dk =
+
+
+
+refuted , ψk < 0.30 ,
+
+weakly -refuted , 0.30 ≤ ψk < 0.45 ,
+
+uncertain , 0.45 ≤ ψk ≤ 0.55 ,
+
+weakly -supported , 0.55 < ψ k ≤ 0.70 ,
+
+supported , ψk > 0.70 .
+
+(18) 
+
+Final Decision Aggregation The aggregator applies a priority-ordered set of rules. Refuted authenticity yields manipulated or synthetic . Supported event content together with a refuted where, when, who, or caption-context claim yields false context , which the COSMOS adapter maps to OOC .If all present core dimensions (what, where, when, who, and authenticity) are supported, the result is verified when their mean score is at least 0 .70 and mostly verified otherwise. A weakly supported subclaim yields partially verified . If at least max(1 , ⌊K/ 2⌋) subclaims are uncertain, the result is 
+
+uncertain . A case whose mean subclaim score falls below 0 .45 without triggering any preceding rule is reported as insufficient evidence ; any remaining unresolved case is uncertain .Let ¯ψ = K−1 PKk=1 ψk be the mean subclaim score. The internal escalation confidence is: 
+
+γesc = max 2 ¯ψ − 0.5 , γ ˜y , (19) where ˜ y is the internal decision and γ ˜y a label-specific floor preventing a decisive rule from being paired with a near-zero confidence (values in Sec. A4 in the Supplementary Material). For binary adapters, the class probability required by Eq. 3 is obtained from the mean subclaim score rather than from the escalation confidence: 
+
+pi = pi(OOC ) = 
+
+
+
+¯ψi, internal decision is false-context ,
+
+1 − ¯ψi, otherwise .
+
+(20) The adapter then maps the internal label to y ∈ Y δ and the report agent renders the result, evi-dence links, arguments, uncertainty reasons, and trace into the human-readable format illustrated in Fig. 2b. 14 4.5 Module E: Human-Contestable Decision Verification 
+
+Uncertainty Detection Before a decision is presented as final, the uncertainty detection module checks each subclaim for conditions that warrant review. These include a score in the neutral band, missing or uniformly low-reliability evidence, OCR–ASR disagreement, metadata–claim conflict, an earlier-context reverse-search match, forensic–source conflict, and a near tie between support and attack. The system preserves the assigned decision together with the reason codes and affected stages, so a reviewer can therefore distinguish factual conflict from a missing tool, missing evidence, or insufficient retrieval.             
+
+> Claims CRetrieve RValidate V
+> Arguments AA-QBAF QAggregate F
+> Report OHuman action h
+> add source reject evidence edit argument accept
+
+Figure 3: Localized human contestation. Dashed arrows route each human action to the earliest affected stage u∗.Table 2: Default long-term memory promo-tion requirements. Thresholds correspond to (θcτ , θ xτ , θ sτ ) in Eq. 28.               
+
+> Memory type θcτθxτθsτ
+> conf. cases sources Episodic observation 0.85 11Failure lesson 0.70 22Semantic rule 0.75 33
+
+Human Contestation as Causal Intervention Human review is modeled as an intervention on the computation that connects evidence to the final decision. A review action is represented as: 
+
+h = oh, tgt h, t h, ς h, E + 
+
+> h
+
+, E ∆ 
+
+> h
+
+, rsn h, meta h , (21) where oh ∈ { accept , reject , edit , add } is available contestation action, tgt h identifies the affected argu-ment or subclaim, th and ςh are optional revised text and stance, E+ 
+
+> h
+
+and E∆ 
+
+> h
+
+contain newly supplied and edited evidence identifiers, rsn h records the reviewer’s reason, and meta h stores metadata includ-ing an optional explicit revision target. Review therefore modifies the evidence–argument–decision relation rather than attaching an unstructured comment to the final label. The stage symbols follow the pipeline order C ≺ R ≺ V ≺ A ≺ Q ≺ F ≺ O (claims, retrieval, validation, arguments, A-QBAF, aggregation, and output). If no explicit target is provided, our system routes to the earliest pipeline stage that the intervention invalidates. By default: route( h) = 
+
+
+
+Q, oh = accept ,
+
+R, h introduces, replaces, or challenges source evidence ,
+
+V, h challenges the content or validity of existing evidence ,
+
+A, otherwise .
+
+(22) Thus, missing, mismatched, or newly supplied sources restart processing from retrieval; challenges 15 involving irrelevant, unsupported, or factually inconsistent evidence restart from validation; other edits, additions, and rejections restart from argument construction; and acceptance requires only A-QBAF reasoning and the subsequent decision stages. A valid explicit target in meta h overrides these defaults. Fig. 3 illustrates the four routing paths. For a non-empty review batch H, let CH denote the subclaims identified directly or through the contested arguments and evidence. The executor selects the earliest required stage and applies the interventions before recomputation: 
+
+uH = min  
+
+> ≺
+
+{route( h) : h ∈ H}, s(H) = T ∗
+
+> Closure (H)
+
+ Apply (s, H ), (23) where Z∗ is the downstream dependency closure of u∗ for CH in the case-specific dependency graph, and T ∗Z∗ is the ordered composition of the corresponding stage transitions. Retrieval, validation, and argument reconstruction are localized to the affected subclaims, while A-QBAF reasoning, final aggregation, and report generation are recomputed as required to maintain a consistent case-level decision. If the supplied identifiers are insufficient to establish a safe local scope, CH or u∗ is expanded conservatively. Rejected arguments remain in the audit trace but are excluded from the revised A-QBAF. An edit preserves the original argument and introduces a linked replacement, while an added argument carries explicit human provenance. When recomputation begins at argument construction or the earlier, retained human-reviewed arguments are revalidated and rescored against the current evidence state. Importantly, contestation never overwrites the initial report. The append-only trace stores the review batch, inferred revision plan, affected subclaims and evidence, the first-pass output F (0) (x), the revised output F (H)(x), and their label and confidence differences. 
+
+Definition 4.1 (Contestation locality) . Let Z be the set of observable state objects and Z∗ ⊆ Z 
+
+the intended dependency scope of a human contestation H. Contestation locality is the proportion of state objects outside this scope that are preserved after revision: 
+
+Loc (H) = 1 −
+
+X
+
+> z∈Z\Z ∗
+
+1
+
+h
+
+z
+
+
+
+s(H)̸
+
+= z(s)
+
+i
+
+|Z \ Z ∗| . (24) If Z \ Z ∗ = ∅ we define Loc (H) = 1. An idealized system with perfect dependency tracking and deterministic transitions attains 
+
+Loc (H) = 1, but that statement is definitional and uninformative about a real implementation, in which dependency tracking is incomplete, state is shared and mutable, retrieval is live, and gen-eration is stochastic. The useful question is how far locality can fall, and why. The following decomposition answers it and makes the measured values in Sub. 6.4 interpretable. 
+
+Proposition 4.2 (Locality degradation bound) . Let Ztrue denote the true causal closure of H, i.e., the set of objects whose values can depend on the intervention, and let Z∗ denote the scope computed by the executor. Define the untracked-dependency count as δH = |Z true \ Z ∗| and the spurious-write count σH as the number of objects outside Ztrue ∪ Z ∗ whose values change after the intervention. 
+
+16 Then: 
+
+1 − Loc (H) ≤ δH + σH
+
+|Z \ Z ∗| . (25) 
+
+The bound is tight when every untracked dependent changes value. Proof. Any changed object outside the computed scope Z∗ is either (i) an object in Ztrue \ Z ∗
+
+whose dependency was not captured by the computed scope, or (ii) an object outside the true causal closure that nevertheless changes. The first set contains at most δH changed objects, while the second contains σH by definition. Thus, the number of changed objects outside Z∗ is at most 
+
+δH + σH . Dividing by |Z \ Z ∗| and applying Eq. 24 gives Eq. 25. Equality holds when every object in Ztrue \ Z ∗ changes under the intervention. Proposition 4.2 relates observed locality degradation to two sources: dependencies omitted from the computed scope and changes outside the true causal closure. Accordingly, a low value of Loc (H)can indicate incomplete scope estimation, unintended out-of-scope state changes, or both. 
+
+## 4.6 Module F: Self-Evolution through Memory Consolidation 
+
+Whereas human contestation revises the current case, self-evolution transfers verified experience to subsequent cases without updating model parameters, following the operational definition in Def. 2.1. 
+
+Long-term Memory Composition Long-term memory contains three types of records: case-specific episodic observations, recurring failure lessons, and generalized semantic rules. Each record stores its lesson, memory type, task and claim scope, trigger and evidence patterns, recommended action, confidence, supporting cases and source fingerprints, conflicts, usage outcomes, lifecycle status, and provenance. 
+
+Post-Prediction Reflection Reflection begins only after the first-pass or contested report has been finalized. In an eligible training or bootstrap run, the system may then reveal a gold label or use human feedback to identify successful strategies and failure modes. Diagnoses include label mis-match, overconfident error, confusion between contextual misuse and media manipulation, retrieval or tool failure, unresolved argumentative clash, temporal or geolocation error, and weak provenance. Reflection produces candidate episodic observations, failure lessons, and semantic rules. Each candidate κ records its lesson and applicability scope, grounding evidence identifiers Eκ, grounding argument identifiers Aκ, source case and source fingerprint, confidence cκ, supervision source, and verification status. 
+
+Candidate Verification Gating Let Dlearn denote cases processed in an eligible training or bootstrap run, and let Ei and Gi denote the evidence and arguments in the finalized trace of source case xi. Candidate activation is governed by: Verify( κ) = 1x(κ) ∈ D learn ∧ (|Eκ| + |G κ| > 0) 
+
+∧ Eκ ⊆ IDs( Ei) ∧ G κ ⊆ IDs( Gi) ∧ cκ ≥ θv ∧ Safe( κ) ∧ ¬ Dup src (κ), (26) 17 where x(κ) = xi is the candidate’s source case and θv = 0 .60 by default. The predicate Safe( κ)rejects unsupported or overgeneralized lessons, while Dup src (κ) detects a canonical duplicate already supported by the same case or source fingerprint. Equivalent observations from independent cases are retained because they provide additional support. Candidates derived from validation or test cases cannot pass Eq. 26. Missing or unresolved grounding blocks verification, while an unavailable or malformed safety check places the candidate under review. A verified contradiction is stored as counter-evidence against the related record rather than activated as a competing rule. 
+
+Memory Consolidation Verified and under-review candidates are persisted in short-term mem-ory, but only verified candidates participate in promotion. Short-term records exceeding their re-tention period are archived rather than silently deleted. Every 25 processed learning cases, the consolidator groups compatible observations by memory type, task, claim, applicability scope, and semantic relation. For a cluster C, let Ind( C) be the largest selected subset in which neither a case identifier nor a source fingerprint is repeated. Its consolidated confidence is: Conf( C) = αC + α0
+
+αC + βC + α0 + β0
+
+, αC = X
+
+> κ∈Ind( C)
+
+cκ, βC = X
+
+> κ∈Ind( C)
+
+(1 − cκ), (27) Let ncase  
+
+> C
+
+and nsrc  
+
+> C
+
+denote the numbers of independent cases and source fingerprints in Ind( C). For memory type τ , promotion is defined by: Promote( C, τ ) = 1
+
+
+
+Conf( C) ≥ θcτ ∧ ncase  
+
+> C
+
+≥ θxτ ∧ nsrc  
+
+> C
+
+≥ θsτ ∧ ^
+
+> κ∈Ind( C)
+
+Verify( κ) = 1 
+
+
+
+. (28) Default thresholds are given in Table 2. The confidence bar is highest for episodic observations because they may be promoted on the strength of a single case: with θx 
+
+> epi
+
+= 1, confidence is the only remaining safeguard. Failure lessons and semantic rules require two and three independent cases and sources respectively, so a lower per-cluster confidence bar still yields a higher total evidential burden. Equivalent or mutually entailing observations are merged into the same long-term record. 
+
+Confidence and Conflict Resolution Each long-term record m maintains support parameters (αm, β m), initialized to (1 , 1). Independent support or contradiction of confidence c updates them as: (αm, β m) ←
+
+
+
+(αm + c, β m + 1 − c), support ,
+
+(αm + 1 − c, β m + c), contradiction ,c(m) = αm
+
+αm + βm
+
+. (29) Let cr( m) = n−
+
+> m
+
+/(n+ 
+
+> m
+
++n−
+
+> m
+
+) be the conflict ratio computed from independent support and conflict counts. A ratio above 0 .30 moves an active record under review; deprecation requires both observed contradiction and confidence below 0 .45; an under-review record becomes active again only when cr( m) ≤ 0.20 and c(m) ≥ 0.45. Promotions, merges, conflicts, reviews, reactivations, deprecations, and archives are appended to the memory trace. 18 Retrieval and Evaluation Isolation Only active long-term records are retrievable by Module C (Sec. 4.3). The system distinguishes retrieval exposure from causal use by logging whether a record was retrieved, cited in planning, cited in argument construction, used successfully, or subsequently contested. This separation prevents retrieval frequency from being interpreted as beneficial influence. For validation and test, the complete memory state is frozen and identified by a deterministic hash. 
+
+Remark 4.3 (Evaluation-state invariance) . In frozen mode the invariant Ifreeze of Def. 10 rejects candidate staging, case registration, consolidation, and long-term updates, and evaluation usage events are written outside the snapshot. By Eq. 9 no committed transition can therefore alter ML,so the snapshot present at the start of evaluation is bit-identical to the snapshot at the end. 
+
+# 5 Experimental Design 
+
+## 5.1 Datasets and Evaluation Protocols 
+
+We summarize the three evaluation sets and the role each split plays, as shown in Table 3. 
+
+COSMOS We use the official COSMOS splits and evaluate on the complete 1,700-image test set, which contains one correct and one mismatched caption for each image [1]. The official validation split of 41,006 images is used to select prompts, decision bands, strength weights, and memory-policy thresholds. No memory state produced during development is retained for test evaluation. Separately, we define a fixed stratified subset of 1,200 cases from the official COSMOS training split as the memory-learning partition. After all configuration constants have been frozen on the development split, the pre-test memory-learning partition is used to construct the consolidated-memory snapshot. When an experiment requires rebuilding memory, the same 1,200 cases and the same ordering are used for every compared configuration. To reduce near-duplicate leakage, we compare perceptual image hashes and normalized caption fingerprints between the test set and all items included in the retrieval index or pre-test memory-learning partition. All paired comparisons use identical image–caption identifiers. Every full-scale SEMV result on COSMOS is computed over all 1,700 test images. Each full-scale condition uses a single decoding seed because repeating all backbone, memory, argumentation, and sensitivity conditions at full scale exceeded our compute budget. To bound run-to-run variation, we additionally rerun every principal condition with three decoding seeds on a fixed stratified 500-case subset and report the resulting standard deviations and ranges in Table S5 in the Supplementary Materials. 
+
+MV2026 MV2026 provides 50 training cases, 10 validation cases, and 10 live challenge cases, with evaluation based on the quality of multimedia verification reports [2]. As no official validation label is provided, we reserve 10 cases from the training set as a held-out subset for primary validation, using the remaining 40 for prompt and memory development. 19 Table 3: Dataset Splits and Evaluation Protocols.                                     
+
+> Split Cases Purposes COSMOS [1] Train 161,752 Retrieval-index construction and source pool for the fixed pre-test memory-learning partition
+> ,→Memory subset 1,200 Consolidated-memory construction and per-setting memory reconstruction after all constants are frozen Validation 41,006
+> ,→Development subset 40,506 Prompt, decision-band, strength-weight, and memory-policy constants
+> ,→Sensitivity/Stability subset 500 Configuration sensitivity and three-seed stability analy-sis with frozen reference configuration Test 1,700 Final OOC detection, calibration, selective prediction, and configuration sensitivity evaluation only
+> MV2026 [2] Train 40 Prompt and memory development
+> ,→Validation 10 Pre-challenge evaluation and error analysis Challenge Test 10 Final report quality
+> Contestation Trace Revision (CTR)
+> Reviewer Evaluation 10 (50 episodes) Contestation-action selection, error localization, revision correctness, trace repair, and final-decision recovery
+
+Contestation Trace Revision (CTR) To evaluate whether human feedback can contest and correct the verification process, we construct the CTR benchmark from the 10 MV2026 validation cases. Each episode presents reviewers with the retrieved evidence, generated arguments, support and attack relations, scores, dependencies, and intermediate decisions, together with the available contestation actions oh. Reviewers identify the defective trace components, specify the required revisions, and provide the expected downstream state after dependency-aware recomputation. CTR evaluates contestation-action selection, error localization, revision correctness, routing to the earliest affected module, intervention locality, and recovery of the final decision and report. The annotation protocol involves three annotators: 2 graduate researchers with prior multimedia-verification experience independently define the target state s∗ 
+
+> i
+
+and dependency closure Z∗ 
+
+> i
+
+, and 1 senior researcher adjudicates disagreements. The primary annotators are not involved in implement-ing SEMV and are blinded to replay configuration. Episodes are randomized and system identifiers removed. Each source case contributes four corrupted episodes and one uncorrupted control. The 40 corruptions are balanced across five families (i.e., evidence or provenance, temporal grounding, geolocation, argument stance or strength, and aggregation or report-field errors) with eight instances per family. A rotated assignment gives each case four distinct corruption families. 
+
+## 5.2 Consolidated Memory Construction 
+
+Because the memory component supplies most of the measured gain on COSMOS (Sub. 6.3), the origin of every long-term record must be auditable. Memory is learned exclusively from a dedicated pass over COSMOS training cases, in which, each case is processed through the full Modules A–E 20 pipeline, the report is committed, and only then is the gold label revealed to Module F, as required by Eq. 26 and the invariant Igold . No validation or test case can contribute a candidate. Before evaluation the memory state is frozen and hashed (Remark 4.3). 
+
+Frozen Memory Snapshot We process a class-balanced, source-stratified subset of 1,200 COS-MOS training cases. The memory bank is generated by GLM-4.6V [52], an open-weight VLM that is not among the four evaluation backbones and shares no weights, pretraining corpus, or model family with any of them. The frozen active snapshot contains 29 episodic, 12 failure, and 7 semantic records, with 8 additional conflict records retained under review. 
+
+## 5.3 Agent Backbones and Baselines 
+
+We compare four end-to-end SEMV runs by substituting one shared multimodal backbone across all agent roles and the VLM analyzer. Gemma4-31B [12] and InternVL3.5-38B [15] are dense multi-modal models; Qwen3.6-35B [14] is a multimodal mixture-of-experts (MoE) model with 3B activated parameters; and Nemotron-3-Nano-Omni-30B is a hybrid MoE model with approximately 3B active parameters [13]. All conditions receive the same canonical cases, original images, sampled keyframes, OCR/ASR transcripts, forensic derivatives, retrieved pages, reverse-image results, and cached tool responses. Visual resolution, frame count, thinking budgets, and maximum tool calls are matched. Published baselines cover discriminative image-text systems, heuristic or boosting methods, and retrieval-augmented verification. Aneja et al. [1] evaluated their adaptations on the original 1,700-record test set, whereas La et al. evaluated on a 400-record holdout [19]. We therefore group published scores by protocol and compare numerically only within the full-test block. 
+
+Computational Environment Experiments run on a single NVIDIA DGX Spark system built on the NVIDIA GB10 Grace Blackwell Superchip, comprising an integrated Blackwell GPU, and 128 GB of coherent unified memory. Models are served locally with vLLM 0.24.0 and PyTorch 2.11.0 in BF16. Runs span 20 July–12 August 2026. All cross-condition comparisons replay the same dated retrieval cache. 
+
+# 6 Results 
+
+In this section, we evaluate SEMV across four dimensions covering predictive performance and confidence reliability, verification report quality, self-evolving memory, and human contestability. Sec. 6.1 and 6.2 examine whether SEMV produces accurate decisions with reliable confidence estimates and generates verification reports that are well grounded, temporally consistent, complete, and computationally efficient. Sec. 4.6 then evaluates self-evolving memory to determine whether verified experiences can be selectively consolidated, retrieved, and reused to improve future verifica-tion while limiting harmful transfer. Finally, Sec. 6.4 assesses contestability by examining whether human corrections are faithfully translated into system updates, propagated through the appro-priate causal dependencies, and applied through localized revision without unnecessarily altering 21 already-correct states. 
+
+## 6.1 Predictive Performance and Reliability 
+
+We evaluate SEMV on the COSMOS test set from two perspectives: predictive performance and confidence reliability. We first assess classification effectiveness across backbones and prior baselines, then examine whether the resulting confidence estimates reliably reflect prediction correctness. 
+
+6.1.1 Predictive Evaluation 
+
+We report accuracy, precision, recall, and F1 on the COSMOS test set, treating OOC as the positive class. We additionally report Wilson score 95% confidence intervals on accuracy, which remain well calibrated for proportions near the extremes and at finite sample sizes, and we test each backbone against the strongest directly comparable baseline (Tran et al. [20]) with an unpaired two-proportion 
+
+z-test. The test is unpaired because per-record predictions are unavailable for the baseline, so significance is assessed using the reported accuracies and the shared test-set size. 
+
+Results Fig. 4 plots the four SEMV backbones against the strongest directly comparable full-test baseline (Tran et al. [20]). Averaged over backbones, SEMV exceeds the baseline in accuracy (90.91% vs. 89.10%), precision (91.21% vs. 87.80%), and F1 (90.88% vs. 89.30%) at comparable recall (90.56% vs. 90.80%). All four variants match or exceed the baseline in accuracy; three improve F1 and Gemma4 matches it exactly. The two strongest backbones reach the same level from different directions: Nemotron3 is the most OOC-sensitive, with the highest recall (92.47%, +1 .67 pp) and F1 (91.82%, +2 .52 pp), whereas Qwen3.6 offers a precision-oriented operating point, with the highest accuracy (91.88%, +2 .78 pp) and precision (93.00%, +5 .20 pp) at a comparable recall of 90.59%. Both gains are statistically significant under an unpaired two-proportion z-test ( p = 0 .009 and 
+
+p = 0 .006), and their 95% accuracy CIs lie above the baseline point estimate. InternVL3.5 improves accuracy to 90.65% and F1 to 90.62%, but the accuracy gain is not significant at the 5% level (p = 0 .140), and Gemma4 is statistically indistinguishable from the baseline ( p = 0 .820). SEMV’s gains are therefore not tied to a single backbone, though their magnitude and significance are backbone-dependent. Tran et al. InternVL3.5 Gemma4 Nemotron3 Qwen3.6 SEMV Mean 90      
+
+> 80
+> 70
+> 60
+> 89.1 90.7 89.3 91.8 91.9 90.9
+> 0
+> Accuracy
+
+(a) Accuracy 87.8     
+
+> 90.9 91.2 93.0 91.2
+> 89.8 90
+> 80
+> 70
+> 60
+> 0
+> Precision
+
+(b) Precision 90.8  90.3  92.5  90.6  90.6  
+
+> Recall
+> 90
+> 80
+> 70
+> 60
+> 0
+> 88.8
+
+(c) Recall 90.6  91.8  91.8  90.9   
+
+> 90
+> 80
+> 70
+> 60
+> 0
+> 89.3 89.3
+> F1
+
+(d) F1 
+
+Figure 4: Comparison of SEMV backbones and the best comparable baseline [20] on the COSMOS full test set. The dashed line marks the mean score across the four SEMV backbones. 22 Table 4: COSMOS results grouped by evaluation set. The upper block reports prior work on the 400-record held-out subset [19]; the lower block reports results on the full 1,700-record test set [1], on which all SEMV backbones are evaluated. Best in bold , second best underlined. 
+
+Method Acc. ↑ Prec. ↑ Rec. ↑ F1 ↑ ECE ↓ Brier ↓ 95% CI p
+
+Evaluation set: held-out subset [19] ( n = 400 )
+
+SpotFake [53] 53.50 52.52 53.06 52.79 – – – –EANN [54] 63.00 60.25 61.22 61.85 – – – –SBERT-WK [55] 77.00 72.41 85.71 78.50 – – – –COSMOS baseline [1] 83.25 86.08 80.67 83.29 – – – –COSMOS on Steroids [56] 89.75 87.38 93.71 90.44 – – – –La et al. [19] 89.75 86.72 94.68 90.53 – – – –
+
+Evaluation set: full test set [1] ( n = 1 ,700 )
+
+EANN [54] 63.00 – – – – – – –EmbraceNet [57] 68.00 – – – – – – –Jin et al. [58] 71.00 – – – – – – –COSMOS [1] 85.00 – – – – – – –Tran et al. [20] 89.10 87.80 90.80 89.30 – – [87.6, 90.5] –
+
+SEMV (ours) 
+
++Nemotron3-30B 91.76 91.18 92.47 91.82 0.045 0.065 [90.4, 93.0] 0.009 +Gemma4-31B 89.35 89.77 88.82 89.30 0.085 0.091 [87.8, 90.7] 0.820 +InternVL3.5-38B 90.65 90.89 90.35 90.62 0.085 0.075 [89.2, 91.9] 0.140 +Qwen3.6-35B 91.88 93.00 90.59 91.78 0.049 0.053 [90.5, 93.1] 0.006 
+
+6.1.2 Confidence Calibration 
+
+Predictive accuracy alone does not establish whether confidence can be used reliably for automation. We therefore evaluate calibration , which measures how closely predicted confidence corresponds to empirical correctness. For each prediction, confidence is defined as the winning-class probability obtained from the mean subclaim score using Eq. 20. 
+
+Metrics We quantify confidence calibration using two metrics, which assess confidence–accuracy agreement and probabilistic prediction error. 
+
+Expected Calibration Error (ECE) measures the gap between reported confidence and empirical correctness. With L equal-width bins Bℓℓ = 1 L formed from γii = 1 n, acc (Bℓ) = |Bℓ|−1 P 
+
+> i∈Bℓ
+
+1[ˆ yi =
+
+yi], and conf (Bℓ) = |Bℓ|−1 P 
+
+> i∈Bℓ
+
+γi:
+
+ECE =
+
+> M
+
+X
+
+> ℓ=1
+
+|Bℓ|
+
+n |acc (Bℓ) − conf (Bℓ)| . (30) 
+
+Brier Score measures the probabilistic accuracy of the predicted OOC probabilities and penalizes confident errors more strongly, as: 
+
+Brier = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(pi − bi)2, (31) 23 Lower values indicate more accurate probability estimates. 
+
+Results Table 4 shows that predictive strength and confidence quality are related but distinct. Nemotron3 attains the lowest ECE (0.045), indicating the closest agreement between reported con-fidence and empirical correctness under the adopted calibration measure, while ranking second in Brier score (0.065). Qwen3.6 attains the lowest Brier score (0.053), indicating the most accurate probabilistic predictions, and the second-lowest ECE (0.049), so its confidence estimates are both well-aligned in aggregate and accurate per record. InternVL3.5 remains competitive in Brier score (0.075) but shares the highest ECE (0.085) with Gemma4, which is also weakest in Brier score (0.091). Notably, Gemma4 still achieves a competitive F1 of 89.30%, showing that strong predictive performance alone does not guarantee that confidence estimates are equally trustworthy. Overall, SEMV performs consistently across backbones, with all variants matching or exceed-ing the strongest comparable baseline in accuracy and three improving F1. Qwen3.6 provides the strongest profile for confidence-aware verification, combining the highest accuracy (91.88%) and pre-cision (93.00%) with the best Brier score. Nemotron3 favors OOC sensitivity, achieving the highest recall (92.47%) and F1 (91.82%) together with the lowest ECE. InternVL3.5 offers a balanced in-termediate profile, whereas Gemma4 maintains competitive predictive performance but the least reliable confidence estimates. These results indicate that SEMV is robust across heterogeneous backbones, while backbone choice determines the trade-off between sensitivity and calibration. 
+
+## 6.2 Verification Report Evaluation 
+
+We evaluate the quality of verification reports from both real-world and controlled perspectives. We first report the official MV2026 fact-checker assessment on the private test set, then analyze held-out validation cases to examine predictive correctness, report quality, and computational efficiency across SEMV backbones. 
+
+6.2.1 Official MV2026 Judge Evaluation 
+
+For the real-world verification stage of MV2026 [2], we report the results of our previously submitted A-QBAF verification framework [11], which corresponds to SEMV without the self-evolving module. Let Qi ∈ [0 , 110] denote the report-quality score for case i. The rubric allocates 10 points to summary and content classification, 65 to verified evidence, 20 to forensic analysis, 5 to supporting evidence and cross-checking, and 10 to clarity and structure. The official time-adjusted score is: 
+
+MVScore i = max  0, Q i − 0.001 T 2
+
+> i
+
+ , (32) where Ti is the number of hours between case release and report submission. The aggregate challenge result follows the organizer-provided aggregation over the official cases. Our method achieves an official aggregate judge score of 714 .95, compared with 544 .11 for Team matchalatte, 461 .37 for Team dashlab, and 441 .54 for Deep Verify [31]. SEMV obtains the highest re-ported score on each of the ten cases, with organizer-reported case scores ranging from 59 .49 to 83 .00. 24 This evaluation directly measures the quality of the final verification reports under the challenge’s expert assessment protocol and serves as our primary real-world measure of report performance. Table 5: Official MV2026 private-test judge results over ten cases. Our submitted A-QBAF system [11] corresponds to SEMV without the self-evolving module. Best in bold .                                                        
+
+> Method #01 #02 #03 #04 #05 #06 #07 #08 #09 #10 Total ↑
+> Team matchalatte 63.92 59.42 59.91 58.42 55.91 51.91 49.41 33.91 50.91 60.40 544.11 Team dashlab 54.76 43.26 41.75 43.74 43.74 50.23 47.23 61.22 37.22 38.22 461.37 Deep Verify [31] 51.73 43.71 50.71 32.71 45.70 58.20 58.20 44.69 18.69 37.19 441.54
+> SEMV (Ours) 83.00 77.50 73.50 65.49 67.99 65.49 78.49 80.49 59.49 63.49 714.95
+
+6.2.2 Held-Out Validation Evaluation 
+
+In addition to the official MV2026 private-test evaluation, we conduct a controlled analysis on the 10 held-out MV2026 validation cases to examine differences among SEMV backbones. We evaluate predictive performance, verification report quality, and computational efficiency. 
+
+Verification Metrics We evaluate both the correctness of the final decision and the reliability of the generated verification report. For predictive performance, we measure case-level accuracy and abstention rate . Both quantities are reported as percentages across all N = 10 cases, with abstentions counted as errors. Let A =
+
+{uncertain , insufficient-evidence } be the set of abstention labels. Metrics are defined as: Acc = 100 
+
+N
+
+> N
+
+X
+
+> i=1
+
+1[ˆ yi = yi] , Abst = 100 
+
+N
+
+> N
+
+X
+
+> i=1
+
+1[ˆ yi ∈ A ] . (33) For report quality, we measure Evidence-URL F1 . Let Wi and W∗ 
+
+> i
+
+denote the cited and reference URL sets for case i, respectively. We compute: Prec i = |W i ∩ W ∗ 
+
+> i
+
+||W i| , Rec i = |W i ∩ W ∗ 
+
+> i
+
+||W ∗ 
+
+> i
+
+| , F1 i = 2|W i ∩ W ∗ 
+
+> i
+
+||W i| + |W ∗ 
+
+> i
+
+| , (34) where F1 i = 0 when no URL is cited. We report the macro-average URL -F1 = 100 N −1 PNi=1 F1 i.Higher values indicate more precise and complete evidence retrieval and citation. 
+
+Temporal Grounding is evaluated from two related perspectives: whether the report correctly recovers the time of the depicted event and whether it avoids confusing source publication time with event time. Let rti = 1 when the event time is correctly recovered under the annotation protocol, and cti = 1 when a publication timestamp is incorrectly presented as the event time. We compute: 
+
+Temp = 100 
+
+N
+
+> N
+
+X
+
+> i=1
+
+rti , TimeConf = 100 
+
+N
+
+> N
+
+X
+
+> i=1
+
+cti. (35) Higher Temp and lower TimeConf indicate more reliable temporal grounding. 25 Required-Field Coverage measures the completeness of the generated verification report. With 
+
+M = 14 required fields and zij = 1 when field j is completed for case i, we compute: 
+
+Cov = 100 
+
+N M 
+
+> N
+
+X
+
+> i=1
+> M
+
+X
+
+> j=1
+
+zij . (36) 
+
+Computational Efficiency Metrics We measure computational efficiency under matched cached tool outputs and report the median per-case values. Wall-clock time (in minutes) measures elapsed time from the start of SEMV inference to generation of the final verification output, with external tool results replayed from the same cache across backbones. Output tokens count all tokens generated across every LLM call within a case, including both model-thinking and final-response tokens. LLM calls count all backbone invocations made throughout the end-to-end SEMV pipeline. 
+
+Results Table 6 shows that Qwen3.6 provides the strongest overall verification performance. It cor-rectly verifies 9 /10 cases with no abstentions, while achieving the highest Evidence-URL F1 (83 .5%), the best temporal grounding (9 /10 correctly recovered event times), the highest required-field cover-age (97 .1%), and no publication-time/event-time confusion. Nemotron3 is the strongest alternative, correctly verifying 8 /10 cases without abstention and achieving the second-highest Evidence-URL F1 (82 .0%) with 96 .4% field coverage. InternVL3.5 also correctly verifies 8 /10 cases and recovers event time in 8 /10 cases, but abstains once and obtains slightly lower Evidence-URL F1 (81 .1%) and field coverage (95 .7%). Gemma4 shows the weakest overall verification profile, correctly verifying 7/10 cases and attaining the lowest Evidence-URL F1 (79 .2%), temporal grounding (7 /10), and tied-lowest field coverage (95 .7%). These results indicate that similar case-level accuracy can still be associated with meaningful differences in evidence alignment, temporal grounding, and report completeness. For computational efficiency, Qwen3.6 achieves the lowest median wall-clock time at 4 .8 min-utes per case, closely followed by Nemotron3 at 4 .9 minutes. Nemotron3, however, produces the largest generation workload, with 12 .4k output tokens and 32 LLM calls. Gemma4 generates the fewest output tokens (10 .6k) and, together with InternVL3.5, requires the fewest LLM calls (30). InternVL3.5 has the highest wall-clock time at 9 .1 minutes despite its relatively low token count (10 .9k) and number of calls. Overall, Qwen3.6 provides the best balance between verification qual-ity and inference latency, whereas Gemma4 and InternVL3.5 reduce generation workload but require substantially longer execution times. 
+
+## 6.3 Self-Evolving Memory Evaluation 
+
+This section carries the paper’s principal empirical claim. We evaluate consolidation (how candidates are validated and stored), retrieval and reuse (whether useful records are found and actually incor-porated), and transfer safety (whether enabling memory corrects errors without harming previously correct decisions). 26 Table 6: Results on the 10 held-out MV2026 validation cases across predictive performance, report quality, and computational efficiency. ↑/↓ denote metrics for which higher/lower values are better. Best in bold , second best underlined.                                                        
+
+> Pred. Perf. Report Quality Computational Efficiency SEMV Acc. ↑Abst. ↓URL F1 ↑Temp. ↑Conf. ↓Cov. ↑Wall ↓Tok. ↓Calls ↓
+> +Nemotron3 8/10 0/10 82 .0±0.68/10 1/10 96.4 4.9 12.4k 32 +Gemma4 7/10 1/10 79 .2±0.97/10 1/10 95.7 8.2 10.6k 30
+> +InternVL3.5 8/10 1/10 81 .1±0.78/10 1/10 95.7 9.1 10.9k 30
+> +Qwen3.6 9/10 0/10 83 .5±0.59/10 0/10 97.1 4.8 11.2k 31
+
+6.3.1 Metrics Consolidation Metrics We evaluate how memories generated by post-prediction reflection are verified and incorporated into long-term memory. The Grounded Pass rate is the proportion of generated candidates that pass grounding, provenance, and consistency verification (refer Eq 26). Among the grounded-passed candidates, the Promotion rate measures those stored as new long-term records. The Merge rate measures those incorporated into existing records. The Conflict Retention 
+
+rate measures those preserved as unresolved conflicts. The Rejection rate measures the proportion of items excluded from long-term storage. 
+
+Reuse Metrics We evaluate whether relevant memories are successfully retrieved and effectively reused during reasoning for the current verification case. Relevance is the proportion of retrieved records that match the current claim, evidence context, and task scope. Successful Use is measured over cited memory-use events and denotes the proportion that pass provenance and conflict checks and are retained after argument verification because they support a correct decision or correct an otherwise erroneous one. 
+
+Transfer Safety Metrics Transfer is evaluated only on matched memory-off and memory-on runs with the same case identifiers and evaluation settings. Positive transfer ( Trans +) is the proportion of cases that are incorrect without memory but become correct when memory is enabled. Negative transfer ( Trans −) is the proportion of cases that are correct without memory but become incorrect with memory. 
+
+6.3.2 Results Consolidation is selective Table 7 shows that long-term memory is formed selectively rather than by directly accumulating all reflected experiences. Of the 184 candidate records produced by post-prediction reflection, 61.4% pass grounding, provenance, and consistency verification. Among these grounded candidates, 42.5% are promoted as new records, indicating that a substantial fraction contributes genuinely new reusable knowledge. 18.6% are merged into existing memories, showing that repeated experiences can reinforce previously stored knowledge without unnecessary duplica-tion. 7.1% are retained explicitly as unresolved conflicts, preserving contradictory evidence instead 27 Table 7: Memory consolida-tion outcomes with Qwen3.6 over 184 reflected candidates. Indented rates are condi-tional on grounding pass.           
+
+> Metric Rate (%)
+> Grounding Pass 61.4
+> ,→Promotion 42.5
+> ,→Merge 18.6
+> ,→Conflict Retention 7.1
+> ,→Rejection 31.8
+
+Table 8: Memory ablation on reuse, and transfer safety with Qwen3.6 on COSMOS test set. MU = memory update, VC = verified con-solidation, and CR = conflict retention. Transfer rates use matched memory-on/off cases. ↑/↓ denote metrics for which higher/lower val-ues are better. Best in bold , second best underlined.                                                
+
+> Memory Config. Acc. ↑Rel. ↑Succ. Use ↑Trans +↑Trans −↓
+> ∅86.06 ––––
+> Mepi 87.29 82.4 84.1 11.4 0.4
+> Mepi +MU 87.59 68.7 71.3 46.4 5.7
+> Mepi +MU +VC 90.71 91.2 85.7 36.7 0.5
+> Mepi +MU +VC +CR 91.88 93.6 88.5 43.0 0.2
+
+of silently overwriting prior records. The remaining 31.8% are rejected from long-term storage, re-flecting the role of consolidation in filtering candidates that are not sufficiently suitable for future reuse. 
+
+Verification, not Memory Volume, is what matters Table 8 isolates the mechanism. Episodic memory alone improves accuracy from 86.06% to 87.29%, with 82.4% retrieval relevance, 84.1% suc-cessful use, and only 0.4% negative transfer. Allowing unrestricted memory updates yields the highest positive transfer at 46.4%, indicating that accumulating additional experience creates more opportunities to correct baseline errors. However, relevance falls to 68.7% and successful use to 71.3%, while negative transfer rises sharply to 5.7%. The resulting accuracy gain is therefore limited to 87.59%. This demonstrates that a memory can intervene frequently and correct many errors, yet still degrade overall reliability through irrelevant or harmful reuse. Verified consolidation substantially changes this trade-off. Adding verified consolidation raises relevance from 68.7% to 91.2% and successful use from 71.3% to 85.7%, while reducing negative transfer from 5.7% to 0.5%. Accuracy consequently increases to 90.71%. Adding conflict retention further improves relevance to 93.6% and successful use to 88.5%, while reducing negative transfer to 0.2%. The full memory configuration achieves the highest accuracy of 91.88% while retaining a high positive-transfer rate of 43.0%. Hence, its advantage does not arise from suppressing memory intervention altogether, but from preserving beneficial transfer while preventing previously correct predictions from being overturned. The full memory policy therefore achieves the best balance between acquiring reusable experience, maintaining retrieval quality, and limiting harmful transfer. 
+
+## 6.4 Contestability 
+
+We evaluate whether a human correction is translated into the intended system mutation, propagated through the correct causal dependencies, and applied without unnecessarily changing already-correct state. Fig. 5 shows the three configurations under the same reviewer edit action. Unstructured feedback ( U) accepts free-form input and performs a global rerun. Causal contestation routing ( C)converts feedback into a typed action, identifies the earliest affected stage u∗, and reruns from that point downstream. Scoped causal revision ( C+S) additionally computes the affected dependency closure Z∗, restricting recomputation to states that can causally depend on the contested object. 28 Largely refreshed    
+
+> ⏱Event time
+> 🔍 Source
+> ➡Route to Retrieval
+
+🅲 [Edit] 
+
+> Scoped update only within
+
+S Scoped  Causal 
+
+Revision    
+
+> State / Cache
+> Media
+> Evidence Retrieval Reasoning Decision/
+> Report
+
+🅲  decides what and where to 
+
+start,  🆂  decides how far  
+
+> [Edit] an argument: "15:27 is publication time, not event time. There is an earlier source at 14:36."
+
+U Unstructured 
+
+Feedback    
+
+> ⏱Event time
+> 🔍 Source
+> ➡Route to Retrieval
+
+🅲 [Edit] 
+
+> Only updated from
+> onward
+
+C Causal  Co ntestation 
+
+Routing       
+
+> State / Cache
+> Media
+> Evidence Retrieval Reasoning Decision/
+> Report
+> State / Cache
+> Media
+> Evidence Retrieval Reasoning Decision/
+> Report
+
+🅲  decides what to change 
+
+and where to start 
+
+🆂 Scoped  
+
+> Compute affected
+> dependency
+> closure
+> Global Rerun
+> Routed
+> Downstream Rerun
+> Temporal
+> Evidence
+> Temporal Reasoning When? Location Evidence Location
+> Reasoning Where?
+> Affected
+> Scope Rerun
+
+Correct states may be 
+
+unnecessarily regenerated Figure 5: Contestation paths under U, C, and C+S. Given the same human edit, U triggers a global rerun; C identifies the target and causal restart point u∗; C+S further restricts recomputation to the affected dependency closure Z∗, preserving unrelated cached states. 
+
+6.4.1 Quantitative Evaluation 
+
+CTR comprises N = 50 matched contestation episodes from 10 source cases, with the same adjudi-cated feedback replayed under each configuration. Of these, NH = 40 contain an injected report or state corruption and are used for corruption-specific process and recovery metrics. At the decision level, 30 episodes are initially erroneous and 20 initially correct. For episode i, let s(0) 
+
+i , s(H)
+
+i , and s∗
+
+i
+
+denote the state before contestation, after contestation, and the adjudicated target; Zi the mutable state objects and Z∗
+
+i the gold dependency closure. All configurations share backbone, evidence pool, initial state, and human correction. 
+
+Contestation Fidelity Metrics To assess whether human feedback is faithfully executed through the contestation process, we propose the following metrics to measure whether the requested change is applied to the correct target, propagated through the intended causal scope, localized without altering unaffected states, and recorded in a complete revision trace. 
+
+Apply success measures whether the requested mutation μ∗
+
+i is committed to its intended target object z∗
+
+i , while revision fidelity additionally requires the recomputed state to match the adjudicated 29 state within the gold scope: 
+
+Apply = 1
+
+NHNHX
+
+> i=1
+
+1
+
+h
+
+s(H)
+
+> i,z ∗
+> i
+
+= μ∗
+
+> i
+
+
+
+s(0) 
+
+> i,z ∗
+> i
+
+i 
+
+, Revision = 1
+
+NHNHX
+
+> i=1
+
+1
+
+h
+
+s(H) 
+
+> iZ∗
+> i
+
+= s∗ 
+
+> iZ∗
+> i
+
+i
+
+. (37) 
+
+Localization applies Def. 4.1 across the NH corrupted episodes, micro-averaged over out-of-scope objects. Whereas revision fidelity asks whether states inside the scope are correct, localization asks whether states outside it are preserved: 
+
+Localization =
+
+> NH
+
+X
+
+> i=1
+
+X
+
+> z∈Z i\Z ∗
+> i
+
+1
+
+h
+
+z
+
+
+
+s(H)
+
+> i
+
+
+
+= z
+
+
+
+s(0) 
+
+> i
+
+i 
+
+> NH
+
+X
+
+> i=1
+
+|Z i \ Z ∗ 
+
+> i
+
+|
+
+. (38) 
+
+Trace Completeness is evaluated over all N episodes. K denotes the seven required trace elements: the requested action, target, rationale, routing decision, affected scope, before-after object identifiers, and resulting decision delta. Let hik = 1 if trace element k ∈ K is present in episode i, and 0 otherwise. The micro-average trace completeness is: 
+
+Trace =
+
+> N
+
+X
+
+> i=1
+
+X
+
+> k∈K
+
+hik 
+
+N |K| . (39) Because the 50 CTR episodes derive from only 10 source cases, we estimate uncertainty using a nonparametric cluster bootstrap at the source-case level. In each of 10,000 bootstrap replicates, 10 source cases are sampled with replacement together with all associated episode-level outcomes, and the metric is recomputed from these stored results. The 2.5th and 97.5th percentiles define the 95% confidence interval. 
+
+Contestation Effectiveness Metrics To assess whether contestation improves the resulting ver-ification output, we measure whether corrupted report content is recovered, erroneous decisions are corrected, initially correct decisions are preserved, and decision changes correspond to genuine cor-rections. 
+
+Correction measures the fraction of initially erroneous decisions that become correct after contes-tation, while Induced Error captures the opposite failure mode by measuring how often contestation damages an initially correct decision, as: 
+
+Correction =
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(0) 
+
+> i
+
+̸ = yi ∧ ˆy(H) 
+
+> i
+
+= yi
+
+i
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(0) 
+
+> i
+
+̸ = yi
+
+i , InducedError =
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(0)  
+
+> i
+
+= yi ∧ ˆy(H)
+
+> i
+
+̸ = yi
+
+i
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(0)  
+
+> i
+
+= yi
+
+i . (40) 30 Decision-Change Precision (DCP ) evaluates whether decision changes are justified by successful error correction rather than unnecessary or harmful label changes. It is the proportion of all changed decisions that correct an initially erroneous prediction: 
+
+DCP =
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(0) 
+
+> i
+
+̸ = yi ∧ ˆy(H) 
+
+> i
+
+= yi
+
+i
+
+> N
+
+X
+
+> i=1
+
+1
+
+h
+
+ˆy(H)
+
+> i
+
+̸ = ˆ y(0) 
+
+> i
+
+i . (41) 
+
+Report Recovery measures whether corrupted report fields are restored to their adjudicated values after contestation. Let Gi denote the set of corrupted report fields in episode i, r(H) 
+
+> if
+
+the revised value of field f , and r∗ 
+
+> if
+
+its adjudicated accepted value. Report Recovery is: 
+
+RepRec =
+
+> NH
+
+X
+
+> i=1
+
+X 
+
+> f∈G i
+
+1
+
+h
+
+r(H) 
+
+> if
+
+≡ r∗
+
+> if
+
+i
+
+> NH
+
+X
+
+> i=1
+
+|G i|
+
+, (42) where ≡ denotes adjudicated semantic equivalence rather than exact string identity. 
+
+Computational Cost Metrics Beyond producing correct revisions, an effective contestation mechanism should avoid unnecessary downstream recomputation and efficiently return the revised result. We therefore measure system turnaround after feedback submission, the fraction of down-stream transitions avoided, and the resulting computation saved relative to global recomputation. 
+
+Revision Time measures the system turnaround after human feedback is submitted. For con-figuration q, the time is measured from intervention submission until the revised state and report become available and is reported as the median across all N matched episodes. Human inspection and feedback-entry time are excluded to isolate the post-submission revision cost. 
+
+Recomputation Avoided measures the proportion of downstream state transitions skipped relative to the global-rerun configuration U. For each episode, we compare the transitions re-executed under configuration q with those required by global recomputation and report the median percentage avoided over all matched episodes. 
+
+Compute Saved measures the reduction in model-execution cost relative to global recomputation. For each episode, the compute cost under configuration q is compared with that under U, using the same backbone and hardware, and the median percentage saved is reported over all matched episodes. 
+
+Results Relative to unstructured feedback, C raises Apply from 77 .5% to 95 .0% (31 /40 to 38 /40), Revision from 67 .5% to 90 .0% (27 /40 to 36 /40), and Trace from 72 .0% to 98 .0%. Apply shifts from [75 .0, 82 .5] under U to [87 .5, 100] under both structured variants, Revision from [60 .0, 75 .0] to [82 .5, 97 .5] under C and [85 .0, 100] under C + S, and Trace from [68 .6, 75 .4] to [97 .1, 98 .9]. Struc-turing the intervention and selecting a causal restart point therefore produces a measurable and 31 Figure 6: Process-fidelity results with Qwen 3.6. 100      
+
+> 90
+> 80
+> 70
+> 60
+> 50
+> 72.4
+> Apply Revision Localization
+> 97.6
+> +22.6%
+> +33.3%
+> +18.5%
+> +34.8%
+> UCC+S
+> 0
+> 98.0
+> Trace
+> +36.1%
+> 98.0
+> 77.5 77.5 77.5
+> 95.0 95.0 95.0 95.0 95.0 95.0
+> 67.5 67.5 67.5
+> 90.0 90.0 90.0
+> 92.5 92.5 92.5
+> +2.8%
+> 61.1 61.1 61.1
+> 72.0 72.0 72.0
+
+Table 9: Contestation effectiveness and computational cost ablation with Qwen 3.6. ↑/↓ denote metrics for which higher/lower values are better. Best in bold .                          
+
+> Metric UCC+S
+> Contestation effectiveness
+> Correction ↑/30 25 28 29
+> Induced error ↓/20 210
+> DCP (%) ↑92.6 96.6 100.0
+> Report recovery (%) ↑70.0 90.0 90.0
+> Computational cost
+> Revision time (min) ↓4.80 3.76 2.27
+> Recomputation avoided (%) ↑0.0 30.8 68.4
+> Compute saved (%) ↑0.0 21.7 52.8
+
+statistically supported improvement in whether the reviewer’s intent is actually executed. The gain in Localization is smaller (61 .1% to 72 .4%) because everything downstream of u∗ remains eligible for regeneration. The same pattern appears at the decision and report levels. Correction increases from 83.3% under U to 93.3% with C and 96.7% with C + S, while Induced Error decreases from 10.0% to 5.0% and then 0.0%. Accordingly, DCP reaches 100.0% under C + S, meaning that every observed decision change corrects an initially erroneous decision. Report Recovery increases from 70.0% to 90.0% when causal routing is introduced and remains at 90.0% after adding scoping. Thus, the observed report-recovery gain is associated primarily with causal routing, whereas scoped revision contributes more strongly to state preservation and computational efficiency. The reduction in recomputation is also reflected in revision cost. Compared with global rerun-ning, C avoids 30.8% of downstream recomputation and saves 21.7% of execution compute, reducing median Revision Time from 4.80 to 3.76 minutes. With C + S, Recomputation Avoided increases to 68.4% and Compute Saved to 52.8%, while median Revision Time decreases further to 2.27 min-utes. Together with the increase in Localization from 72.4% to 97.6%, these results indicate that scoped causal revision improves efficiency by reusing unaffected state while maintaining, and slightly improving, revision and decision-repair performance. 
+
+6.4.2 Qualitative Trace Evaluation 
+
+In this section, we qualitatively examine how human contestation and self-evolving memory improve multimedia verification beyond the final verdict. The analysis compares the verification state of a specific CTR episode, before and after contestation, focusing on whether challenged claims by reviewers are correctly routed, revalidated, and revised without unnecessarily altering well-supported evidence. We further examine whether validated corrections can be consolidated into a reusable verification experience that improves the reasoning procedure of future cases without introducing case-specific factual knowledge. 32 Media Input. The case input comprises two videos with representative key frames: 
+
+[Video 1] Duration 36 .0 s, resolution 464 × 848  
+
+> t= 4 s
+
+## · · ·  
+
+> t= 15 s
+
+## · · ·  
+
+> t= 29 s
+
+[Video 2] Duration 26 .5 s, resolution 368 × 400  
+
+> t= 3 s
+
+## · · ·  
+
+> t= 12 s
+
+## · · ·  
+
+> t= 22 s
+
+Initial Report: Before Human Contestation and Memory Reuse 
+
+Case Summary. The videos show black smoke and fire at a light-yellow building in central Rafah. The candidate coordinates are 31 .27805 , 34 .251062, and the visual content is broadly consistent with this location. 
+
+Evidence and Provenance. The longer Telegram video appears on Moaz Al-Hams’s channel at 15:27 on May 10 and provides the clearest view of the building and surrounding street. A shorter version appears to have circulated earlier on X during the same afternoon, but the first pass does not establish whether it is the earliest located publication. Both videos appear to depict the same fire. 
+
+Where? The coordinates supplied by an external geolocation account are plausible. The light-yellow facade, rooftop structure, decorative vertical lines, and nearby power lines are broadly consistent with the proposed location in Rafah. 
+
+When? The fire probably occurred on May 10 before the longer video was published at 15:27. The exact ignition time cannot be recovered because the available social-media files contain no useful original timestamp metadata. 
+
+Who and Why? The longer video is most likely associated with photographer Moaz Al-Hams. An orange reflective vest visible during the response appears consistent with Civil Defense markings. The fire appears concentrated around a rooftop structure that some social-media posts describe as communications equipment, although the ignition cause and responsible actor are not established. 
+
+Verdict. The occurrence of the fire and its approximate location in central Rafah are supported. The timing is provisionally placed on May 10 before 15:27, while the cause remains unresolved. 
+
+Human Contestation with Arguments  
+
+> [REJECT]
+
+When (existing temporal argument a(0)  
+
+> t
+
+): “The May 10 publication timestamp does not support the claim that the fire occurred on May 10. It only establishes a latest-known bound for the depicted event.”  
+
+> [ADD]
+
+When (temporal support a+ 
+
+> t
+
+; E2, E4): “The building is still standing in the March 9 reference footage, and the earliest located fire publication is May 10 at 14:36. The event onset should therefore be bounded to after March 9 and no later than May 10 at 14:36.” 
+
+33 [EDIT] Where (geolocation support a+ 
+
+> g
+
+; E3, E4): “Treat the external coordinates as a candidate, not as independent proof. Revalidate them by matching the rooftop structure, vertical facade details, and power lines across the fire footage, March 9 reference footage, and satellite view.”  
+
+> [ADD]
+
+Why (causal attack a− 
+
+> c
+
+): “The rooftop structure, black smoke, and Civil Defense responder vest do not establish the function of the rooftop equipment, the ignition cause, or the responsible actor.” 
+
+Final Report: After Human Contestation with Prior Consolidated Memory   
+
+> [C] Evidence Revalidation [E] Human Contestation [F →C] Memory Reuse
+
+Case Summary. The videos show black smoke and fire at a light-yellow building in central Rafah. The occurrence and location can be verified, whereas the precise event onset and cause remain unresolved. 
+
+Evidence and Provenance.  
+
+> [C]
+
+The source publication times are explicitly separated from event time. Quds News Network posted the shorter video at 14:36 on May 10 (E2), whereas the longer and more detailed video appears on Moaz Al-Hams’s Telegram channel at 15:27 (E1). The latter is retained for visual and geolocation analysis because it contains more reference points, but it is no longer treated as the earliest located publication. 
+
+Where?  
+
+> [C]
+
+The coordinates 31 .27805 , 34 .251062 from the external geolocation post (E3) are treated as a candidate and independently checked. The rooftop structure, vertical stucco lines and circles, facade color, and power lines are matched across the fire video, satellite imagery, and the March 9 Al Jazeera street footage (E4).  
+
+> [E]
+
+The burning building is distinguished from the nearby Al-Masri (Egyptian) Tower. The March 9 tower footage is used only as a reference viewpoint from which the same yellow building and surrounding landmarks can be identified, rather than as direct evidence about the later fire. 
+
+Verification Method.  
+
+> [F →C]
+
+A previously consolidated temporal-bounding rule from the frozen memory snapshot is made available to Module C: when original recording metadata is unavailable, a publication timestamp supplies an upper bound rather than the event time itself. In the replay, this changes the temporal verification plan from assigning a date to constructing an interval, prompting separate checks for a reliable pre-event observation and the earliest located fire publication. The memory changes the procedure only; it supplies no factual evidence about ID408. 
+
+When?  
+
+> [C]
+
+The building is visible standing in the March 9 reference footage (E4), and the earliest located fire video was posted at 14:36 on May 10 (E2). Reverse-image searches found no earlier publication of either fire video, while the available social-media files contain no usable original recording timestamp metadata.  
+
+> [E]
+
+The onset of the depicted fire is therefore bounded to after the March 9 reference footage and no later than May 10 at 14:36. The first-pass inference that the fire probably occurred on May 10 is withdrawn because a publication timestamp does not establish that the event began on the same date. 
+
+Who? The longer video is most likely associated with photographer Moaz Al-Hams (E1), and an orange reflec-tive vest visible during the response is consistent with Civil Defense markings after reverse-image comparison. 
+
+Why?  
+
+> [E]
+
+The rooftop structure and responder presence are not treated as causal evidence. Descriptions of the rooftop structure as communications equipment are not sufficient to establish its function, an ignition mechanism, a deliberate target, or a responsible actor. The ignition cause and responsible actor therefore remain unresolved. 
+
+34 Verdict.          
+
+> [E] The occurrence of the fire and its location at the specified coordinates in Rafah are verified. The event onset is bounded rather than assigned an unsupported exact date or time, while the ignition cause and responsible actor remain unresolved.
+> Sources. [E1] Moaz Al-Hams, Telegram post: https://t.me/moathalhams/68406
+> [E2] Quds News Network, X post: https://x.com/QudsNen/status/1788910996481814941
+> [E3] GeoConfirmed-linked geolocation post: https://x.com/NemoAnno/status/1788950384066621534
+> [E4] Al Jazeera, March 9 reference footage: https://www.facebook.com/watch/?v=371890269021343
+
+Results The comparison shows that contestation primarily improves the provenance and defensi-bility of the reasoning rather than changing the overall verdict. Despite reaching a broadly correct conclusion, the initial report has three weaknesses. It conflates a social-media video’s publication time with the event time, relies too heavily on externally supplied coordinates, and risks extending observable cues such as rooftop structure, smoke, and responder markings into unsupported claims about equipment function, ignition mechanism, or responsibility. Human contestation targets these weaknesses without discarding the rest of the report. The tem-poral challenge redirects verification from assigning a single event date to establishing a defensible interval. The geolocation challenge treats the supplied coordinates only as candidates and revali-dates them through cross-source correspondences involving facade geometry, rooftop structure, power lines, satellite imagery, and earlier street-level footage. The causal challenge removes unsupported explanations while preserving the underlying visual observations. The revised report consequently treats the 14:36 publication as the earliest located post-event evidence while retaining the 15:27 
+
+video for its richer visual content, independently corroborates the location, and bounds the event between earlier footage showing the building still standing and the earliest located fire publication. The exact onset, ignition cause, and responsible actor remain unresolved where evidence is insuf-ficient. Scoped revision also preserves evidence and conclusions that were not challenged, showing that contestability performs targeted repair rather than unrestricted regeneration. Prior consoli-dated memory contributes a reusable rule that publication timestamps provide temporal bounds when original recording metadata is unavailable, guiding separate searches for pre- and post-event evidence without supplying case-specific facts. The corrected reasoning can then be consolidated as future verification experience. Overall, the case shows how human contestation, causal routing, scoped revision, and memory reuse jointly repair the evidence-argument-decision chain, yielding a report that is better grounded, appropriately uncertain, and easier to audit. 35 7 Discussion 
+
+## 7.1 Main Findings 
+
+Argument-centered verification improves more than the final label Across the full COS-MOS test set, all four SEMV backbones match or exceed the strongest directly comparable baseline in accuracy, while the strongest variants also improve F1 and provide useful confidence estimates (Sec. 6.1). The held-out MV2026 analysis further shows that models with similar case-level ac-curacy can differ in evidence alignment, temporal grounding, and report completeness (Sec. 6.2). These results support the central design choice of treating provenance-bearing arguments as opera-tional system state rather than as post-hoc explanations, because the same representation supports prediction, confidence estimation, report construction, audit, and later revision. 
+
+Verified memory is more important than memory volume The memory ablation isolates the main self-evolution result. Unrestricted memory update produces the highest positive transfer (46.4%) but also increases negative transfer to 5.7%, leaving accuracy at 87.59%. Verified consol-idation raises retrieval relevance and successful use while reducing negative transfer to 0.5%, and retaining unresolved conflicts reduces it further to 0.2% while reaching 91.88% accuracy (Table 8). Thus, self-evolution is better viewed as a constrained knowledge-selection problem than as continual accumulation: useful experience must be grounded, transferable, and prevented from silently over-riding contradictory evidence. This empirically supports the concern that unverified agent memory can amplify locally plausible but non-transferable experience [9, 50]. 
+
+## 7.2 Limitations 
+
+The evaluation has two principal scope limitations. First, COSMOS is a controlled binary image– caption consistency benchmark, whereas open-world verification additionally requires source discov-ery, temporal and geographic reasoning, and heterogeneous media analysis. MV2026 exercises these capabilities but contains only 10 held-out validation cases and 10 private-test cases. CTR contains 50 matched episodes but only 10 independent source cases; the case-clustered bootstrap accounts for within-case dependence, yet the small number of source cases still limits population-level inference. Moreover, CTR uses adjudicated corruptions and replayed contestations rather than longitudinal interactions with independent professional fact-checkers. The official MV2026 score also evaluates the submitted A-QBAF predecessor rather than the complete self-evolving SEMV system. Second, the full COSMOS conditions are single-run evaluations, with three-seed stability mea-sured only on a 500-case subset. Paired experiments replay a fixed retrieval cache, which improves cross-condition comparability but does not capture the volatility of live search engines, changing webpages, or regional source availability. The sensitivity study varies one factor group at a time in a local neighborhood, and the present results cover four VLM backbones on one hardware plat-form. Broader multilingual benchmarks, live-retrieval replication, adversarial memory-poisoning tests, and larger human-contestation studies are therefore required before drawing deployment-level conclusions. 36 8 Conclusion 
+
+SEMV frames multimedia verification as an auditable evidence–argument–decision process that sup-ports human revision and verified self-evolution. It combines provenance-constrained A-QBAF rea-soning, causal contestation, scoped revision, and verification-gated memory consolidation. Results on COSMOS, CTR, and MV2026 show competitive verification performance, safer knowledge reuse, more faithful corrections, and lower recomputation. Overall, the findings suggest that self-evolving verification is most effective when adaptation remains traceable, contestable, and separate from fac-tual evidence. Future work should evaluate SEMV on broader multilingual settings, live retrieval, larger human-contestation studies, and stronger attacks on memory and provenance. 
+
+Ethical Consideration Automated multimedia verification is inherently dual-use: false false-context decisions may suppress accurate reporting, while false verified decisions may legitimize mis-information. SEMV therefore uses abstention, human contestation, and provenance-constrained memory, and is intended for decision support rather than autonomous moderation. Low-confidence cases can be escalated through uncertain or insufficient-evidence outcomes (Sub. 6.1). Each ar-gument must cite resolvable evidence (Def. 3.1), while consolidated memory is kept separate from evidence and cannot independently establish factual claims. The verification gate in Eq. 26 fur-ther mitigates, but does not eliminate, memory-poisoning risk. As MV2026 and CTR may contain identifiable individuals, we report only verification-level outcomes and release no derived identity information. Performance may also vary across languages, regions, and source ecosystems due to uneven retrieval coverage. 
+
+# Acknowledgments 
+
+Funding This work is supported by NSERC Discovery Grant No RGPIN-2025-04478 and NSERC Discovery Supplement Award No DGECR-2025-00129. 
+
+Competing interests The author(s) declare(s) that there is no conflict of interest regarding the publication of this article. 
+
+Author contributions T. T. H. Nguyen conceived the study, designed the SEMV framework, led the implementation and experimental design, analyzed the results, and drafted the manuscript. V. T. K. Nguyen contributed to system design, implementation, experimental evaluation, and manuscript revision. H.-L. Cao contributed to the argumentation methodology, experimental design, and manuscript revision. P. Ho contributed to argumentation methodology and manuscript revision. T. T. Nguyen contributed to data processing, implementation, and manuscript revision. V. Pham contributed to the implementation. H. Cao supervised the research, acquired funding, and revised the manuscript. All authors reviewed and approved the final manuscript. 37 Data Availability 
+
+COSMOS [1] is available through the official project at https://github.com/shivangi-aneja/ COSMOS , subject to its research-use access agreement; the original data cannot be redistributed by the authors. MV2026 [2] is distributed by the organizers through the official challenge website at https: //sites.google.com/view/mv2026 , where access is administered by the organizers. Accordingly, the original MV2026 multimedia cases are not redistributed with this article. Our reviewer-based CTR dataset is available upon reasonable request, excluding the underlying MV2026 multimedia content. 
+
+# Supplementary Materials 
+
+Materials and Methods: notation and formal definitions; functional roles of SEMV components; soft-ware and tool configuration; configuration constants; three-run stability protocol; and configuration-sensitivity protocol. Fig. S1: Sensitivity to configuration constants on the COSMOS validation sensitivity subset. Tables S1–S6: principal SEMV notation; functional roles; tool inventory and software versions; configuration constants; three-run stability evaluation; and sensitivity to configuration constants. 
+
+# References 
+
+1. Aneja S, Bregler C, and Nießner M. COSMOS: catching out-of-context image misuse using self-supervised learning. In: Proceedings of the AAAI conference on artificial intelligence . Vol. 37. 12. 2023:14084–92. 2. Dang-Nguyen DT, Pham KL, Pham MA, et al. The 2026 Grand Challenge on Multimedia Verification: Overview and Key Directions. In: Proceedings of the 2026 International Conference on Multimedia Retrieval . 2026:2877–81. 3. Cao HL, Ho P, Nguyen TTH, Nguyen PTL, Nguyen DTL, and Cao H. Neuro-Symbolic Adaptive Collaboration of Arena-Based Argumentative LLMs for Contestable Legal Reasoning. In: The 39th Canadian Conference on Artificial Intelligence . PMLR. 2026:895–902. 4. Baroni P, Rago A, and Toni F. From fine-grained properties to broad principles for grad-ual argumentation: A principled spectrum. International Journal of Approximate Reasoning 2019;105:252–86. 5. Lyons H, Velloso E, and Miller T. Conceptualising contestability: Perspectives on contesting algorithmic decisions. Proceedings of the ACM on Human-Computer Interaction 2021;5:1–25. 6. Alfrink K, Keller I, Kortuem G, and Doorn N. Contestable AI by design: Towards a framework. Minds and Machines 2023;33:613–39. 7. Leofante F, Ayoobi H, Dejl A, et al. Contestable AI needs computational argumentation. In: 
+
+Proceedings of the 21st International Conference on Principles of Knowledge Representation and Reasoning . 2024:888–96. 38 8. Nguyen H, Rahimi A, Whitford V, et al. Heart2Mind: Human-Centered Contestable Psychiatric Disorder Prediction System Using Wearable ECG Monitors. ACM Transactions on Computing for Healthcare 2026. 9. Xiong Z, Lin Y, Xie W, et al. How memory management impacts llm agents: An empirical study of experience-following behavior. In: Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 2026:623–45. 10. Le HH, Nguyen VST, Dang TLC, Nguyen VTK, Nguyen TTH, and Cao H. Multimedia Verifica-tion Through Multi-Agent Deep Research Multimodal Large Language Models. In: Proceedings of the 33rd ACM International Conference on Multimedia . 2025:14034–40. 11. Nguyen HTT, Nguyen KVT, Cao HL, Ho P, Pham V, and Cao H. Contestable Multi-Agent Debate with Arena-based Argumentative Computation for Multimedia Verification. In: Pro-ceedings of the 2026 International Conference on Multimedia Retrieval . 2026:2887–91. 12. Gemma Team. Gemma 4 Technical Report. arXiv preprint arXiv:2607.02770 2026. 13. Deshmukh AS, Chumachenko K, Rintamaki T, et al. Nemotron 3 nano omni: efficient and open multimodal intelligence. arXiv preprint arXiv:2604.24954 2026. 14. Qwen Team. Qwen3.6-27B Model Card. Hugging Face. 2026. url : https://huggingface.co/ Qwen/Qwen3.6-27B .15. Wang W, Gao Z, Gu L, et al. InternVL3.5: Advancing Open-Source Multimodal Models in Versatility, Reasoning, and Efficiency. arXiv preprint arXiv:2508.18265 2025. 16. Paris B and Donovan J. Deepfakes and cheap fakes. Data & Society 2019;50. 17. Abdelnabi S, Hasan R, and Fritz M. Open-domain, content-based, multi-modal fact-checking of out-of-context images via online resources. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 2022:14940–9. 18. La TV, Tran QT, Tran TP, Tran AD, Dang-Nguyen DT, and Dao MS. Multimodal cheapfakes detection by utilizing image captioning for global context. In: Proceedings of the 3rd ACM Workshop on Intelligent Cross-Data Analysis and Retrieval . 2022:9–16. 19. La TV, Dao MS, Le DD, Thai KP, Nguyen QH, and Phan-Thi TK. Leverage boosting and transformer on text-image matching for cheap fakes detection. Algorithms 2022;15:423. 20. Tran QT, Tran TP, Dao MS, La TV, Tran AD, and Dang Nguyen DT. A textual-visual-entailment-based unsupervised algorithm for cheapfake detection. In: Proceedings of the 30th ACM International Conference on Multimedia . 2022:7145–9. 21. Alkaddour M, Dhall A, Tariq U, Al Nashash H, and Al-Shargie F. Sentiment-aware classifier for out-of-context caption detection. In: Proceedings of the 30th ACM International Conference on Multimedia . 2022:7180–4. 22. Papadopoulos SI, Koutlis C, Papadopoulos S, and Petrantonakis PC. Red-dot: Multimodal fact-checking via relevant evidence detection. IEEE Transactions on Computational Social Systems 2025. 39 23. Yao BM, Shah A, Sun L, Cho JH, and Huang L. End-to-end multimodal fact-checking and explanation generation: A challenging dataset and models. In: Proceedings of the 46th In-ternational ACM SIGIR Conference on Research and Development in Information Retrieval .2023:2733–43. 24. Wu G, Wu W, Liu X, Xu K, Wan T, and Wang W. Cheap-fake detection with llm using prompt engineering. In: 2023 IEEE International Conference on Multimedia and Expo Work-shops (ICMEW) . IEEE. 2023:105–9. 25. Vo-Hoang HV, Pham LK, and Dao MS. Detecting out-of-context media with llama-adapter v2 and roberta: An effective method for cheapfakes detection. In: Proceedings of the 2024 International Conference on Multimedia Retrieval . 2024:1282–7. 26. Seo J, Hwang HS, Lee J, Lee M, Kim W, and Seok J. A Multi-Stage Deep Learning Ap-proach Incorporating Text-Image and Image-Image Comparisons for Cheapfake Detection. In: 
+
+Proceedings of the 2024 International Conference on Multimedia Retrieval . 2024:1312–6. 27. Nguyen MN, Tran TN, Tran MT, Dang-Nguyen DT, and Do TL. Robust Multimedia Verifi-cation of Cheapfakes and Deepfakes via External Context Leveraging. In: 2025 International Conference on Content-Based Multimedia Indexing (CBMI) . IEEE. 2025:1–8. 28. Braun T, Rothermel M, Rohrbach M, and Rohrbach A. DEFAME: Dynamic Evidence-based FAct-checking with Multimodal Experts. In: International Conference on Machine Learning .PMLR. 2025:5383–417. 29. Phan VH, Le-Duc TD, Pham LK, et al. Fact-Checking at Scale: Multimodal AI for Authenticity and Context Verification in Online Media. In: Proceedings of the 33rd ACM International Conference on Multimedia . 2025:14048–54. 30. Pham MA, Pham-Nguyen AT, Le AD, et al. Ægis: AI-Enhanced OSINT for Multimedia Verifi-cation. In: Proceedings of the 33rd ACM International Conference on Multimedia . 2025:14041– 7. 31. Nguyen-Son HQ, Le-Duc TD, Dinh-Nguyen QH, Nguyen-Le HC, Tran AD, and Dao MS. Deep-Verify: The End-to-end Software for Evidence-Based Multi-Modal Online Information Verifi-cation with Explainable Reasoning. In: Proceedings of the 2026 International Conference on Multimedia Retrieval . 2026:2882–6. 32. Muneer MS, Tran KV, Nguyen VT, and Woo SS. MOSAIV: Multi-Agent LLM Swarms for Automated Multimedia News Verification: Fake News Detection. In: Proceedings of the 2026 International Conference on Multimedia Retrieval . 2026:2892–6. 33. Rago A, Toni F, Aurisicchio M, Baroni P, et al. Discontinuity-Free Decision Support with Quantitative Argumentation Debates. KR 2016;16:63–73. 34. Rago A, Li H, and Toni F. Interactive explanations by conflict resolution via argumentative exchanges. In: Proceedings of the 20th International Conference on Principles of Knowledge Representation and Reasoning . 2023:582–92. 40 35. Freedman G, Dejl A, Gorur D, Yin X, Rago A, and Toni F. Argumentative Large Language Models for Explainable and Contestable Claim Verification. In: Proceedings of the 39th AAAI Conference on Artificial Intelligence, AAAI 2025 . Vol. 39. Philadelphia, PA, USA, 2025:14930– 9. 36. Zhu Y, Potyka N, Hern´ andez D, et al. ArgRAG: Explainable Retrieval Augmented Generation using Quantitative Bipolar Argumentation. In: Proceedings of The 19th International Confer-ence on Neurosymbolic Learning and Reasoning . Ed. by H. Gilpin L, Giunchiglia E, Hitzler P, and Krieken E van. Vol. 284. Proceedings of Machine Learning Research. PMLR, 2025:697–718. 
+
+url : https://proceedings.mlr.press/v284/zhu25a.html .37. Dejl A, Williams M, and Toni F. Argumentation for explainable and globally contestable de-cision support with LLMs. In: Proceedings of the 23rd International Conference on Principles of Knowledge Representation and Reasoning . KR ’26. Lisbon, Portugal, 2026. doi : 10.24963/ kr.2026/86 . url : https://doi.org/10.24963/kr.2026/86 .38. Yin X, Potyka N, Rago A, Kampik T, and Toni F. Contestability in Edge-Weighted Quantita-tive Bipolar Argumentation Frameworks. In: Proceedings of the 23rd International Conference on Principles of Knowledge Representation and Reasoning, KR 2026 . 2026. 39. Kampik T, Yin X, Potyka N, and Toni F. Strength Change Explanations in Quantitative Ar-gumentation. In: Proceedings of the 25th International Conference on Autonomous Agents and Multiagent Systems . AAMAS ’26. Paphos, Cyprus: International Foundation for Autonomous Agents and Multiagent Systems, 2026:1416–24. doi : 10.65109/OKNZ9792 . url : https://doi. org/10.65109/OKNZ9792 .40. Shinn N, Cassano F, Gopinath A, Narasimhan K, and Yao S. Reflexion: Language agents with verbal reinforcement learning. Advances in neural information processing systems 2023;36:8634– 52. 41. Zhang W, Tang K, Wu H, et al. Agent-pro: Learning to evolve via policy-level reflection and optimization. In: Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) . 2024:5348–75. 42. Liang X, Tao M, Xia Y, et al. Sage: Self-evolving agents with reflective and memory-augmented abilities. Neurocomputing 2025;647:130470. 43. Zhao A, Huang D, Xu Q, Lin M, Liu YJ, and Huang G. Expel: Llm agents are experien-tial learners. In: Proceedings of the AAAI Conference on Artificial Intelligence . Vol. 38. 17. 2024:19632–42. 44. Gupta P, Kirtania S, Singha A, et al. Metareflection: Learning instructions for language agents using past reflections. In: Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing . 2024:8369–85. 45. Liu Y, Si C, Narasimhan KR, and Yao S. Contextual experience replay for self-improvement of language agents. In: Proceedings of the 63rd Annual Meeting of the Association for Compu-tational Linguistics (Volume 1: Long Papers) . 2025:14179–98. 41 46. Xu W, Liang Z, Mei K, Gao H, Tan J, and Zhang Y. A-mem: Agentic memory for llm agents. Advances in Neural Information Processing Systems 2026;38:17577–604. 47. Dai Z, Deng S, Guan S, et al. RecMem: Recurrence-based Memory Consolidation for Efficient and Effective Long-Running LLM Agents. In: Findings of the Association for Computational Linguistics: ACL 2026 . 2026:32353–76. 48. Sarch G, Jang L, Tarr MJ, Cohen WW, Marino K, and Fragkiadaki K. Vlm agents generate their own memories: Distilling experience into embodied programs of thought. Advances in Neural Information Processing Systems 2024;37:75942–85. 49. Ou Y, Zhou W, Ding S, et al. Symbolic learning enables self-evolving agents. AI Open 2025. 50. Zhang D, Lin Y, Wu Z, et al. Useful Memories Become Faulty When Continuously Updated by LLMs. 2026. 51. Wu D, Wang H, Yu W, Zhang Y, Chang KW, and Yu D. LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory. In: The Thirteenth International Conference on Learning Representations . 2025. 52. Hong W, Yu W, Gu X, et al. Glm-4.1 v-thinking: Towards versatile multimodal reasoning with scalable reinforcement learning. arXiv e-prints 2025:arXiv–2507. 53. Singhal S, Shah RR, Chakraborty T, Kumaraguru P, and Satoh S. Spotfake: A multi-modal framework for fake news detection. In: 2019 IEEE fifth international conference on multimedia big data (BigMM) . IEEE. 2019:39–47. 54. Wang Y, Ma F, Jin Z, et al. Eann: Event adversarial neural networks for multi-modal fake news detection. In: Proceedings of the 24th acm sigkdd international conference on knowledge discovery & data mining . 2018:849–57. 55. Wang B and Kuo CCJ. Sbert-wk: A sentence embedding method by dissecting bert-based word models. IEEE/ACM Transactions on Audio, Speech, and Language Processing 2020;28:2146– 57. 56. Akgul T, Civelek TE, Ugur D, and Begen AC. Cosmos on steroids: a cheap detector for cheap-fakes. In: Proceedings of the 12th ACM Multimedia Systems Conference . 2021:327–31. 57. Choi JH and Lee JS. EmbraceNet: A robust deep learning architecture for multimodal classi-fication. Information Fusion 2019;51:259–70. 58. Jin Z, Cao J, Guo H, Zhang Y, and Luo J. Multimodal fusion with recurrent neural networks for rumor detection on microblogs. In: Proceedings of the 25th ACM international conference on Multimedia . 2017:795–816. 42 Supplementary Materials 
+
+## A1 Notation 
+
+Table S1 summarizes the principal notation used in the SEMV formulation. Symbols are grouped by their roles in case representation and output, evidence and arguments, multi-agent state, A-QBAF reasoning, human contestation, and verified memory consolidation. Table S1: Principal notation used in SEMV, grouped by case and output, evidence and arguments, multi-agent state, A-QBAF reasoning, human contestation, and verified memory consolidation. 
+
+Symbol Type Meaning 
+
+Case and output 
+
+x, xi instance verification instance; i indexes cases 
+
+Vx = {mj }nx 
+
+> j=1
+
+set input images/videos of case xc text main textual claim 
+
+ck , K subclaim, int scoped subclaim k = 1 , . . . , K ; number of subclaims 
+
+z record optional contextual metadata 
+
+δdata adapter dataset adapter and output contract ˆy, p, γ label, dist., scalar predicted label, class distribution, confidence 
+
+J , T , ξ records justification, auditable trace, output uncertainty codes 
+
+Evidence and arguments 
+
+Et, e set, item evidence at logical step t; an evidence item 
+
+re, qe, ρe, λe, υe fields reliability, relevance, provenance, location, uncertainty 
+
+Gt, a set, item arguments in state; a single argument 
+
+σa, ta, wa, va, υa fields stance, text, strength, verifier outcome, uncertainty 
+
+E(a), M (a) id sets cited evidence identifiers; cited memory identifiers 
+
+Agents and state 
+
+A = {A1, . . . , A n} set functional agents; Ai distinguishes agents from argument a
+
+S, s, st space, state case-state space; a committed state 
+
+Ui, u set, action action set of agent i; an agent action 
+
+L, P, T , I set, graph, function, set messages, dependency graph, transition, invariants Ωi, πi functions local observation and agent policy 
+
+Argumentation 
+
+Qk = ⟨Vk , R + 
+
+> k
+
+, R − 
+
+> k
+
+, β k ⟩ QBAF nodes, support/attack edges, and base-score function 
+
+Sk , Ak , ∆ k scalars total support, total attack, net argumentative effect 
+
+h(·) function saturating influence function (Eq. 17) 
+
+sk , ¯ s, dk scalars, label subclaim score, mean subclaim score, subclaim decision 
+
+Contestation 
+
+h, H action, batch human review action; non-empty review batch 
+
+Z, ZH sets observable state objects; intended dependency scope of HuH stage earliest stage required by review batch H
+
+Loc (H) scalar contestation locality (Eq. 24) 
+
+Memory 
+
+m, τ set, record, type memory record; memory type 
+
+u, cu candidate, scalar reflection candidate and its confidence 
+
+Eu, Au id sets grounding evidence and argument identifiers Ind( C) set independent subset selected from cluster Cαm, βm, c(m), r(m) scalars lifecycle parameters, record confidence, and conflict ratio 
+
+43 A2 Functional Roles 
+
+Table S2: Functional roles, their local observations, principal actions, and primary outputs or state updates. 
+
+Agent role Local observation 
+
+Ωi(s)
+
+Principal action Primary output / state update 
+
+Canonicalization Native case and adapter contract Validate and normalize the dataset instance; enforce pre-prediction leakage checks 
+
+B including the media manifest; adapter trace Perception Canonical media, main claim, and context Extract metadata, scene-aware keyframes, OCR, ASR, visual descriptions, forensic signals, and local reverse matches Initial media evidence 
+
+Emedia 
+
+Claim decomposition 
+
+B and extracted media evidence Produce scoped what, where, when, who, why, and authenticity subclaims 
+
+C including initial query seeds Memory retrieval Subclaim, case context, media evidence, and active long-term memory Retrieve compatible active long-term records as planning guidance Retrieved view of M
+
+and usage trace Research planning Subclaim, current evidence, and retrieved memory Select questions, queries, source types, and uncertainty checks 
+
+R
+
+Evidence retrieval Research plan, search adapters, and cached evidence Search supplied or cached evidence, web, news, fact-check, geolocation, and online reverse-image sources Candidate external evidence Eext 
+
+> k
+
+Evidence validation Candidate evidence and provenance Complete provenance, merge duplicate identifiers, rank evidence, and construct evidence links Normalized E and GE
+
+Proponent / Opponent One subclaim and its selected evidence Construct evidence-linked support and attack arguments Candidate Gk
+
+Argument verification Argument and linked evidence Check grounding and evidence–argument consistency; fail closed on missing or unavailable verification 
+
+va and uncertainty codes υa in G
+
+A-QBAF reasoning Scored arguments for one subclaim Construct and propagate Qk ; identify high-weight clashes 
+
+Qk , dk , and uncertainty codes Decision / Report All dk , dataset contract, and case trace Aggregate the final decision and confidence; render structured and readable reports 
+
+Y , γ, J , ξ, and T
+
+Contestation Human actions, provenance links, and dependency graph Route revision to the earliest affected stage and recompute the affected scope 
+
+H, revised downstream state, and before/after trace Reflection / Memory Finalized report and eligible post-prediction supervision Diagnose outcomes, verify lessons, stage candidates, and consolidate independent observations Staged candidates and updated long-term memory in learning/bootstrap runs 
+
+44 A3 Tool Configuration 
+
+Table S3 summarizes the software tools and runtime configurations used by the SEMV media-processing, forensic, reverse-search, and model-serving components. Tool settings were held fixed across the reported evaluations, with optional components explicitly indicated. Table S3: Tool inventory and development versions. 
+
+Function Tool/version Configuration 
+
+Metadata ExifTool 13.25; FFmpeg/FFprobe 7.1.1; Pillow 11.3.0 embedded metadata and stream inspection Frame extraction PySceneDetect 0.6.6; FFmpeg 7.1.1 scene detection, at most Kf = 8 keyframes OCR PaddleOCR 3.3.2; PaddlePaddle 3.2.1 PP-OCRv5 multilingual recognition with language/script-specific model selection ASR faster-whisper 1.1.1 base model; language auto-detection Forensics Pillow 11.3.0; TruFor (optional) Error Level Analysis (ELA), noise/blur indicators, border or recapture cues, and editing-metadata checks; optional TruFor threshold 0 .50 Local reverse search ImageHash 4.3.2; open-clip-torch 2.32.0; FAISS 1.9.0 pHash Hamming threshold 10; OpenCLIP ViT-B/32; FAISS inner-product threshold 0 .84 Serving vLLM 0.24.0; PyTorch 2.11.0 BF16, batch 1, 32 K-token context 
+
+## A4 Configuration Constants 
+
+Table S4 summarizes the fixed configuration constants used throughout SEMV. These settings gov-ern media processing, evidence and memory ranking, argument scoring, decision thresholds, and memory verification. They were tuned on the COSMOS validation development subset and were kept unchanged across the reported COSMOS test, MV2026 validation/challenge, and CTR evalu-ations. Table S4: Configuration constants. Values were tuned on the COSMOS validation development subset. 
+
+Component Value(s) 
+
+Media/retrieval Kf = 8, Km = 5, top-10 evidence; frame-dedup pHash 4; reverse-search pHash 10; CLIP 0.84; forensic 0.50 Evidence ranking +0 .20 claim-type, up to +0 .20 lexical overlap, −0.15 uncertainty Diversity/specificity source cap 3; modality cap 2; pa = clip( |ta|/280 , 0.25 , 1) Clash/decision clash threshold 0 .55 with margin ≤ 0.25; decision bands 0 .30 , 0.45 , 0.55 , 0.70 Confidence verified 0.65; manipulated/false-context/mostly verified 0.55; partially verified 0.45; insuffi-cient evidence 0.35 Promotion (θcτ , θ xτ , θ sτ ): episodic (0 .85 , 1, 1); failure (0 .70 , 2, 2); semantic (0 .75 , 3, 3) 
+
+45 A5 Stability Evaluation 
+
+Table S5 summarizes the three-run stability evaluation. Across the fixed COSMOS subset, run-to-run variation is small, with backbone accuracy standard deviations of 0.20–0.42 percentage points. Memory-policy accuracy variation is similarly limited, with standard deviations of 0.20–0.53 per-centage points; the largest variation occurs for unverified append-all and the smallest for full verified consolidation. On the 10-case MV2026 held-out validation set, Nemotron3 and InternVL3.5 retain the same number of correct decisions across all three runs, while Gemma4 and Qwen3.6 vary by at most one case. The sample standard deviation of Evidence-URL F1 ranges from 0.5 to 0.9 points across backbones. Overall, these results indicate limited sensitivity to run-level stochasticity under the evaluated settings. Given the small number of runs and MV2026 cases, however, they should be interpreted as descriptive stability evidence rather than population-level uncertainty estimates. Table S5: Three-run stability evaluation. For COSMOS, values are sample standard deviations of accuracy, in percentage points, across three runs on the same fixed stratified 500-case subset. Full-test results reported elsewhere remain single-run point estimates. For MV2026, correct-count ranges are reported because of the small held-out set ( N = 10); sF1 denotes the sample standard deviation of Evidence-URL F1 across the three runs, in F1 points on the 0–100 scale.                        
+
+> Evaluation Model Observed Variation
+> Backbones Nemotron3 0.31 pp Gemma4 0.42 pp InternVL3.5 0.31 pp Qwen3.6 0.20 pp Memory policy Off 0.23 pp Episodic only 0.23 pp Unverified append-all 0.53 pp Staged, no conflict retention 0.31 pp Full verified consolidation 0.20 pp MV2026 Nemotron3 8–8/10 correct; sF1 = 0 .6Gemma4 7–8/10 correct; sF1 = 0 .9InternVL3.5 8–8/10 correct; sF1 = 0 .5Qwen3.6 8–9/10 correct; sF1 = 0 .7
+
+46 A6 Sensitivity to Configuration Constants 
+
+Sec. 4 introduces several decision thresholds and hand-set weights. We examine their local sensitivity in the fixed-stratified 500-image COSMOS validation analysis subset. All constants are frozen before the sensitivity sweep, and the subset is not used to revise them afterward. We divide the analysis according to how each factor is evaluated. First, we perturb a factor only during decision-time inference while holding the retrieved evi-dence and consolidated-memory snapshot fixed (see Table S6a). Some factors, including the decision bands and argument-strength weights, can also affect later memory candidates through the resulting decisions, confidence values, and argument contributions. Their results therefore isolate the condi-tional decision-time component rather than the complete effect of reconstructing memory under the perturbed values. Second, we evaluate constants whose explicit role is to verify, admit, or promote experiences into long-term memory (see Table S6b). For every setting, we rebuild consolidated memory from the same fixed 1,200-case memory subset, freeze the resulting snapshot, and evaluate it on the same 500-case validation analysis subset. Table S6: Sensitivity to one factor group at a time on the fixed stratified 500-image COSMOS validation subset with Qwen3.6. The reference configuration obtains 91 .8% accuracy. (A) isolates conditional decision-time effects using identical evidence and the reference-built memory snapshot. (B) reconstructs memory from the same pre-test memory-learning partition for each setting. ∆denotes the difference from the validation reference in percentage points.                              
+
+> Group Perturbation Acc. (%) ∆pp
+> (a) Conditional decision-time sensitivity with fixed evidence and reference-built memory
+> Decision bands Shift all decision cut-points by −0.05 / +0 .05 91 .6 / 92 .0−0.2 / +0 .2Strength ablation Remove reliability / relevance 91 .2 / 91 .0−0.6 / −0.8Strength ablation Remove source diversity / modality diversity 91 .6 / 92 .0−0.2 / +0 .2Strength ablation Remove provenance / specificity 91 .2 / 91 .8−0.6 / 0 .0Strength control Replace the six hand-set weights with uniform 1 /6weights 91 .4−0.4
+> (b) End-to-end memory-policy sensitivity with memory rebuilt for each setting
+> Memory promo-tion Shift all promotion-confidence thresholds by −0.05 / +0 .05 91 .6 / 92 .0−0.2 / +0 .2Memory verifica-tion Set θv= 0 .50 /0.60 /0.70 91 .2 / 91 .8 / 91 .6−0.6 / 0 .0 / −0.2
+
+Results As summarized in Fig. S1, 13 exploratory perturbations produce accuracies between 91 .0% and 92 .0%, remaining within 0 .8 percentage points of the 91 .8% validation reference. The largest reduction occurs when relevance is removed, followed by reliability and provenance. In contrast, increasing the decision bands by 0 .05, removing modality diversity, and increasing the pro-motion thresholds each improve validation accuracy by 0 .2 percentage points. Removing specificity leaves accuracy unchanged at the reported precision, while uniform weighting reduces accuracy by 0.4 percentage points. We treat this sweep as a descriptive development analysis and do not interpret the point-estimate 47 Figure S1: Sensitivity to one factor group at a time on the COSMOS validation sensi-tivity subset using Qwen3.6. 
+
+Decision-time perturbations reuse fixed evidence and the reference-built memory snap-shot, whereas memory-policy perturbations rebuild mem-ory from the same pre-test memory-learning partition. Values report the change rel-ative to the 91 .8% validation reference, followed by the resulting absolute accuracy in parentheses. –1.0  –0.8  –0.6  –0.4  –0.2  0.0  0.2 
+
+Accuracy change relative to the validation reference (percentage points)    
+
+> 0.4 Promotion thresholds –0.05
+> Promotion thresholds +0.05
+> Verification =0.50
+> Verification =0.60
+> Verification =0.70 Decision bands –0.05
+> Decision bands +0.05
+> Remove reliability
+> Remove relevance
+> Remove source diversity
+> Remove modality diversity
+> Remove provenance
+> Remove specificity
+> Uniform 1/6 weights
+> -0.8 (91.0%)
+> -0.6 (91.2%)
+> -0.6 (91.2%)
+> -0.6 (91.2%)
+> -0.4 (91.4%)
+> -0.2 (91.6%)
+> -0.2 (91.6%)
+> -0.2 (91.6%)
+> -0.2 (91.6%)
+> +0.0 (91.8%)
+> +0.0 (91.8%)
+> +0.2 (92.0%)
+> +0.2 (92.0%)
+> +0.2 (92.0%)
+
+Decision-time sensitivity Memory-policy sensitivity 
+
+> Reference 91.8%
+
+differences as evidence that any individual component is statistically necessary. The reference config-uration is selected on the separate development pool and frozen before the 500-case analysis subset is examined; sensitivity results are not used to retune it before final test evaluation. Because the analysis varies one factor group at a time, it does not characterize interactions among constants or robustness under larger configuration changes. Within the examined neighborhood, validation accuracy is locally stable. 48
