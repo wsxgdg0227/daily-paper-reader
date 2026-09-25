@@ -1,0 +1,185 @@
+{
+  "date": "20260925",
+  "date_label": "",
+  "generated_at": "2026-09-25 22:16:58 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.30059v1",
+      "route": "202609/25/2609.30059v1-kernelopt-dispatch-aware-agentic-search-for-gpu-kernel-optimization",
+      "title": "KernelOPT: Dispatch-Aware Agentic Search for GPU Kernel Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "多智能体LLM系统对生成的Triton子算子进行调度感知优化",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29144v1",
+      "route": "202609/25/2609.29144v1-scope-before-you-persist-preventing-cross-family-interference-in-agent-memory",
+      "title": "Scope Before You Persist: Preventing Cross-Family Interference in Agent Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "限定持久化智能体记忆检索范围以避免跨任务族干扰",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29394v1",
+      "route": "202609/25/2609.29394v1-racap-agentic-reasoning-acting-and-coding-as-policies-for-evolvable-robot-learning",
+      "title": "RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "具备自主自进化、持续改进策略与经验记忆的智能体框架",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.30057v1",
+      "route": "202609/25/2609.30057v1-krex-concurrent-kernel-benchmarking-on-shared-gpus-via-region-granular-exclusivity",
+      "title": "KREX: Concurrent Kernel Benchmarking on Shared GPUs via Region-Granular Exclusivity",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "LLM智能体自动优化GPU算子并进行基准测试",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29067v1",
+      "route": "202609/25/2609.29067v1-tilebench-a-controlled-benchmark-for-performance-evaluation-and-bottleneck-diagnosis-of-tile-based-programming-models",
+      "title": "TileBench: A Controlled Benchmark for Performance Evaluation and Bottleneck Diagnosis of Tile-Based Programming Models",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向分块式内核编程模型的受控基准，含自动调优与roofline瓶颈诊断",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29773v1",
+      "route": "202609/25/2609.29773v1-breaking-the-environment-wall-evolving-llm-agent-environments-for-recursive-self-improvement",
+      "title": "Breaking the Environment Wall: Evolving LLM Agent Environments for Recursive Self-Improvement",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过环境演化实现LLM智能体的递归自我改进",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.24137v1",
+      "route": "202609/25/2609.24137v1-data-agents-agentic-data-systems",
+      "title": "Data Agents: Agentic Data Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "最少人工干预的自主数据智能体与反馈驱动精化",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.27286v1",
+      "route": "202609/25/2609.27286v1-memory-control-signals-emerge-before-action-in-long-horizon-agents",
+      "title": "Memory Control Signals Emerge Before Action in Long Horizon Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "动作前已编码智能体记忆操作与检索需求",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29015v1",
+      "route": "202609/25/2609.29015v1-meshheal-two-timescale-self-healing-for-gray-failures-in-decentralized-llm-agent-networks",
+      "title": "MeshHeal: Two-Timescale Self-Healing for Gray Failures in Decentralized LLM Agent Networks",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "双时间尺度同行评审实现LLM智能体网络自愈与恢复",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29219v1",
+      "route": "202609/25/2609.29219v1-schedules-are-solvable-symbols-tuning-free-compilation-of-tile-programs-on-dataflow-architectures",
+      "title": "Schedules Are Solvable Symbols: Tuning-Free Compilation of Tile Programs on Dataflow Architectures",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向加速器的免调优分块内核符号编译",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    },
+    {
+      "paper_id": "2609.29892v1",
+      "route": "202609/25/2609.29892v1-qwen-planner-agent-a-closed-loop-ai-for-ai-framework-for-real-world-mobile-planner-agents",
+      "title": "Qwen-Planner-Agent: A Closed-Loop AI-for-AI Framework for Real-World Mobile Planner Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "闭环AI-for-AI框架实现智能体迭代改进",
+      "first_seen_at": "2026-09-25 22:16:58 UTC",
+      "updated_at": "2026-09-25 22:16:58 UTC"
+    }
+  ]
+}

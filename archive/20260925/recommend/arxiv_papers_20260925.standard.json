@@ -1,0 +1,500 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-25T22:07:54.373669+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2609.30059v1",
+      "source": "arxiv",
+      "title": "KernelOPT: Dispatch-Aware Agentic Search for GPU Kernel Optimization",
+      "abstract": "Deep learning inference and training performance depends critically on GPU kernel efficiency. Modern compilers such as PyTorch Inductor automatically generate GPU kernels from high-level model code, but frequently underperform expert-written implementations by wide margins. Recent LLM-assisted kernel optimizers can close this gap for standalone kernels, yet treat compiled models as black boxes, generally optimizing individual standalone kernels without respecting the compiler's structural decisions or verifying the model end-to-end. We present KernelOPT, a multi-agent system that treats compiled models as structured artifacts. It preserves vendor library calls (cuBLAS, cuDNN) and exclusively targets generated Triton sub-kernels using five profiling-guided LLM agents. A four-gate verification cascade of static validation, multi-seed correctness, model-level float64-fallback verification, and performance gating filters candidates during optimization and verifies the re-stitched model end-to-end. If no candidate passes all four gates, the system preserves the compiler baseline. The system accepts PyTorch nn.Modules, standalone Triton kernels, and Helion kernels. Evaluated on 250 KernelBench problems, KernelOPT achieves geometric mean speedups over \\texttt{torch.compile} of 1.40$\\times$ (Level 1: 51/100), 1.15$\\times$ (Level 2: 31/100), and 1.07$\\times$ (Level 3: 12/50) across all problems.",
+      "authors": [
+        "Aheli Poddar",
+        "Sanskar Prasad",
+        "Arindam Samanta",
+        "Subha Chakraborty",
+        "Vishal Goyal",
+        "Rohit Singh Rathaur"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-24T16:17:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.30059v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "multi-agent LLM system for dispatch-aware GPU kernel optimization of generated Triton sub-kernels",
+      "llm_evidence_cn": "多智能体LLM系统对生成的Triton子算子进行调度感知优化",
+      "llm_evidence": "多智能体LLM系统对生成的Triton子算子进行调度感知优化",
+      "canonical_evidence": "多智能体LLM系统对生成的Triton子算子进行调度感知优化",
+      "llm_tldr_en": "KernelOPT is a multi-agent LLM system that treats compiled models as structured artifacts, preserving vendor library calls and optimizing generated Triton sub-kernels via profiling-guided dispatch-aware search with end-to-end verification.",
+      "llm_tldr_cn": "深度学习推理与训练性能高度依赖GPU算子效率，但PyTorch Inductor等编译器自动生成的算子常远逊于专家实现，现有LLM算子优化器又将编译模型视为黑盒。本文提出KernelOPT多智能体系统，将编译模型视为结构化产物，保留cuBLAS、cuDNN等厂商库调用，仅针对生成的Triton子算子，并借助五个性能剖析引导进行调度感知搜索。该方法在保持编译结构决策的同时端到端验证模型，显著提升了自动算子优化的效果。",
+      "llm_tldr": "深度学习推理与训练性能高度依赖GPU算子效率，但PyTorch Inductor等编译器自动生成的算子常远逊于专家实现，现有LLM算子优化器又将编译模型视为黑盒。本文提出KernelOPT多智能体系统，将编译模型视为结构化产物，保留cuBLAS、cuDNN等厂商库调用，仅针对生成的Triton子算子，并借助五个性能剖析引导进行调度感知搜索。该方法在保持编译结构决策的同时端到端验证模型，显著提升了自动算子优化的效果。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.29144v1",
+      "source": "arxiv",
+      "title": "Scope Before You Persist: Preventing Cross-Family Interference in Agent Memory",
+      "abstract": "Persistent memory lets language-model agents improve prompts and skills without updating model weights. We show that matching retrieval scope to certification scope enables these edits to support reliable repeated adaptation across recurring task families. We study frozen-model agents on ProcStream-RSI, a 12-round code-repair stream, using Orthogonal Regression Control (ORC), an execution-grounded gate for persistent skill edits. In an intervention that holds proposals and gate decisions fixed, retrieving each accepted skill only for its originating family raises mean hidden trajectory utility from 0.713 under global memory to 0.816 and changes harmful deployments from six of eight to none. In 27 paired randomized-order streams, Scoped-ORC improves mean trajectory utility by 0.063 [0.037, 0.094] over Global-ORC, accepts 63 rather than 12 updates, and produces multiple accepted updates in 19/27 streams, with 0/63 harmful acceptances. The global control reaches 0.713, below the static agent's 0.775, because locally valid edits can interfere with unrelated families. These results establish scope matching as a complementary control for persistent agent memory: certification determines whether an edit is supported, while retrieval scope determines where that evidence authorizes its use.",
+      "authors": [
+        "Yezhou Cheng",
+        "Runjia Du",
+        "Zeming Liu",
+        "Qibai Chen",
+        "Hang Lyu",
+        "Yankai Zeng",
+        "Yilan Wei",
+        "Bojun Lin"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-24T07:22:10+00:00",
+      "link": "https://arxiv.org/pdf/2609.29144v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Scoping persistent agent memory retrieval to prevent cross-family interference",
+      "llm_evidence_cn": "限定持久化智能体记忆检索范围以避免跨任务族干扰",
+      "llm_evidence": "限定持久化智能体记忆检索范围以避免跨任务族干扰",
+      "canonical_evidence": "限定持久化智能体记忆检索范围以避免跨任务族干扰",
+      "llm_tldr_en": "This paper shows that matching retrieval scope to certification scope lets frozen-model agents reliably reuse persistent skills, raising hidden trajectory utility and eliminating harmful memory deployments.",
+      "llm_tldr_cn": "持久记忆让语言模型智能体无需更新权重即可改进提示与技能，但全局检索常导致跨任务族干扰。论文在代码修复流ProcStream-RSI上研究冻结模型智能体，提出Orthogonal Regression Control执行门控，并主张让检索范围与认证范围一致。结果显示按来源任务族限定检索可将平均隐藏轨迹效用从0.713提升到0.816，有害部署从八例中的六例降为零。该工作为智能体记忆的可靠检索与复用提供了范围匹配原则。",
+      "llm_tldr": "持久记忆让语言模型智能体无需更新权重即可改进提示与技能，但全局检索常导致跨任务族干扰。论文在代码修复流ProcStream-RSI上研究冻结模型智能体，提出Orthogonal Regression Control执行门控，并主张让检索范围与认证范围一致。结果显示按来源任务族限定检索可将平均隐藏轨迹效用从0.713提升到0.816，有害部署从八例中的六例降为零。该工作为智能体记忆的可靠检索与复用提供了范围匹配原则。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.29394v1",
+      "source": "arxiv",
+      "title": "RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning",
+      "abstract": "General-purpose robot agents must learn from experience, transfer to new tasks, and act efficiently. Code as Policies (CaP) methods generate and repair programs at runtime, incurring latency and entangling reusable mechanisms with task-specific decisions. We introduce RACaP, an agentic framework that moves coding to evolution and uses a Reasoning-and-Acting (ReAct) loop to call frozen, typed Policy APIs at deployment. A two-phase strategy combines capability curriculum learning with autonomous self-evolution to improve the APIs, the ReAct harness, and experience memory. The APIs encode reusable physical mechanisms while exposing arguments for runtime adaptation. ReAct combines task-specific working memory, long-term experience memory, and visual feedback to select actions, verify outcomes, and recover from failures without modifying source code. RACaP achieves 54.4% success on LIBERO-90, 45.0% on zero-shot LIBERO-PRO, and 46.0% on LIBERO-Long, compared with at most 4.0% for CaP baselines on long-horizon tasks. On LIBERO-PRO, it achieves 2.5 times the success rate of CaP baselines and a 1.9-fold speedup in median policy time. For efficient on-robot deployment, rejection-sampled fine-tuning distills GPT-5.6 ReAct decisions into Qwen3-VL-8B-Instruct, yielding a 13.2-fold per-decision inference speedup and reducing repeated physical calls from 16 to 4. These results show that separating reusable code from runtime decisions supports continued evolution, effective transfer, and efficient long-horizon control.",
+      "authors": [
+        "Zexi Li",
+        "Yehang Zhang",
+        "Haojian Huang",
+        "Bohan Zhou",
+        "Wenqian Li",
+        "Chenxu Wang",
+        "Yifan Chang",
+        "Yangkai Wei",
+        "Tianyi Zhang",
+        "Ying-Cong Chen",
+        "Kaiwen Zhou",
+        "Yinchuan Li",
+        "James Cheng"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-24T11:22:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.29394v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Agentic framework with autonomous self-evolution improving policies and experience memory",
+      "llm_evidence_cn": "具备自主自进化、持续改进策略与经验记忆的智能体框架",
+      "llm_evidence": "具备自主自进化、持续改进策略与经验记忆的智能体框架",
+      "canonical_evidence": "具备自主自进化、持续改进策略与经验记忆的智能体框架",
+      "llm_tldr_en": "RACaP moves code generation into an evolutionary phase and uses a ReAct loop over frozen typed Policy APIs, combining curriculum learning with autonomous self-evolution of APIs and memory.",
+      "llm_tldr_cn": "通用机器人智能体需从经验中学习并高效迁移，但Code as Policies在运行时生成与修复程序会带来延迟，并把可复用机制与任务决策纠缠在一起。论文提出RACaP，把编码移到进化阶段，部署时用ReAct循环调用冻结的类型化策略API，并以能力课程学习配合自主自进化来改进API、ReAct框架与经验记忆。该框架提升了策略复用与适应效率，为自进化智能体提供了可扩展范式。",
+      "llm_tldr": "通用机器人智能体需从经验中学习并高效迁移，但Code as Policies在运行时生成与修复程序会带来延迟，并把可复用机制与任务决策纠缠在一起。论文提出RACaP，把编码移到进化阶段，部署时用ReAct循环调用冻结的类型化策略API，并以能力课程学习配合自主自进化来改进API、ReAct框架与经验记忆。该框架提升了策略复用与适应效率，为自进化智能体提供了可扩展范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.30057v1",
+      "source": "arxiv",
+      "title": "KREX: Concurrent Kernel Benchmarking on Shared GPUs via Region-Granular Exclusivity",
+      "abstract": "LLM agents automate GPU kernel optimization by repeatedly composing candidates and measuring their duration on real GPUs. Existing systems preserve measurement fidelity by reserving a GPU for an entire agent session or benchmarking command. However, this results in poor utilization because only a small fraction of command execution requires exclusive GPU access. Sharing GPUs could recover this idle capacity, but introduces contention that compromises measurement fidelity and misdirects the agent's search.   We present KREX, a runtime for concurrent kernel agent benchmarking with region-granular exclusivity. KREX lets agents mark critical regions involving timing-sensitive operations within a benchmarking command. The runtime then enforces exclusivity within marked regions and allows concurrent execution outside them, achieving high throughput while preserving measurement fidelity. To enforce in-region exclusivity, KREX blocks new competing GPU submissions and drains outstanding work before freezing sibling processes and isolating CPU cores, protecting both GPU execution and the host threads that drive measurements. To maximize off-region concurrency, KREX reuses GPU contexts in persistent context processes to avoid repeated, node-wide serialized context creation. We evaluate KREX on NVIDIA and AMD GPUs. Compared with command-granular exclusivity baselines, KREX delivers up to $3.4\\times$ the benchmarking throughput with a negligible p95 timing inflation of $0.30\\%$, $1.58\\%$, and $3.90\\%$ for kernels longer than 10 ms, 1 ms, and 0.1 ms, respectively.",
+      "authors": [
+        "Tianyu Feng",
+        "Haoxuan Yu",
+        "Tianyuan Wu",
+        "Lingyun Yang",
+        "Daocheng Ying",
+        "Yuxiao Wang",
+        "Ruibo Fan",
+        "Yinghao Yu",
+        "Guodong Yang",
+        "Liping Zhang",
+        "Wei Wang"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC",
+        "cs.OS",
+        "cs.PF"
+      ],
+      "published": "2026-09-24T16:14:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.30057v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "LLM agents automate GPU kernel optimization and benchmarking",
+      "llm_evidence_cn": "LLM智能体自动优化GPU算子并进行基准测试",
+      "llm_evidence": "LLM智能体自动优化GPU算子并进行基准测试",
+      "canonical_evidence": "LLM智能体自动优化GPU算子并进行基准测试",
+      "llm_tldr_en": "LLM agents optimize GPU kernels by repeatedly composing and timing candidates, but reserving a whole GPU for fidelity wastes capacity. KREX introduces region-granular exclusivity, letting agents mark timing-sensitive regions so shared GPUs keep measurement fidelity.",
+      "llm_tldr_cn": "LLM智能体通过反复生成候选并测量其运行时间来优化GPU算子，但现有系统为保真需独占整块GPU，导致利用率低下。本文提出KREX运行时，允许智能体在基准命令中标记对时序敏感的关键区域，并实施区域粒度的独占调度。该设计在共享GPU时兼顾测量保真度与利用率，避免资源竞争误导智能体搜索，从而提升算子优化效率。",
+      "llm_tldr": "LLM智能体通过反复生成候选并测量其运行时间来优化GPU算子，但现有系统为保真需独占整块GPU，导致利用率低下。本文提出KREX运行时，允许智能体在基准命令中标记对时序敏感的关键区域，并实施区域粒度的独占调度。该设计在共享GPU时兼顾测量保真度与利用率，避免资源竞争误导智能体搜索，从而提升算子优化效率。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.29067v1",
+      "source": "arxiv",
+      "title": "TileBench: A Controlled Benchmark for Performance Evaluation and Bottleneck Diagnosis of Tile-Based Programming Models",
+      "abstract": "Tile-based programming models, such as Triton and cuTile, aim to simplify high-performance kernel development, but their practical performance, tuning behavior, and usability remain difficult to compare systematically. We present TileBench, a controlled benchmark for evaluating Triton and cuTile on NVIDIA B200 GPUs under matched operator semantics and comparable implementation structures. TileBench contains 45 operators covering diverse AI-kernel patterns and memory/computation behaviors. Each task provides a PyTorch reference, verified Triton and cuTile implementations, standardized data-types (dtype) and input-size sweeps, default and autotuned configurations, roofline-based metrics, and profiling-guided diagnosis. Our evaluation shows that performance gaps are workload-dependent: cuTile excels on a small cluster of Tensor-Core/TMA-friendly kernels, while Triton is stronger on many irregular, streaming, and bandwidth-bound operators. We further evaluate LLM-generated cuTile and Triton kernels and find that Triton is consistently more token-efficient than cuTile under the same iterative refinement protocol. TileBench is publicly available at https://github.com/Deep-Learning-Profiling-Tools/Tilebench.",
+      "authors": [
+        "Bowen Cui",
+        "Zhongchun Zhou",
+        "Hao Wu",
+        "Tejas Ramesh",
+        "Junyu Yin",
+        "Jialiang Gu",
+        "Keren Zhou"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF",
+        "cs.PL"
+      ],
+      "published": "2026-09-24T05:54:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.29067v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Controlled benchmark for tile-based kernel programming models with autotuning, roofline metrics and bottleneck diagnosis",
+      "llm_evidence_cn": "面向分块式内核编程模型的受控基准，含自动调优与roofline瓶颈诊断",
+      "llm_evidence": "面向分块式内核编程模型的受控基准，含自动调优与roofline瓶颈诊断",
+      "canonical_evidence": "面向分块式内核编程模型的受控基准，含自动调优与roofline瓶颈诊断",
+      "llm_tldr_en": "TileBench is a controlled benchmark comparing Triton and cuTile on NVIDIA B200 GPUs, offering 45 operators with verified implementations, autotuned configs and roofline metrics for kernel performance diagnosis.",
+      "llm_tldr_cn": "分块式编程模型如Triton与cuTile旨在简化高性能GPU内核开发，但其性能、调优行为与可用性缺乏系统对比。本文提出TileBench受控基准，在NVIDIA B200上以统一算子语义和实现结构评测二者，涵盖45个覆盖多种AI内核模式与访存计算行为的算子，并为每个任务提供PyTorch参考实现、验证过的Triton与cuTile实现、数据类型与输入规模扫描、默认及自动调优配置和基于roofline的指标与性能剖析指南，从而支撑内核性能评测与瓶颈诊断。",
+      "llm_tldr": "分块式编程模型如Triton与cuTile旨在简化高性能GPU内核开发，但其性能、调优行为与可用性缺乏系统对比。本文提出TileBench受控基准，在NVIDIA B200上以统一算子语义和实现结构评测二者，涵盖45个覆盖多种AI内核模式与访存计算行为的算子，并为每个任务提供PyTorch参考实现、验证过的Triton与cuTile实现、数据类型与输入规模扫描、默认及自动调优配置和基于roofline的指标与性能剖析指南，从而支撑内核性能评测与瓶颈诊断。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24137v1",
+      "source": "arxiv",
+      "title": "Data Agents: Agentic Data Systems",
+      "abstract": "Traditional data systems face profound limitations in the AI era, relying on human-crafted pipelines, lacking semantic understanding of heterogeneous data, and operating through rigid, reactive processing. To address these challenges, we propose a new paradigm called the Data Agent, designed to manage, process, and analyze data with minimal human intervention. Data agents autonomously execute a wide range of data-related tasks, transforming traditional data systems by shifting from manual design to autonomous orchestration, from literal manipulation to semantic interpretation, and from reactive to proactive processing. Our Data Agent system includes six components: semantic data organization, semantic operators, agentic pipeline orchestration and optimization, feedback-driven refinement, memory management, and proactive adaptation. Building on this foundation, we also develop two specialized agents: the data analytics agent and the data science agent. Experiments on real benchmarks demonstrate significant performance gains of our data agent over state-of-the-art methods. We identify open challenges to guide future research in building fully autonomous data systems.",
+      "authors": [
+        "Guoliang Li",
+        "Peiyao Zhou",
+        "Xuanhe Zhou",
+        "Ji Sun",
+        "Yuyu Luo",
+        "Ju Fan"
+      ],
+      "primary_category": "cs.DB",
+      "categories": [
+        "cs.DB",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-09-21T05:45:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.24137v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "autonomous data agents with minimal human intervention and feedback-driven refinement",
+      "llm_evidence_cn": "最少人工干预的自主数据智能体与反馈驱动精化",
+      "llm_evidence": "最少人工干预的自主数据智能体与反馈驱动精化",
+      "canonical_evidence": "最少人工干预的自主数据智能体与反馈驱动精化",
+      "llm_tldr_en": "Traditional data systems rely on human-crafted pipelines and rigid reactive processing. This paper proposes the Data Agent paradigm, where autonomous agents manage and analyze data with minimal human intervention, using semantic operators, agentic pipeline orchestration and feedback-driven refinement.",
+      "llm_tldr_cn": "针对传统数据系统依赖人工管道、缺乏语义理解且被动响应的问题，本文提出Data Agent范式，使智能体以最少人工干预自主管理、处理和分析数据，包含语义数据组织、语义算子、智能体化管道编排与反馈驱动精化等六个组件。该系统将数据系统从人工设计转向自主编排、从字面操作转向语义解释，为自主数据管理提供新架构。",
+      "llm_tldr": "针对传统数据系统依赖人工管道、缺乏语义理解且被动响应的问题，本文提出Data Agent范式，使智能体以最少人工干预自主管理、处理和分析数据，包含语义数据组织、语义算子、智能体化管道编排与反馈驱动精化等六个组件。该系统将数据系统从人工设计转向自主编排、从字面操作转向语义解释，为自主数据管理提供新架构。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29773v1",
+      "source": "arxiv",
+      "title": "Breaking the Environment Wall: Evolving LLM Agent Environments for Recursive Self-Improvement",
+      "abstract": "Many real-world tasks (e.g., office workflows, scientific experimentation) require LLM agents to interact repeatedly with their environments for context-dependent operations. However, such environments are often not agent-ready. First, information is often scattered and fragmented across the environment. Second, relevant evidence in the environment is often mixed with misleading information and conflicting versions. Third, environments evolve over time, introducing new noise and more challenging tasks. These challenges can substantially degrade performance for state-of-the-art AI agents (e.g., from 83.9% to 57.6%). To address these challenges, we propose Env-Rethink (a system with 27B post-trained model) that supports three main capabilities: (1) It adaptively builds Collection Maps (for organizing related files) and Event Logs (for contextualizing cross-data relationships) to supplement necessary context; (2) It further leverages the post-trained model (through offline trajectory learning) to identify underlying noise issues in the environment; (3) It ultimately evolves environments through virtual event histories that alter environmental states and evidence relationships, producing more tricky ones for further agent improvement. Experiments show that Env-Rethink can effectively improve downstream task performance (with over 15.1% rubric pass rate improvement across nine models on 30 tasks).",
+      "authors": [
+        "Yukai Wu",
+        "Yuanjing Yang",
+        "Le Zhou",
+        "Shaokun Han",
+        "Haoyu Wang",
+        "Zirui Tang",
+        "Weihuang Zheng",
+        "Maxm Pan",
+        "Xuanhe Zhou",
+        "Fan Wu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-24T13:17:57+00:00",
+      "link": "https://arxiv.org/pdf/2609.29773v1",
+      "tags": [
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "recursive self-improvement by evolving LLM agent environments",
+      "llm_evidence_cn": "通过环境演化实现LLM智能体的递归自我改进",
+      "llm_evidence": "通过环境演化实现LLM智能体的递归自我改进",
+      "canonical_evidence": "通过环境演化实现LLM智能体的递归自我改进",
+      "llm_tldr_en": "Real-world environments are often not agent-ready, with fragmented, misleading and evolving information degrading agents from 83.9% to 57.6%. Env-Rethink, a 27B post-trained system, restructures such environments for context-dependent operations and self-improvement.",
+      "llm_tldr_cn": "许多真实任务要求LLM智能体反复与环境交互，但环境往往并非为智能体就绪：信息碎片化、证据混杂误导、并随时间演化，使先进智能体性能从83.9%骤降至57.6%。本文提出Env-Rethink系统，基于27B后训练模型，通过重构环境支持上下文相关操作。该工作表明改善环境可显著提升智能体的自我改进与任务表现。",
+      "llm_tldr": "许多真实任务要求LLM智能体反复与环境交互，但环境往往并非为智能体就绪：信息碎片化、证据混杂误导、并随时间演化，使先进智能体性能从83.9%骤降至57.6%。本文提出Env-Rethink系统，基于27B后训练模型，通过重构环境支持上下文相关操作。该工作表明改善环境可显著提升智能体的自我改进与任务表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.27286v1",
+      "source": "arxiv",
+      "title": "Memory Control Signals Emerge Before Action in Long Horizon Agents",
+      "abstract": "Long horizon language model agents continuously accumulate interaction history, increasing computational cost while making relevant information harder to preserve and reuse. Existing context management methods mainly focus on how to compress or retrieve history, but largely leave open whether the model itself already represents the need for these memory operations before they occur. We study the hidden state immediately before each agent action and find that compression and recall needs are already encoded in the model's internal representations. These signals cannot be explained by simple context length or interaction progress, and they exhibit distinct formation patterns across model depth. We further show that most memory decision information is preserved in a compact recent context, while selectively restored historical evidence complements the long range dependencies that recent context misses. Based on these findings, we propose Preaction Memory with Evidence Retrieval (PaMER), which combines state guided compression with external evidence retrieval. PaMER+ further introduces step level evidence selection to recover only the historical information required by the current task. Experiments on WorkBuddyBench, across multiple context management baselines and model backbones, show that our framework substantially reduces context consumption while maintaining competitive task performance.",
+      "authors": [
+        "Mingxuan Wang",
+        "Guorun Yao",
+        "Fei Luo",
+        "Yinglong Guo",
+        "Chao Ning",
+        "Bo Wang",
+        "Hongyue Chen",
+        "Yanbiao Ma",
+        "Jungong Han"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-23T03:23:34+00:00",
+      "link": "https://arxiv.org/pdf/2609.27286v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agent memory operations and retrieval needs encoded before action",
+      "llm_evidence_cn": "动作前已编码智能体记忆操作与检索需求",
+      "llm_evidence": "动作前已编码智能体记忆操作与检索需求",
+      "canonical_evidence": "动作前已编码智能体记忆操作与检索需求",
+      "llm_tldr_en": "Studying hidden states before each agent action, this work finds compression and recall needs are already encoded in the model's representations, enabling anticipatory memory control.",
+      "llm_tldr_cn": "长时程语言模型智能体持续累积交互历史，导致计算成本上升且相关信息难以保留与复用。现有上下文管理方法多关注如何压缩或检索历史，却未回答模型本身是否在记忆操作发生前就已表征该需求。作者研究每个智能体动作前的隐状态，发现压缩与召回需求已编码在模型内部表示中，且随模型深度呈现不同形成模式。该发现表明记忆决策信息可被预判，为更高效的记忆与上下文管理提供依据。",
+      "llm_tldr": "长时程语言模型智能体持续累积交互历史，导致计算成本上升且相关信息难以保留与复用。现有上下文管理方法多关注如何压缩或检索历史，却未回答模型本身是否在记忆操作发生前就已表征该需求。作者研究每个智能体动作前的隐状态，发现压缩与召回需求已编码在模型内部表示中，且随模型深度呈现不同形成模式。该发现表明记忆决策信息可被预判，为更高效的记忆与上下文管理提供依据。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29015v1",
+      "source": "arxiv",
+      "title": "MeshHeal: Two-Timescale Self-Healing for Gray Failures in Decentralized LLM Agent Networks",
+      "abstract": "Decentralized LLM-based multi-agent systems coordinate through local interactions, but an agent can remain responsive while its task-solving quality persistently degrades. Such gray failures require protecting current tasks before sufficient evidence exists to alter future routing, while still allowing recovered agents to rejoin. We introduce MeshHeal, a fully decentralized self-healing framework that couples ability-matched peer review across two timescales. At the fast timescale, an adaptive hierarchy escalates uncertain or low-scoring outputs from repeated single-reviewer evaluation to committee deliberation and, when needed, correction before use. At the slow timescale, a task- and ability-conditioned peer-relative detector aggregates scores to distinguish persistent degradation from ordinary output variation, trigger mandatory committee review, and eventually exclude degraded agents from ordinary routing; recovery probes provide fresh evidence for reintegration. To faithfully evaluate routing, we introduce Model-Backed MAS Evaluation, which ties ability assignments to execution models, since prompt-based ability assignments alone can leave routing errors hidden. Across BBH, MATH, and MMLU-Pro, MeshHeal achieves 0.839 degraded-phase accuracy using 51k total model tokens per task, versus the strongest baseline Symphony's 0.807 accuracy using 115k per task. Under staggered degradation and recovery, MeshHeal isolates degraded agents, keeps them excluded from ordinary task execution until recovery, and returns them to normal routing.",
+      "authors": [
+        "Keru Chen",
+        "Sen Lin",
+        "Yingbin Liang",
+        "Nathaniel D. Bastian",
+        "Shaofeng Zou"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.DC"
+      ],
+      "published": "2026-09-24T04:29:37+00:00",
+      "link": "https://arxiv.org/pdf/2609.29015v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "self-healing LLM agent networks with two-timescale peer review and recovery",
+      "llm_evidence_cn": "双时间尺度同行评审实现LLM智能体网络自愈与恢复",
+      "llm_evidence": "双时间尺度同行评审实现LLM智能体网络自愈与恢复",
+      "canonical_evidence": "双时间尺度同行评审实现LLM智能体网络自愈与恢复",
+      "llm_tldr_en": "MeshHeal is a fully decentralized self-healing framework for LLM agent networks that couples fast-timescale peer review with slow-timescale peer-relative failure detection to protect tasks and let recovered agents rejoin.",
+      "llm_tldr_cn": "去中心化LLM多智能体系统中，智能体可能表面正常但任务质量持续下降，形成难以发现的灰故障。本文提出MeshHeal全去中心化自愈框架，在快时间尺度上用能力匹配的同行评审逐级升级为委员会审议并纠错，在慢时间尺度上用任务与能力条件化的相对检测器识别异常智能体。该机制在证据不足时先保护当前任务，同时允许恢复后的智能体重新加入网络，提升了多智能体协作的鲁棒性。",
+      "llm_tldr": "去中心化LLM多智能体系统中，智能体可能表面正常但任务质量持续下降，形成难以发现的灰故障。本文提出MeshHeal全去中心化自愈框架，在快时间尺度上用能力匹配的同行评审逐级升级为委员会审议并纠错，在慢时间尺度上用任务与能力条件化的相对检测器识别异常智能体。该机制在证据不足时先保护当前任务，同时允许恢复后的智能体重新加入网络，提升了多智能体协作的鲁棒性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29219v1",
+      "source": "arxiv",
+      "title": "Schedules Are Solvable Symbols: Tuning-Free Compilation of Tile Programs on Dataflow Architectures",
+      "abstract": "Modern AI and HPC accelerators increasingly expose dataflow features: software-visible mechanisms for data movement and overlap, such as inter-core communication through the on-chip network and intra-core asynchronous pipelining. These features shift scheduling responsibility from hardware to the compiler, and because placement, movement, and synchronization become software-visible, they also make the performance of static schedules predictable. Yet high performance on such hardware still relies on vendor-engineered kernel libraries or profile-based auto-tuning, whose embedded expert knowledge transfers poorly across architectures and algorithms.   We present Loom, a tuning-free symbolic compiler framework for tile-based SPMD programs on spatial dataflow architectures. The central idea is to treat tile-based SPMD compilation as a hardware-explicit static optimization problem. Loom enumerates discrete spatial-mapping and communication candidates while keeping value parameters, such as tiling factors and pipeline knobs, symbolic within each candidate.   From an explicit hardware description, it derives symbolic legality constraints and latency expressions, formulates one CP-SAT problem per schedule candidate, and jointly solves inter-core dataflow, intra-core asynchronous scheduling, and block sizes at compile time.   On two Tenstorrent generations, Wormhole and Blackhole, Loom matches or exceeds the vendor-optimized TTNN library on GEMM, Flash Attention, and Flash Decode, out of the box and without per-shape profiling or profile-based platform-specific schedule tuning. These results suggest that hardware-derived symbolic compilation provides a retargetable alternative to profiling-based tuning for spatial dataflow architectures while remaining interpretable by keeping optimization decisions traceable to source-level symbols.",
+      "authors": [
+        "Heru Wang",
+        "Wei Li",
+        "Zhenyu Bai",
+        "Tulika Mitra"
+      ],
+      "primary_category": "cs.PL",
+      "categories": [
+        "cs.PL"
+      ],
+      "published": "2026-09-24T08:27:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.29219v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "tuning-free symbolic compilation of tile kernels for accelerators",
+      "llm_evidence_cn": "面向加速器的免调优分块内核符号编译",
+      "llm_evidence": "面向加速器的免调优分块内核符号编译",
+      "canonical_evidence": "面向加速器的免调优分块内核符号编译",
+      "llm_tldr_en": "Loom is a tuning-free symbolic compiler framework for tile programs on dataflow accelerators, replacing vendor kernel libraries and profile-based auto-tuning whose expert knowledge transfers poorly across architectures and algorithms.",
+      "llm_tldr_cn": "针对数据流加速器上高性能仍依赖厂商内核库或基于profile的自动调优、其内嵌专家知识难以跨架构和算法迁移的问题，本文提出Loom，一种面向分块程序的免调优符号编译框架。它利用软件可见的放置、搬移与同步机制使静态调度的性能可预测，从而以符号化方式求解调度。该方法为GPU类加速器的内核生成与优化提供了可迁移的自动化编译路径，但由编译器而非大模型驱动。",
+      "llm_tldr": "针对数据流加速器上高性能仍依赖厂商内核库或基于profile的自动调优、其内嵌专家知识难以跨架构和算法迁移的问题，本文提出Loom，一种面向分块程序的免调优符号编译框架。它利用软件可见的放置、搬移与同步机制使静态调度的性能可预测，从而以符号化方式求解调度。该方法为GPU类加速器的内核生成与优化提供了可迁移的自动化编译路径，但由编译器而非大模型驱动。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29892v1",
+      "source": "arxiv",
+      "title": "Qwen-Planner-Agent: A Closed-Loop AI-for-AI Framework for Real-World Mobile Planner Agents",
+      "abstract": "The rapid progression of large language models is extending AI from passive content generation into the active workflows of engineering and scientific discovery. This shift raises a compelling question: can AI be both the object of development and an active participant in building next-generation AI systems? We explore this question by building Qwen-Planner-Agent within a closed-loop AI-for-AI framework for scalable development and iterative improvement. Mobile planning offers a demanding test of this approach: complex, long-horizon tasks challenge agent reliability, while costly real-device interaction limits development scalability. The framework connects data production, model training, and deployment through a shared action-feedback-verification contract. (i) AI for Data builds a human-gated agentic data flywheel in which specialized agents construct tasks, collect interaction trajectories, curate and balance training data, and use training feedback to guide subsequent data generation. (ii) AI for Training combines a supervised planning cold start with hybrid-environment online agentic reinforcement learning, where we introduce Competence-Aware Reward-and-Advantage Engineering (CARE) to reduce reasoning and tool-use costs while preserving task performance. (iii) AI drives model--harness co-evolution through an execution-evidence-driven loop that orchestrates memory, skills, and tools at runtime and feeds structured action feedback and preserved failure traces back into coordinated model and harness adaptation. Qwen-Planner-Agent achieves the best overall performance among all evaluated models and systems on MobilePA-Bench, improving over its base model across tool use, memory, skills, and sub-agent coordination. Further evaluations of our model show improvements across non-mobile agentic benchmarks while largely preserving general capabilities.",
+      "authors": [
+        "Tingyu Qu",
+        "Weigao Sun",
+        "Yuecheng Liu",
+        "Yucheng Zhao",
+        "Yi Zhu",
+        "Yifeng Ding",
+        "Qiyi Wang",
+        "Sihan Cao",
+        "Pengkun Jiao",
+        "Hanlei Xie",
+        "Xiongwei Wu",
+        "Qichao Wang",
+        "Haodong Zhang",
+        "Jiajun Liu",
+        "Yuhao Wang",
+        "Yuqing Xie",
+        "Junpeng Zhao",
+        "Long Chen",
+        "Ming Ma",
+        "Sihan Yang",
+        "Ziwang Zhao",
+        "Yanhao Jia",
+        "Liangquan Gong",
+        "Feida Zhu",
+        "Yiran Zhong",
+        "Steven Hoi"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-24T14:38:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.29892v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "closed-loop AI-for-AI framework enabling iterative agent improvement",
+      "llm_evidence_cn": "闭环AI-for-AI框架实现智能体迭代改进",
+      "llm_evidence": "闭环AI-for-AI框架实现智能体迭代改进",
+      "canonical_evidence": "闭环AI-for-AI框架实现智能体迭代改进",
+      "llm_tldr_en": "Qwen-Planner-Agent is built within a closed-loop AI-for-AI framework that connects data production, model training and deployment through a shared action-feedback loop, enabling scalable development and iterative improvement of real-world mobile planner agents.",
+      "llm_tldr_cn": "针对移动规划智能体长程任务可靠性不足、真实设备交互成本高导致开发难以规模化的问题，本文提出Qwen-Planner-Agent，构建闭环AI-for-AI框架，通过共享的动作反馈回路连接数据生产、模型训练与部署。该设计让模型既是被开发对象又是构建下一代系统的参与者，实现了可扩展的迭代改进。其在真实移动规划任务上验证了闭环自进化的有效性，与智能体持续自我提升主题相关。",
+      "llm_tldr": "针对移动规划智能体长程任务可靠性不足、真实设备交互成本高导致开发难以规模化的问题，本文提出Qwen-Planner-Agent，构建闭环AI-for-AI框架，通过共享的动作反馈回路连接数据生产、模型训练与部署。该设计让模型既是被开发对象又是构建下一代系统的参与者，实现了可扩展的迭代改进。其在真实移动规划任务上验证了闭环自进化的有效性，与智能体持续自我提升主题相关。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
