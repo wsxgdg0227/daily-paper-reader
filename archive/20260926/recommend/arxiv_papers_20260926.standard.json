@@ -1,0 +1,264 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-26T21:39:16.031399+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2609.29154v1",
+      "source": "arxiv",
+      "title": "A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents",
+      "abstract": "Large language model agents increasingly rely on natural-language skills to solve complex tool-use tasks. However, such tasks often admit multiple valid solution paths, making it inappropriate to improve skills by forcing failed trajectories to match a fixed successful trajectory. Moreover, failed trajectories are rarely entirely wrong: an agent may first collect useful evidence and make meaningful progress, but later deviate into an erroneous suffix. We therefore argue that skill self-evolution should identify where productive problem solving begins to break down, rather than reflect coarsely over the entire failure. Based on this insight, we propose SkillPivot, a deviation-point-guided framework for skill self-evolution. SkillPivot detects the transition from a useful prefix to an erroneous suffix using execution validity, goal progress, and action diversity. A stronger teacher then continues from the same prefix and produces a successful alternative under the same interaction history. By contrasting the student's failed suffix with the teacher's successful suffix, SkillPivot generates localized skill updates while preserving already effective guidance. Experiments on ToolQA, LogicBench, and WildClawBench show that SkillPivot consistently outperforms competing skill-evolution methods, improves multiple agent models, and produces compact, transferable skill updates.",
+      "authors": [
+        "Yichun Feng",
+        "Jiawei Wang",
+        "Haozhe Sun"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-24T07:31:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.29154v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deviation-guided skill self-evolution for LLM agents",
+      "llm_evidence_cn": "面向 LLM 智能体的偏差引导技能自演化",
+      "llm_evidence": "面向 LLM 智能体的偏差引导技能自演化",
+      "canonical_evidence": "面向 LLM 智能体的偏差引导技能自演化",
+      "llm_tldr_en": "SkillPivot identifies the deviation point where productive problem solving breaks down in failed trajectories to guide LLM agent skill self-evolution rather than matching a fixed success path.",
+      "llm_tldr_cn": "针对工具使用任务存在多条有效路径、且失败轨迹往往先有进展后偏离的问题，本文提出 SkillPivot 偏差点引导的技能自演化框架。它不强迫失败轨迹对齐固定成功路径，而是定位问题求解开始失效的偏差点，据此有针对性地改进自然语言技能。该框架使智能体能在无人工干预下持续优化技能，提升了复杂工具使用任务的表现。",
+      "llm_tldr": "针对工具使用任务存在多条有效路径、且失败轨迹往往先有进展后偏离的问题，本文提出 SkillPivot 偏差点引导的技能自演化框架。它不强迫失败轨迹对齐固定成功路径，而是定位问题求解开始失效的偏差点，据此有针对性地改进自然语言技能。该框架使智能体能在无人工干预下持续优化技能，提升了复杂工具使用任务的表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.29875v1",
+      "source": "arxiv",
+      "title": "When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression",
+      "abstract": "Long horizon language model agents continually accumulate reasoning history, increasing context length and inference cost even after earlier decisions have been executed and observed. Unlike static Chain of Thought compression, removing historical reasoning can change future actions and the resulting interaction trajectory. We study when such reasoning can be safely forgotten. We propose Interaction Aware Compression for Long Horizon Reasoning (ICLR), a training free online method that ranks reasoning blocks using frozen proxy entropy while preserving actions, tool calls, and observations. On 260 WorkBuddyBench tasks, ICLR improves average reward from 0.699 to 0.718, while reducing input, output, and cache read tokens by 25.5%, 14.4%, and 33.3%, respectively. Ablations reveal trajectory amplification, where local reasoning deletion produces nonlinear changes in total computation by altering subsequent interaction. Representation probing, activation patching, and controlled trajectory analyses further suggest that historical reasoning becomes more replaceable once task relevant derived state has been reliably externalized into code, files, tool outputs, or environmental feedback. These results characterize agent reasoning as dynamic working state rather than permanent interaction history.",
+      "authors": [
+        "Mingxuan Wang",
+        "Fei Luo",
+        "Bo Wang",
+        "Guorun Yao",
+        "Yinglong Guo",
+        "Chao Ning",
+        "Hongyue Chen",
+        "Yanbiao Ma",
+        "Jungong Han"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-09-24T14:28:43+00:00",
+      "link": "https://arxiv.org/pdf/2609.29875v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "long-horizon agent context compression of accumulated reasoning history in memory",
+      "llm_evidence_cn": "长程智能体上下文中累积推理历史的压缩",
+      "llm_evidence": "长程智能体上下文中累积推理历史的压缩",
+      "canonical_evidence": "长程智能体上下文中累积推理历史的压缩",
+      "llm_tldr_en": "Long-horizon agents accumulate reasoning history that inflates context and cost; the paper proposes ICLR, a training-free online compression method that ranks reasoning blocks by frozen proxy entropy while preserving actions and observations.",
+      "llm_tldr_cn": "长程语言模型智能体会不断累积推理历史，使上下文长度与推理成本持续增长，但删除历史推理可能改变未来行动轨迹。本文提出交互感知压缩方法ICLR，一种无需训练的在线方法，利用冻结代理熵对推理块排序，同时保留动作、工具调用与观察。在260个WorkBuddyBench任务上，ICLR将平均奖励从0.699提升到0.718，同时减少输入、输出和缓存读取token约25.5%、14.4%。该工作为智能体记忆上下文管理提供高效压缩方案。",
+      "llm_tldr": "长程语言模型智能体会不断累积推理历史，使上下文长度与推理成本持续增长，但删除历史推理可能改变未来行动轨迹。本文提出交互感知压缩方法ICLR，一种无需训练的在线方法，利用冻结代理熵对推理块排序，同时保留动作、工具调用与观察。在260个WorkBuddyBench任务上，ICLR将平均奖励从0.699提升到0.718，同时减少输入、输出和缓存读取token约25.5%、14.4%。该工作为智能体记忆上下文管理提供高效压缩方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24417v1",
+      "source": "arxiv",
+      "title": "ARM: Attention with Routed-Memory for Learnable Sparse Control",
+      "abstract": "Despite advances in long-context inference, large language models (LLMs) remain fundamentally limited by the key-value (KV) caching mechanisms that are necessary for stable computation. Techniques such as selective token eviction and pruning have vastly mitigated these issues, but often discard core information to manage the growing cache. In this paper, we propose Attention with Routed Memory (ARM) a novel KV caching structure that introduces a fully differentiable, fixed-size memory system organized as a hierarchical router. Via a Gumbel-Softmax, ARM learns to select memory slots and perform sigmoid-gated updates that softly combine new and stored information, avoiding hard eviction and reducing information loss. By further training a policy to dynamically select varying amounts of memory at inference, ARM adapts its accesses for both simple contexts and inputs that require deeper reasoning, enabling more scalable and effective retrieval on both short- and long-contexts. Experimental results on standard commonsense and long-context reasoning benchmarks demonstrate that ARM achieves superior performance and efficiency compared to fixed KV-caching approaches, while remaining efficient and scalable in terms of both memory and generation latency.",
+      "authors": [
+        "Qiuhao Zeng",
+        "Jerry Huang",
+        "Peng Lu",
+        "Ruiyi Fang",
+        "Gezheng Xu",
+        "Zihao Jing",
+        "Yufei Cui",
+        "Charles Ling",
+        "Gang Niu",
+        "Boyu Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-21T11:11:17+00:00",
+      "link": "https://arxiv.org/pdf/2609.24417v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "differentiable fixed-size memory system with hierarchical router for storing and retrieving information",
+      "llm_evidence_cn": "可微分固定大小记忆系统与分层路由，用于信息存储与检索",
+      "llm_evidence": "可微分固定大小记忆系统与分层路由，用于信息存储与检索",
+      "canonical_evidence": "可微分固定大小记忆系统与分层路由，用于信息存储与检索",
+      "llm_tldr_en": "ARM introduces a differentiable, fixed-size KV memory organized as a hierarchical router, using Gumbel-Softmax slot selection and gated updates to avoid hard eviction and information loss in long-context LLM inference.",
+      "llm_tldr_cn": "针对大模型长上下文推理中KV缓存膨胀、硬淘汰导致信息丢失的问题，论文提出带路由记忆的注意力结构ARM。该方法构建完全可微的固定大小记忆系统，用分层路由器结合Gumbel-Softmax选择记忆槽，并以sigmoid门控软更新融合新旧信息，避免硬淘汰。论文还训练策略动态选择记忆，实验表明可在控制缓存规模的同时减少信息损失，为智能体的记忆存储与检索机制提供了可微方案。",
+      "llm_tldr": "针对大模型长上下文推理中KV缓存膨胀、硬淘汰导致信息丢失的问题，论文提出带路由记忆的注意力结构ARM。该方法构建完全可微的固定大小记忆系统，用分层路由器结合Gumbel-Softmax选择记忆槽，并以sigmoid门控软更新融合新旧信息，避免硬淘汰。论文还训练策略动态选择记忆，实验表明可在控制缓存规模的同时减少信息损失，为智能体的记忆存储与检索机制提供了可微方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27437v1",
+      "source": "arxiv",
+      "title": "Mamba-Family State-Space Model Kernels on a Programmable CGLA",
+      "abstract": "Edge and embedded inference is constrained by power and data movement. Mamba-family state-space models replace attention with sequence-linear recurrence, but their inference path combines dense projections, short-reduction SSD kernels, and recurrent-state updates. This paper maps these kernel groups onto IMAX, a programmable CPU-Grounded Linear Array (CGLA), and measures them from kernel execution to token-level integration. Projection kernels match the long-reduction IMAX pipeline, whereas SSD Step-1 is limited by short reductions and kernel-boundary overheads. Mamba-130M token-level integration identifies projection GEMV as the decode bottleneck. These results show that programmable CGLAs fit long-reduction projection kernels, while SSD and decode-time projection support require boundary reduction and persistent-weight execution.",
+      "authors": [
+        "Takuto Ando",
+        "Yasuhiko Nakashima"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-23T06:58:32+00:00",
+      "link": "https://arxiv.org/pdf/2609.27437v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "mapping and measuring Mamba kernel groups on a programmable array for kernel execution performance",
+      "llm_evidence_cn": "将Mamba算子组映射到可编程阵列并测量内核执行性能",
+      "llm_evidence": "将Mamba算子组映射到可编程阵列并测量内核执行性能",
+      "canonical_evidence": "将Mamba算子组映射到可编程阵列并测量内核执行性能",
+      "llm_tldr_en": "This paper maps Mamba-family state-space model kernels onto IMAX, a programmable CGLA, measuring from kernel execution to token-level integration and identifying projection GEMV as the decode bottleneck.",
+      "llm_tldr_cn": "针对边缘推理受功耗与数据搬运限制的问题，论文研究Mamba族状态空间模型在可编程CGLA上的算子映射。作者将稠密投影、短归约SSD与循环状态更新等算子组映射到IMAX架构，并从内核执行到token级集成进行测量。结果显示投影算子匹配长归约流水线，而SSD第一步受短归约与内核边界开销限制，Mamba-130M的解码瓶颈为投影GEMV。该工作为特定加速器上的算子性能分析提供了方法。",
+      "llm_tldr": "针对边缘推理受功耗与数据搬运限制的问题，论文研究Mamba族状态空间模型在可编程CGLA上的算子映射。作者将稠密投影、短归约SSD与循环状态更新等算子组映射到IMAX架构，并从内核执行到token级集成进行测量。结果显示投影算子匹配长归约流水线，而SSD第一步受短归约与内核边界开销限制，Mamba-130M的解码瓶颈为投影GEMV。该工作为特定加速器上的算子性能分析提供了方法。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.28724v1",
+      "source": "arxiv",
+      "title": "The Canonical Parallel Form as a Substrate for Parallelizing Compilers and Agentic Optimizers",
+      "abstract": "Imperative code fixes an execution order the computation does not require, and a parallelizing compiler must prove which parts of that order it can remove. We introduce the Canonical Parallel Form (CPF), a device-neutral program state from which every ordering constraint our analyses prove unnecessary has been removed. CPF is reached by output-preserving normalization, by lifting semantic operations such as tensor contractions, and by deriving parallelism in three levels ordered by decidability: syntactic subscript tests, exact affine dependence tests over integer sets, and SMT queries over non-linear integer arithmetic, which also admit parallelism guarded behind a runtime check. Heuristics can then specialize the canonical form for each architecture. Across 248 loop-level reasoning kernels on an AMD MI300A, CPF reaches 4.4x over Numba on its 24 Zen 4 cores and 25.4x on its CDNA 3 GPU. Against the other auto-parallelizing optimizers, CPF is 2.9x faster on the CPU and 8.7x on the GPU than DaCe's own auto-parallelizer, 1.9x faster than Pluto, and 1.5x faster than PPCG on the affine subset of the kernels. Because the pipeline is deterministic, CPF also serves as an agent's starting source, cutting the token cost per kernel by up to a factor of 2.72x while leaving the achieved speed-up unchanged, since the coding agents reason less about parallelism.",
+      "authors": [
+        "Yakup Koray Budanaz",
+        "Pratyai Mazumder",
+        "Alexandru Calotoiu",
+        "Torsten Hoefler"
+      ],
+      "primary_category": "cs.PF",
+      "categories": [
+        "cs.PF"
+      ],
+      "published": "2026-09-23T19:06:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.28724v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "canonical parallel form substrate for parallelizing compilers and agentic optimizers",
+      "llm_evidence_cn": "面向并行化编译器与智能体优化器的规范并行形式基底",
+      "llm_evidence": "面向并行化编译器与智能体优化器的规范并行形式基底",
+      "canonical_evidence": "面向并行化编译器与智能体优化器的规范并行形式基底",
+      "llm_tldr_en": "Introduces the Canonical Parallel Form, a device-neutral program state removing unnecessary ordering constraints via normalization and dependence analysis to support parallelizing compilers and agentic optimizers.",
+      "llm_tldr_cn": "针对命令式代码固化了计算并不需要的执行顺序、并行化编译器难以证明可去除部分的问题，本文提出规范并行形式（CPF）。CPF 是一种设备无关的程序状态，通过保输出归一化、张量收缩等语义提升以及语法、仿射依赖与 SMT 三级并行性推导得到。启发式可在此基础上进行特化，为并行化编译器与智能体优化器提供统一基底，有助于代码优化与并行代码生成。",
+      "llm_tldr": "针对命令式代码固化了计算并不需要的执行顺序、并行化编译器难以证明可去除部分的问题，本文提出规范并行形式（CPF）。CPF 是一种设备无关的程序状态，通过保输出归一化、张量收缩等语义提升以及语法、仿射依赖与 SMT 三级并行性推导得到。启发式可在此基础上进行特化，为并行化编译器与智能体优化器提供统一基底，有助于代码优化与并行代码生成。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29444v1",
+      "source": "arxiv",
+      "title": "IterSynth: Rethinking Deep Search Agents via Role-Decoupled Iterative Synthesis",
+      "abstract": "Deep search requires LLM agents to decompose complex queries, search for evidence, and synthesize grounded answers, yet existing ReAct-style agents suffer from two limitations: role coupling, where one policy must handle planning, evidence use, and synthesis; and context accumulation, where growing search histories introduce noise and obscure useful information. To address these issues, we propose IterSynth, a role-decoupled and summary-based paradigm that alternates between a Planner for identifying information needs and a Synthesizer for integrating evidence into an evolving summary state. This design separates planning from synthesis while using the summary as the persistent state of search, reducing both capability coupling and context noise. To train IterSynth effectively, we further introduce Role-Decoupled Policy Optimization (RDPO) for reinforcement learning, which combines terminal outcome rewards with turn-level rubric evaluations and computes role-specific advantages for more precise credit assignment. Experiments on five long-horizon deep-search benchmarks such as BrowseComp and Xbench-DS show that IterSynth-8B achieves an average score of 50.7, surpassing the strongest prior $\\leq$8B agent by +4.2\\%. Moreover, IterSynth serves as a model-agnostic prompting paradigm, delivering substantial zero-shot gains over ReAct and similar prompting paradigms on frontier proprietary models.",
+      "authors": [
+        "Xingyu Wu",
+        "Yuchen Yan",
+        "Zhengxi Lu",
+        "Siqi Chen",
+        "Xin ZHANG",
+        "Aiting Liu",
+        "Chao Deng",
+        "Jie Liu",
+        "Jin Ma",
+        "Jian Shao",
+        "Jun Xiao",
+        "Yongliang Shen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-24T12:02:53+00:00",
+      "link": "https://arxiv.org/pdf/2609.29444v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "deep search agent retrieving evidence into persistent summary state",
+      "llm_evidence_cn": "深度搜索智能体将证据检索并整合进持久摘要状态",
+      "llm_evidence": "深度搜索智能体将证据检索并整合进持久摘要状态",
+      "canonical_evidence": "深度搜索智能体将证据检索并整合进持久摘要状态",
+      "llm_tldr_en": "IterSynth decouples planner and synthesizer roles in deep search agents, using an evolving summary as persistent state to reduce role coupling and context noise.",
+      "llm_tldr_cn": "深度搜索要求LLM智能体分解复杂查询、检索证据并综合有据答案，但现有ReAct式智能体存在角色耦合与上下文累积两大缺陷，单一策略需兼顾规划、证据使用与综合，且搜索历史膨胀带来噪声。作者提出IterSynth，以角色解耦与摘要式范式在规划器与综合器间交替，用不断演进的摘要作为搜索的持久状态。该设计分离规划与综合并减少上下文噪声，提升了深度搜索的证据整合与知识检索效果。",
+      "llm_tldr": "深度搜索要求LLM智能体分解复杂查询、检索证据并综合有据答案，但现有ReAct式智能体存在角色耦合与上下文累积两大缺陷，单一策略需兼顾规划、证据使用与综合，且搜索历史膨胀带来噪声。作者提出IterSynth，以角色解耦与摘要式范式在规划器与综合器间交替，用不断演进的摘要作为搜索的持久状态。该设计分离规划与综合并减少上下文噪声，提升了深度搜索的证据整合与知识检索效果。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

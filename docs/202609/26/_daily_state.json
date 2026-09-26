@@ -1,0 +1,105 @@
+{
+  "date": "20260926",
+  "date_label": "",
+  "generated_at": "2026-09-26 21:43:30 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.29154v1",
+      "route": "202609/26/2609.29154v1-a-wrong-turn-does-not-ruin-the-journey-deviation-guided-skill-self-evolution-for-llm-agents",
+      "title": "A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向 LLM 智能体的偏差引导技能自演化",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    },
+    {
+      "paper_id": "2609.29875v1",
+      "route": "202609/26/2609.29875v1-when-can-agents-forget-their-reasoning-iclr-for-long-horizon-agent-context-compression",
+      "title": "When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "长程智能体上下文中累积推理历史的压缩",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    },
+    {
+      "paper_id": "2609.24417v1",
+      "route": "202609/26/2609.24417v1-arm-attention-with-routed-memory-for-learnable-sparse-control",
+      "title": "ARM: Attention with Routed-Memory for Learnable Sparse Control",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "可微分固定大小记忆系统与分层路由，用于信息存储与检索",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    },
+    {
+      "paper_id": "2609.27437v1",
+      "route": "202609/26/2609.27437v1-mamba-family-state-space-model-kernels-on-a-programmable-cgla",
+      "title": "Mamba-Family State-Space Model Kernels on a Programmable CGLA",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将Mamba算子组映射到可编程阵列并测量内核执行性能",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    },
+    {
+      "paper_id": "2609.28724v1",
+      "route": "202609/26/2609.28724v1-the-canonical-parallel-form-as-a-substrate-for-parallelizing-compilers-and-agentic-optimizers",
+      "title": "The Canonical Parallel Form as a Substrate for Parallelizing Compilers and Agentic Optimizers",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向并行化编译器与智能体优化器的规范并行形式基底",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    },
+    {
+      "paper_id": "2609.29444v1",
+      "route": "202609/26/2609.29444v1-itersynth-rethinking-deep-search-agents-via-role-decoupled-iterative-synthesis",
+      "title": "IterSynth: Rethinking Deep Search Agents via Role-Decoupled Iterative Synthesis",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "深度搜索智能体将证据检索并整合进持久摘要状态",
+      "first_seen_at": "2026-09-26 21:43:30 UTC",
+      "updated_at": "2026-09-26 21:43:30 UTC"
+    }
+  ]
+}

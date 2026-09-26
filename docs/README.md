@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-25</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-26</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 11 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 6 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>4</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-25 22:16:58 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-26 21:43:30 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日扫完11篇，精读4篇速读7篇，KernelOPT以10分领跑GPU内核优化智能搜索。</p>
-<p>最值得看的是KernelOPT的调度感知智能体搜索，以及Scope Before You Persist提出的跨族记忆干扰防护。</p>
-<p>普通读者可优先读这两篇精读，再用TileBench和Breaking the Environment Wall补足评测与自进化环境视角。</p>
+<p>今日精读1篇、速读5篇，重点聚焦LLM智能体的技能自进化与长程上下文压缩。最值得看的是《A Wrong Turn Does Not Ruin the Journey》（8.0分）提出的“偏差引导技能自进化”，以及长程智能体上下文压缩的适用边界。普通读者可先读精读这篇，再按需浏览速读中关于智能体记忆与压缩的内容。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">4 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="KernelOPT: Dispatch-Aware Agentic Search for GPU Kernel Optimization">KernelOPT: Dispatch-Aware Agentic Search for GPU Kernel Optimization</span></li><li><span class="dpr-home-dashboard-paper-title" title="Scope Before You Persist: Preventing Cross-Family Interference in Agent Memory">Scope Before You Persist: Preventing Cross-Family Interference in Agent Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning">RACaP: Agentic Reasoning, Acting, and Coding as Policies for Evolvable Robot Learning</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents">A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>4</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">7 篇</strong>
+    <strong class="dpr-home-dashboard-count">5 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TileBench: A Controlled Benchmark for Performance Evaluation and Bottleneck Diagnosis of Tile-Based Programming Models">TileBench: A Controlled Benchmark for Performance Evaluation and Bottleneck Diagnosis of Tile-Based Programming Models</span></li><li><span class="dpr-home-dashboard-paper-title" title="Breaking the Environment Wall: Evolving LLM Agent Environments for Recursive Self-Improvement">Breaking the Environment Wall: Evolving LLM Agent Environments for Recursive Self-Improvement</span></li><li><span class="dpr-home-dashboard-paper-title" title="Data Agents: Agentic Data Systems">Data Agents: Agentic Data Systems</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression">When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression</span></li><li><span class="dpr-home-dashboard-paper-title" title="ARM: Attention with Routed-Memory for Learnable Sparse Control">ARM: Attention with Routed-Memory for Learnable Sparse Control</span></li><li><span class="dpr-home-dashboard-paper-title" title="Mamba-Family State-Space Model Kernels on a Programmable CGLA">Mamba-Family State-Space Model Kernels on a Programmable CGLA</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
 </section>
 </div>
 
