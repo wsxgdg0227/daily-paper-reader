@@ -1,0 +1,105 @@
+{
+  "date": "20260927",
+  "date_label": "",
+  "generated_at": "2026-09-27 22:25:50 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.24289v1",
+      "route": "202609/27/2609.24289v1-ttse-a-two-track-online-self-evolution-framework",
+      "title": "TTSE: A Two-Track Online Self-Evolution Framework",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "无人工干预的智能体知识在线自进化",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    },
+    {
+      "paper_id": "2609.23512v1",
+      "route": "202609/27/2609.23512v1-agentbetta-verification-driven-adaptive-configuration-of-an-ai-nano-agent-through-selective-expansion-and-verified-contraction",
+      "title": "AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "以验证驱动诊断自适应更新记忆、上下文与工具等智能体配置",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    },
+    {
+      "paper_id": "2609.24089v1",
+      "route": "202609/27/2609.24089v1-flashbob-io-efficient-exact-backward-over-backward-for-softmax-attention",
+      "title": "FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "注意力反向传播的I/O高效GPU内核",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    },
+    {
+      "paper_id": "2609.27249v1",
+      "route": "202609/27/2609.27249v1-from-pytorch-to-the-npu-llm-agent-driven-model-conversion-across-heterogeneous-inference-runtimes",
+      "title": "From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "LLM智能体驱动的自动化模型转换与算子处理",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    },
+    {
+      "paper_id": "2609.28769v1",
+      "route": "202609/27/2609.28769v1-xtrace-high-fidelity-gpu-intra-kernel-tracing-via-binary-level-instruction-splicing",
+      "title": "Xtrace: High-Fidelity GPU Intra-Kernel Tracing via Binary-Level Instruction Splicing",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "GPU内核内追踪，提升性能优化所需的高保真度",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    },
+    {
+      "paper_id": "2609.29282v1",
+      "route": "202609/27/2609.29282v1-asymmetric-dynamic-routing-balancing-reasoning-depth-and-computational-efficiency-in-hypergraph-rag",
+      "title": "Asymmetric Dynamic Routing: Balancing Reasoning Depth and Computational Efficiency in Hypergraph RAG",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "分层知识图上的意图条件检索",
+      "first_seen_at": "2026-09-27 22:25:50 UTC",
+      "updated_at": "2026-09-27 22:25:50 UTC"
+    }
+  ]
+}

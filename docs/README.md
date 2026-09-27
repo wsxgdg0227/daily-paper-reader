@@ -48,7 +48,7 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-26</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-27</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
     <strong class="dpr-home-dashboard-count">共 6 篇</strong>
@@ -58,7 +58,7 @@
     <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-26 21:43:30 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-27 22:25:50 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,8 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日精读1篇、速读5篇，重点聚焦LLM智能体的技能自进化与长程上下文压缩。最值得看的是《A Wrong Turn Does Not Ruin the Journey》（8.0分）提出的“偏差引导技能自进化”，以及长程智能体上下文压缩的适用边界。普通读者可先读精读这篇，再按需浏览速读中关于智能体记忆与压缩的内容。</p>
+<p>今日6篇论文中，TTSE以8.0分领跑，成为唯一精读的两轨在线自演化框架。</p>
+<p>最值得看的是TTSE的自演化机制，速读可关注AgentBetta验证驱动配置、FlashBoB精确反向和PyTorch到NPU异构转换</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -81,7 +82,7 @@
     <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents">A Wrong Turn Does Not Ruin the Journey: Deviation-Guided Skill Self-Evolution for LLM Agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TTSE: A Two-Track Online Self-Evolution Framework">TTSE: A Two-Track Online Self-Evolution Framework</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
 </section>
@@ -94,7 +95,7 @@
     <strong class="dpr-home-dashboard-count">5 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression">When Can Agents Forget Their Reasoning? ICLR for Long-Horizon Agent Context Compression</span></li><li><span class="dpr-home-dashboard-paper-title" title="ARM: Attention with Routed-Memory for Learnable Sparse Control">ARM: Attention with Routed-Memory for Learnable Sparse Control</span></li><li><span class="dpr-home-dashboard-paper-title" title="Mamba-Family State-Space Model Kernels on a Programmable CGLA">Mamba-Family State-Space Model Kernels on a Programmable CGLA</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction">AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction</span></li><li><span class="dpr-home-dashboard-paper-title" title="FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention">FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention</span></li><li><span class="dpr-home-dashboard-paper-title" title="From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes">From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
 </section>

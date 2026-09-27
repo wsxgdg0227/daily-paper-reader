@@ -1,0 +1,254 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-27T22:19:24.438076+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2609.24289v1",
+      "source": "arxiv",
+      "title": "TTSE: A Two-Track Online Self-Evolution Framework",
+      "abstract": "As Large Language Model (LLM) agents are applied in continuously interactive environments, driving the evolution of their own capabilities becomes a core problem for achieving long-term autonomy. Currently, environmental knowledge is typically treated as an external fixed input rather than as part of the agent's ongoing evolution. Reinforcement learning methods usually optimize policies through environmental interaction but tend to adapt only to fixed task distributions or single environments. This paper proposes TTSE (Two-Track Self-Evolution), a dual-track online self-evolution framework that separates evolving knowledge into FACT (environmental facts, whose reliability is continuously verified through interaction evidence) and TIP (task-conditioned implementation procedures). From a decision-theoretic perspective, we decompose the agent's excess risk into environment-representation regret and conditional-execution regret, characterize the conditions under which environment-conditioned policies strictly outperform condition-agnostic policies, and bound the downstream risk in terms of FACT identification error and cross-condition mismatch cost. In practice, TTSE's ablation experiments on GDPevo validate the advantage of dual-track evolution. On the classic agent task benchmarks ALFWorld and ScienceWorld, TTSE further demonstrates superior task adaptation. Moreover, TTSE is broadly compatible with existing skill self-evolution methods; combined with the Bayesian-Agent algorithm, a single-track ablation validates the dual-track advantage, substantially improving the aggregate score across the five major domains of SOPBench over three independent repetitions. Finally, on the real end-to-end task benchmark PinchBench, TTSE is integrated into a general agent framework via retrieval-based injection and stably outperforms the baseline across three independent runs.",
+      "authors": [
+        "Ruimin Pei",
+        "Yongkang Wu",
+        "Shangyi Zheng",
+        "Yaqing Zhang",
+        "Deyang Li",
+        "Jianjun Tao",
+        "Xinyu Zhang",
+        "Xiang Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-21T08:47:16+00:00",
+      "link": "https://arxiv.org/pdf/2609.24289v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "online self-evolution of agent knowledge without human intervention",
+      "llm_evidence_cn": "无人工干预的智能体知识在线自进化",
+      "llm_evidence": "无人工干预的智能体知识在线自进化",
+      "canonical_evidence": "无人工干预的智能体知识在线自进化",
+      "llm_tldr_en": "Proposes TTSE, a two-track online self-evolution framework that splits evolving knowledge into continuously verified environmental facts and task-conditioned implementation procedures for autonomous LLM agents.",
+      "llm_tldr_cn": "针对LLM智能体在持续交互环境中环境知识被当作固定外部输入、难以自主进化的问题，本文提出双轨在线自进化框架TTSE，把演化知识拆分为通过交互证据持续验证可靠性的环境事实FACT与任务条件下的实现过程TIP。方法使智能体在长期自主运行中不断更新知识并优化策略，避免仅适配固定任务分布。该工作凸显记忆式知识结构与自进化机制对长期自主性的关键作用。",
+      "llm_tldr": "针对LLM智能体在持续交互环境中环境知识被当作固定外部输入、难以自主进化的问题，本文提出双轨在线自进化框架TTSE，把演化知识拆分为通过交互证据持续验证可靠性的环境事实FACT与任务条件下的实现过程TIP。方法使智能体在长期自主运行中不断更新知识并优化策略，避免仅适配固定任务分布。该工作凸显记忆式知识结构与自进化机制对长期自主性的关键作用。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.23512v1",
+      "source": "arxiv",
+      "title": "AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction",
+      "abstract": "Large language model agents are typically deployed with predefined configurations, although the required model capability, context, tools, permissions, memory, and computational resources can vary substantially across tasks. This study develops and evaluates AgentBetta, an adaptive AI Nano-Agent framework that represents these factors as an executable configuration and updates them through verification-driven diagnosis, selective expansion, and verification-based counterfactual contraction. The evaluation distinguishes controlled mechanism validation from external agent comparisons. On the AB-ConfigBench benchmark, AgentBetta achieved 91.38% verified success while reducing median context allocation from 64,000 to 8,000 context characters and median tool exposure from five tools to zero compared with the fully provisioned configuration. The configuration-deficiency diagnosis achieved a macro-F1 score of 0.819 with precision of 1.000 across the evaluated dimensions, and selective expansion avoided unnecessary changes to unrelated configuration dimensions. Post-success contraction preserved verification outcomes in 56.41% of evaluated one-dimension contraction probes, indicating that some successful configurations contained removable capability under the tested conditions. External evaluations indicate that adaptive configuration can improve the balance between verified task completion and capability exposure; however, the results vary across benchmarks and agent families. In particular, the cross-family replication did not reproduce the primary-backbone accuracy ordering, and specialized systems remained advantageous for certain task domains. These results support interpreting AgentBetta as a configuration-adaptation mechanism that regulates capability allocation and inference expenditure rather than as a universal replacement for specialized agent architectures.",
+      "authors": [
+        "Md. Ashraful Babu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-20T09:56:10+00:00",
+      "link": "https://arxiv.org/pdf/2609.23512v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive agent configuration covering memory, context and tools updated by verification-driven diagnosis",
+      "llm_evidence_cn": "以验证驱动诊断自适应更新记忆、上下文与工具等智能体配置",
+      "llm_evidence": "以验证驱动诊断自适应更新记忆、上下文与工具等智能体配置",
+      "canonical_evidence": "以验证驱动诊断自适应更新记忆、上下文与工具等智能体配置",
+      "llm_tldr_en": "LLM agents are deployed with fixed configurations though needed capability, context, tools and memory vary by task. AgentBetta represents them as an executable configuration updated by verification-driven expansion and contraction, reaching 91.38% verified success on AB-ConfigBench.",
+      "llm_tldr_cn": "大模型智能体通常以预定义配置部署，但任务所需的模型能力、上下文、工具、权限、记忆与算力差异很大。作者提出AgentBetta自适应纳米智能体框架，将上述因素表示为可执行配置，并通过验证驱动的诊断、选择性扩展与基于验证的反事实收缩进行更新。在AB-ConfigBench上取得91.38%的验证成功率，同时降低中位上下文分配。该工作表明按需自适应配置可在保证成功的同时节省资源。",
+      "llm_tldr": "大模型智能体通常以预定义配置部署，但任务所需的模型能力、上下文、工具、权限、记忆与算力差异很大。作者提出AgentBetta自适应纳米智能体框架，将上述因素表示为可执行配置，并通过验证驱动的诊断、选择性扩展与基于验证的反事实收缩进行更新。在AB-ConfigBench上取得91.38%的验证成功率，同时降低中位上下文分配。该工作表明按需自适应配置可在保证成功的同时节省资源。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.24089v1",
+      "source": "arxiv",
+      "title": "FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention",
+      "abstract": "Transformer models built on the attention mechanism have become a central building block in modern deep learning, yet softmax attention remains a major bottleneck for long-context workloads. While FlashAttention makes the forward and first backward passes I/O-efficient, it does not support backward-over-backward (BoB), which enables exact differentiation through the backward pass for applications such as second-order optimization, test-time training, gradient-based memory, and meta-learning. Existing BoB implementations either materialize large intermediate tensors or exhaust GPU memory at long sequence lengths. We present FlashBoB, an exact, I/O-efficient algorithm for BoB in softmax attention that keeps computation within on-chip tiles and avoids all $N \\times N$ intermediate tensors, where $N$ is the sequence length. The key insight is a hierarchical affine structure in the softmax double backward: two row-wise scalars determine all outputs through affine transformations. This yields a two-pass schedule with bounded on-chip static random-access memory (SRAM) usage and minimal off-chip high-bandwidth memory (HBM) traffic. FlashBoB achieves $Θ(N^2 d^2/M)$ HBM traffic ($d$ is the head dimension and $M$ is the memory size) and, within the standard FlashAttention-style score-recomputation model, matches the inherited large-cache lower bound for exact forward attention. Empirically, it scales exact attention BoB to $N=262\\text{K}$ on a single A100 80GB GPU, where prior PyTorch exact baselines fail by $N=16\\text{K}$, and is up to $6.3\\times$ faster than FlashBack. These results make exact second-order attention practical at long-context sequence lengths where prior implementations cannot run efficiently.",
+      "authors": [
+        "Anthony Givans",
+        "Michael Crawshaw",
+        "Mingrui Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-21T04:20:19+00:00",
+      "link": "https://arxiv.org/pdf/2609.24089v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "I/O-efficient GPU kernel for attention backward pass",
+      "llm_evidence_cn": "注意力反向传播的I/O高效GPU内核",
+      "llm_evidence": "注意力反向传播的I/O高效GPU内核",
+      "canonical_evidence": "注意力反向传播的I/O高效GPU内核",
+      "llm_tldr_en": "Softmax attention remains a bottleneck for long contexts, and FlashAttention does not support backward-over-backward. FlashBoB is an exact, I/O-efficient BoB algorithm keeping computation in on-chip tiles, avoiding materializing large intermediates or exhausting GPU memory at long sequence lengths.",
+      "llm_tldr_cn": "长上下文下softmax注意力仍是主要瓶颈，FlashAttention虽使前向与一阶反向I/O高效，却不支持二阶反向传播。本文提出FlashBoB，一种精确且I/O高效的二阶反向算法，将计算保持在片上分块内，避免物化大型中间张量。该算法在长序列下不会耗尽GPU显存，可支撑二阶优化、测试时训练、梯度记忆与元学习等应用，为注意力二阶梯度提供显存友好的高效实现。",
+      "llm_tldr": "长上下文下softmax注意力仍是主要瓶颈，FlashAttention虽使前向与一阶反向I/O高效，却不支持二阶反向传播。本文提出FlashBoB，一种精确且I/O高效的二阶反向算法，将计算保持在片上分块内，避免物化大型中间张量。该算法在长序列下不会耗尽GPU显存，可支撑二阶优化、测试时训练、梯度记忆与元学习等应用，为注意力二阶梯度提供显存友好的高效实现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.27249v1",
+      "source": "arxiv",
+      "title": "From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes",
+      "abstract": "Edge AI model deployment is a multi-stage engineering process involving model conversion, operator compatibility handling, runtime integration, and precision verification. While prior work has demonstrated agent-based automation for Qualcomm AI Runtime, the broader edge inference runtime ecosystem, including Intel OpenVINO, Rockchip RKNN, NVIDIA TensorRT, and ONNX Runtime, presents distinct toolchains and optimization strategies.   This paper extends AIPC (AI Porting Conversion, an LLM agent-driven methodology for AI model deployment automation previously demonstrated on Qualcomm AI Runtime) to multi-runtime scenarios, proposing an LLM agent-driven approach for automated single-model-to-single-runtime deployment across heterogeneous inference backends, such as Intel OpenVINO, Rockchip RKNN, NVIDIA TensorRT, and ONNX Runtime. We decompose the edge AI deployment into standardized, verifiable stages, and inject runtime-specific domain knowledge into the agent execution flow through agent skills, auxiliary scripts, and staged verification loops.   Using representative vision models, we demonstrate that agent-based deployment can complete the conversion from a PyTorch model to its executable inference, targeting OpenVINO for x86/NPU, RKNN for RK3588, TensorRT for NVIDIA GPU, and ONNX Runtime for Qualcomm NPU with a focus on FP16 precision deployment feasibility verification. The contributions of this paper primarily lie in providing multi-runtime deployment engineering practice experience, toolchain mapping analysis, a layout-adaptation and inference-replacement layer that removes manual transpose insertion from the agent's repair burden, and an empirical characterization of agent deviation behavior under structured knowledge injection, rather than large-scale systematic benchmarking or cross-runtime operator repair strategy comparison.",
+      "authors": [
+        "Jianhao Su",
+        "Zhanwei Wu",
+        "Chia-Heng Tu",
+        "ShengTing Huang"
+      ],
+      "primary_category": "cs.SE",
+      "categories": [
+        "cs.SE",
+        "cs.DC"
+      ],
+      "published": "2026-09-23T02:34:21+00:00",
+      "link": "https://arxiv.org/pdf/2609.27249v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "LLM-agent-driven automated model conversion and operator handling",
+      "llm_evidence_cn": "LLM智能体驱动的自动化模型转换与算子处理",
+      "llm_evidence": "LLM智能体驱动的自动化模型转换与算子处理",
+      "canonical_evidence": "LLM智能体驱动的自动化模型转换与算子处理",
+      "llm_tldr_en": "This paper extends the LLM-agent-driven AIPC methodology to multi-runtime edge deployment, automating model conversion, operator compatibility and runtime integration across OpenVINO, RKNN, TensorRT and ONNX.",
+      "llm_tldr_cn": "针对边缘AI部署涉及模型转换、算子兼容、运行时集成与精度验证等多阶段工程、且异构推理运行时工具链各异难以自动化的问题，本文将LLM智能体驱动的AIPC方法扩展到多运行时场景，提出单模型到单运行时的自动部署方案，覆盖OpenVINO、RKNN、TensorRT与ONNX等。实验验证了LLM智能体可自动完成转换与算子兼容处理，表明其能有效自动化异构推理运行时部署。",
+      "llm_tldr": "针对边缘AI部署涉及模型转换、算子兼容、运行时集成与精度验证等多阶段工程、且异构推理运行时工具链各异难以自动化的问题，本文将LLM智能体驱动的AIPC方法扩展到多运行时场景，提出单模型到单运行时的自动部署方案，覆盖OpenVINO、RKNN、TensorRT与ONNX等。实验验证了LLM智能体可自动完成转换与算子兼容处理，表明其能有效自动化异构推理运行时部署。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "Automated kernel optimization and code generation for GPUs",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.28769v1",
+      "source": "arxiv",
+      "title": "Xtrace: High-Fidelity GPU Intra-Kernel Tracing via Binary-Level Instruction Splicing",
+      "abstract": "Modern GPU kernels fuse increasingly more work into a single kernel, and intra-kernel tracing has become the mainstream method to profile them. Tracing inserts probes into the kernel to record its runtime states, and the fidelity of the trace determines the efficiency of performance optimization. Unfortunately, existing tools insert probes before compilation. These tools interfere with the compiler's optimizations, so they trace a different binary from the one the GPU executes. They also add significant runtime overhead.   Xtrace is the first GPU kernel tracing system with near-zero compile-time interference and minimized runtime overhead. Xtrace inserts probes directly into the compiled kernel binary. It reuses only the registers that hold dead values at the insertion address and resolves all hazards with the compiler's hazard tables. It further schedules the instruction order, register allocation, and control bits to minimize the runtime overhead the probe introduces. Xtrace supports 19 NVIDIA and AMD GPU architectures, and is publicly available for use at https://g-watch.github.io.   We evaluate Xtrace on major production large language model (LLM) kernels against the state-of-the-art tracers Neutrino and IKET from NVIDIA. On H100, B300, and MI300X GPUs, Xtrace preserves 94-98% of the instructions of the kernel, while existing tools preserve only 8-48%. Xtrace adds only 0.9-2.8% overhead, while existing tools add 3.8-75.6%. Xtrace guides a coding agent to reach the same FlashAttention-3 performance with 3.9x fewer iterations than existing traces do. Thanks to our binary-level instrumentation, Xtrace also traces the faster closed-source cuDNN kernel, which guides the agent to lift the open-source FlashAttention-4 by 5.2-13.3% in throughput.",
+      "authors": [
+        "Zhuobin Huang",
+        "Kai Zhang",
+        "Weihao Cui",
+        "Hongshi Tan",
+        "Liang Luo",
+        "Christopher Dewan",
+        "Shen Li",
+        "Bingsheng He"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-23T20:27:04+00:00",
+      "link": "https://arxiv.org/pdf/2609.28769v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU kernel intra-kernel tracing improving fidelity for performance optimization",
+      "llm_evidence_cn": "GPU内核内追踪，提升性能优化所需的高保真度",
+      "llm_evidence": "GPU内核内追踪，提升性能优化所需的高保真度",
+      "canonical_evidence": "GPU内核内追踪，提升性能优化所需的高保真度",
+      "llm_tldr_en": "Xtrace inserts probes directly into compiled GPU kernel binaries via instruction splicing, achieving near-zero compile-time interference and low runtime overhead for high-fidelity intra-kernel tracing.",
+      "llm_tldr_cn": "论文针对GPU内核内追踪的保真度问题：现有工具在编译前插入探针，会干扰编译器优化，导致追踪的二进制与GPU实际执行的并不一致，并带来较大运行时开销。作者提出Xtrace，首个在已编译内核二进制上直接插入探针的追踪系统，通过二进制级指令拼接并复用寄存器，实现近零编译期干扰与更低开销。该工作提升了追踪保真度，为GPU内核性能优化提供更可靠的剖析数据。",
+      "llm_tldr": "论文针对GPU内核内追踪的保真度问题：现有工具在编译前插入探针，会干扰编译器优化，导致追踪的二进制与GPU实际执行的并不一致，并带来较大运行时开销。作者提出Xtrace，首个在已编译内核二进制上直接插入探针的追踪系统，通过二进制级指令拼接并复用寄存器，实现近零编译期干扰与更低开销。该工作提升了追踪保真度，为GPU内核性能优化提供更可靠的剖析数据。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29282v1",
+      "source": "arxiv",
+      "title": "Asymmetric Dynamic Routing: Balancing Reasoning Depth and Computational Efficiency in Hypergraph RAG",
+      "abstract": "While graph-based and hypergraph-based Retrieval-Augmented Generation (RAG) significantly mitigate hallucinations in Large Language Models (LLMs), existing structure-based RAG systems typically adopt static traversal strategies regardless of the query complexity. We identify this ``static retrieval fallacy'' as a primary source of computational redundancy for simple queries and cognitive context gaps for complex reasoning tasks. To balance reasoning quality and inference efficiency, we propose Asymmetric Dynamic Routing (ADR), an intent-conditioned retrieval framework operating over hierarchical knowledge graphs. ADR employs a lightweight structured classifier to dynamically dispatch queries among three asymmetric topological traversal operators: localized fact anchoring, bottom-up adjacency diffusion, and top-down insight grounding, which collectively enable bidirectional information flow across hierarchical knowledge layers. Extensive empirical evaluations across five domain-specific corpora demonstrate that ADR maintains strong reasoning performance while reducing prompt token consumption by up to 48.7\\% and end-to-end query latency by 45.3\\%, yielding a favorable quality--efficiency trade-off for query-adaptive Hypergraph RAG.",
+      "authors": [
+        "Qi Sun",
+        "Yijia Zhang",
+        "Xingliang Hou",
+        "Caibo Li",
+        "Qiang Li",
+        "Yu Guo"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-09-24T09:17:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.29282v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "intent-conditioned retrieval over hierarchical knowledge graphs",
+      "llm_evidence_cn": "分层知识图上的意图条件检索",
+      "llm_evidence": "分层知识图上的意图条件检索",
+      "canonical_evidence": "分层知识图上的意图条件检索",
+      "llm_tldr_en": "ADR is an intent-conditioned retrieval framework over hierarchical knowledge graphs that dynamically routes queries among asymmetric topologies to balance reasoning depth and efficiency in hypergraph RAG.",
+      "llm_tldr_cn": "针对结构式RAG采用静态遍历策略、忽视查询复杂度，导致简单查询计算冗余和复杂推理上下文缺口的问题，本文提出非对称动态路由ADR，用轻量结构化分类器在分层知识图上按查询意图动态分派到三种非对称拓扑路径。实验表明该方法在保持推理质量的同时提升推理效率，为RAG中知识检索的自适应调度提供了新思路。",
+      "llm_tldr": "针对结构式RAG采用静态遍历策略、忽视查询复杂度，导致简单查询计算冗余和复杂推理上下文缺口的问题，本文提出非对称动态路由ADR，用轻量结构化分类器在分层知识图上按查询意图动态分派到三种非对称拓扑路径。实验表明该方法在保持推理质量的同时提升推理效率，为RAG中知识检索的自适应调度提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
