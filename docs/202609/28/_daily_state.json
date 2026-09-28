@@ -1,0 +1,121 @@
+{
+  "date": "20260928",
+  "date_label": "",
+  "generated_at": "2026-09-28 23:51:27 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.30861v1",
+      "route": "202609/28/2609.30861v1-skillevoreg-regularizing-agent-skill-evolution-against-overfitting",
+      "title": "SkillEvoReg: Regularizing Agent Skill Evolution Against Overfitting",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体迭代将执行经验转化为可复用技能",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.31395v1",
+      "route": "202609/28/2609.31395v1-actkv-efficient-llm-agents-through-action-guided-kv-cache-management",
+      "title": "ActKV: Efficient LLM Agents through Action-Guided KV Cache Management",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向智能体推理的KV缓存压缩，按动作贡献度评估条目",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.24270v1",
+      "route": "202609/28/2609.24270v1-dissecting-how-die-scaling-breaks-gpu-fine-grained-scheduling",
+      "title": "Dissecting How Die Scaling Breaks GPU Fine-grained Scheduling",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "Die Scaling导致的GPU性能差异与非对称感知细粒度调度",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.25624v1",
+      "route": "202609/28/2609.25624v1-accelerating-the-mitigation-of-llm-inference-nondeterminism-across-gpu-architectures",
+      "title": "Accelerating the Mitigation of LLM Inference Nondeterminism Across GPU Architectures",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "固定配置的融合 GEMM 内核以统一跨架构 GPU 内核执行",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.28399v1",
+      "route": "202609/28/2609.28399v1-memory-attention",
+      "title": "Memory Attention",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "以token索引记忆替代值投影实现检索",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.29410v1",
+      "route": "202609/28/2609.29410v1-large-language-models-for-programming-actually-fixing-or-reimplementing-incorrect-code",
+      "title": "Large Language Models for Programming: Actually Fixing or Reimplementing Incorrect Code?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "大模型修复与重写程序代码",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    },
+    {
+      "paper_id": "2609.31430v1",
+      "route": "202609/28/2609.31430v1-compress-what-you-see-not-what-you-say-anchored-context-distillation-for-latent-observation-software-engineering-agents",
+      "title": "Compress What You See, Not What You Say: Anchored Context Distillation for Latent-Observation Software Engineering Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "压缩智能体历史上下文并保留动作关键信息",
+      "first_seen_at": "2026-09-28 23:51:27 UTC",
+      "updated_at": "2026-09-28 23:51:27 UTC"
+    }
+  ]
+}

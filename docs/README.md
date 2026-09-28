@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-09-27</span>
+      <span class="dpr-home-dashboard-kicker">2026-09-28</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 6 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 7 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>5</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>0</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-09-27 22:25:50 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-09-28 23:51:27 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,8 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日6篇论文中，TTSE以8.0分领跑，成为唯一精读的两轨在线自演化框架。</p>
-<p>最值得看的是TTSE的自演化机制，速读可关注AgentBetta验证驱动配置、FlashBoB精确反向和PyTorch到NPU异构转换</p>
+<p>今日速读 7 篇 Agent 与系统方向论文，聚焦技能演化防过拟合、动作引导 KV 缓存管理及 GPU 细粒度调度瓶颈。最值得看的是 SkillEvoReg（7.0）如何用正则化约束智能体技能演化防止过拟合，以及 ActKV（7.0）以动作信号管理 KV 缓存提升 LLM Agent 效率。普通读者可先挑这两篇精读，再结合 Dissecting How Die Scaling Breaks GPU Fine-grained Scheduling（6.0）了解硬件调度限制。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -79,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">0 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="TTSE: A Two-Track Online Self-Evolution Framework">TTSE: A Two-Track Online Self-Evolution Framework</span></li></ul>
+<p class="dpr-home-dashboard-empty">今日暂无推荐。</p>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
+
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -92,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">5 篇</strong>
+    <strong class="dpr-home-dashboard-count">7 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction">AgentBetta: Verification-Driven Adaptive Configuration of an AI Nano-Agent through Selective Expansion and Verified Contraction</span></li><li><span class="dpr-home-dashboard-paper-title" title="FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention">FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention</span></li><li><span class="dpr-home-dashboard-paper-title" title="From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes">From PyTorch to the NPU: LLM-Agent-Driven Model Conversion Across Heterogeneous Inference Runtimes</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="SkillEvoReg: Regularizing Agent Skill Evolution Against Overfitting">SkillEvoReg: Regularizing Agent Skill Evolution Against Overfitting</span></li><li><span class="dpr-home-dashboard-paper-title" title="ActKV: Efficient LLM Agents through Action-Guided KV Cache Management">ActKV: Efficient LLM Agents through Action-Guided KV Cache Management</span></li><li><span class="dpr-home-dashboard-paper-title" title="Dissecting How Die Scaling Breaks GPU Fine-grained Scheduling">Dissecting How Die Scaling Breaks GPU Fine-grained Scheduling</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
 </section>
 </div>
 

@@ -1,0 +1,295 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-28T23:47:25.225502+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.30861v1",
+      "source": "arxiv",
+      "title": "SkillEvoReg: Regularizing Agent Skill Evolution Against Overfitting",
+      "abstract": "Language-model agents increasingly improve by converting execution experience into reusable external skills. Yet repeated skill updates form a learning process of their own: locally useful edits can accumulate into redundant or task-specific instructions, while new updates can disrupt behavior that previously worked. We study this problem as skill-evolution overfitting and introduce SkillEvoReg, a general regularization framework for skill evolution inspired by anti-overfitting techniques in neural-network training. SkillEvoReg combines training-time skill dropout, which perturbs update generation, and complexity-aware local regularization, which controls unnecessary structural growth, with causal counterexample validation (CCV), which provides targeted behavioral validation of candidate-specific regressions. We instantiate the framework across heterogeneous skill-evolution systems while retaining each system's native skill evolver and task evaluator. Across SkillOpt, SkillEvolBench, and ContinualSkillBench, SkillEvoReg consistently controls skill-state growth while preserving competitive downstream capability, improves several transfer and later-stage evolution outcomes, and identifies update-level regressions that structural metrics alone cannot reveal. These results suggest that explicit regularization is a useful complement to increasingly capable skill updaters.",
+      "authors": [
+        "Guanyu Nie",
+        "Fangzhou Zhu",
+        "Shixiong Kai",
+        "Xiongwei Han",
+        "Tao Zhong",
+        "Mingxuan Yuan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-25T06:11:26+00:00",
+      "link": "https://arxiv.org/pdf/2609.30861v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agents iteratively convert execution experience into reusable skills",
+      "llm_evidence_cn": "智能体迭代将执行经验转化为可复用技能",
+      "llm_evidence": "智能体迭代将执行经验转化为可复用技能",
+      "canonical_evidence": "智能体迭代将执行经验转化为可复用技能",
+      "llm_tldr_en": "SkillEvoReg regularizes LLM agent skill evolution against overfitting via training-time skill dropout, complexity-aware local regularization and causal counterexample validation, stabilizing iterative self-improvement.",
+      "llm_tldr_cn": "语言模型智能体日益通过将执行经验转化为可复用外部技能来自我改进，但反复更新会形成自身的过拟合问题，局部有效编辑累积成冗余指令并破坏原有行为。本文提出SkillEvoReg正则化框架，借鉴神经网络抗过拟合思想，结合训练期技能dropout、复杂度感知局部正则化与因果反例验证。实验表明该方法能抑制冗余技能增长并保持既有能力。其贡献在于为智能体技能自演化提供通用抗过拟合机制，契合无人工干预持续改进的需求。",
+      "llm_tldr": "语言模型智能体日益通过将执行经验转化为可复用外部技能来自我改进，但反复更新会形成自身的过拟合问题，局部有效编辑累积成冗余指令并破坏原有行为。本文提出SkillEvoReg正则化框架，借鉴神经网络抗过拟合思想，结合训练期技能dropout、复杂度感知局部正则化与因果反例验证。实验表明该方法能抑制冗余技能增长并保持既有能力。其贡献在于为智能体技能自演化提供通用抗过拟合机制，契合无人工干预持续改进的需求。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.24270v1",
+      "source": "arxiv",
+      "title": "Dissecting How Die Scaling Breaks GPU Fine-grained Scheduling",
+      "abstract": "Modern GPUs are no longer physically symmetric. Die scaling leads to both manufacturing-driven floorsweeping and cache and memory partitioning. The former creates chip-specific compute topologies, while the latter causes non-uniform memory access. These asymmetries are substantial. Topology-oblivious compute unit allocation can lead to up to 1.33x performance variation, while remote accesses increase HBM latency by up to 67% and nearly double L2 latency.   However, these asymmetries are hidden behind the GPU's logical resource abstractions and can vary across chips. We develop lightweight characterization methods to uncover per-chip compute topology and memory affinity. We then use the discovered information to make existing fine-grained scheduling asymmetry-aware, considering not only how many resources are allocated but also which physical resources are assigned. Across full-GPU kernel execution, intra-application multiplexing, and inter-application co-location, asymmetry-aware scheduling improves mainstream kernels by up to 1.22x, multiplexed LLM inference by up to 14.3%, and avoids up to 1.33x performance variation.",
+      "authors": [
+        "Xiaoze Fan",
+        "Jianhao Wang",
+        "Weihao Cui",
+        "Han Zhao",
+        "Zhuobin Huang",
+        "Yangjie Zhou",
+        "Yuxian Qiu",
+        "Shixuan Sun",
+        "Bingsheng He",
+        "Quan Chen",
+        "Minyi Guo"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.DC"
+      ],
+      "published": "2026-09-21T08:34:29+00:00",
+      "link": "https://arxiv.org/pdf/2609.24270v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "GPU performance variation from die scaling and asymmetry-aware fine-grained scheduling",
+      "llm_evidence_cn": "Die Scaling导致的GPU性能差异与非对称感知细粒度调度",
+      "llm_evidence": "Die Scaling导致的GPU性能差异与非对称感知细粒度调度",
+      "canonical_evidence": "Die Scaling导致的GPU性能差异与非对称感知细粒度调度",
+      "llm_tldr_en": "Die scaling makes GPUs physically asymmetric, causing up to 1.33x compute variation and 67% higher HBM latency; the paper characterizes per-chip topology and memory affinity to make scheduling asymmetry-aware.",
+      "llm_tldr_cn": "现代GPU因die scaling出现制造驱动的floorsweeping与缓存内存分区，导致计算拓扑异构和非一致访存，忽视拓扑的计算单元分配可带来高达1.33倍的性能波动。论文开发轻量级刻画方法，揭示每颗芯片的计算拓扑与内存亲和性，并据此使现有细粒度调度具备非对称感知能力。结果显示远程访问使HBM延迟增加约67%、L2延迟近乎翻倍，凸显按芯片特性调度对提升GPU内核执行性能的重要性。",
+      "llm_tldr": "现代GPU因die scaling出现制造驱动的floorsweeping与缓存内存分区，导致计算拓扑异构和非一致访存，忽视拓扑的计算单元分配可带来高达1.33倍的性能波动。论文开发轻量级刻画方法，揭示每颗芯片的计算拓扑与内存亲和性，并据此使现有细粒度调度具备非对称感知能力。结果显示远程访问使HBM延迟增加约67%、L2延迟近乎翻倍，凸显按芯片特性调度对提升GPU内核执行性能的重要性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.31395v1",
+      "source": "arxiv",
+      "title": "ActKV: Efficient LLM Agents through Action-Guided KV Cache Management",
+      "abstract": "Agentic LLM inference accumulates long KV caches across iterative observation-reasoning-action loops, imposing substantial memory overhead and limiting serving throughput. Existing compression methods emphasize overall output quality, overlooking the asymmetric importance of actions in driving task progress. Our key idea is to establish a compression criterion that values KV entries by their contribution to action generation and prioritizes action quality. However, iterative execution, dynamic memory demands, and scattered action-critical entries pose challenges to eviction policies, budget allocation, and paged memory integration. To this end, we propose ActKV, the first KV cache compression framework tailored for agentic LLM inference. (i) Action-oriented KV cache eviction exploits stable action access patterns to retain entries critical to future actions, supporting reliable task progress under compression. (ii) Confidence-driven adaptive budget allocation uses LLM's intrinsic confidence to adapt the budget to evolving action-critical memory demands. (iii) Page-aware compression management standardizes compression into three primitives with customized kernels, realizing practical throughput gains. On long-trace tasks, ActKV retains an average of 98.53% of FullKV's accuracy with only 25.98% of its peak KV cache memory. It also achieves 3.97 times and 3.58 times FullKV's token and task throughput, delivering state-of-the-art performance.",
+      "authors": [
+        "Zihan Wang",
+        "Cheng Tang",
+        "Lei Gong",
+        "Chao Wang",
+        "Wenqi Lou",
+        "Teng Wang",
+        "Xuehai Zhou"
+      ],
+      "primary_category": "cs.OS",
+      "categories": [
+        "cs.OS",
+        "cs.AI"
+      ],
+      "published": "2026-09-25T15:24:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.31395v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "KV cache compression tailored for agentic LLM inference, valuing entries by action contribution",
+      "llm_evidence_cn": "面向智能体推理的KV缓存压缩，按动作贡献度评估条目",
+      "llm_evidence": "面向智能体推理的KV缓存压缩，按动作贡献度评估条目",
+      "canonical_evidence": "面向智能体推理的KV缓存压缩，按动作贡献度评估条目",
+      "llm_tldr_en": "Agentic LLM inference accumulates long KV caches across observation-reasoning-action loops, causing memory overhead. ActKV compresses KV entries by their contribution to action generation with action-oriented eviction and budget allocation, preserving action quality while cutting cache size and boosting throughput.",
+      "llm_tldr_cn": "智能体式LLM推理在观察-推理-行动循环中累积冗长KV缓存，造成显存开销并限制吞吐，而现有压缩方法忽视动作对任务推进的关键作用。论文提出ActKV，按条目对动作生成的贡献度进行压缩，并设计动作导向的驱逐策略与页式内存集成。实验显示其在保持动作质量的同时显著压缩缓存、提升吞吐，为智能体记忆管理提供新准则。",
+      "llm_tldr": "智能体式LLM推理在观察-推理-行动循环中累积冗长KV缓存，造成显存开销并限制吞吐，而现有压缩方法忽视动作对任务推进的关键作用。论文提出ActKV，按条目对动作生成的贡献度进行压缩，并设计动作导向的驱逐策略与页式内存集成。实验显示其在保持动作质量的同时显著压缩缓存、提升吞吐，为智能体记忆管理提供新准则。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25624v1",
+      "source": "arxiv",
+      "title": "Accelerating the Mitigation of LLM Inference Nondeterminism Across GPU Architectures",
+      "abstract": "Large language model (LLM) outputs are expected to be reproducible under greedy decoding, yet in practice the same model, prompt, and software stack produce different outputs on different GPUs. The root cause is floating-point non-associativity combined with hardware-dependent kernel selection. Inference frameworks select different matrix-multiplication kernels on each architecture, with different parallel reduction orders and unspecified tensor-core arithmetic, and the resulting rounding differences can flip output tokens. Existing solutions have imperfect cross-architecture reproducibility and incur a significant performance penalty. We present a solution employing a set of fixed-configuration fused-upcast GEMM kernels that load 16-bit weights from memory, upcast them to FP32 in registers, and accumulate with IEEE-754 arithmetic in a reduction order that is a pure function of the problem shape and is therefore independent of the device, its SM count, or kernel scheduling. By fixing the floating-point reduction order as a function of problem shape alone, every GPU runs the same operation sequence, so cross-architecture reproducibility of the linear layers reduces to correct IEEE-754 arithmetic rather than to rounding differences staying below a tie-flip threshold. We confirm our solution's linear-layer outputs are bitwise identical across NVIDIA Ampere, Ada, and Hopper GPUs, while running $1.17$ to $3.1\\times$ faster end-to-end than the state-of-the-art solution and cutting weight-memory traffic in half.",
+      "authors": [
+        "Liam Cooper",
+        "Shinnung Jeong",
+        "Hyeran Jeon",
+        "Jeffrey Young",
+        "Hyesoon Kim"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR",
+        "cs.LG"
+      ],
+      "published": "2026-09-22T03:32:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.25624v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "fixed-configuration fused-upcast GEMM kernels unifying GPU kernel execution across architectures",
+      "llm_evidence_cn": "固定配置的融合 GEMM 内核以统一跨架构 GPU 内核执行",
+      "llm_evidence": "固定配置的融合 GEMM 内核以统一跨架构 GPU 内核执行",
+      "canonical_evidence": "固定配置的融合 GEMM 内核以统一跨架构 GPU 内核执行",
+      "llm_tldr_en": "Presents fixed-configuration fused-upcast GEMM kernels to eliminate cross-GPU nondeterminism in LLM inference caused by hardware-dependent kernel selection and floating-point non-associativity.",
+      "llm_tldr_cn": "LLM 在贪心解码下本应可复现，但同一模型与提示在不同 GPU 上会因浮点非结合性与硬件相关的内核选择而产生不同输出。推理框架在各架构上选用不同的矩阵乘内核，归约顺序与张量核算术差异会翻转输出 token。本文提出一组固定配置的融合上采样 GEMM 内核，以统一跨架构的归约顺序与数值行为。该方案在提升跨架构可复现性的同时缓解了既有方法带来的性能损失。",
+      "llm_tldr": "LLM 在贪心解码下本应可复现，但同一模型与提示在不同 GPU 上会因浮点非结合性与硬件相关的内核选择而产生不同输出。推理框架在各架构上选用不同的矩阵乘内核，归约顺序与张量核算术差异会翻转输出 token。本文提出一组固定配置的融合上采样 GEMM 内核，以统一跨架构的归约顺序与数值行为。该方案在提升跨架构可复现性的同时缓解了既有方法带来的性能损失。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.28399v1",
+      "source": "arxiv",
+      "title": "Memory Attention",
+      "abstract": "Language models typically construct attention values from contextual hidden states, even when some of their content may be reusable across contexts. We investigate whether token-indexed memory can replace the dedicated value projection when complemented by contextual information. We propose Memory Attention (MA), which forms values by combining layer-specific token memory with contextual keys. The memory supplies token-specific representations, while the keys preserve context dependence. At inference, normalization can be folded into the memory tables, reducing value construction to lookup and addition. Token-indexed retrieval also enables CPU offloading with prefetching, reducing GPU parameter storage. Under matched training token budgets and with additional memory parameters, experiments across attention configurations show improved language modeling and average downstream performance.",
+      "authors": [
+        "Jiale Kang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-23T17:04:30+00:00",
+      "link": "https://arxiv.org/pdf/2609.28399v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "token-indexed memory replacing value projection for retrieval",
+      "llm_evidence_cn": "以token索引记忆替代值投影实现检索",
+      "llm_evidence": "以token索引记忆替代值投影实现检索",
+      "canonical_evidence": "以token索引记忆替代值投影实现检索",
+      "llm_tldr_en": "Memory Attention forms attention values from layer-specific token memory plus contextual keys, turning value construction into lookup and addition and enabling CPU offloading.",
+      "llm_tldr_cn": "语言模型通常由上下文隐藏状态构造注意力值，即便部分内容可跨上下文复用。本文提出记忆注意力（MA），将层特定的token记忆与上下文键结合来形成值，记忆提供token级表示，键保持上下文依赖。推理时可将归一化折叠进记忆表，把值构造简化为查表与加法，并支持CPU卸载与预取以减少GPU参数存储，在匹配训练token预算下于注意力相关任务上具有竞争力。",
+      "llm_tldr": "语言模型通常由上下文隐藏状态构造注意力值，即便部分内容可跨上下文复用。本文提出记忆注意力（MA），将层特定的token记忆与上下文键结合来形成值，记忆提供token级表示，键保持上下文依赖。推理时可将归一化折叠进记忆表，把值构造简化为查表与加法，并支持CPU卸载与预取以减少GPU参数存储，在匹配训练token预算下于注意力相关任务上具有竞争力。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.29410v1",
+      "source": "arxiv",
+      "title": "Large Language Models for Programming: Actually Fixing or Reimplementing Incorrect Code?",
+      "abstract": "Recent studies have shown that Large Language Models can effectively solve problems and fix bugs in diverse programming environments, including competitive programming. Existing approaches primarily evaluate LLM performance in problem solving or bug fixing independently, but do not explore the relationship between these two capabilities. This work focuses on determining how much the LLM deviates from a buggy solution to fix the bug compared to a human-written patch, and if there is a bias towards generating entirely new solutions. We construct a dataset with all the submissions ($\\sim$ 3000) from a couple of users from Codeforces, and we match each buggy submission with its corresponding human fix. By using the similarity between the buggy solution and the human fix as a baseline, we evaluate the quality of LLM-generated bug fixes on 3 OpenAI GPT models (gpt-5-nano, gpt-5-mini, gpt-5.1). We check if the generated solutions solve the problem by using the Codeforces-R1 dataset, an openly available dataset that has tests generated with the DeepSeek-R1 model. Our findings suggest that LLMs tend to modify more lines than necessary compared to human fixes and, in some cases, generate entirely new solutions. We also observe that LLMs solve more problems correctly when allowed to generate solutions from scratch rather than patch buggy submissions, even when those submissions are close to the human patch. This has important implications for the design of AI-assisted programming tools, particularly in supporting user debugging processes and promoting incremental problem-solving strategies rather than solution replacement.",
+      "authors": [
+        "Alexandru Stefan Stoica",
+        "Traian Rebedea",
+        "Marian Cristian Mihaescu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.SE"
+      ],
+      "published": "2026-09-24T11:33:36+00:00",
+      "link": "https://arxiv.org/pdf/2609.29410v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "LLM for code fixing and reimplementation of programs",
+      "llm_evidence_cn": "大模型修复与重写程序代码",
+      "llm_evidence": "大模型修复与重写程序代码",
+      "canonical_evidence": "大模型修复与重写程序代码",
+      "llm_tldr_en": "Studies LLM code repair versus rewriting, building a Codeforces dataset to measure how far LLM patches deviate from human fixes and whether models prefer reimplementing solutions.",
+      "llm_tldr_cn": "针对大语言模型在编程中究竟是在修复错误代码还是重新实现代码这一未解问题，本文构建了来自 Codeforces 约 3000 份提交的数据集，将每份有缺陷的提交与其人工修复配对。研究通过相似度度量比较模型补丁与人类补丁的偏离程度，并检验模型是否存在重写整个方案的偏好。结果揭示了修复与重写两种能力之间的关系，为评估大模型代码生成与调试行为提供了新的分析视角。",
+      "llm_tldr": "针对大语言模型在编程中究竟是在修复错误代码还是重新实现代码这一未解问题，本文构建了来自 Codeforces 约 3000 份提交的数据集，将每份有缺陷的提交与其人工修复配对。研究通过相似度度量比较模型补丁与人类补丁的偏离程度，并检验模型是否存在重写整个方案的偏好。结果揭示了修复与重写两种能力之间的关系，为评估大模型代码生成与调试行为提供了新的分析视角。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.31430v1",
+      "source": "arxiv",
+      "title": "Compress What You See, Not What You Say: Anchored Context Distillation for Latent-Observation Software Engineering Agents",
+      "abstract": "Tool observations dominate the context of software-engineering agents, making long interaction histories costly to maintain. Existing context compression methods can discard information needed by later actions, while adapting agents to soft-token representations can compromise their original behavior. To reduce context while preserving action-critical information and agent behavior, we combine Latent Observations, Hard Actions (LOHA), a context layout that separates compressed history from text needed for exact reference, with Anchored Context Distillation (ACD), a training method that enables latent reading while constraining behavioral drift. LOHA compresses older tool observations into soft tokens while retaining the agent's own turns and the last K observations in text, providing compact access to historical information and exact access to recent content. To enable the agent to use this representation, ACD distills the base model's full-text predictions into the latent view while anchoring its behavior on plain-text inputs to the same base model. On SWE-bench Verified, K=3 reduces context per call by 43% for Qwen3-4B and 57% for SWE-Master-4B-RL, with resolve rates of 12.1% and 21.8% versus 14.5% and 27.5% for their uncompressed bases. A single-run recency sweep reaches 14.4% and 23.0% at K=8, with larger windows generally favoring task performance over compression. Under a 32K-token limit, Qwen3 with K=3 resolves 21.1% of a 199-instance subset versus 11.1% for the same adapted agent using full text. In concurrent single-GPU serving, it achieves 1.9 times that full-text agent's instance throughput.",
+      "authors": [
+        "Zhensheng Zou",
+        "Guoqing Wang",
+        "Dan Hao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-25T15:51:40+00:00",
+      "link": "https://arxiv.org/pdf/2609.31430v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "context compression preserving action-critical information in agent memory",
+      "llm_evidence_cn": "压缩智能体历史上下文并保留动作关键信息",
+      "llm_evidence": "压缩智能体历史上下文并保留动作关键信息",
+      "canonical_evidence": "压缩智能体历史上下文并保留动作关键信息",
+      "llm_tldr_en": "Combines Latent Observations, Hard Actions context layout with Anchored Context Distillation to compress software-engineering agent histories while preserving action-critical information and behavior.",
+      "llm_tldr_cn": "软件工程智能体的上下文被大量工具观测占据，长交互历史维护成本高昂。现有上下文压缩方法可能丢弃后续动作所需信息，而适配软 token 表示又会损害原有行为。本文提出 LOHA 上下文布局，将压缩历史与需要精确引用的文本分离，并结合锚定上下文蒸馏，在支持隐式读取的同时约束行为漂移。该方法在压缩上下文的同时保留了动作关键信息与智能体行为一致性。",
+      "llm_tldr": "软件工程智能体的上下文被大量工具观测占据，长交互历史维护成本高昂。现有上下文压缩方法可能丢弃后续动作所需信息，而适配软 token 表示又会损害原有行为。本文提出 LOHA 上下文布局，将压缩历史与需要精确引用的文本分离，并结合锚定上下文蒸馏，在支持隐式读取的同时约束行为漂移。该方法在压缩上下文的同时保留了动作关键信息与智能体行为一致性。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
