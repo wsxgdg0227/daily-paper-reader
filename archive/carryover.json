@@ -1,12 +1,97 @@
 {
-  "generated_at": "2026-09-28T23:47:25.226832+00:00",
-  "updated_date": "20260928",
+  "generated_at": "2026-09-29T22:59:54.100766+00:00",
+  "updated_date": "20260929",
   "carryover_days": 9,
   "tag_states": {
     "gkg": {
-      "updated_date": "20260928",
+      "updated_date": "20260929",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2609.34649v1",
+          "source": "arxiv",
+          "title": "Beyond Skill Evolution: Self-Evolving Context Management Policies for Long-Horizon Agent Harnesses",
+          "abstract": "Harness evolution improves LLM agents by learning from execution trajectories, but existing experience- and skill-based methods are less effective on long-horizon tasks. As interactions grow, useful evidence can be buried by redundant or outdated context, making context management itself a key bottleneck. We introduce ContextEvo, a framework that learns a context policy from long-horizon trajectories. ContextEvo reconstructs the model-visible context at key decision points, identifies context-related failures, and applies targeted policy updates. Starting from the open-source Pi-agent harness, ContextEvo improves performance across three long-horizon task benchmarks, achieving results comparable to or better than several prominent agent harnesses, including Codex, OpenCode, and OpenClaw. Additional analyses show that fixed or locally evolved context strategies can fall short under long-horizon information pressure, while our methods adapt to the information demands of each environment.",
+          "authors": [
+            "Weiyuan Li",
+            "Jinghan Xu",
+            "Aili Chen",
+            "Xintao Wang",
+            "Shuang Liang",
+            "Jiaqing Liang",
+            "Deqing Yang"
+          ],
+          "primary_category": "cs.AI",
+          "categories": [
+            "cs.AI"
+          ],
+          "published": "2026-09-28T08:57:52+00:00",
+          "link": "https://arxiv.org/pdf/2609.34649v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "self-evolving context management policies for long-horizon agents",
+          "llm_evidence_cn": "面向长时程智能体的自进化上下文管理策略",
+          "llm_evidence": "面向长时程智能体的自进化上下文管理策略",
+          "canonical_evidence": "面向长时程智能体的自进化上下文管理策略",
+          "llm_tldr_en": "ContextEvo learns a context policy from long-horizon trajectories, reconstructing model-visible context at key decision points and applying targeted updates to overcome context bottlenecks in agent harnesses.",
+          "llm_tldr_cn": "智能体框架演化可从执行轨迹学习，但现有经验与技能方法在长时程任务中效果有限，随交互增长冗余与过时上下文会掩埋有用证据。ContextEvo提出从长时程轨迹学习上下文策略的框架，重建关键决策点的模型可见上下文、识别上下文相关失败并做针对性策略更新。在三个长时程基准上取得与强基线相当或更优的结果，表明上下文管理自进化是提升智能体表现的关键。",
+          "llm_tldr": "智能体框架演化可从执行轨迹学习，但现有经验与技能方法在长时程任务中效果有限，随交互增长冗余与过时上下文会掩埋有用证据。ContextEvo提出从长时程轨迹学习上下文策略的框架，重建关键决策点的模型可见上下文、识别上下文相关失败并做针对性策略更新。在三个长时程基准上取得与强基线相当或更优的结果，表明上下文管理自进化是提升智能体表现的关键。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.34649v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2609.34988v1",
+          "source": "arxiv",
+          "title": "The Right Lesson at the Right Step: Deriving Control Updates for Self-Evolving Agents",
+          "abstract": "Self-evolving agents improve future behavior by reusing past experience, typically as global prompts, memories, or reflections. Yet these mechanisms rarely control where experience takes effect. In long tool-use workflows, the same lesson may correct one decision but distract another, making experience reuse a problem of localized control rather than memory alone. We introduce EvoCUE (Evolution through Control Updates from Evidence), a framework for learning reusable control-program updates from completed agent executions. EvoCUE represents the agent as an explicit state-machine controller, whose nodes perform model or tool calls and whose edges define where control passes next. This makes the workflow editable at precise locations, so each learned update can specify what to add, where it acts, and when it applies. From completed trajectories, EvoCUE uses residual goals and observed execution traces to propose localized instruction or skill edits. Each candidate is evaluated at the point where it would act by resuming the parent and edited controllers from the same checkpoint and comparing their final outcomes. Accepted edits are compiled with applicability rules, confirmed on held-out tasks, and inherited by later executions. We evaluate EvoCUE on long tool-use environments where learned conventions must reach the right execution step. From a minimal AppWorld controller without benchmark-specific onboarding instructions, EvoCUE learns the missing task-completion convention and substantially improves success on Test-Normal and Test-Challenge. On PAST-Bench office workflows, EvoCUE transfers organizational requirements from prior episodes to later tasks, improving task-execution quality. These results show that self-evolving agents should place experience inside the control flow, rather than only store it as text.",
+          "authors": [
+            "Yunhe Su",
+            "ZiYi Dong",
+            "Tong Yu",
+            "Weijian Deng",
+            "Hao Li",
+            "Bowen Jiang",
+            "Pengxu Wei"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL"
+          ],
+          "published": "2026-09-28T11:59:22+00:00",
+          "link": "https://arxiv.org/pdf/2609.34988v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "self-evolving agents learning reusable control-program updates from completed executions",
+          "llm_evidence_cn": "自演化智能体从历史执行中学习可复用控制更新，直接对应无人工干预的自我改进",
+          "llm_evidence": "自演化智能体从历史执行中学习可复用控制更新，直接对应无人工干预的自我改进",
+          "canonical_evidence": "自演化智能体从历史执行中学习可复用控制更新，直接对应无人工干预的自我改进",
+          "llm_tldr_en": "EvoCUE models a self-evolving agent as an explicit state-machine controller and learns reusable control-program updates from completed executions, so experience takes effect at precise workflow locations rather than as global prompts.",
+          "llm_tldr_cn": "自演化智能体通常以全局提示、记忆或反思复用过去经验来改进未来行为，却难以控制经验在何处生效，同一教训可能纠正某步决策又干扰另一步。本文提出EvoCUE框架，把智能体建模为显式状态机控制器，节点执行模型或工具调用、边定义控制流，从而从已完成执行中学习可复用的控制程序更新。该表示让工作流可在精确位置被编辑，把经验复用从记忆问题转变为局部控制问题，提升了自演化智能体的可靠性。",
+          "llm_tldr": "自演化智能体通常以全局提示、记忆或反思复用过去经验来改进未来行为，却难以控制经验在何处生效，同一教训可能纠正某步决策又干扰另一步。本文提出EvoCUE框架，把智能体建模为显式状态机控制器，节点执行模型或工具调用、边定义控制流，从而从已完成执行中学习可复用的控制程序更新。该表示让工作流可在精确位置被编辑，把经验复用从记忆问题转变为局部控制问题，提升了自演化智能体的可靠性。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+          "matched_requirement_id": "req-5",
+          "selection_source": "carryover_cache",
+          "paper_id": "2609.34988v1",
+          "carry_days": 1
+        }
+      ]
     }
   }
 }

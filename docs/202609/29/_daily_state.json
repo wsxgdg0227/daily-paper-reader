@@ -1,0 +1,281 @@
+{
+  "date": "20260929",
+  "date_label": "",
+  "generated_at": "2026-09-29 23:14:13 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.35140v1",
+      "route": "202609/29/2609.35140v1-areal-tik-stateful-agentic-optimization-of-unified-rl-kernels-through-an-optimization-ir",
+      "title": "AReaL-TIK: Stateful Agentic Optimization of Unified RL Kernels through an Optimization IR",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "通过源码优化IR对GPU内核进行智能体化优化",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.35568v1",
+      "route": "202609/29/2609.35568v1-from-experience-to-expertise-adoption-aware-memory-learning-for-data-scarce-npu-kernel-synthesis",
+      "title": "From Experience to Expertise: Adoption-Aware Memory Learning for Data-Scarce NPU Kernel Synthesis",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "面向内核合成的LLM智能体记忆学习",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.32091v1",
+      "route": "202609/29/2609.32091v1-memory-as-middleware-for-self-improving-ai-agents",
+      "title": "Memory as Middleware for Self-Improving AI Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向智能体记忆与检索的可插拔中间件层",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.32584v1",
+      "route": "202609/29/2609.32584v1-emir2-evolution-aware-memory-with-intent-guided-multi-round-retrieval",
+      "title": "EMIR$^2$: Evolution-Aware Memory with Intent-Guided Multi-Round Retrieval",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "演化感知智能体记忆与意图引导多轮检索",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.32990v1",
+      "route": "202609/29/2609.32990v1-certified-long-horizon-code-agent-evolution-via-validation-gated-skill-optimization",
+      "title": "Certified Long-Horizon Code Agent Evolution via Validation-Gated Skill Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "通过验证门控技能优化实现长时程代码智能体自进化",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.33135v1",
+      "route": "202609/29/2609.33135v1-mpfa-hardware-efficient-train-free-qk4v8-flashattention-kernels-on-blackwell-gpus",
+      "title": "MpFA: Hardware-Efficient Train-Free QK4V8 FlashAttention Kernels on Blackwell GPUs",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向Blackwell GPU优化的FlashAttention内核",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.33260v1",
+      "route": "202609/29/2609.33260v1-cortex-a-verified-experience-layer-for-generalist-agents",
+      "title": "CORTEX: A Verified Experience Layer for Generalist Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "外部可验证经验层存储任务经验并支持检索复用，直接对应智能体记忆机制",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.33379v1",
+      "route": "202609/29/2609.33379v1-nlpg-natural-language-policy-gradients-for-self-evolving-language-agents",
+      "title": "NLPG: Natural-Language Policy Gradients for Self-Evolving Language Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "无需更新权重、通过外部策略记忆改进固定智能体",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.34151v1",
+      "route": "202609/29/2609.34151v1-self-evolving-agents-via-likelihood-guided-tool-space-optimization",
+      "title": "Self-Evolving Agents via Likelihood-Guided Tool-Space Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "利用累积经验维护持久工具空间的自进化智能体",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.34242v1",
+      "route": "202609/29/2609.34242v1-stashbird-efficient-speaker-indexed-memory-for-conversational-agents",
+      "title": "Stashbird: Efficient Speaker-Indexed Memory for Conversational Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "融合情节、语义与图状态的智能体记忆系统",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.34633v1",
+      "route": "202609/29/2609.34633v1-genmem-generative-symbolic-memory-for-self-evolving-harness",
+      "title": "GenMem: Generative Symbolic Memory for Self-Evolving Harness",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向自演化智能体的长期生成式符号记忆，涵盖存储检索与修订，直接对应智能体记忆机制",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.32731v1",
+      "route": "202609/29/2609.32731v1-skillvine-agent-skill-evolution-via-branching-exploration",
+      "title": "SkillVine: Agent Skill Evolution via Branching Exploration",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体技能自动演化，无需人工干预地持续改进",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.32754v1",
+      "route": "202609/29/2609.32754v1-adaptive-consistency-graph-for-long-horizon-agents",
+      "title": "Adaptive Consistency Graph for Long-Horizon Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "以持久图组织执行证据并为每次决策构建需求中心视图，对应决策时的知识检索",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.33439v1",
+      "route": "202609/29/2609.33439v1-raven-the-harness-of-harnesses-for-composable-agentic-intelligence",
+      "title": "Raven: The Harness of Harnesses for Composable Agentic Intelligence",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过经验自主构建并进化模块化智能体框架",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.34397v1",
+      "route": "202609/29/2609.34397v1-skillfocus-evolving-agent-skills-via-capability-decomposition",
+      "title": "SkillFocus: Evolving Agent Skills via Capability Decomposition",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过迭代修订演化智能体技能",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.24628v1",
+      "route": "202609/29/2609.24628v1-bridging-the-vendor-gap-enabling-amd-gpu-support-for-awkward-array-via-rocmhip-for-the-hl-lhc-era",
+      "title": "Bridging the Vendor Gap: Enabling AMD GPU Support for Awkward Array via ROCm/HIP for the HL-LHC Era",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将CUDA核迁移至ROCm/HIP的Rust内核引擎及性能分析",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    },
+    {
+      "paper_id": "2609.33916v1",
+      "route": "202609/29/2609.33916v1-validating-memory-optimal-transformer-kernels-on-real-hardware-from-formal-derivation-to-measured-performance-across-two-hpc-clusters",
+      "title": "Validating Memory-Optimal Transformer Kernels on Real Hardware: From Formal Derivation to Measured Performance Across Two HPC Clusters",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "内存最优Transformer算子的形式化推导与GPU实测性能，涉及GPU算子执行优化",
+      "first_seen_at": "2026-09-29 23:14:13 UTC",
+      "updated_at": "2026-09-29 23:14:13 UTC"
+    }
+  ]
+}

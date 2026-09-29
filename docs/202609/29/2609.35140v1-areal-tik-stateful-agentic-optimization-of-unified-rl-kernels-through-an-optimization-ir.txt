@@ -1,0 +1,800 @@
+Title: AReaL-TIK: Stateful Agentic Optimization of Unified RL Kernels through an Optimization IR
+
+URL Source: https://arxiv.org/pdf/2609.35140v1
+
+Published Time: Tue, 29 Sep 2026 04:00:06 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# AR EA L-TIK: Stateful Agentic Optimization of Unified RL Kernels through an Optimization IR 
+
+Ran Yan 1,∗, Youhe Jiang 1,∗, Jiayi Nie 2, Wenshuang Li 1, Yingqi Peng 3, Taiyi Wang 4, Tongkai Yang 3, Binhang Yuan 1,31HKUST, 2University of Cambridge, 3Ant Group, 4Reflection AI 
+
+## Abstract 
+
+Reinforcement learning (RL) post-training often uses distinct GPU kernels for rollout and policy update. In synchronous PPO and GRPO, numerical disagreement can perturb ratios between current token probabilities and those assigned during rollout. Recomputing rollout log-probabilities with the policy-update backend avoids this discrepancy but adds a forward pass. Bitwise-consistent unified kernels permit reuse when the policy snapshot and probability processing match the objective. Their optimization must preserve agreement across distinct execution regimes. We present AR EA L-TIK, an agentic framework starting from a hand-tuned, bitwise-consistent implementation. Its optimization intermediate representation (IR) organizes source-code search by linking implementations and modifications to numerical requirements, workload measurements, and derivation history. The agent coordinates changes and retains verified intermediates for further exploration; promotion requires passing correctness checks and improving aggregate latency within per-workload limits. Across 12 end-to-end training configurations on H20, AR EA L-TIK achieves 1.10 × average throughput relative to AReaL with log-probability recomputation, and the mean training-reward ratio rounds to 1.00 ×.Isolated-layer profiling yields 1.40 × average speedup in summed phase time across 15 model–GPU pairs. Operator-level evaluation covers correctness and performance for 10 operators on A100, H20, and H200, all passing the prescribed bitwise checks. Unified-attention search achieves 2.52 × speedup in summed workload latency over the starting implementation using 7M LLM tokens; ablations assess the contributions of retained evidence and branch exploration to search efficiency and attained performance. 
+
+§ Code: https://github.com/areal-project/AReaL-TIK 
+
+## 1 Introduction 
+
+RL-based post-training has advanced the reasoning capabilities of large language models (LLMs) [1–6]. RL systems generate responses during rollout and update model weights using those responses and their rewards [7–9]. The two phases favor different GPU execution strategies, yet differences in their numerical computations can perturb the token-probability ratios used for training. Unified kernels seek to make corresponding forward computations agree bit for bit while retaining efficient execution in each phase. This paper studies how to automate the joint performance optimization of already consistent rollout and policy-update kernels while preserving bitwise-identical outputs for identical inputs and model weights. Numerical consistency matters because the RL objective compares probabilities computed in the two phases. In standard synchronous Proximal Policy Optimization (PPO) [10] and Group Relative Policy Optimization (GRPO) [11], each generated token’s probability under the current model is divided by the fixed probability assigned by the behavior policy , the model version that generated the response. Both probabilities condition on the same prompt and preceding response tokens. The logarithms of the denominator probabilities, 
+
+> *Co-first authors: Ran Yan and Youhe Jiang. Corresponding author: Binhang Yuan (biyuan@ust.hk).
+
+1arXiv:2609.35140v1 [cs.DC] 28 Sep 2026 conventionally called old-policy log-probabilities , remain fixed while the model is updated on those responses. Before the first optimizer step, identical weights and probability processing should yield a ratio of one. Separately optimized backends can violate this equality before any policy change. Policy-update attention commonly uses FlashAttention [12–15], whereas rollout engines such as SGLang [16] and vLLM [17] use specialized prefill and decode kernels from FlashInfer [18]. Differences in reduction order, precision conversion, and approximate instructions can change logits (unnormalized next-token scores) and token probabilities. Prior work shows that this Training–Inference Mismatch (TIM) can cause training collapse in controlled diagnostic experiments [19], intensify during optimization [20], and disproportionately affect low-probability tokens [21]. Precision choices also matter: BF16 rounding is a principal source of mismatch, and FP16 can improve numerical agreement [22]. The AReaL baseline studied here evaluates the token log-probabilities needed for the ratio’s fixed denominator with an additional policy-update forward pass over each selected prompt–response sequence. Figure 1 illustrates how this removes execution-path disagreement at identical weights. Unified kernels can avoid the extra pass by reusing recorded token log-probabilities when they match the policy snapshot and probability processing required by the objective. This condition also bounds the benefit under asynchronous training: consistent kernels do not make different policy versions interchangeable. In decoupled PPO [7], a newer 
+
+proximal policy may supply the clipped ratio’s denominator; behavior-policy probabilities cannot replace its evaluation. This proximal policy is distinct from the reference model used for KL regularization. Rollout / policy-update forward First minibatch, identical inputs and weights 
+
+# AReaL 
+
+# πcurrent Update 
+
+# πold Rollout 
+
+## r may differ from 1 
+
+# AReaL-TIK 
+
+# πcurrent Unified 
+
+# πold Unified 
+
+## r = 1 
+
+## Recompute old π
+
+## Extra forward pass 
+
+# πcurrent Update 
+
+# πrecomp old Update 
+
+## rrecomp = 1 
+
+## Direct reuse No extra forward 
+
+## r = 1 
+
+## PPO / GRPO objective 
+
+Figure 1 Token-probability ratios in the first minibatch, before any optimizer step, with identical inputs, weights, and probability processing. πold denotes a recorded response token’s probability under its generating behavior policy, conditioned on the same prompt and preceding tokens. AReaL computes πcurrent and πold using different kernels, so direct reuse may yield r = πcurrent /π old ̸ = 1 . An additional policy-update forward pass recomputes the denominator as πrecomp old ,restoring rrecomp = 1 . AR EA L-TIK reuses recorded rollout token log-probabilities from consistent kernels (dashed box), yielding r = 1 without recomputation. 
+
+Improving unified kernels requires optimizing two execution regimes. The policy-update forward pass and rollout prefill use a full-sequence entry point 1, processing a complete prompt–response sequence or the prompt,   
+
+> 1An entry point is a callable host-side function that dispatches an invocation to a GPU kernel variant and launches it.
+
+2respectively. A token-wise decode entry point processes one response token at a time against the key–value (KV) cache. Attention illustrates two challenges: • Preserving numerical agreement during specialization. Full-sequence execution favors compute-intensive matrix multiplications, whereas decode is typically memory-bandwidth-bound. Each path therefore benefits from different data movement and GPU schedules. However, changes to tiling, reduction order, or interme-diate precision can alter output values. Optimization must improve these specialized paths while preserving their numerical agreement. • Exploring coupled changes with delayed benefits. Shared numerical and layout choices couple the two entry points: a change that accelerates one can slow the other or require a corresponding modification. Useful improvements can also require several steps, with an intermediate implementation enabling a later change without immediately improving aggregate performance. Optimizing each path in isolation, or retaining only the current fastest implementation, can miss such improvements. Existing agentic kernel optimizers generate and evaluate source-code variants [23–26], and evolutionary systems retain program history and evaluation feedback [27–29]. For unified kernels, the search must connect this information to numerical dependencies and performance effects across both entry points. A candidate’s aggregate score alone cannot identify which numerical requirement a change violated, which workload limited its benefit, or which intermediate implementation enables a follow-up optimization. Our approach exploits the distinction between numerical agreement and execution scheduling: the paths can use different GPU schedules provided their computations preserve the required numerical behavior. We present AR EA L-TIK, an agentic framework that starts from a bitwise-consistent hand-tuned implementation and searches for faster implementations of both paths. Its optimization intermediate representation (IR) organizes search state by linking source-code versions and proposed modifications to numerical requirements, workload measurements, and parent–child history. The agent uses these links to choose both what to change and which implementation to modify. To preserve agreement during specialization, the IR associates each implementation with its shared source regions and numerical requirements, including reduction order and precision-conversion points. The agent consults these records when proposing full-sequence, decode, or joint modifications. The evaluator then checks bitwise agreement between the entry points and numerical accuracy against external references. Failed attempts remain linked to their source changes as evidence for later decisions. To explore coupled changes, the evaluator measures both paths and promotes a candidate only if it reduces the weighted sum of workload latencies while respecting every workload’s slowdown limit. The IR links these measurements to implementations and follow-up opportunities, allowing the agent to retain verified alternatives. In our H200 attention search, this lets the agent continue from a buffer-removal change that is not promoted but enables a later improvement (§5.5). Our contributions are as follows: 
+
+Contribution 1. We develop an optimization IR for joint source-code search across full-sequence and token-wise decode entry points. It links complete implementations, numerical requirements, workload evidence, and derivation history to guide the agent’s choice of modifications and parents (§4). 
+
+Contribution 2. We implement IR-guided search that separates verification and performance promotion from branch selection. The agent can retain verified intermediates for subsequent changes even when they do not replace the current best. The workflow covers attention, normalization, position encoding, routing, activation, and KV-cache kernels (§5). 
+
+Contribution 3. We evaluate search effectiveness, training throughput and reward, isolated-layer phase times, and 10 operators. H20 unified-attention search achieves 2.52 × speedup in summed workload latency over the shared starting implementation using 7M LLM tokens; training throughput averages 1.10 × that of AReaL with recomputation across 12 configurations. Ablations distinguish search efficiency from attained performance: withholding numerical requirements raises token use to 16M, whereas restricting search to the current best lowers speedup to 2.00 × (§6.5). 32 Related Work 
+
+RL training infrastructure. AReaL [7], veRL [8], OpenRLHF [30], SLiME [9], and DeepSpeed-Chat [31] co-ordinate distributed rollout generation and policy update. AReaL overlaps these phases through asynchronous execution, while veRL supports flexible RL dataflows and efficient model resharding between generation and training. Such frameworks commonly integrate rollout engines [16, 17] with policy-update backends [32, 33]. AR EA L-TIK complements these optimizations by jointly optimizing full-sequence and token-wise decode kernels, preserving bitwise consistency while allowing distinct GPU schedules. 
+
+Training–inference mismatch in RL. Studies of training–inference mismatch (TIM) examine BF16 round-ing [22], the growth of mismatch during training [20], and errors affecting low-probability tokens [21]. Proposed mitigations include importance sampling [34], adaptive learning rates [20], and deterministic inference [35]. VeXact [19] establishes a zero-mismatch diagnostic setting using unified implementations whose outputs are invariant to batch composition. AR EA L-TIK focuses on improving the performance of already bitwise-consistent rollout and policy-update kernels while preserving their numerical agreement. 
+
+Agentic GPU kernel development. GPU libraries and programming systems provide building blocks for kernel implementation and optimization [36–42]. KernelBench [43] evaluates LLM-generated GPU kernels. CuTeGen [23], AI CUDA Engineer [24], CudaForge [25], and CUDA Agent [26] automate kernel generation and refinement. AR EA L-TIK targets coupled full-sequence and token-wise decode entry points, evaluating source-code changes against both bitwise consistency between the paths and a joint performance objective with per-workload slowdown limits. 
+
+In-context learning and persistent agent memory. Algorithm Distillation [44] and Retrieval-Augmented Decision Transformer [45] use interaction histories for in-context adaptation; Reflexion [46] retains episodic feedback to guide subsequent attempts. AlphaEvolve [27] combines LLM-generated source-code modifications, evaluators, and an evolutionary program database. OpenEvolve [28] and SkyDiscover [29] also retain program history and evaluation feedback. AR EA L-TIK organizes retained search experience for coupled kernels in an optimization IR linking numerical requirements and workload measurements to source implementations, follow-up opportunities, and derivation history. These links guide modifications and selection of verified parents, including intermediates, without training another optimization policy. 
+
+## 3 Motivating Coupled Kernel Optimization 
+
+Figure 1 illustrates how numerical differences between rollout and policy-update kernels can perturb the RL probability ratio even before the model weights change. We first formulate this discrepancy and the consistency requirement used to avoid it, then examine how preserving that requirement shapes joint kernel optimization. 
+
+3.1 Numerical Inconsistency 
+
+Comparing execution paths at a fixed policy snapshot separates numerical disagreement from genuine policy change. 
+
+Notation. Scalars and indices use italic symbols; vectors and tensors use p, y, and z. Calligraphic symbols denote sets, model execution, and structured objects, including W, M, I, and S. Action and audit records use 
+
+a and e; aggregate latency uses T .Let p be a prompt and y a recorded response. For i = 1 , . . . , |y|, response token yi is conditioned on the prefix 
+
+xi = p∥y<i , where ∥ denotes sequence concatenation. To isolate numerical disagreement, we hold model weights, tokens, positions, and causal masking fixed. For a complete source-code implementation I containing both execution paths, let zupd  
+
+> I,i
+
+and zroll  
+
+> I,i
+
+denote the logit vectors that predict yi through policy update and rollout, respectively. The update path processes the complete trajectory under causal masking. During rollout, the final prompt-prefill logits predict y1; subsequent predictions use decode after processing the preceding response tokens, with the KV cache representing the same prefix xi.Applying the same deterministic logit processing and normalization yields token log-probabilities ℓupd  
+
+> I,i
+
+and 
+
+ℓroll  
+
+> I,i
+
+. Define their discrepancy as δI,i = ℓupd  
+
+> I,i
+
+− ℓroll  
+
+> I,i
+
+. Directly reusing the rollout value gives the probability ratio 4rreuse  
+
+> I,i
+
+= exp  δI,i 
+
+. Before the first optimizer step in synchronous training, the intended values are δI,i = 0 
+
+and rreuse  
+
+> I,i
+
+= 1 . Differences in numerical execution can produce a nonzero δI,i , perturbing the ratio despite unchanged weights. Recomputing the denominator through the policy-update path at the same snapshot removes this discrepancy but incurs another forward pass, as shown in Figure 1. After an update, or with different current- and behavior-policy snapshots, a ratio other than one can reflect genuine policy change; the fixed-snapshot comparison isolates numerical disagreement. 
+
+Required agreement. Unified execution targets a stronger condition than equality of the recorded token’s probability: its corresponding logit vectors must agree bit for bit, zupd 
+
+> I,i
+> bit
+
+= zroll  
+
+> I,i
+
+. Under the common probability computation, this condition gives δI,i = 0 and permits reuse when the recorded values match the policy snapshot required by the objective. The equality compares the two paths within I; coordinated changes may alter both paths’ outputs relative to a parent implementation. Numerical accuracy against external references is checked separately. Section 4.1 extends this response-token requirement to complete model outputs and defines the joint performance objective. 
+
+3.2 Key Observations for Coupled Optimization 
+
+Two observations explain how the search benefits from considering both execution paths and retaining useful intermediate implementations. Attention illustrates the corresponding operator-level requirement: outputs must agree at matching query positions for the same query data and causal KV prefix. Full-sequence execution processes many query rows concurrently during rollout prefill and policy-update forward, whereas decode processes one new query at a time. These paths favor different GPU execution strategies, but numerical dependencies and shared source code couple their optimization. We denote the query, key, and value tensors by 
+
+Q, K, and V, respectively. The product QK ⊤ computes attention scores, P denotes the resulting normalized attention weights, and PV computes the attention output. 
+
+Insight 1: Numerical constraints couple specialized execution paths. 
+
+An edit that changes arithmetic in one path may require a corresponding edit in the other. Changes to shared data layouts can also affect both paths. The following examples show a trade-off and a joint improvement. 
+
+◦ A resource improvement in one path can increase work in the other. Attention partitions the KV sequence into tiles. Their boundaries determine online-softmax rescaling, FP32 -to-BF16 conversion of attention weights, and PV accumulation order. In one full-sequence kernel, reducing the tile from 128 to 64 keys lowered shared memory per thread block (CTA) from approximately 56 KiB to 34 KiB, raising the residency limit from four to six CTAs per streaming multiprocessor (SM). Within this design, preserving bitwise agreement requires decode to use the same 64-key partition. Decode therefore processes twice as many sequential KV blocks and softmax/ PV updates. More full-sequence residency comes at the cost of additional decode work; the latency effects must be measured for both paths. 
+
+◦ A shared layout change can benefit both entry points. While optimizing long-context decode, we found that the shared memory layout for transposed V decomposed each 32 KiB tile into 32 Tensor Memory Accelerator (TMA) transfers of 1 KiB. Changing its CuTe tiling order produced two operations of 16 KiB and reduced the static TMA instructions in each kernel from 34 to 4. Both entry points construct their TMA descriptors and warp-group matrix multiply-accumulate (WGMMA) operands from this layout definition in the shared source code, so the modification also changed the full-sequence entry point. It passed all 12 bitwise-consistency tests between the two entry points and improved decode by up to 1.27 × and full-sequence execution by up to 1.09 ×, with average gains of 1.15 × and 1.06 ×, respectively. A decode-motivated source-code modification can therefore benefit policy update and rollout prefill when both entry points are changed coherently. These examples motivate coordinated edits and measurements: resource changes alone do not establish a speedup, and a modification targeting one path can affect the other’s correctness or performance. 
+
+Insight 2: Intermediate implementations can enable later gains. 
+
+A change can enable a useful follow-up without immediately improving performance. Retaining its verified 5implementation lets the search pursue that opportunity, even while another implementation remains the current best. In our H200 attention search, removing a temporary K staging buffer produces a verified implementation that does not replace the current best. Its revised layout nevertheless enables a subsequent optimization of TMA loading for transposed V and WGMMA computation of PV . The agent retains the intermediate implementation and the follow-up opportunity, then uses them to reach an implementation that satisfies the aggregate promotion criteria. Section 5.5 traces the associated records and decisions. These observations identify three requirements for the search: numerical requirements must inform candidate edits, workload measurements must expose effects on both paths, and implementation history must preserve opportunities enabled by earlier changes. Section 4 defines an IR that links this information; Section 5 explains how the agent and evaluator use it to guide exploration and promotion. 
+
+## 4 Optimization IR 
+
+The observations above require the search to connect numerical constraints, performance measurements, and opportunities across implementation versions. The optimization IR provides a schema for search records and their relationships, linking each source-code version to the evidence and opportunities associated with it. We define the optimization problem, records of each attempt, and persistent state that makes them available for later decisions. 
+
+4.1 Optimization Problem 
+
+We first define the implementation being optimized, the required output agreement, and the joint latency objective. These definitions specify what the IR must describe and what the evaluator must measure. 
+
+Implementation and execution. Using the prompt p, response y, and concatenation operator defined in §3, the complete trajectory is p∥y. The implementation I introduced in §3.1 contains the model’s complete kernel source code: the entry points, shared helpers, shape- and architecture-specific kernel variants, and dispatch rules needed by policy update and rollout generation. Depending on the model architecture, I
+
+includes attention, normalization, position encoding, routing, KV-cache, and activation operators. Operators invoked during both policy update and rollout generation are unified within I; rollout-only operators, such as KV-cache writes, are optimized by the same workflow but are not themselves subject to equality between policy-update and rollout outputs. We use Mupd  
+
+> I
+
+(·) to denote the forward pass used during policy update over a complete prompt–response sequence, Mpre  
+
+> I
+
+(·) to denote rollout prefill over a prompt, and Mdec  
+
+> I
+
+(· | · ) to denote autoregressive rollout decode conditioned on the cached prefix. Each function returns a matrix with one logit vector per processed token position, in sequence order. That vector scores the next token: the last prompt position scores the first response token, and each response position scores the following token. Thus, the response-token vector zupd  
+
+> I,i
+
+in §3.1 is row |p| + i − 1 of the policy-update output, using one-based indexing. Policy-update execution and rollout prefill invoke the full-sequence entry point, whereas autoregressive rollout decode invokes the token-wise decode entry point. 
+
+Consistency constraint. During policy update, the model computes logits over the complete prompt–response trajectory in a single invocation, Mupd  
+
+> I
+
+(p∥y). For comparison, we replay the same recorded sequence through the rollout path: prefill over the prompt, Mpre  
+
+> I
+
+(p), followed by processing the recorded response tokens one at a time, Mdec  
+
+> I
+
+(y | p). The replay uses the fixed-snapshot conditions in §3.1, with the decode cache representing the corresponding prefix. Here, ∥ also denotes concatenation of output matrices along their token-position dimension. We extend the response-token consistency requirement in §3.1 to every corresponding output position. At prompt positions, policy-update logits are compared with rollout-prefill logits; at response positions, with logits from autoregressive decode of the same response tokens. For every supported prompt–response pair (p, y), we require 
+
+Mupd  
+
+> I
+
+(p∥y) bit 
+
+= Mpre  
+
+> I
+
+(p)∥M dec  
+
+> I
+
+(y | p) (1) 6The sequence-wide comparison includes the final response-position logits, although scoring the recorded response does not require them. Reuse remains subject to the policy-snapshot and probability-computation conditions in §3. Constraint (1) specifies the target model-level equality. Search verification uses prescribed tests; the operator-level checks are reported in §6.3. 
+
+Joint optimization objective. Let Wfull and Wdec be the full-sequence and token-wise decode workload sets. The former includes rollout prefill over prompts and policy-update forward passes over complete trajectories. Each workload identifies its entry point, so the two sets are disjoint; their union is W. For each workload 
+
+w ∈ W , let lat( I, w ) denote its latency under implementation I and cw ≥ 0 its fixed scalar weight. The joint objective is the weighted sum 
+
+T (I) = X
+
+> w∈W
+
+cw lat( I, w ). (2) We seek an implementation I minimizing T (I) subject to Constraint (1), fixed per-workload latency limits, and the prescribed numerical-accuracy and other correctness requirements in the evaluation specification below. This kernel-search objective is not end-to-end training time; search efficiency measures the LLM tokens and candidate evaluations needed for a verified improvement. 
+
+Evaluation specification. The immutable specification S fixes the target hardware, workload sets, correctness tests, objective weights, and a baseline latency and maximum permitted slowdown for every workload. These fixed criteria make candidate measurements comparable within a search. An implementation is verified when compilation and execution succeed and all prescribed correctness checks pass. A verified implementation is 
+
+admissible when complete measurements also establish that every workload meets its latency limit. Promotion 
+
+replaces the current best only with an admissible implementation having strictly lower T (I).
+
+4.2 Records and Relationships 
+
+The IR links attempted modifications to source implementations, motivations, and measured outcomes so later decisions can use the evidence behind aggregate scores. Implementation records identify lineage vertices, action records identify derivations, and audit records attach evidence. Opportunity and lineage-management records describe possible next steps and branch status. Five record types express these relationships: • Optimization-opportunity record. An opportunity proposes a search direction: an optimization mechanism, affected workloads or entry points, supporting evidence, and records of potentially affected implementations, without prescribing an exact source-code modification. Audit records supply correctness outcomes, workload dispatch, latency, compiler-reported resource usage, profiler measurements, and generated instructions. • Implementation record. This record stores one complete source-code implementation, its target GPU architecture, entry points, shared source-code regions, dispatch rules, and numerical requirements between the entry points. • Action record. An action specifies the exact source-code modification, linking its originating opportunity and preceding implementation records to the resulting implementation record. It identifies targeted workloads and kernel variants, modification scope, affected source-code regions, expected hardware effect, numerical risks, and the measurement that would contradict its rationale. • Audit record. An audit stores compilation and execution outcomes, correctness results, observed kernel dispatch, per-workload latencies, and compiler, profiler, and generated-instruction evidence. It records T (I)
+
+given all required workload latencies; failed checks and incomplete measurements remain evidence without implying verification or promotion. • Lineage-management record. This record stores the agent’s interpretation of the audit, branch status, and evidence-supported follow-up opportunities. The agent retrieves and summarizes linked records to choose source-code modifications and parents. 74.3 Persistent Search State 
+
+The search state collects the records and separates the best measured implementation from alternatives retained for exploration. After t completed candidate audits and their branch decisions, the state is 
+
+Zt = ⟨S , Gt, Ft, Rt, Ot, I∗ 
+
+> t
+
+, κ t⟩. (3) • S is the immutable evaluation specification defined in §4.1. It keeps correctness and performance criteria fixed across attempts. • Gt is the directed derivation graph of implementation lineage through iteration t. Its vertices identify complete source-code implementations through their implementation records, and each derivation links the parent implementation or implementations to an offspring through the corresponding action record. Linked audit, opportunity, and lineage-management records preserve the evidence and decisions associated with each attempt, including failed offspring and previously explored opportunities. • Ft is the active frontier, a set of verified implementations with agent-identified immediate follow-up opportunities. • Rt is the set of verified implementations archived for possible reuse, with no immediate follow-up opportu-nity. • Ot is the set of pending optimization opportunities. Each opportunity references one or more verified implementations to which it may apply and supporting audit evidence in Gt, which may include failed attempts. • The current-best implementation I∗ 
+
+> t
+
+minimizes recorded T (I) among admissible implementations. • κt is the counter of consecutive attempts without improvement, defined as the number of consecutive audited offspring that have not improved the current-best implementation. The stopping threshold κmax is normally configured between 20 and 50; it limits unproductive search rather than certifying convergence. Records remain in the derivation history after their implementations leave the frontier. The workflow below specifies how each attempt updates this history and the implementations retained for exploration. 
+
+## 5 IR-Guided Kernel Search 
+
+To use retained evidence during optimization, AR EA L-TIK alternates source-code modifications, evaluation, and branch decisions. This workflow updates the IR: the agent proposes edits and manages branches, while evaluator results determine verification and promotion. A worked attention example shows how these decisions enable a sequence of improvements. 
+
+5.1 Workflow and Initialization 
+
+The workflow starts from a checked baseline so that every later attempt has a verified parent and comparable measurements. After Initialization , it repeats Action , Audit , and Lineage Management . Figure 2 shows the stages’ interaction with the IR; Algorithm 1 specifies state updates and the stopping rule. 
+
+Initialization receives the evaluation specification S and a complete starting implementation I0, called the root, whose full-sequence and token-wise decode outputs already agree bit for bit; constructing this initial alignment is a prerequisite, not an optimization stage. The agent invokes the evaluator to verify and profile I0.The search starts only after compilation and execution succeed, every mandatory correctness check passes, all required workloads are measured, and the root satisfies the per-workload latency limits. Initialization then creates G0, places I0 in F0, sets R0 = ∅ and I∗ 
+
+> 0
+
+= I0, and initializes κ0 = 0 . The agent examines the root implementation and its audit evidence to derive the initial opportunities O0 used by the first Action .8Optimization IR 
+
+Initialization READ  
+
+> Root Source Code, Specification 
+
+Action  
+
+> READ
+> Opportunity, Parent Implementation, Audit Records
+> PRODUCE
+> Action Record, Offspring
+
+Audit 
+
+> READ
+> Offspring, Evaluation Specification, Current Best
+> RETAIN, UPDATE
+> Audit Record, Current Best, Convergence Counter
+
+Lineage Management  
+
+> READ
+> Audit Record, Derivation History
+> UPDATE
+> Frontier, Archive, Opportunities, Rationale
+
+Figure 2 The agent loop and its IR records. Ini-tialization validates the root and creates the state; 
+
+Action produces an offspring from a selected op-portunity and verified parent; Audit records results and applies promotion criteria; Lineage Management 
+
+updates branches and opportunities. The figure’s “Convergence Counter” counts consecutive audited attempts without improvement. Record types and state components are defined in §4.2 and §4.3. 
+
+Algorithm 1: IR-Guided Unified RL Kernel Search 
+
+Input: Bitwise-consistent starting implementation I0;specification S; stopping threshold κmax 
+
+Output: Current best I∗
+
+> t
+
+1 e0 ← AUDIT (I0, S)
+
+2 if the root is unverified, incompletely measured, or inadmissible then 3 stop without initializing the search 4 Z0 ← INITIALIZE STATE (S, I0, e 0); t ← 0
+
+5 while Ot̸ = ∅ and κt < κ max do 6 (at+1 , bIt+1 ) ← ACTION (Zt)
+
+7 et+1 ← AUDIT (bIt+1 , S)
+
+8 Zt+1 ← RECORD AUDIT (Zt, a t+1 , bIt+1 , e t+1 )
+
+9 Zt+1 ← LINEAGE MANAGEMENT (Zt+1 )
+
+10 t ← t + 1 
+
+11 return I∗
+
+> t
+
+In Algorithm 1, t counts completed search attempts af-ter initialization; at+1 records the selected parents and source-code modification, bIt+1 is the resulting offspring, and et+1 contains its audit outcomes. The function RECORD AUDIT retains the action, offspring implementa-tion record, and audit, including for failed attempts, and applies the promotion and counter updates. The loop stops when no pending opportunity remains or the non-improvement threshold is reached. 
+
+5.2 Candidate Generation 
+
+Candidate generation turns a recorded opportunity into a concrete source-code change. In Action , the agent interprets recorded results, selects a pending opportunity from Ot, and chooses one or more verified parent implementations retained for exploration. An archived implementation can be reactivated when a new opportunity applies to it. Using the linked code and audit evidence, the agent chooses a source-code change expected to reduce T (I) directly or enable an evidence-supported follow-up, while considering numerical and resource constraints. It records the modification’s scope and rationale before applying it to produce a complete offspring. Parent 0: Original Source Code   
+
+> Key Optimization: Staged KBuffer
+
+Offspring 1: Generated Source Code                     
+
+> Key Optimization: Direct K-Major TMA
+> 1// Stage K in a temporary shared buffer
+> 2BF16* k_stage =
+> reinterpret_cast <BF16* >( smem + K_STAGE_OFF);
+> 3tma_load_2d(tma_k, k_stage, ...);
+> 4mbar_wait(&mbar[0], phase);
+> 5asm volatile("fence.proxy.async...");
+> 6__syncthreads();
+> 7compute_qk_reg(q_tile, k_stage, acc_s);
+> 1// Load K directly into the WGMMA layout
+> 2using SmemLayoutKW = ...;
+> 3Tensor sK = make_tensor( make_smem_ptr(k_wgmma),
+> SmemLayoutKW {});
+> 4auto [gK, sK] = tma_partition(...);
+> 5copy(tma_k.with(mbar[0]), gK, sK);
+> 6mbar_wait(&mbar[0], phase);
+> 7compute_qk_cute(q_smem, k_wgmma, acc_s);
+
+Optimization IR       
+
+> : Specification; t: Derivation Graph
+> t: Frontier; t: Archive; t: Opportunities
+> *
+> t: Current Best; κt: Convergence Counter
+
+Action       
+
+> Selects Opportunity, Applies a1to 0
+> Read / Append Read 0Produces 1
+
+Action Record a1 
+
+> Direct-KTMA, Full-Sequence Only
+
+Figure 3 A source-code search step a1: Action reads root implementation I0 and its associated audit evidence, records TMA loading of K directly into WGMMA’s required shared-memory layout, and produces offspring I1. The figure’s “Convergence Counter” is κt, the count of consecutive audited attempts without improvement. 
+
+9The resulting action has one of three forms: 
+
+◦ Full-sequence-only action. The source code used by the policy-update forward pass and rollout prefill changes. The decode source code remains unchanged, providing the numerical counterpart for the bitwise-consistency check. 
+
+◦ Decode-only action. The token-wise rollout-decode source code changes. The full-sequence source code remains unchanged, providing the numerical counterpart for the bitwise-consistency check. 
+
+◦ Joint action. Both entry points or shared source code change. For promotion, a gain on one may offset the other’s bounded slowdown only if T (I) falls and all workload limits hold. Every action creates, never overwrites, an implementation record, regardless of audit success. 
+
+5.3 Verification and Promotion 
+
+Verified offspring can support further exploration; promotion also requires measured performance improve-ment. In Audit , the agent invokes the evaluator to compile and execute the offspring under S, check bitwise consistency between entry points and separately check numerical accuracy against external references, and measure the required workloads. An unverified offspring cannot enter the frontier or archive or become a parent. Its vertex remains in Gt+1 ; its audit record retains failures and incomplete measurements. The offspring bIt+1 replaces the incumbent as I∗ 
+
+> t+1
+
+only if it is verified, fully measured, satisfies every per-workload latency limit in S, and has lower aggregate latency: T (bIt+1 ) < T (I∗ 
+
+> t
+
+). Promotion resets κt+1 to zero; otherwise, I∗ 
+
+> t+1
+
+= I∗ 
+
+> t
+
+and κt+1 = κt + 1 , including ties and failed audits. The agent selects branches separately from these updates. For unified attention, recorded numerical requirements guide edits and audit-failure analysis across four risks: 
+
+(i) the QK ⊤, PV , online-softmax, and final-normalization reduction orders; (ii ) the precision and placement of scaling and masking; (iii ) the exact exponential, reciprocal, and square-root instructions, including constants and whether subnormal values are flushed to zero; and (iv ) the BF16 –FP32 conversion points and the order of accumulator rescaling, update, and normalization. 
+
+5.4 Branch Exploration 
+
+Lineage Management selects implementations to explore independently of promotion. After Audit fixes I∗
+
+> t+1
+
+,the agent reviews evidence, identifies follow-up opportunities, and records a branch decision without changing the incumbent: 
+
+◦ CONTINUE keeps a verified implementation active so that a long optimization path can be divided into short, separately verified actions. If an offspring fails, revisions must start from a retained verified parent, not that offspring. 
+
+◦ MERGE records an opportunity when the agent identifies compatible modifications on different branches; a later Action constructs the combined implementation for Audit .
+
+◦ ARCHIVE retains a verified implementation and its evidence without an immediate follow-up. The agent may reactivate it when new evidence supports further work. 
+
+◦ ABANDON stops work only after repeated retries remain unverified or the audit evidence falsifies the optimization direction; failed attempts remain as negative evidence. 
+
+5.5 Attention Case Study 
+
+The H200 attention search illustrates how IR records guide edits and parent choices. Here, I0, . . . , I4 are constructed implementations, I5 is a proposed merge, and a1, . . . , a 4 are executed actions. 
+
+From opportunity to offspring. Figure 3 traces a1 : I0 → I 1. In root implementation I0, the H200 full-sequence kernel stages K through a temporary 32 KiB shared-memory buffer; an opportunity record links this source code to profiler evidence that the buffer limits block residency. The agent records and applies direct-K
+
+10 0
+
+# 1 2
+
+# 3
+
+# 4
+
+# 5                 
+
+> Error Detected
+> Retry
+> No Progress
+> Retry
+> a1: Direct K
+> TMA Load
+> a3: Skip Unit Rescaling
+> a4:K,V
+> TMA Hints
+> a2:V⊤TMA
+> WGMMA PV
+> Continue Abandon Archive Current Best Root Merge Figure 4 Lineage Management for the unified-attention search rooted at I0. Solid arrows a1–a4denote executed actions; dashed I5is a proposed merge, neither constructed nor audited. “Error Detected” denotes failed bitwise checks; “No Progress” denotes no improvement of the aggregate objective. Retry arrows denote attempts from verified parent I0; failed
+> I3cannot be a parent.
+
+TMA loading into WGMMA’s shared-memory layout, removing the buffer while leaving token-wise decode unchanged. 
+
+Verification without promotion. Audit verifies I1: all mandatory correctness checks pass, shared memory falls from approximately 99 to 68 KiB, and the residency limit rises from two to three CTAs per SM. I1 remains unpromoted under the aggregate objective and per-workload latency limits; its unchanged 1,024-token prefill latency of approximately 0.21 ms cannot alone determine promotion. 
+
+An intermediate implementation enables promotion. In Figure 4, a follow-up opportunity identifies how 
+
+I1’s layout supports TMA loading of transposed V and WGMMA computation of PV . Lineage Management 
+
+assigns C ONTINUE ; Action selects verified I1 rather than incumbent I0 for a2 : I1 → I 2. I2 meets the promotion criteria, reducing 1,024-token prefill latency from approximately 0.21 to 0.10 ms. 
+
+Rejected and archived alternatives. On another branch, a3 produces I3 by skipping accumulator rescaling when the scale factor is one. Repeated variants fail bitwise checks because skipping the instruction changes whether subnormal values are flushed to zero, leading to A BANDON ; action and audit records retain the attempted simplification and rejection rationale. Action a4 adds TMA cache hints for K and V to produce I4,which passes all 12 bitwise tests but reduces aggregate performance by 0.08%, receiving A RCHIVE . Dashed I5
+
+proposes combining this archived modification with I2; it has not been constructed or audited. 
+
+## 6 Evaluation 
+
+We evaluate optimized-kernel performance at the training, layer, and operator levels (Q1–Q3), compare search systems (Q4), and ablate AR EA L-TIK’s components (Q5). Q1, Q4, and Q5 use NVIDIA H20 GPUs; Q2 and Q3 also include A100 and H200 GPUs. 
+
+6.1 Q1: End-to-End PPO and GRPO Training 
+
+We train Qwen2.5-1.5B and Qwen3-4B with PPO and GRPO on GSM8K [47] at configured data-staleness values s ∈ { 0, 2, 4}. Here, s = 0 is synchronous and on-policy; s = 2 and s = 4 permit asynchronous, off-policy execution. For each configuration, AReaL and AR EA L-TIK use identical training settings for 300 policy updates, with reward and throughput averaged across three random seeds. Under the same AReaL orchestration, the baseline combines SGLang rollout and FSDP policy-update kernels and recomputes token log-probabilities for the clipped ratio’s fixed denominator; AR EA L-TIK uses unified kernels and reuses recorded rollout values. Numerical consistency alone does not make behavior-policy probabilities interchangeable with those of a distinct proximal-policy snapshot. At each update, we report mean task reward over 256 selected trajectories, actor policy loss, and pre-clipping 11 actor gradient norm. End-to-end throughput is completed training-response tokens divided by elapsed time from the first rollout dispatch through completion of in-flight work after update 300, including rollout, policy update, scheduled evaluation, checkpointing, synchronization, and queueing. We also estimate AReaL throughput without recomputation. Reported reward and throughput ratios compare AR EA L-TIK with AReaL and are averaged arithmetically across 12 configurations. Training hyperparameters appear in Appendix A. 0.6 0.7 0.8 0.9 
+
+s = 0 s = 2 s = 4 
+
+0.6 0.7 0.8 0.8 0.9 0 150 0.8 0.9 0 150 0 150 300 
+
+> PPO GRPO PPO GRPO Qwen2.5-1.5B Qwen3-4B
+
+Policy Update Steps Training Reward 
+
+AReaL-TIK AReaL 
+
+Figure 5 Training reward over 300 updates. Rows dis-tinguish model and algorithm; columns show staleness 
+
+s ∈ { 0, 2, 4}. Faint lines average per-update rewards across three seeds, each with 256 trajectories selected for the update; opaque lines show centered 15-update moving av-erages. -0.3 0.0 0.3 
+
+s = 0 
+
+> -1.0 0.0 1.0
+
+s = 2 
+
+> -1.5 0.0 1.5
+
+s = 4 
+
+> -0.2 0.0 0.2 -0.2 0.0 0.2 -0.2 0.0 0.2 -0.3 0.0 0.3 -0.2 0.0 0.2 -0.5 0.0 0.5
+
+0 150 
+
+> -0.4 0.0 0.4
+
+0 150 
+
+> -0.5 0.0 0.5
+
+0 150 300 
+
+> -0.8 0.0 0.8
+> PPO GRPO PPO GRPO Qwen2.5-1.5B Qwen3-4B
+
+Policy Update Steps Policy Loss 
+
+AReaL-TIK AReaL 
+
+Figure 6 Actor policy loss ( 10 −3 units) for the configu-rations in Figure 5. Faint lines show per-update values; opaque lines show centered 15-update moving averages. 0.5 0.8 1.0 s = 0 
+
+> 2.0 4.0
+
+s = 2 
+
+> 0.5 1.0 1.5
+
+s = 4 
+
+> 0.5 0.6 0.8 0.4 0.6 0.8 0.6 0.9 1.2 0.5 1.0 1.5 0.8 1.6 2.4 0.8 1.2
+
+0 150 
+
+> 1.5 3.0
+
+0 150 
+
+> 1.5 3.0 4.5
+
+0 150 300 
+
+> 0.8 1.6 2.4
+> PPO GRPO PPO GRPO Qwen2.5-1.5B Qwen3-4B
+
+Policy Update Steps Gradient Norm 
+
+AReaL-TIK AReaL 
+
+Figure 7 Pre-clipping actor gradient norm for the config-urations in Figure 5. Faint lines show per-update values; opaque lines show centered 15-update moving averages. 02K 4K 6K 
+
+> 1.07× 0.94× 1.12×
+> 1.07× 1.09× 1.09×
+
+Qwen2.5-1.5B 
+
+> 01K 2K 3K
+> 1.05× 1.09× 1.12×
+> 1.08× 1.09× 1.09×
+
+Qwen3-4B 
+
+s = 0 s = 2 s = 4 
+
+> 04K 8K 12K
+> 1.10× 1.10× 1.14×
+> 1.10× 1.13× 1.13×
+
+s = 0 s = 2 s = 4   
+
+> 02K 4K
+> 1.14× 1.13× 1.23×
+> 1.12× 1.16× 1.16×
+> Training Throughput (token/s)
+> PPO GRPO
+> AReaL w/ Recomp. AReaL w/o Recomp. AReaL-TIK
+
+Figure 8 End-to-end training-response throughput over 300 policy updates at s ∈ { 0, 2, 4}, averaged across three seeds. AR EA L-TIK and AReaL with recomputation are mea-sured; AReaL without recomputation is estimated. 
+
+End-to-end results. The average training-reward ratio of AR EA L-TIK to AReaL rounds to 1.00 × across 12 configurations, using each configuration’s mean reward over all 300 updates (Figure 5). GRPO and Qwen3-4B PPO range from 0.999 × to 1.003 ×, but Qwen2.5-1.5B PPO at s = 2 reaches 0.955 ×. Actor policy loss and 12 pre-clipping gradient norm (Figure 6, Figure 7) diagnose optimization, not task performance; lower values need not indicate better training. 
+
+Training throughput. AR EA L-TIK averages 1.10 × AReaL’s throughput with recomputation, improving 11 of 12 configurations; GRPO and PPO average 1.14 × and 1.07 × (Figure 8). Without recomputation, AReaL’s estimated throughput is 1.11 × the measured baseline. Measured gains combine unified kernels and rollout-log-probability reuse; Q4 instead measures search gains over a shared bitwise-consistent implementation. 
+
+6.2 Q2: Isolated-Layer Performance Across Models 
+
+We profile isolated transformer layers from two dense models, Qwen3-4B and Qwen3-8B, and three MoE models, Mixtral-8 ×7B, Qwen3-30B-A3B, and Qwen3-235B-A22B. We use batch size 1, a 1,024-token prefill, and decode lengths of 128, 1,024, 4,096, and 8,192 tokens. Attention shares the implementation in §6.3, with model-specific query, key, and value tensor dimensions. 024                              
+
+> A100 Exe.Time (s)
+> 2.35× 2.41× 2.22× 2.08×
+> Qwen3-4B
+> 0246
+> 1.77× 1.83× 1.71× 1.62×
+> Qwen3-8B
+> 0369
+> 0.99× 0.99× 0.92× 0.92×
+> Mixtral-8×7B
+> 0369
+> 1.09× 0.92× 0.88× 0.89×
+> Qwen3-30B-A3B
+> 036912
+> 1.07× 1.19× 1.28× 1.27×
+> Qwen3-235B-A22B
+> 012
+> H20 Exe.Time (s)
+> 1.24× 1.22× 1.21× 1.16×
+> 0123
+> 1.12× 1.07× 1.07× 1.04×
+> 0369
+> 1.12× 1.08× 1.08× 1.08×
+> 0246
+> 1.28× 1.17× 1.17× 1.14×
+> 0369
+> 1.28× 1.20× 1.16× 1.14×
+> 128 1K 4K 8K
+> 0123
+> H200 Exe.Time (s)
+> 2.34× 2.38× 2.36× 2.37×
+> 128 1K 4K 8K
+> 01234
+> 2.24× 2.06× 1.99× 1.94×
+> 128 1K 4K 8K
+> 0369
+> 1.18× 1.18× 1.20× 1.13×
+> 128 1K 4K 8K
+> 0246
+> 1.86× 1.18× 1.11× 1.02×
+> 128 1K 4K 8K
+> 02468
+> 1.08× 1.18× 1.34× 1.32×
+
+Decode Sequence Length (Prefill Sequence Length = 1K) AReaL-TIK AReaL 
+
+Figure 9 Aggregate isolated-layer phase time, including AReaL’s recomputation forward pass. Rows show A100, H20, and H200; columns show the five models. Panels use independent vertical scales, decode lengths of 128, 1K, 4K, and 8K, and 1K prefill. Labels report the ratio of AReaL’s summed phase time to AR EA L-TIK’s. 
+
+Per-layer time sums prompt prefill once, token-wise decode over the complete response, and policy-update forward and backward each once over the complete prompt–response trajectory. AR EA L-TIK uses unified kernels; AReaL uses SGLang rollout and Megatron policy-update kernels, plus a forward pass recomputing the objective’s fixed-denominator token log-probabilities. This sum is not wall-clock training throughput and does not account for phase overlap. 
+
+Layer performance. Speedups average 1.40 × across 15 GPU–model pairs, with gains in 13 (Figure 9). Qwen3-4B and Qwen3-8B average 2.10 × on A100 and H200; the five H20 models average 1.15 ×. Gains combine kernel-execution differences and avoided recomputation. 
+
+H20 phase breakdown. AR EA L-TIK reduces cumulative rollout-decode time in all 20 configurations (Fig-ure 10). Avoided fixed-denominator recomputation lowers policy-update forward totals; backward times are comparable. With 1K prompts, prefill times are similar and contribute little. 13 012                   
+
+> H20 Rollout Exe.Time (s)
+> Qwen3-4B
+> 0123Qwen3-8B
+> 02468
+> Mixtral-8 ×7B
+> 0246
+> Qwen3-30B-A3B
+> 0369
+> Qwen3-235B-A22B
+> 128 1K 4K 8K
+> 050 100
+> H20 Policy Update Exe.Time (ms)
+> 128 1K 4K 8K
+> 0100
+> 128 1K 4K 8K
+> 0100 200 300
+> 128 1K 4K 8K
+> 0100
+> 128 1K 4K 8K
+> 0100 200 300
+> Decode Sequence Length (Prefill Sequence Length = 1K)
+> AReaL-TIK AReaL Prefill / Forward Decode / Backward
+
+Figure 10 H20 per-layer phases: batch size 1, 1K prefill. Each response length compares AR EA L-TIK (purple) with AReaL (green, hatched). The top row stacks prefill and cumulative decode; the bottom stacks measured policy-update forward and backward times. AReaL’s forward time also includes the extra pass for denominator token log-probabilities. 
+
+6.3 Q3: Per-Operator Performance 
+
+Prefill workloads use 1K, 4K, 8K, and 16K tokens at batch size 1; decode combines lengths of 128, 1K, 4K, and 8K with batch sizes of 1, 4, 8, and 16. Attention baselines are FlashAttention-2 on A100, FlashAttention-3 on H20 and H200, and the fastest qualified FlashInfer configuration for each decode workload. The other nine operators use nn.Linear /ATen-cuBLAS for dense linear layers and the applicable Megatron-Core or SGLang 
+
+implementations otherwise. Speedup is baseline latency divided by AR EA L-TIK latency; values below one indicate slower execution. 
+
+Correctness checks. Under Constraint (1), we compare full-sequence and token-wise outputs for identical inputs per GPU and verify exact KV-cache post-write states (Table 1). Attention passes 64 prompt–response cases and 36 batched-versus-single decode comparisons on A100, and 16 prompt–response cases with 128-token responses on H200. H20 passes entry-point consistency checks, 32 bitwise-preservation checks, and CUDA-graph checks with varying inputs. 
+
+Table 1 Prescribed bitwise checks for operator outputs and KV-cache post-write states. Checkmarks indicate passing the tests within each GPU’s tested domain, not arbitrary-shape coverage or bitwise equality with external libraries. 
+
+Operator A100 H20 H200 
+
+Attention ✓ ✓ ✓
+
+Generic dense FFN ✓ ✓ ✓
+
+MoE router ✓ ✓ ✓
+
+Hidden RMSNorm ✓ ✓ ✓
+
+Q RMSNorm ✓ ✓ ✓
+
+K RMSNorm ✓ ✓ ✓
+
+Fused residual + RMSNorm ✓ ✓ ✓
+
+NeoX RoPE ( Q, K) ✓ ✓ ✓
+
+Indexed KV-cache write ✓ ✓ ✓
+
+Standalone SwiGLU ✓ ✓ ✓
+
+Operator performance. Attention’s average prefill and decode speedups remain below one on all three GPUs (Figure 11). Hidden RMSNorm and NeoX RoPE average 10 .30 × and 18 .03 × prefill speedups; NeoX RoPE averages 2.90 × for decode. Layer-level gains (Figure 9) combine avoided policy-update recomputation with other operators’ improvements, whose contributions depend on model-specific tensor dimensions and workloads. 
+
+Attention-development time. GPT-6 generates attention source-code modifications. Recorded optimization spans 2.51 hours on H200 and 1.38 hours on A100, including setup and between-command intervals. Across 14 0× 10× 20× 30× 
+
+> Prefill Average Speedup
+> 0.76× 1.02× 1.38× 11.50× 5.12× 6.26× 1.09× 24.44× 1.08× 2.46×
+
+A100 
+
+> 0× 10× 20×
+> 0.96× 1.00× 3.28× 12.02× 9.42× 11.09× 1.07× 20.39× 1.33× 1.07×
+
+H20 
+
+> 0× 3× 6× 9×
+> 0.79× 1.04× 1.39× 7.37× 2.00× 2.31× 1.00× 9.27× 1.26× 1.73×
+
+H200 
+
+> Attention Dense FFN MoE Router Hidden RMSNorm Q RMSNorm K RMSNorm Residual + RMSNorm NeoX RoPE Q/K KV-Cache Write SwiGLU 0× 2× 4× 6×
+> Rollout Decode Average Speedup
+> 0.78× 1.14× 3.15× 1.20× 1.12× 1.12× 1.06× 4.79× 1.22× 1.73×
+> Attention Dense FFN MoE Router Hidden RMSNorm Q RMSNorm K RMSNorm Residual + RMSNorm NeoX RoPE Q/K KV-Cache Write SwiGLU 0× 2×
+> 0.71× 1.00× 1.08× 0.84× 1.02× 0.99× 1.32× 2.90× 1.71× 1.57×
+> Attention Dense FFN MoE Router Hidden RMSNorm Q RMSNorm K RMSNorm Residual + RMSNorm NeoX RoPE Q/K KV-Cache Write SwiGLU 0× 1× 2×
+> 0.93× 1.00× 1.77× 1.00× 1.00× 1.00× 1.00× 1.00× 1.38× 1.00×
+
+Figure 11 Operator speedups across prefill and rollout-decode workloads on A100, H20, and H200. Attention bars show average speedups of GPT-6-optimized kernels. Panels use independent vertical scales; operator labels apply to both rows. 
+
+both GPUs, 113 compilation, correctness-validation, and performance-measurement jobs average 45.0 seconds of execution, including rejected-candidate jobs and 14 unsuccessful jobs. 
+
+6.4 Q4: Kernel-Search Comparison 
+
+We compare AR EA L-TIK with OpenEvolve [28], inspired by AlphaEvolve [27], and SkyDiscover [29] on unified attention using the workloads in §6.3. All systems share a starting implementation I0 verified under 
+
+S, editable source-code regions, code-generating model, sampling settings, compiler and profiler interfaces, and evaluator. Searches use equal optimization-step counts rather than independent stopping; LLM-token usage is measured, not matched. Baselines retain native prompts and search organizations; AR EA L-TIK selects modifications and manages branches through persistent IR records. Workloads have unit weights in Equation (2) and latency limits of 1.1× their fixed baselines in S. Best aggregate speedup, T (I0)/T (I∗),divides the starting implementation’s summed workload latency by the lowest sum achieved by a verified candidate satisfying every limit; compilation or correctness failures cannot improve it. We count all model input and output tokens, including unsuccessful modifications and retries. Metrics are arithmetic means of five independent trials. 0 10 20 30 40 50 60 1.0 1.5 2.0 2.5 
+
+> Cum. Best Speedup (×)
+
+0 10 20 30 40 50 60 0.0 2.5 5.0 7.5 10.0 
+
+> Cum.  Token Usage (M)
+
+Optimization Step 
+
+AReaL-TIK SkyDiscover OpenEvolve 
+
+Figure 12 H20 unified-attention search versus optimization step: best aggregate speedup over the shared bitwise-consistent starting implementation (left) and cumulative LLM tokens (right), averaged over five independent trials. 
+
+Search results. Best aggregate speedups reach 2.52 × for AR EA L-TIK, 2.00 × for SkyDiscover, and 1.50 ×
+
+for OpenEvolve, largely stabilizing after approximately 65 steps (Figure 12). All retain program history 15 and evaluation feedback, so this compares complete search procedures, not the IR alone. AR EA L-TIK uses 7M tokens versus SkyDiscover’s 8.5M and OpenEvolve’s 10 M, with lower cumulative usage throughout optimization. For speedup S and cumulative tokens N , efficiency (S − 1) /(N/ 10 6) measures improvement over the starting speedup of one per million tokens. At step 60, AR EA L-TIK reaches 2.52 × using 5.21 M tokens versus OpenEvolve’s 1.44 × using 8.73 M, a 5.8× efficiency advantage. 
+
+6.5 Q5: Ablation Study 
+
+Ablations use Q4’s unified-attention setup, workloads, optimization-step count, and evaluator, reporting arithmetic means of five independent trials. Mandatory correctness checks, unit workload weights, and 1.1×
+
+per-workload latency limits remain unchanged; only admissible candidates can improve results. We evaluate: • Without persistent IR history. Only the current-best implementation and its latest audit record are available; earlier attempts’ records are withheld. • Without explicit numerical requirements. Requirements between entry points are withheld during modifica-tion proposals but still enforced by the evaluator. • Without detailed audit evidence. Only correctness outcomes and aggregate execution time are provided; per-workload latency, dispatch, compiler-resource, profiler, and generated-instruction evidence are withheld. • Without optimization-opportunity records. Modifications are proposed directly from the remaining state, without selecting evidence-grounded opportunities from Ot.• Without multi-branch lineage management. Each modification starts from the current best; implementations that do not replace it cannot be continued, reactivated, or merged. 0 10 20 30 40 50 60 1.0 1.5 2.0 2.5       
+
+> Cum. Best Speedup (×)
+> 010 20 30 40 50 60 0.0 4.0 8.0 12.0 16.0
+> Cum.  Token Usage (M) Optimization Step
+> AReaL-TIK W/O Persistent IR History W/O Explicit Numerical Requirements W/O Detailed Audit Evidence W/O Optimization-Opportunity Records W/O Multi-Branch Lineage Management
+
+Figure 13 Ablation study on unified-attention optimization. Best aggregate speedup (left) and cumulative LLM-token usage (right), averaged across five independent trials and plotted against optimization step. 
+
+Ablation results. Removing lineage management reduces speedup most: 2.00 × versus the complete system’s 
+
+2.52 × (Figure 13). Removing persistent history yields 2.50 ×; removing opportunity records, detailed audit evidence, or numerical requirements yields 2.44 –2.46 ×. Every ablation exceeds the complete system’s 7Mtokens. Withholding numerical requirements consumes the most at 16 M, despite unchanged correctness enforcement. The opportunity-record, audit-evidence, history, and lineage ablations consume 13 .5M, 13 .6M, 
+
+10 M, and 13 M, respectively. Within the step budget, history mainly affects token use; lineage management affects both token use and attained speedup. 16 7 Conclusion 
+
+AR EA L-TIK uses an optimization IR as persistent memory for joint source-code search across rollout and policy-update kernels. Numerical requirements, workload evidence, and verified alternatives support multi-step exploration under bitwise-consistency constraints. Unified kernels permit rollout-log-probability reuse when the policy snapshot and probability processing match the objective. End-to-end evaluation yields 1.10 ×
+
+average throughput relative to AReaL with recomputation, with comparable average training reward but configuration-dependent gains and regressions. Isolated-layer profiling yields 1.40 × average speedup in summed phase time. Operator-level evaluation covers 10 operators across three GPU architectures, passing the prescribed bitwise checks. 
+
+## References 
+
+[1] OpenAI. Learning to reason with LLMs. https://openai.com/index/learning-to-reason-with-llms/ , Septem-ber 2024. [2] OpenAI. Gpt-5.6: Frontier intelligence that scales with your ambition. https://openai.com/index/gpt-5-6/ ,2026. Accessed July 2026. [3] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Peiyi Wang, Qihao Zhu, Runxin Xu, Ruoyu Zhang, Shirong Ma, Xiao Bi, et al. DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning. Nature , 645(8081):633– 638, 2025. [4] DeepSeek-AI, Anyi Xu, Bangcai Lin, Bing Xue, Bingxuan Wang, Bingzheng Xu, et al. DeepSeek-V4: Towards highly efficient million-token context intelligence. arXiv preprint arXiv:2606.19348 , 2026. [5] Qwen, An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, et al. Qwen2.5 technical report. arXiv preprint arXiv:2412.15115 , 2025. [6] Anthropic. Claude Fable 5 and Claude Mythos 5. https://www.anthropic.com/news/claude-fable-5-mythos-5 ,2026. Accessed July 2026. [7] Wei Fu, Jiaxuan Gao, Xujie Shen, Chen Zhu, Zhiyu Mei, Chuyi He, Shusheng Xu, Guo Wei, Jun Mei, Jiashu Wang, et al. Areal: A large-scale asynchronous reinforcement learning system for language reasoning. In Advances in Neural Information Processing Systems , volume 38, 2025. [8] Guangming Sheng, Chi Zhang, Zilingfeng Ye, Xibin Wu, Wang Zhang, Ru Zhang, Yanghua Peng, Haibin Lin, and Chuan Wu. Hybridflow: A flexible and efficient rlhf framework. In Proceedings of the ACM Symposium on Cloud Computing , 2024. [9] THUDM. Slime: Scalable lightweight infrastructure for model evolution. https://github.com/THUDM/slime , 2025. [10] John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. Proximal policy optimization algorithms. arXiv preprint arXiv:1707.06347 , 2017. [11] Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan Zhang, Y. K. Li, Y. Wu, and Daya Guo. DeepSeekMath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300 , 2024. [12] Tri Dao, Dan Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. FlashAttention: Fast and memory-efficient exact attention with IO-awareness. In Advances in Neural Information Processing Systems , volume 35, pages 16344–16359, 2022. [13] Tri Dao. FlashAttention-2: Faster attention with better parallelism and work partitioning. In The Twelfth International Conference on Learning Representations , 2024. [14] Jay Shah, Ganesh Bikshandi, Ying Zhang, Vijay Thakkar, Pradeep Ramani, and Tri Dao. FlashAttention-3: Fast and accurate attention with asynchrony and low-precision. In Advances in Neural Information Processing Systems ,volume 37, 2024. [15] Ted Zadouri, Markus Hoehnerbach, Jay Shah, Vijay Thakkar, and Tri Dao. FlashAttention-4: Algorithm and kernel pipelining co-design for asymmetric hardware scaling. In Proceedings of Machine Learning and Systems , volume 8, 2026. 
+
+17 [16] Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody Hao Yu, Shiyi Cao, Christos Kozyrakis, Ion Stoica, Joseph E. Gonzalez, Clark Barrett, and Ying Sheng. SGLang: Efficient execution of structured language model programs. In Advances in Neural Information Processing Systems , volume 37, 2024. [17] Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody Hao Yu, Joseph Gonzalez, Hao Zhang, and Ion Stoica. Efficient memory management for large language model serving with PagedAttention. In Proceedings of the 29th Symposium on Operating Systems Principles , pages 611–626, 2023. [18] Zihao Ye, Lequn Chen, Ruihang Lai, Wuwei Lin, Yineng Zhang, Stephanie Wang, Tianqi Chen, Baris Kasikci, Vinod Grover, Arvind Krishnamurthy, and Luis Ceze. FlashInfer: Efficient and customizable attention engine for LLM inference serving. In Proceedings of Machine Learning and Systems , volume 7, 2025. [19] Tianle Zhong, Neiwen Ling, Yifan Pi, Zijun Wei, Tianshu Yu, Geoffrey Fox, Peng Wu, and Xiao Yu. Diagnosing training inference mismatch in LLM reinforcement learning. arXiv preprint arXiv:2605.14220 , 2026. [20] Yaxiang Zhang, Yingru Li, Jiacai Liu, Jiawei Xu, Ziniu Li, Qian Liu, and Haoyuan Li. Beyond precision: Training-inference mismatch is an optimization problem and simple LR scheduling fixes it. arXiv preprint arXiv:2602.01826 ,2026. [21] Yingru Li, Jiawei Xu, Jiacai Liu, Yuxuan Tong, Ziniu Li, Tianle Cai, Ge Zhang, Qian Liu, and Baoxiang Wang. Dynamic vocabulary pruning: Stable LLM-RL by taming the tail. arXiv preprint arXiv:2512.23087 , 2025. [22] Penghui Qi, Zichen Liu, Xiangxin Zhou, Tianyu Pang, Chao Du, Wee Sun Lee, and Min Lin. Defeating the training-inference mismatch via FP16. arXiv preprint arXiv:2510.26788 , 2025. [23] Tara Saba, Zhiyang Chen, Jikai Jason Li, Anne Ouyang, Xujie Si, and Fan Long. CuTeGen: An LLM-based agen-tic framework for generation and optimization of high-performance GPU kernels using CuTe. arXiv preprint arXiv:2604.01489 , 2026. [24] Robert Tjarko Lange, Aaditya Prasad, Qi Sun, Maxence Faldor, Yujin Tang, and David Ha. The ai cuda engineer: Agentic cuda kernel discovery, optimization and composition. Technical report, Sakana AI, 2025. [25] Zijian Zhang, Rong Wang, Shiyang Li, Yuebo Luo, Mingyi Hong, and Caiwen Ding. CudaForge: An agent framework with hardware feedback for CUDA kernel optimization. arXiv preprint arXiv:2511.01884 , 2025. [26] Weinan Dai, Hanlin Wu, Qiying Yu, Huan-ang Gao, Jiahao Li, Chengquan Jiang, Weiqiang Lou, Yufan Song, Hongli Yu, Jiaze Chen, Wei-Ying Ma, Ya-Qin Zhang, Jingjing Liu, Mingxuan Wang, Xin Liu, and Hao Zhou. CUDA Agent: Large-scale agentic RL for high-performance CUDA kernel generation. arXiv preprint arXiv:2602.24286 , 2026. [27] Alexander Novikov, Ngân V˜ u, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J. R. Ruiz, Abbas Mehrabian, M. Pawan Kumar, Abigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli, and Matej Balog. AlphaEvolve: A coding agent for scientific and algorithmic discovery. arXiv preprint arXiv:2506.13131 , 2025. [28] Asankhaya Sharma. OpenEvolve: An open-source evolutionary coding agent. https://github.com/ algorithmicsuperintelligence/openevolve , 2025. [29] Shu Liu, Mert Cemri, Shubham Agarwal, Alexander Krentsel, Ashwin Naren, Qiuyang Mang, Zhifei Li, Akshat Gupta, Monishwaran Maheswaran, Audrey Cheng, Melissa Pan, Ethan Boneh, Kannan Ramchandran, Koushik Sen, Matei Zaharia, Alexandros G. Dimakis, and Ion Stoica. Skydiscover: A flexible, adaptive framework for ai-driven scientific and algorithmic discovery. In Proceedings of the ACM Conference on AI and Agentic Systems , CAIS ’26, pages 1223–1227. Association for Computing Machinery, 2026. [30] Jian Hu, Xibin Wu, Wei Shen, Jason Klein Liu, Zilin Zhu, Weixun Wang, Songlin Jiang, Haoran Wang, Hao Chen, Bin Chen, Weikai Fang, Xianyu, Yu Cao, Haotian Xu, and Yiming Liu. OpenRLHF: An easy-to-use, scalable and high-performance RLHF framework. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing: System Demonstrations , pages 656–666. Association for Computational Linguistics, 2025. [31] Zhewei Yao, Reza Yazdani Aminabadi, Olatunji Ruwase, Samyam Rajbhandari, Xiaoxia Wu, Ammar Ahmad Awan, Jeff Rasley, Minjia Zhang, Conglong Li, Connor Holmes, et al. DeepSpeed-Chat: Easy, fast and affordable RLHF training of ChatGPT-like models at all scales. arXiv preprint arXiv:2308.01320 , 2023. [32] Yanli Zhao, Andrew Gu, Rohan Varma, Liang Luo, Chien-Chin Huang, Min Xu, Less Wright, Hamid Shojanazeri, Myle Ott, Sam Shleifer, Alban Desmaison, Can Balioglu, Pritam Damania, Bernard Nguyen, Geeta Chauhan, Yuchen Hao, Ajit Mathews, and Shen Li. PyTorch FSDP: Experiences on scaling fully sharded data parallel. Proceedings of the VLDB Endowment , 16(12):3848–3860, 2023. 
+
+18 [33] Mohammad Shoeybi, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, and Bryan Catanzaro. Megatron-LM: Training multi-billion parameter language models using model parallelism. arXiv preprint arXiv:1909.08053 ,2019. [34] Feng Yao, Liyuan Liu, Dinghuai Zhang, Chengyu Dong, Jingbo Shang, and Jianfeng Gao. On the rollout-training mismatch in modern RL systems. In 17th Annual Workshop on Optimization for Machine Learning , 2025. [35] Ziyang Zhang, Xinheng Ding, Jiayi Yuan, Rixin Liu, Huizi Mao, Jiarong Xing, and Zirui Liu. Deterministic inference across tensor parallel sizes that eliminates training-inference mismatch. In Proceedings of the 43rd International Conference on Machine Learning , volume 306 of Proceedings of Machine Learning Research . PMLR, 2026. [36] NVIDIA. cuBLAS: CUDA basic linear algebra subroutine library. https://docs.nvidia.com/cuda/cublas/ , 2024. [37] Sharan Chetlur, Cliff Woolley, Philippe Vandermersch, Jonathan Cohen, John Tran, Bryan Catanzaro, and Evan Shelhamer. cuDNN: Efficient primitives for deep learning. In Deep Learning and Representation Learning Workshop at NIPS , 2014. [38] NVIDIA. CUTLASS: CUDA templates for linear algebra subroutines. https://github.com/NVIDIA/cutlass , 2023. [39] NVIDIA. CuTe: CUDA template abstractions for tensor layouts and data movement. https://github.com/NVIDIA/ cutlass/tree/main/include/cute , 2024. [40] Philippe Tillet, H. T. Kung, and David Cox. Triton: An intermediate language and compiler for tiled neural network computations. In Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning and Programming Languages (MAPL) , 2019. [41] Benjamin F. Spector, Simran Arora, Aaryan Singhal, Arjun Parthasarathy, Daniel Y. Fu, and Christopher Ré. Thun-derKittens: Simple, fast, and adorable kernels. In The Thirteenth International Conference on Learning Representations ,2025. [42] Jason Ansel et al. PyTorch 2: Faster machine learning through dynamic python bytecode transformation and graph compilation. In Proceedings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems (ASPLOS) , 2024. [43] Anne Ouyang, Simon Guo, Simran Arora, Alex L Zhang, William Hu, Christopher Ré, and Azalia Mirhoseini. Kernelbench: Can llms write efficient gpu kernels? In International Conference on Machine Learning (ICML) , 2025. [44] Michael Laskin, Luyu Wang, Junhyuk Oh, Emilio Parisotto, Stephen Spencer, Richie Steigerwald, DJ Strouse, Steven Stenberg Hansen, Angelos Filos, Ethan Brooks, Maxime Gazeau, Himanshu Sahni, Satinder Singh, and Volodymyr Mnih. In-context reinforcement learning with algorithm distillation. In International Conference on Learning Representations (ICLR) , 2023. [45] Thomas Schmied, Fabian Paischer, Vihang Prakash Patil, Markus Hofmarcher, Razvan Pascanu, and Sepp Hochreiter. Retrieval-augmented decision transformer: External memory for in-context rl. In Proceedings of the 4th Conference on Lifelong Learning Agents , volume 330 of Proceedings of Machine Learning Research , pages 376–417, 2026. [46] Noah Shinn, Federico Cassano, Edward Berman, Ashwin Gopinath, Karthik Narasimhan, and Shunyu Yao. Reflexion: Language agents with verbal reinforcement learning. In Advances in Neural Information Processing Systems (NeurIPS) ,volume 36, pages 8634–8652, 2023. [47] OpenAI. GSM8K: Grade school math 8k. Hugging Face dataset repository: https://huggingface.co/datasets/ openai/gsm8k , 2021. Accessed: 2026-08-10. 
+
+19 A Training Hyperparameters  
+
+> Table 2 Training Hyperparameters for Qwen2.5-1.5B and Qwen3-4B on GSM8K. Unless noted, settings apply to both systems, both algorithms, and all data-staleness values.
+
+Category Configuration Value 
+
+Workload Models Qwen/Qwen2.5-1.5B-Instruct ; Qwen/Qwen3-4B 
+
+Dataset GSM8K Algorithms PPO with a trained critic; GRPO without a critic Data staleness value s ∈ { 0, 2, 4}
+
+Data Seeds 1, 42, 1023 Training batch 64 prompts Validation batch 64 prompts; no shuffle or drop-last; four workers Responses per prompt 4 (256 responses per update) Prompt length limit 1,024 tokens Decoding length limit 1,024 tokens Execution Hardware 8× H20 Rollout backend sglang:d4p1t1 
+
+Policy-update backend fsdp:d4p1t1 for the policy model (actor), KL-reference model, and PPO critic Precision BF16 parameters; FP32 actor-gradient reduction and optimizer state Rollout concurrency 256 maximum concurrent rollouts Optimization Optimizer Adam Learning rate 1×10 −6
+
+Weight decay 0.017 Momentum coefficients β1 = 0 .9; β2 = 0 .999 
+
+Adam epsilon ϵ = 10 −8
+
+Learning-rate schedule Cosine Warmup 5% of training Minimum learning rate 0.1 times the configured learning rate Gradient clipping 0.5 Objective Actor minibatches 4Clipping coefficient 0.2 Reward processing Scale 1; bias 0; clip 20 Discount 1Advantage normalization Batch mean and standard deviation KL regularization Coefficient 0.001; k3 estimator Microbatch Actor token cap 10,240 for Qwen2.5-1.5B GRPO; 2,048 otherwise KL-reference token cap 10,240 PPO Generalized advantage estimation 
+
+λ = 1 
+
+GRPO Reward-normalization scope Responses to the same prompt Group size 4 responses per prompt Standard-deviation esti-mator Unbiased Normalization epsilon 10 −5
+
+20
