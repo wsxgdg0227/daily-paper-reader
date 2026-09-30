@@ -1,0 +1,41 @@
+{
+  "date": "20260930",
+  "date_label": "",
+  "generated_at": "2026-09-30 22:55:59 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.34649v1",
+      "route": "202609/30/2609.34649v1-beyond-skill-evolution-self-evolving-context-management-policies-for-long-horizon-agent-harnesses",
+      "title": "Beyond Skill Evolution: Self-Evolving Context Management Policies for Long-Horizon Agent Harnesses",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向长时程智能体的自进化上下文管理策略",
+      "first_seen_at": "2026-09-30 22:55:59 UTC",
+      "updated_at": "2026-09-30 22:55:59 UTC"
+    },
+    {
+      "paper_id": "2609.34988v1",
+      "route": "202609/30/2609.34988v1-the-right-lesson-at-the-right-step-deriving-control-updates-for-self-evolving-agents",
+      "title": "The Right Lesson at the Right Step: Deriving Control Updates for Self-Evolving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自演化智能体从历史执行中学习可复用控制更新，直接对应无人工干预的自我改进",
+      "first_seen_at": "2026-09-30 22:55:59 UTC",
+      "updated_at": "2026-09-30 22:55:59 UTC"
+    }
+  ]
+}
