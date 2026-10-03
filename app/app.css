@@ -968,7 +968,7 @@ html {
 #paper-chat-container {
   position: relative;
   background: transparent; /* 聊天区背景透明，融入页面 */
-  padding-bottom: 120px; /* 为浮动输入框预留空间 */
+  padding-bottom: calc(var(--chat-input-offset, 135px) + 40px);
 }
 
 /* 纯白遮罩：从输入框顶部到页面底部 */
@@ -978,7 +978,7 @@ html {
   left: var(--sidebar-width, 260px);
   right: 0;
   bottom: 0;
-  height: 135px; /* 覆盖输入框及其下方区域 */
+  height: var(--chat-input-offset, 135px); /* 覆盖输入框及其下方区域 */
   background: #ffffff;
   z-index: 1498;
   pointer-events: none;
@@ -992,7 +992,7 @@ html {
   position: fixed;
   left: var(--sidebar-width, 260px);
   right: 0;
-  bottom: 135px; /* 从纯白遮罩顶部开始 */
+  bottom: var(--chat-input-offset, 135px); /* 从纯白遮罩顶部开始 */
   height: 40px;
   pointer-events: none;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
@@ -2714,17 +2714,17 @@ article.markdown-section {
   }
 
   #paper-chat-container {
-    padding-bottom: 140px;
+    padding-bottom: calc(var(--chat-input-offset, 120px) + 40px);
   }
 
   #paper-chat-container::before {
     left: 0;
-    height: 120px;
+    height: var(--chat-input-offset, 120px);
   }
 
   #paper-chat-container::after {
     left: 0;
-    bottom: 120px;
+    bottom: var(--chat-input-offset, 120px);
   }
 
   #paper-chat-container .input-area {

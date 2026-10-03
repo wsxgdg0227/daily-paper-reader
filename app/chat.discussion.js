@@ -49,6 +49,29 @@ window.PrivateDiscussionChat = (function () {
   const MAX_RECENT_QUESTIONS = 10; // 展示与保存都只保留最近 10 个（用户诉求）
   const MAX_PINNED_QUESTIONS = 50; // 防止无限增长
 
+  let chatLayoutObserver = null;
+
+  const observeChatLayout = (root) => {
+    if (chatLayoutObserver) chatLayoutObserver.disconnect();
+    const inputArea = root.querySelector('.input-area');
+    if (!inputArea) return;
+
+    // 输入框不占文档流；为其实际高度、底部间距和上方渐变预留空间。
+    const syncLayout = () => {
+      if (!root.isConnected) {
+        if (chatLayoutObserver) chatLayoutObserver.disconnect();
+        return;
+      }
+      const bottom = parseFloat(window.getComputedStyle(inputArea).bottom) || 0;
+      const offset = Math.ceil(inputArea.getBoundingClientRect().height + bottom);
+      root.style.setProperty('--chat-input-offset', `${offset}px`);
+    };
+
+    syncLayout();
+    chatLayoutObserver = new ResizeObserver(syncLayout);
+    chatLayoutObserver.observe(inputArea);
+  };
+
   const resizeChatInput = (input) => {
     if (!input) return;
     const style = window.getComputedStyle ? window.getComputedStyle(input) : null;
@@ -1556,6 +1579,7 @@ window.PrivateDiscussionChat = (function () {
     const container = document.createElement('div');
     container.innerHTML = renderChatUI();
     mainContent.appendChild(container);
+    observeChatLayout(container.querySelector('#paper-chat-container'));
 
     // 最近提问按钮/面板
     bindQuestionsPanelEventsOnce();
