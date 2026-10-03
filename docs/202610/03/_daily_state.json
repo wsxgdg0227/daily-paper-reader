@@ -1,0 +1,281 @@
+{
+  "date": "20261003",
+  "date_label": "",
+  "generated_at": "2026-10-03 22:24:27 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.33074v1",
+      "route": "202610/03/2609.33074v1-kernelzero-co-evolving-proposer-and-coder-for-continuously-improved-gpu-kernel-generation",
+      "title": "KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "协同进化框架持续提升大模型GPU算子生成",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.36800v1",
+      "route": "202610/03/2609.36800v1-ai-as-a-compiler-compiling-triton-kernels-without-the-triton-compiler",
+      "title": "AI as a Compiler: Compiling Triton kernels without the Triton compiler",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "LLM 智能体将 Triton 内核翻译为优化的 PTX GPU 代码",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.38757v1",
+      "route": "202610/03/2609.38757v1-self-evolving-algorithm-design-agents-escaping-in-context-evolutionary-stagnation-via-population-curated-policy-optimization",
+      "title": "Self-Evolving Algorithm-Design Agents: Escaping In-Context Evolutionary Stagnation via Population-Curated Policy Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "自演化LLM算法设计智能体持续提升性能",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.39765v1",
+      "route": "202610/03/2609.39765v1-memcodex-self-programming-hierarchical-memory-for-language-agents",
+      "title": "MemCodex: Self-Programming Hierarchical Memory for Language Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "可存储与检索经验的自进化分层记忆",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.32630v1",
+      "route": "202610/03/2609.32630v1-expvoyager-direct-experience-navigation-for-dynamic-agent-skill-synthesis",
+      "title": "ExpVoyager: Direct Experience Navigation for Dynamic Agent Skill Synthesis",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化智能体导航积累经验以合成技能",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.34545v1",
+      "route": "202610/03/2609.34545v1-remember-before-youre-asked-memdream-for-self-probing-memory-evolution",
+      "title": "Remember Before You're Asked: MemDream for Self-Probing Memory Evolution",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向LLM智能体的自探测记忆演化与修复",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.35290v1",
+      "route": "202610/03/2609.35290v1-evoin-bridging-evolution-and-internalization-for-agent-fine-tuning",
+      "title": "EvoIn: Bridging Evolution and Internalization for Agent Fine-Tuning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "演化并内化智能体决策流程",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.37968v2",
+      "route": "202610/03/2609.37968v2-selfsearch-reward-free-search-for-self-improving-agents",
+      "title": "SelfSearch: Reward-Free Search for Self-Improving Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "利用过往自修改记录的无奖励自改进",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.39149v1",
+      "route": "202610/03/2609.39149v1-rep2skill-representation-guided-skill-self-evolution-for-llm-agents",
+      "title": "Rep2Skill: Representation-Guided Skill Self-Evolution for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "智能体借助内部表征实现技能自演化",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2610.01415v1",
+      "route": "202610/03/2610.01415v1-beyond-memory-harnessing-long-horizon-agents-with-explicit-belief-states",
+      "title": "Beyond Memory: Harnessing Long-Horizon Agents with Explicit Belief States",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "以显式信念状态作为长时程智能体的决策上下文与记忆",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.32344v1",
+      "route": "202610/03/2609.32344v1-allot-budgeted-hybrid-memory-routing-for-knowledge-updates-in-llms",
+      "title": "ALLOT: Budgeted Hybrid-Memory Routing for Knowledge Updates in LLMs",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "参数记忆与检索记忆之间的混合记忆路由",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.32430v1",
+      "route": "202610/03/2609.32430v1-multi-agent-system-search-via-active-substructure-aware-policy-optimization",
+      "title": "Multi-Agent System Search via Active Substructure-aware Policy Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "无需人工设计的强化学习多智能体策略搜索",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.32687v1",
+      "route": "202610/03/2609.32687v1-dude-wheres-my-state-execution-information-requirements-for-stateful-agents",
+      "title": "Dude, Where's My State? Execution Information Requirements for Stateful Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "有状态智能体须保留后续步骤依赖的执行信息",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.35587v1",
+      "route": "202610/03/2609.35587v1-hardware-aware-features-for-cutlass-kernel-selection",
+      "title": "Hardware-Aware Features for CUTLASS Kernel Selection",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "基于学习的硬件感知GPU内核选择",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.35099v1",
+      "route": "202610/03/2609.35099v1-e3j-an-efficient-and-open-source-backend-for-euclidean-equivariant-operations-on-gpu-and-tpu",
+      "title": "E3J: An Efficient and Open-Source Backend for Euclidean Equivariant Operations on GPU and TPU",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "优化CUDA与Pallas算子以提升GPU吞吐",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.35596v2",
+      "route": "202610/03/2609.35596v2-seabench-benchmarking-endogenous-misalignment-in-self-evolving-agents",
+      "title": "SEABench: Benchmarking Endogenous Misalignment In Self-Evolving Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "通过修改记忆与工具实现自进化的智能体",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    },
+    {
+      "paper_id": "2609.37241v1",
+      "route": "202610/03/2609.37241v1-trident-unifying-guarded-dispatch-and-host-execution-for-pytorch-triton-workloads",
+      "title": "Trident: Unifying Guarded Dispatch and Host Execution for PyTorch Triton Workloads",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "降低Triton GPU内核宿主端开销的编译器后端",
+      "first_seen_at": "2026-10-03 22:24:27 UTC",
+      "updated_at": "2026-10-03 22:24:27 UTC"
+    }
+  ]
+}

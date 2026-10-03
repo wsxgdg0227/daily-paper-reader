@@ -1,12 +1,63 @@
 {
-  "generated_at": "2026-10-02T23:45:26.880233+00:00",
-  "updated_date": "20261002",
+  "generated_at": "2026-10-03T22:09:24.599881+00:00",
+  "updated_date": "20261003",
   "carryover_days": 9,
   "tag_states": {
     "gkg": {
-      "updated_date": "20261002",
+      "updated_date": "20261003",
       "carryover_days": 9,
-      "items": []
+      "items": [
+        {
+          "id": "2610.02150v1",
+          "source": "arxiv",
+          "title": "From Knowledge Access to Source Learning: Developing Source-Specific Competence",
+          "abstract": "Large language model (LLM) agents increasingly rely on persistent external sources to solve sequences of knowledge-intensive tasks. Existing methods improve how source content is accessed and organized, while agent-memory systems preserve reusable knowledge from prior interactions, but repeated use of the same source is still largely treated as repeated access rather than an opportunity to progressively improve understanding of that source. We study source learning: developing reusable source-specific competence over a persistent authoritative source. We represent this competence with a persistent source model that captures reusable understanding of the source, including how its knowledge is structured, interpreted, and applied. To construct and progressively refine such models, we propose SourceLearn, which combines two complementary learning mechanisms. Self-Directed Source Learning identifies what remains incompletely understood and adaptively revisits the source, while Task-Guided Source Learning uses downstream experience to reveal local representational gaps and recurring needs in how source knowledge should be organized. In both cases, learning signals determine what should be reconsidered, while persistent updates are reconstructed from the authoritative source. Across five benchmarks and three LLM backends, SourceLearn achieves the best performance in 13 of 15 settings, with gains of up to 22.6 points over Hybrid RAG and substantial overall improvements over static source representations and experience-based memory baselines.",
+          "authors": [
+            "Lucheng Fu",
+            "Kejing Xia",
+            "Yiyang Wang",
+            "Yiqiao Jin",
+            "Jinjin He",
+            "Xiyuan Yang",
+            "Haoxin Liu",
+            "Ye Yu",
+            "Haibo Jin",
+            "Yijia Xiao",
+            "Wenke Lee",
+            "B. Aditya Prakash",
+            "Haohan Wang"
+          ],
+          "primary_category": "cs.CL",
+          "categories": [
+            "cs.CL",
+            "cs.AI",
+            "cs.LG"
+          ],
+          "published": "2026-10-01T17:50:16+00:00",
+          "link": "https://arxiv.org/pdf/2610.02150v1",
+          "tags": [
+            "keyword:gkg",
+            "query:gkg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "persistent agent memory and reusable source-specific knowledge",
+          "llm_evidence_cn": "智能体持久记忆与可复用的来源特定知识",
+          "llm_evidence": "智能体持久记忆与可复用的来源特定知识",
+          "canonical_evidence": "智能体持久记忆与可复用的来源特定知识",
+          "llm_tldr_en": "Studies source learning, where LLM agents build persistent source-specific competence over external knowledge sources instead of treating repeated access as mere retrieval.",
+          "llm_tldr_cn": "现有LLM智能体虽能通过外部来源与记忆系统复用知识，但重复使用同一来源仍被当作简单访问而非逐步深化理解。论文提出来源学习，用一个持久来源模型表示对权威来源的可复用理解，刻画其知识如何被结构化、解释与应用。作者据此构建方法以持续累积来源特定能力。其贡献在于把智能体记忆从存取提升为对来源的渐进式理解，与智能体记忆与检索需求高度契合。",
+          "llm_tldr": "现有LLM智能体虽能通过外部来源与记忆系统复用知识，但重复使用同一来源仍被当作简单访问而非逐步深化理解。论文提出来源学习，用一个持久来源模型表示对权威来源的可复用理解，刻画其知识如何被结构化、解释与应用。作者据此构建方法以持续累积来源特定能力。其贡献在于把智能体记忆从存取提升为对来源的渐进式理解，与智能体记忆与检索需求高度契合。",
+          "llm_tags": [
+            "query:gkg"
+          ],
+          "matched_query_tag": "query:gkg",
+          "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+          "matched_requirement_id": "req-3",
+          "selection_source": "carryover_cache",
+          "paper_id": "2610.02150v1",
+          "carry_days": 1
+        }
+      ]
     }
   }
 }
