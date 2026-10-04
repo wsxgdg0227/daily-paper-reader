@@ -1,0 +1,675 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-04T22:33:24.011787+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 12,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2609.33074v1",
+      "source": "arxiv",
+      "title": "KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation",
+      "abstract": "High-performance GPU kernels are essential to modern machine learning systems, yet automatically generating kernels that are both correct and efficient remains challenging. Existing LLM-based approaches face two major limitations: the scarcity of high-quality training data aligned with the model's current capabilities, and the inherent trade-off between kernel correctness and performance. To address these challenges, we propose KernelZero, a co-evolution framework that continuously improves GPU kernel generation through two specialized models: a Proposer that generates Torch modules from API sets and a Coder that translates them into CUDA or Triton kernels. KernelZero uses a frontier-driven module generation mechanism to continuously produce capability-aligned training modules based on the Coder's current weaknesses. It further introduces Correctness-Aware Group Relative Policy Optimization (CA-GRPO), which optimizes performance only after correctness becomes sufficiently reliable. By alternating the optimization of the Proposer and Coder, KernelZero forms an automatic curriculum that enables targeted and training-efficient capability improvement. Empirically, KernelZero-7B surpasses Claude-4.5-Sonnet on CUDA and DeepSeek-V4-Pro on Triton. On KernelBench Level 1 and 2, it achieves CUDA pass@1 scores of 75.8% and 69.6%, respectively, with pass@10 reaching 100% and 97%. On Triton, it achieves pass@1 scores of 77.2% and 72.5%, respectively.",
+      "authors": [
+        "Changxin Ke",
+        "Rui Zhang",
+        "Zixiang Fang",
+        "Zhenghong Li",
+        "Yuanbo Wen",
+        "Jiashuo Shen",
+        "Shuo Wang",
+        "Jiaming Guo",
+        "Ling Li",
+        "Qi Guo",
+        "Yunji Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.SE"
+      ],
+      "published": "2026-09-27T01:09:18+00:00",
+      "link": "https://arxiv.org/pdf/2609.33074v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "LLM-based co-evolving proposer and coder for continuous GPU kernel generation",
+      "llm_evidence_cn": "基于大模型协同进化生成GPU算子代码并持续提升性能",
+      "llm_evidence": "基于大模型协同进化生成GPU算子代码并持续提升性能",
+      "canonical_evidence": "基于大模型协同进化生成GPU算子代码并持续提升性能",
+      "llm_tldr_en": "Automatically generating correct and efficient GPU kernels remains hard due to scarce aligned training data and the correctness-performance trade-off. KernelZero is a co-evolution framework with a Proposer generating Torch modules and a Coder translating them into CUDA or Triton kernels, continuously improving kernel generation via frontier-driven module synthesis.",
+      "llm_tldr_cn": "高性能GPU算子是现代机器学习系统的关键，但自动生成既正确又高效的算子仍很困难，现有LLM方法受限于高质量训练数据稀缺及正确性与性能的权衡。本文提出KernelZero协同进化框架，由Proposer从API集合生成Torch模块、Coder将其翻译为CUDA或Triton算子，并以前沿驱动模块生成机制持续迭代。该工作直接对应大模型生成GPU算子代码优化的核心目标，推动算子生成质量与性能不断提升。",
+      "llm_tldr": "高性能GPU算子是现代机器学习系统的关键，但自动生成既正确又高效的算子仍很困难，现有LLM方法受限于高质量训练数据稀缺及正确性与性能的权衡。本文提出KernelZero协同进化框架，由Proposer从API集合生成Torch模块、Coder将其翻译为CUDA或Triton算子，并以前沿驱动模块生成机制持续迭代。该工作直接对应大模型生成GPU算子代码优化的核心目标，推动算子生成质量与性能不断提升。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How to generate optimized GPU kernels using large language models?",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.37923v1",
+      "source": "arxiv",
+      "title": "EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory",
+      "abstract": "Agents can learn from past executions, but enabling different agents to reuse and build on one another's experience remains challenging. We introduce EpiCon, a shared multimodal memory framework for agent collective learning without updating host model parameters. EpiCon links question-level memory evolution to a persistent experience bank through two independently trained 2B models: a memory controller and a tree self-organizer. The controller jointly refines textual guidance and visual evidence across attempts and selectively includes visual memory. The self-organizer consolidates lessons hierarchically and retrieves experience and rules for new problems. We evaluate EpiCon on eleven benchmarks spanning four multimodal task domains, using two harnesses and multiple backbones. A frozen bank improves other systems even with a single solving attempt. A second harness raises the original system's macro-average score by 2.6 points across eleven benchmarks. Across four host configurations, EpiCon improves macro-average scores by 1.7 to 4.9 points over No Memory and reduces memory-operation time by 67\\% to 74\\% relative to backbone-sized memory models.",
+      "authors": [
+        "Ziyun Zeng",
+        "Hang Hua",
+        "Shaden Alshammari",
+        "Rogerio Feris",
+        "William T. Freeman",
+        "Jiebo Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-09-29T16:16:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.37923v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "shared multimodal memory for agent collective learning and retrieval",
+      "llm_evidence_cn": "共享多模态记忆支撑智能体集体学习与检索",
+      "llm_evidence": "共享多模态记忆支撑智能体集体学习与检索",
+      "canonical_evidence": "共享多模态记忆支撑智能体集体学习与检索",
+      "llm_tldr_en": "Agents can learn from past executions, but reusing each other's experience is hard; this paper presents EpiCon, a shared multimodal memory framework with a memory controller and tree self-organizer that consolidates and retrieves experience without updating host model parameters.",
+      "llm_tldr_cn": "智能体可从过往执行中学习，但让不同智能体复用并累积彼此经验仍然困难。本文提出EpiCon，一个不更新宿主模型参数的共享多模态记忆框架，通过记忆控制器与树式自组织器两个2B模型，把问题级记忆演化与持久经验库相连，并分层整合经验、检索规则用于新问题。在覆盖四个多模态任务域的十一个基准上验证了集体学习效果。",
+      "llm_tldr": "智能体可从过往执行中学习，但让不同智能体复用并累积彼此经验仍然困难。本文提出EpiCon，一个不更新宿主模型参数的共享多模态记忆框架，通过记忆控制器与树式自组织器两个2B模型，把问题级记忆演化与持久经验库相连，并分层整合经验、检索规则用于新问题。在覆盖四个多模态任务域的十一个基准上验证了集体学习效果。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.33244v1",
+      "source": "arxiv",
+      "title": "ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents",
+      "abstract": "Large Language Model (LLM) agents increasingly rely on external memory to support long-horizon reasoning and decision making. Existing memory systems typically retrieve historical trajectories or summaries as independent context fragments, overlooking the procedural dependencies underlying multi-step execution. As memory scales, such flat retrieval introduces context fragmentation and cross-task interference, leading to structurally inconsistent reasoning trajectories. We propose ActiveMem, a hierarchical memory framework that recursively organizes agent experiences into dependency-aware latent execution trees. ActiveMem abstracts trajectories into reusable subtask nodes while explicitly preserving execution transitions, enabling coherent reasoning-path retrieval conditioned on the current execution state. To support continual adaptation, ActiveMem further learns dynamic memory expansion, retrieval, and pruning policies through reinforcement learning. Experiments across various agent benchmarks demonstrate that ActiveMem consistently improves task completion, reasoning stability, and memory efficiency over existing memory-based agents. Moreover, ActiveMem enables compact open-weight models to achieve competitive performance with substantially larger proprietary systems.",
+      "authors": [
+        "Song-Li Wu",
+        "Jingyi Wang",
+        "Zhaocheng Du",
+        "Weinan Gan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-27T05:30:01+00:00",
+      "link": "https://arxiv.org/pdf/2609.33244v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "hierarchical agent memory organizing experiences into dependency-aware execution trees",
+      "llm_evidence_cn": "将智能体经验组织为依赖感知执行树的层次化记忆",
+      "llm_evidence": "将智能体经验组织为依赖感知执行树的层次化记忆",
+      "canonical_evidence": "将智能体经验组织为依赖感知执行树的层次化记忆",
+      "llm_tldr_en": "Existing agent memory retrieves flat independent fragments, ignoring procedural dependencies in multi-step execution; ActiveMem organizes experiences into dependency-aware latent execution trees for coherent long-horizon reasoning-path retrieval.",
+      "llm_tldr_cn": "大模型智能体依赖外部记忆支持长时程推理，但现有系统把历史轨迹当作独立片段检索，忽略多步执行的程序性依赖，随记忆增长引发上下文碎片与跨任务干扰。本文提出ActiveMem，将智能体经验递归组织为依赖感知的潜在执行树，并把轨迹抽象为可复用子任务节点。该方法保留执行转移，实现连贯的推理路径检索，为长时程智能体提供结构化记忆。",
+      "llm_tldr": "大模型智能体依赖外部记忆支持长时程推理，但现有系统把历史轨迹当作独立片段检索，忽略多步执行的程序性依赖，随记忆增长引发上下文碎片与跨任务干扰。本文提出ActiveMem，将智能体经验递归组织为依赖感知的潜在执行树，并把轨迹抽象为可复用子任务节点。该方法保留执行转移，实现连贯的推理路径检索，为长时程智能体提供结构化记忆。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.34385v1",
+      "source": "arxiv",
+      "title": "Just-In-Time Agent Memory with Runtime Agentic Research",
+      "abstract": "Memory is critical for AI agents. Many existing agent-memory systems follow an Ahead-of-Time (AOT) design, constructing memory before a specific request arrives. While this reduces online serving cost, such request-agnostic memory construction can discard fine-grained information that later becomes important. To address this limitation, we propose Just-In-Time Agent Memory (JAM), a trainable framework for query-conditioned context construction at runtime. A Memorizer preserves complete raw histories in a hierarchical page-store with compact navigational summaries, while a Researcher iteratively retrieves, inspects, and integrates evidence for each request. To train these memory-use behaviors, we introduce Memory-Gym, an evidence-grounded data synthesis pipeline covering nine task types across six domains, and optimize the Researcher through verified-trajectory supervised fine-tuning followed by Hint-guided Group Relative Policy Optimization. We demonstrate the effectiveness of JAM across a variety of benchmarks on agent memory and long-context processing, where it achieves stronger task performance than AOT-style memory systems while remaining substantially more efficient than prior trained agentic memory approaches. To support reproducibility and future research, we release our anonymized source code at https://github.com/VectorSpaceLab/general-agentic-memory.",
+      "authors": [
+        "Bingyu Yan",
+        "Chaofan Li",
+        "Hongjin Qian",
+        "Shuqi Lu",
+        "Chaozhuo Li",
+        "Zheng Liu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-09-28T06:01:09+00:00",
+      "link": "https://arxiv.org/pdf/2609.34385v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "runtime query-conditioned agent memory with iterative retrieval and integration",
+      "llm_evidence_cn": "运行时按查询构建并迭代检索的智能体记忆",
+      "llm_evidence": "运行时按查询构建并迭代检索的智能体记忆",
+      "canonical_evidence": "运行时按查询构建并迭代检索的智能体记忆",
+      "llm_tldr_en": "Ahead-of-time agent memory discards fine-grained information; JAM builds query-conditioned context at runtime with a hierarchical page-store Memorizer and an iterative Researcher, trained via the Memory-Gym synthesis pipeline.",
+      "llm_tldr_cn": "记忆对AI智能体至关重要，但现有系统多采用提前构建方式，在请求到来前就构建记忆，这种与请求无关的构建会丢弃后续变得重要的细粒度信息。本文提出即时记忆框架JAM，在运行时按查询条件构建上下文：Memorizer以层次化页存储保留完整原始历史并附导航摘要，Researcher迭代检索与整合证据，并借助Memory-Gym合成数据训练这些行为。该框架为智能体记忆提供可训练的查询自适应范式。",
+      "llm_tldr": "记忆对AI智能体至关重要，但现有系统多采用提前构建方式，在请求到来前就构建记忆，这种与请求无关的构建会丢弃后续变得重要的细粒度信息。本文提出即时记忆框架JAM，在运行时按查询条件构建上下文：Memorizer以层次化页存储保留完整原始历史并附导航摘要，Researcher迭代检索与整合证据，并借助Memory-Gym合成数据训练这些行为。该框架为智能体记忆提供可训练的查询自适应范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.36746v1",
+      "source": "arxiv",
+      "title": "EASE: Behavior-Adaptive Skill Curation for Self-Evolving Agents",
+      "abstract": "Agent skills provide a lightweight mechanism for self-evolving agents to accumulate reusable procedural knowledge without updating model parameters. However, existing learned skill curators typically optimize curation without explicitly modeling downstream executor behavior. We show that this can cause systematic cross-executor degradation: curators trained with different executors perform best when paired with their own training executor, indicating that effective skill curation is executor-dependent. We formulate behavior-adaptive skill curation and introduce EASE, a framework that learns a single curator that adapts its decisions to different executor behaviors. EASE maintains an online behavioral profile of recent execution patterns and conditions the curator on this profile, the current trajectory, and retrieved skills to add, modify, or remove skills from an evolving repository. We train the shared curator jointly across multiple frozen executors with reinforcement learning, using retrieval-aware and behavior-aware temporal attribution to focus optimization on curation actions with observable downstream influence. Across ALFWorld, ScienceWorld, and WebShop, with executors ranging from Qwen3-8B/32B and GPT-OSS-120B to unseen Kimi K2.6, DeepSeek V4 Flash, and Gemini 3.5 Flash, EASE outperforms strong skill- and memory-based baselines without per-executor finetuning. EASE also maintains 34.5--41.0% fewer skills, improves skill retrieval by 36.3--38.7% and measured edit utility by 51.8--60.0%, and reduces deployment-time inference tokens by 9.1--14.5%. These results establish behavior-adaptive skill curation as an effective principle for building self-evolving agents.",
+      "authors": [
+        "Zhen Xiong",
+        "Qiaoyu Tan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T05:18:24+00:00",
+      "link": "https://arxiv.org/pdf/2609.36746v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving agents accumulating reusable skills via adaptive curation",
+      "llm_evidence_cn": "自进化智能体通过自适应技能策展积累可复用技能",
+      "llm_evidence": "自进化智能体通过自适应技能策展积累可复用技能",
+      "canonical_evidence": "自进化智能体通过自适应技能策展积累可复用技能",
+      "llm_tldr_en": "Self-evolving agents accumulate skills via curation, but curators ignore executor behavior causing cross-executor degradation. EASE learns a single curator that adapts to different executor behaviors using an online behavioral profile.",
+      "llm_tldr_cn": "智能体技能为自进化提供无需更新参数的轻量知识积累机制，但现有技能策展器未建模下游执行器行为，导致跨执行器系统性性能退化。本文提出行为自适应技能策展问题并设计EASE框架，通过在线维护执行器近期行为画像来条件化策展决策。实验表明单一策展器能适配不同执行器，提升自进化智能体的持续性能与技能复用效果。",
+      "llm_tldr": "智能体技能为自进化提供无需更新参数的轻量知识积累机制，但现有技能策展器未建模下游执行器行为，导致跨执行器系统性性能退化。本文提出行为自适应技能策展问题并设计EASE框架，通过在线维护执行器近期行为画像来条件化策展决策。实验表明单一策展器能适配不同执行器，提升自进化智能体的持续性能与技能复用效果。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.33586v1",
+      "source": "arxiv",
+      "title": "Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration",
+      "abstract": "On NVIDIA Blackwell B200, tensor-core throughput outpaces special-function exponential throughput by more than two orders of magnitude, exposing exponential evaluation in fused attention kernels. A pretrained Transformer, however, may not need it evaluated accurately at every element. We characterize what a pretrained model does need by approximating softmax at inference in ten frozen decoder-only models (0.5B-72B). The number of positions the softmax map assigns probability to and within-row resolution can be cut substantially, yet uniform weighting of the same positions is damaging. Where a fixed resolution budget is placed matters as much as its size, with resolution near the row maximum consistently favored. Perturbations matched on scalar distortion produce model-dependent responses of opposite sign. These findings motivate Rowmax-PoT, a coarse logarithmic weight representation anchored at each row maximum, and Rowmax-H15, its hardware specialization in FlashAttention-4. On B200, the patched FP8 attention forward is 12.4% faster at causal 8K and 25.8% faster at non-causal 8K in host-side call-latency measurements; board energy per forward falls by 8.4% at causal 16K. Measured separately on the BF16 kernel path at 2K, Rowmax-H15 increases perplexity by 0.091-0.492% across five models from three families.",
+      "authors": [
+        "Shangzhen Zhu",
+        "Muyan Hu",
+        "Tomasz Kozlowski"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-27T14:03:42+00:00",
+      "link": "https://arxiv.org/pdf/2609.33586v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "kernel acceleration via softmax approximation and model sensitivity analysis",
+      "llm_evidence_cn": "通过softmax近似与模型敏感性分析加速注意力内核",
+      "llm_evidence": "通过softmax近似与模型敏感性分析加速注意力内核",
+      "canonical_evidence": "通过softmax近似与模型敏感性分析加速注意力内核",
+      "llm_tldr_en": "Exponential evaluation bottlenecks fused attention kernels on Blackwell; this work approximates softmax in ten frozen LLMs, showing resolution budget placement near the row maximum matters most, guiding attention kernel acceleration.",
+      "llm_tldr_cn": "在NVIDIA Blackwell B200上，张量核吞吐远超特殊函数指数吞吐两个数量级，使融合注意力内核中的指数求值成为瓶颈。本文在十个0.5B至72B的冻结解码器模型上于推理时近似softmax，刻画预训练模型的真实需求。结果显示可大幅削减分配概率的位置数与行内分辨率，但均匀加权会损害性能，且分辨率应靠近行最大值。该研究为注意力内核加速提供敏感性与近似设计指导。",
+      "llm_tldr": "在NVIDIA Blackwell B200上，张量核吞吐远超特殊函数指数吞吐两个数量级，使融合注意力内核中的指数求值成为瓶颈。本文在十个0.5B至72B的冻结解码器模型上于推理时近似softmax，刻画预训练模型的真实需求。结果显示可大幅削减分配概率的位置数与行内分辨率，但均匀加权会损害性能，且分辨率应靠近行最大值。该研究为注意力内核加速提供敏感性与近似设计指导。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.34814v1",
+      "source": "arxiv",
+      "title": "WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation",
+      "abstract": "Long-video generation with diffusion transformers (DiTs) produces extremely long token sequences, making attention a dominant inference bottleneck. Dynamic sparse attention reduces computation, but its realized speedup remains limited because irregular query-row execution degrades L2 cache locality and increases HBM traffic. We present WaveAlign, a lightweight, cache-aware query-row reordering framework for dynamic sparse attention. WaveAlign formulates row ordering as an optimization problem and approximates it with two stages. The first stage derives a low-rank SVD representation of sparse-mask rows and groups query rows with similar K/V access patterns, increasing K/V overlap among concurrently scheduled rows. The second stage exploits streaming GPU scheduling by sorting rows within each wave in descending order of their K/V-block counts, so that short rows from the current wave are followed by long rows from the next. This aligns K/V accesses across wave boundaries and enables shared blocks to be reused before eviction. An adaptive skip module avoids unprofitable reordering. By only permuting query and mask rows, WaveAlign preserves sparse-attention semantics and requires no changes to existing methods or backend kernels. Across two GPU architectures, two video DiTs, and four sparse-attention methods, WaveAlign raises the L2 cache hit ratio from 28.48%--36.35% to 79.38%--89.06%, reduces HBM read traffic by up to 92.11%, and achieves up to 1.25x kernel and 1.17x end-to-end generation speedup without quality loss.",
+      "authors": [
+        "Zijian Dai",
+        "Sen Han",
+        "Youhui Bai",
+        "Shannon Wang",
+        "Kan Wu",
+        "Jingkai Huang",
+        "Yuhang Wang",
+        "Jing Li",
+        "Cheng Li"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-28T10:15:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.34814v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "cache-aware query-row scheduling to improve GPU kernel execution efficiency for sparse attention",
+      "llm_evidence_cn": "缓存感知的查询行调度，用于提升稀疏注意力 GPU 内核执行效率",
+      "llm_evidence": "缓存感知的查询行调度，用于提升稀疏注意力 GPU 内核执行效率",
+      "canonical_evidence": "缓存感知的查询行调度，用于提升稀疏注意力 GPU 内核执行效率",
+      "llm_tldr_en": "Dynamic sparse attention in long-video DiT generation suffers from irregular query-row execution that hurts L2 locality and raises HBM traffic. WaveAlign reorders query rows via low-rank SVD grouping of similar K/V access patterns, improving cache reuse and kernel speedup.",
+      "llm_tldr_cn": "长视频生成使注意力成为主要推理瓶颈，而动态稀疏注意力因查询行执行不规则，破坏 L2 缓存局部性并增加 HBM 流量，实际加速有限。本文提出缓存感知的查询行重排序框架 WaveAlign，先用低秩 SVD 表示稀疏掩码行并按 K/V 访问模式分组，再进行两阶段调度优化。该方法提升并发调度行的 K/V 复用与缓存命中，缓解访存瓶颈。工作表明结合 GPU 缓存特性的调度优化可显著提升注意力内核执行性能。",
+      "llm_tldr": "长视频生成使注意力成为主要推理瓶颈，而动态稀疏注意力因查询行执行不规则，破坏 L2 缓存局部性并增加 HBM 流量，实际加速有限。本文提出缓存感知的查询行重排序框架 WaveAlign，先用低秩 SVD 表示稀疏掩码行并按 K/V 访问模式分组，再进行两阶段调度优化。该方法提升并发调度行的 K/V 复用与缓存命中，缓解访存瓶颈。工作表明结合 GPU 缓存特性的调度优化可显著提升注意力内核执行性能。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35412v1",
+      "source": "arxiv",
+      "title": "Self-Adapting Group of Experts for Multi-Agent Reasoning",
+      "abstract": "Multi-agent systems bring together language model agents with different roles to propose, review, and refine solutions. Each agent's response depends on its model's capabilities, the reasoning strategy defined by its system prompt, and the information in its input context. Existing frameworks often adapt communication by changing this context while leaving individual prompts fixed, even when a problem calls for different skills. We study whether agents' initial responses can identify a strategy better suited to the current problem and guide its transfer to other agents. To address this, we introduce SAGE (Self-Adapting Group of Experts), a training-free framework that uses answer agreement, prefix consistency, and reciprocal peer review to select a strategy donor. SAGE transfers the selected donor's reasoning strategy to the other agents while preserving their original roles. This transfer uses only the agents' original system prompts, without access to the problem or generated solutions. After strategy adaptation, agents exchange responses through a dynamic, sparse directed acyclic graph that routes information from higher-scoring agents to lower-scoring agents. Experiments across multiple agent backbones and reasoning benchmarks show that SAGE achieves higher average accuracy than the evaluated baselines. Our code is available at https://github.com/atifquamar07/sage.",
+      "authors": [
+        "Mohammad Atif Quamar",
+        "Nurbek Tastan",
+        "Karthik Nandakumar",
+        "Junpei Komiyama"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.MA"
+      ],
+      "published": "2026-09-28T15:29:08+00:00",
+      "link": "https://arxiv.org/pdf/2609.35412v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agents selecting and transferring reasoning strategies via peer review",
+      "llm_evidence_cn": "智能体通过同行评审选择并迁移推理策略",
+      "llm_evidence": "智能体通过同行评审选择并迁移推理策略",
+      "canonical_evidence": "智能体通过同行评审选择并迁移推理策略",
+      "llm_tldr_en": "SAGE studies whether agents can identify a better-suited reasoning strategy from initial responses and transfer it to peers. It is a training-free framework using answer agreement, prefix consistency and reciprocal peer review to pick a strategy donor for the current problem.",
+      "llm_tldr_cn": "多智能体系统中各智能体依赖固定提示，难以为不同问题切换更合适的推理策略。本文提出SAGE，一个无需训练的自适应专家组框架，通过答案一致性、前缀一致性与互惠同行评审来识别并选择策略供体，并将更优策略迁移给其他智能体。实验表明该方法能动态适配问题需求，提升多智能体推理表现。",
+      "llm_tldr": "多智能体系统中各智能体依赖固定提示，难以为不同问题切换更合适的推理策略。本文提出SAGE，一个无需训练的自适应专家组框架，通过答案一致性、前缀一致性与互惠同行评审来识别并选择策略供体，并将更优策略迁移给其他智能体。实验表明该方法能动态适配问题需求，提升多智能体推理表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.36630v1",
+      "source": "arxiv",
+      "title": "Distilling Agentic Systems: A Roadmap across Models, Artifacts, and Harnesses",
+      "abstract": "Modern agents increasingly rely on memories, tools, and execution logic, so their competence extends beyond model parameters. This shift exposes a limitation of conventional knowledge distillation, which asks how a student model imitates a teacher model. We define Agent Distillation as the persistent transfer of task-solving knowledge from a teacher agent to a student agent. Our study organizes the field by where transferred knowledge is retained: within the model, as artifacts, through the execution harness, or across substrates. This perspective separates transfer evidence from its outcome and clarifies how knowledge moves between agent components. We develop an evaluation framework that relates retention to causal contribution and deployed utility. Together, these contributions establish a foundation for the reliable, maintainable, and safe development of increasingly complex agentic systems.",
+      "authors": [
+        "Ziluowen Luo",
+        "Senzhang Wang",
+        "Chaozhuo Li",
+        "Jun Yin",
+        "Hao Yan",
+        "Ming Cheng",
+        "Chenxu Wang",
+        "Songyang Liu",
+        "Litian Zhang",
+        "Qiwei Ye",
+        "Zheng Liu",
+        "Philip S. Yu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T03:38:17+00:00",
+      "link": "https://arxiv.org/pdf/2609.36630v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "knowledge transfer and memory retention across agent components",
+      "llm_evidence_cn": "智能体组件间的知识迁移与记忆留存",
+      "llm_evidence": "智能体组件间的知识迁移与记忆留存",
+      "canonical_evidence": "智能体组件间的知识迁移与记忆留存",
+      "llm_tldr_en": "Modern agents rely on memories, tools and execution logic beyond model parameters, breaking conventional distillation; this paper defines Agent Distillation as persistent task-solving knowledge transfer and organizes the field by where knowledge is retained.",
+      "llm_tldr_cn": "现代智能体的能力已超越模型参数，依赖记忆、工具与执行逻辑，传统知识蒸馏只关注学生模型模仿教师模型，无法刻画这一变化。本文提出智能体蒸馏概念，界定为任务求解知识从教师智能体到学生智能体的持久迁移，并按知识留存位置（模型内、产物、执行外壳或跨基底）组织该领域。研究进一步提出将留存与因果贡献及部署效用关联的评估框架，为智能体知识迁移研究提供路线图。",
+      "llm_tldr": "现代智能体的能力已超越模型参数，依赖记忆、工具与执行逻辑，传统知识蒸馏只关注学生模型模仿教师模型，无法刻画这一变化。本文提出智能体蒸馏概念，界定为任务求解知识从教师智能体到学生智能体的持久迁移，并按知识留存位置（模型内、产物、执行外壳或跨基底）组织该领域。研究进一步提出将留存与因果贡献及部署效用关联的评估框架，为智能体知识迁移研究提供路线图。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.37025v1",
+      "source": "arxiv",
+      "title": "AnyAct: Universal Action for Self-Evolving Agents",
+      "abstract": "As large language models (LLMs) advance, AI agents are increasingly deployed in open-world environments to tackle complex sequential tasks (e.g., document processing, cross-application collaboration), relying heavily on actions ranging from GUI operations to semantic APIs. However, three core challenges persist: the \"scale dilemma\" of massive tool ecosystems exceeding LLM context windows, the \"non-stationarity\" of tool quality due to updates or outages, and the \"heterogeneity\" of feedback formats (pixels, text, structured data) creating information silos. To address these, we propose AnyAct, a universal action layer that unifies available capabilities into a self-evolving action space, enabling agents to operate efficiently and reliably in large-scale, dynamic tool ecosystems. AnyAct's core design focuses on two objectives: constructing this action space via hierarchical progressive retrieval (filtering task-relevant actions) and test-time reliability evolution (pruning unreliable actions), and enabling reliability-aware action orchestration through a heterogeneous observation grounding module that unifies multi-modal feedback. Additionally, it defines a hybrid action space (primitive + semantic actions) and optimizes for a balance between task success rate and execution cost. Evaluations on LiveMCPBench and OSMCP (a new benchmark we developed for multi-granularity action collaboration) demonstrate state-of-the-art performance. AnyAct delivers substantial performance gains over baseline methods across various LLM base models on LiveMCPBench and improvements are particularly notable for models with constrained native capabilities. On OSMCP, it achieves 77.27% overall success with only 50 steps, which is half the steps required by most competitors.",
+      "authors": [
+        "Lingrui Xu",
+        "Yangqin Jiang",
+        "Jiachang Zhang",
+        "Xubin Ren",
+        "Chao Huang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T08:41:27+00:00",
+      "link": "https://arxiv.org/pdf/2609.37025v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "self-evolving action space enabling agents to operate in dynamic tool ecosystems",
+      "llm_evidence_cn": "自进化动作空间支持智能体在动态工具生态中运作",
+      "llm_evidence": "自进化动作空间支持智能体在动态工具生态中运作",
+      "canonical_evidence": "自进化动作空间支持智能体在动态工具生态中运作",
+      "llm_tldr_en": "Agents face tool ecosystems exceeding context windows, non-stationary tool quality, and heterogeneous feedback. AnyAct unifies available capabilities into a self-evolving action space so agents operate reliably in large dynamic tool ecosystems.",
+      "llm_tldr_cn": "随着LLM智能体在开放世界处理复杂序列任务，它们依赖从GUI操作到语义API的多种动作。然而存在三大挑战：海量工具生态超出上下文窗口的规模困境、工具更新或失效导致的非平稳性、以及像素文本结构化数据等异构反馈造成的信息孤岛。作者提出AnyAct，一种通用动作层，将可用能力统一为自进化动作空间，使智能体在大规模动态工具生态中高效可靠地运行。该工作为自进化智能体的可扩展工具使用提供了统一接口。",
+      "llm_tldr": "随着LLM智能体在开放世界处理复杂序列任务，它们依赖从GUI操作到语义API的多种动作。然而存在三大挑战：海量工具生态超出上下文窗口的规模困境、工具更新或失效导致的非平稳性、以及像素文本结构化数据等异构反馈造成的信息孤岛。作者提出AnyAct，一种通用动作层，将可用能力统一为自进化动作空间，使智能体在大规模动态工具生态中高效可靠地运行。该工作为自进化智能体的可扩展工具使用提供了统一接口。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.37590v1",
+      "source": "arxiv",
+      "title": "FOCUS: Training-Free Decision-Preserving Context Compression for LLM Agents",
+      "abstract": "LLM agents accumulate interaction histories that grow linearly with task length, causing quadratic inference cost scaling and performance degradation from attention dilution. Existing context-compression methods learn what to discard offline: by contrastively optimizing guidelines, distilling compressors, or training compression policies. This incurs a substantial cost. Further, the compression policy is learned a priori and is not dynamically conditioned on the evolving test-time trajectories. In this paper we ask a complementary question: Which past interactions causally shape the agent's future decisions? We recast context compression as a causal decision preservation problem over discrete interaction units and introduce FOCUS, a training-free context compression framework that operates entirely at test time. Our method requires no offline data collection or fine-tuning, and is architecture-agnostic, attaching to any closed-API frontier model as a modular compression layer. We evaluate FOCUS on diverse agentic benchmarks including API and tool-calling, QA, web domain and multi-turn dialogue. Our method establishes new state of the art performance, cutting peak context by up to 48% and dependency by 73% while improving task success by up to 8.9 percentage points over uncompressed execution.",
+      "authors": [
+        "Shantanu Dixit",
+        "Anson Bastos",
+        "Xuchao Zhang",
+        "Chetan Bansal",
+        "Saravan Rajmohan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2026-09-29T13:45:34+00:00",
+      "link": "https://arxiv.org/pdf/2609.37590v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "training-free context compression preserving which past interactions shape agent decisions",
+      "llm_evidence_cn": "免训练上下文压缩，保留影响智能体决策的历史交互",
+      "llm_evidence": "免训练上下文压缩，保留影响智能体决策的历史交互",
+      "canonical_evidence": "免训练上下文压缩，保留影响智能体决策的历史交互",
+      "llm_tldr_en": "LLM agents accumulate interaction histories that cause quadratic inference cost and attention dilution. FOCUS recasts context compression as causal decision preservation over discrete interaction units, discarding past interactions that do not causally shape future decisions, without any training.",
+      "llm_tldr_cn": "LLM智能体交互历史随任务长度线性增长，导致推理成本二次方上升与注意力稀释。现有上下文压缩方法需离线学习丢弃策略，且不随测试轨迹动态调整。本文将压缩重构为离散交互单元上的因果决策保持问题，提出免训练的FOCUS方法，识别对智能体未来决策有因果影响的过去交互。该工作为智能体记忆管理提供高效、动态的压缩方案。",
+      "llm_tldr": "LLM智能体交互历史随任务长度线性增长，导致推理成本二次方上升与注意力稀释。现有上下文压缩方法需离线学习丢弃策略，且不随测试轨迹动态调整。本文将压缩重构为离散交互单元上的因果决策保持问题，提出免训练的FOCUS方法，识别对智能体未来决策有因果影响的过去交互。该工作为智能体记忆管理提供高效、动态的压缩方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.37953v1",
+      "source": "arxiv",
+      "title": "Topological Coherence for Self-evolving Multi-agent Systems",
+      "abstract": "Complex tasks inherently couple workflow structure, agent responsibility, collaboration, and memory access: task regions delimit responsibility and tool scope, cross-region dependencies give rise to handoffs, and ownership boundaries delimit private and selectively shared memory. Existing methods can jointly optimize agent and communication structures, yet such optimization does not by itself require responsibility, handoff, and memory boundaries to remain consistent with task dependencies. We term this requirement topological coherence. We introduce TOCOMAS, a Topology-Coherent Multi-Agent System. TOCOMAS grounds a task graph in tool interfaces, organizes compatible task nodes into reusable responsibility domains, and derives dependency-induced and profile-conditioned collaboration together with boundary-regulated memory visibility. During online self-evolution, TOCOMAS proposes coupled changes to agent, collaboration, and memory policies, retaining for subsequent tasks only candidates that satisfy structural constraints and improve evaluated reward. Across BBEH, WorkBench, SWE-Bench-Verified, and CoMemBench, TOCOMAS improves task success over baselines across backbones. CoMemBench also shows gains over the self-evolving baseline in verified progress, handoffs, and memory isolation.",
+      "authors": [
+        "Sen Zhao",
+        "Ruiqi Kong",
+        "Zuyu Zhang",
+        "Lifeng Shen",
+        "Xinyu He",
+        "Xu Zhang",
+        "Qinghua Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T16:27:14+00:00",
+      "link": "https://arxiv.org/pdf/2609.37953v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "self-evolving multi-agent system aligning memory and responsibility boundaries",
+      "llm_evidence_cn": "自进化多智能体系统对齐记忆与职责边界",
+      "llm_evidence": "自进化多智能体系统对齐记忆与职责边界",
+      "canonical_evidence": "自进化多智能体系统对齐记忆与职责边界",
+      "llm_tldr_en": "Complex tasks couple workflow, responsibility and memory access, but joint optimization alone does not keep boundaries consistent with task dependencies. TOCOMAS grounds a task graph in tool interfaces and derives dependency-induced memory and handoff boundaries.",
+      "llm_tldr_cn": "复杂任务天然耦合工作流结构、智能体职责、协作与记忆访问，任务区域限定职责与工具范围，跨区域依赖引发交接，所有权边界划分私有与选择性共享记忆。现有方法虽能联合优化智能体与通信结构，却未要求职责、交接与记忆边界同任务依赖保持一致，作者称之为拓扑一致性。提出TOCOMAS，将任务图锚定于工具接口，把兼容任务节点组织为可复用责任域，并推导依赖诱导的通信与记忆边界。该工作为自进化多智能体系统的结构与记忆协同提供新准则。",
+      "llm_tldr": "复杂任务天然耦合工作流结构、智能体职责、协作与记忆访问，任务区域限定职责与工具范围，跨区域依赖引发交接，所有权边界划分私有与选择性共享记忆。现有方法虽能联合优化智能体与通信结构，却未要求职责、交接与记忆边界同任务依赖保持一致，作者称之为拓扑一致性。提出TOCOMAS，将任务图锚定于工具接口，把兼容任务节点组织为可复用责任域，并推导依赖诱导的通信与记忆边界。该工作为自进化多智能体系统的结构与记忆协同提供新准则。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.38334v2",
+      "source": "arxiv",
+      "title": "EVOKE: Eliciting World Knowledge in Agents for Transferable Decision-Making",
+      "abstract": "Large language models (LLMs) are increasingly deployed as agents for multi-step decision-making, yet transfer poorly to unseen environments. World-model methods address this by training agents to predict future observations, at the cost of additional training and errors that compound when predictions are used for planning. However, for LLM agents operating in digital environments, much of this world knowledge is already internalized during pretraining, which shifts the problem from acquiring it to eliciting it. We argue that typical post-training provides little pressure for such elicitation, since supervision under a single goal at each visited state inadvertently drives policies to rely on superficial contextual habits. We introduce EVOKE, a post-training method that supplies this pressure through goal diversity at fixed states. Motivated by theory showing that an agent competent across diverse goals must encode a world model recoverable from its action preferences, EVOKE holds the environment state and interaction history fixed and ranks the same candidate actions under alternative goals, forcing action preferences to change, so that a policy relying on contextual habits or single-goal correlations cannot order them correctly. This implicitly elicits the policy's pretrained world knowledge to inform decisions. We evaluate EVOKE across diverse tasks in three backbones, demonstrating improved task performance, unseen environment generalization, and data efficiency. We further conduct controlled analyses to better understand what drives these gains. These findings offer a new perspective on eliciting internalized world knowledge for transferable action through direct decision supervision.",
+      "authors": [
+        "Yuhan Guo",
+        "Jinming Liu",
+        "Liang Xu",
+        "Ziqiang Li",
+        "Jianguo Huang",
+        "Zhicheng Wang",
+        "Hu Zhu",
+        "Qiuyu Chen",
+        "Yuntao Wei",
+        "Xin Jin",
+        "Wenjun Zeng"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-09-29T18:01:45+00:00",
+      "link": "https://arxiv.org/pdf/2609.38334v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "eliciting internalized world knowledge in LLM agents for decision-making",
+      "llm_evidence_cn": "激发LLM智能体内部世界知识以支持决策",
+      "llm_evidence": "激发LLM智能体内部世界知识以支持决策",
+      "canonical_evidence": "激发LLM智能体内部世界知识以支持决策",
+      "llm_tldr_en": "LLM agents transfer poorly to unseen environments; world-model training is costly. EVOKE elicits knowledge already internalized during pretraining rather than acquiring it, improving transferable decision-making without extra world-model training.",
+      "llm_tldr_cn": "LLM智能体在多步决策中难以迁移到未见环境，传统世界模型方法需额外训练且误差会累积。本文认为数字环境中的世界知识在预训练阶段已内化，问题应从获取转向激发，并提出EVOKE方法通过后训练压力促使策略调用这些知识而非依赖表层上下文习惯。实验显示该方法提升了智能体在未知环境中的决策迁移能力，为智能体知识检索与利用提供了新思路。",
+      "llm_tldr": "LLM智能体在多步决策中难以迁移到未见环境，传统世界模型方法需额外训练且误差会累积。本文认为数字环境中的世界知识在预训练阶段已内化，问题应从获取转向激发，并提出EVOKE方法通过后训练压力促使策略调用这些知识而非依赖表层上下文习惯。实验显示该方法提升了智能体在未知环境中的决策迁移能力，为智能体知识检索与利用提供了新思路。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.38601v1",
+      "source": "arxiv",
+      "title": "Structure-augmented LLMs for High-Level Synthesis Pragma Optimization",
+      "abstract": "Pragma insertion drives the quality of high-level synthesis (HLS) designs. Choosing the right directives demands expert knowledge and reasoning about loop nesting, data dependences, and memory layout. While existing large language models (LLMs) show promise in code generation, they lack explicit program-structure awareness, limiting their ability to suggest effective pragmas. We present PRISM, a novel structure-augmented LLM that closes this gap by adding compiler-grade structural reasoning to a pretrained, frozen code LLM. It combines three hierarchical program representations, Abstract Syntax Tree (AST), Control-Flow Graph (CFG), and Data-Flow Graph (DFG), injecting them into a specific transformer layer while keeping original code tokens in a separate stream. The cross-attention gate at the injection point allows falling back to the pretrained representation when its structural signal is unhelpful. On zero-shot evaluation in HLS-Eval, PRISM synthesizes 3.5\\times as many kernels as Llama3-8B (26.9\\% vs. 7.7\\%), and on the kernels where it does succeed, it produces designs that are 2.31\\times faster (geomean) than GPT-5-mini's. In the agentic flow, the PRISM codegen outperforms other baselines when optimizing complex code and drives the average normalized improvement across the HLS-Eval suite to 26.4\\%.",
+      "authors": [
+        "Haocheng Xu",
+        "Ye Qiao",
+        "Phyo Pyae Moe Aung",
+        "Alok Mishra",
+        "Pavana Prakash",
+        "Rolando Pablo Hong Enriquez",
+        "Adam Han Wu",
+        "Zhiheng Chen",
+        "Dejan Milojicic",
+        "Sitao Huang"
+      ],
+      "primary_category": "cs.AR",
+      "categories": [
+        "cs.AR"
+      ],
+      "published": "2026-09-29T22:02:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.38601v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "structure-augmented LLM for code optimization pragma insertion",
+      "llm_evidence_cn": "结构增强LLM用于代码优化指示插入",
+      "llm_evidence": "结构增强LLM用于代码优化指示插入",
+      "canonical_evidence": "结构增强LLM用于代码优化指示插入",
+      "llm_tldr_en": "HLS pragma selection needs expert reasoning but LLMs lack program-structure awareness. PRISM injects AST, CFG and DFG into a frozen code LLM, improving pragma quality and hardware design performance.",
+      "llm_tldr_cn": "高层次综合中pragma插入质量依赖专家对循环嵌套与数据依赖的推理，而现有大语言模型缺乏显式程序结构感知，难以生成有效指示。本文提出PRISM，将AST、CFG与DFG三种层次化程序表示注入预训练冻结的代码LLM，为其补充编译器级结构推理能力。实验显示该方法显著提升pragma优化质量与硬件设计性能，为LLM驱动的代码优化提供了结构增强范式。",
+      "llm_tldr": "高层次综合中pragma插入质量依赖专家对循环嵌套与数据依赖的推理，而现有大语言模型缺乏显式程序结构感知，难以生成有效指示。本文提出PRISM，将AST、CFG与DFG三种层次化程序表示注入预训练冻结的代码LLM，为其补充编译器级结构推理能力。实验显示该方法显著提升pragma优化质量与硬件设计性能，为LLM驱动的代码优化提供了结构增强范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "using large language models to produce source code",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.39473v1",
+      "source": "arxiv",
+      "title": "Beyond the Shadows of Plato's Cave: Evaluating False Memory in Autonomous Agents via Counterfactual Reasoning",
+      "abstract": "Autonomous agents increasingly rely on memory to generalize beyond their training environments. However, agents are bounded by what they have seen and believed, and leveraging such memories in unseen environments can introduce biases into their internal beliefs. We formalize this phenomenon as \\textit{false memory}, which can arise from spurious correlations, environment shifts, and knowledge conflicts. Despite its importance, false memory is difficult to evaluate because it stems from agent internal beliefs and is easily confounded with ordinary generalization failures. Therefore, we propose FAME, a training-free framework that evaluates false memory through the evolution of agent beliefs under counterfactual reasoning. Specifically, counterfactual scenarios reveal how beliefs change as the latent concept of memory shifts under hypothetical interventions; thus, measuring the resulting concept drift provides a signal for distinguishing faithful versus false memory. Such concepts can be estimated from agent hidden states before answer generation, avoiding the need for reward design or answer sampling. Empirical experiments reveal that simply monitoring answers often fails to detect false memory, while FAME achieves AUROCs of 76.2% - 96.7% across false-memory settings, and outperforms the best baseline by 3.4% - 23.3% across realistic benchmarks, spanning math reasoning (GSM-Symbolic), code generation (GitChameleon), and complex reasoning (BigBench-Hard). We further release corresponding counterfactual templates and facilitate future research on false memory.",
+      "authors": [
+        "Quan M. Tran",
+        "Zhuo Huang",
+        "Zhen Fang",
+        "Jing Zhang",
+        "Mingming Gong",
+        "Tongliang Liu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-30T10:35:41+00:00",
+      "link": "https://arxiv.org/pdf/2609.39473v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "evaluating false memory in autonomous agents via counterfactual reasoning",
+      "llm_evidence_cn": "通过反事实推理评估自主智能体的错误记忆",
+      "llm_evidence": "通过反事实推理评估自主智能体的错误记忆",
+      "canonical_evidence": "通过反事实推理评估自主智能体的错误记忆",
+      "llm_tldr_en": "Autonomous agents rely on memory but may form false beliefs from spurious correlations or knowledge conflicts. FAME is a training-free framework that evaluates false memory by tracking belief evolution under counterfactual reasoning.",
+      "llm_tldr_cn": "自主智能体依赖记忆泛化到训练环境之外，但受所见所信限制，在未见环境中使用记忆会引入偏差，形成所谓错误记忆。该现象难以评估，因为源于智能体内部信念且易与普通泛化失败混淆。本文提出免训练框架FAME，通过反事实推理下智能体信念的演化来评估错误记忆。该工作为智能体记忆的可靠性度量提供了方法，对记忆检索机制研究有参考意义。",
+      "llm_tldr": "自主智能体依赖记忆泛化到训练环境之外，但受所见所信限制，在未见环境中使用记忆会引入偏差，形成所谓错误记忆。该现象难以评估，因为源于智能体内部信念且易与普通泛化失败混淆。本文提出免训练框架FAME，通过反事实推理下智能体信念的演化来评估错误记忆。该工作为智能体记忆的可靠性度量提供了方法，对记忆检索机制研究有参考意义。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.01195v1",
+      "source": "arxiv",
+      "title": "Federated Agent Optimization",
+      "abstract": "Large language model (LLM) agents increasingly operate in private environments and accumulate valuable experience from task execution, tool use, feedback, and local knowledge. Yet such experience is distributed across organizations and cannot be directly shared because of privacy and proprietary constraints. Conventional federated learning is insufficient for this setting, as agent capabilities extend beyond model parameters to memory, tools, rewards, skills, and structured knowledge. In this paper, we formulate \\textbf{Federated Agent Optimization (FAO)}, which studies how distributed agents can collaboratively improve through controlled information exchange while keeping raw data, complete trajectories, and private knowledge local. We define FAO as a multi-objective problem balancing agent utility, privacy leakage, and communication cost, and organize its optimization space across policy, memory, tool use, reward, and structured knowledge and skills. We further characterize how private experience can be abstracted, protected, aggregated, and adapted into transferable capabilities, providing a unified view of how agents can benefit from one another without direct experience sharing. Finally, we identify the key challenges of FAO and outline several promising directions for future research toward trustworthy federated agent systems.",
+      "authors": [
+        "Qiang Yang",
+        "Zhiqiang Kou",
+        "Xueyi Zhang",
+        "Dong-Dong Wu",
+        "Hanlin Gu",
+        "Jing Guo",
+        "Yang Liu",
+        "Di Jiang",
+        "Qian Xu"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-10-01T07:06:00+00:00",
+      "link": "https://arxiv.org/pdf/2610.01195v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "distributed LLM agents sharing memory, skills and experience under privacy",
+      "llm_evidence_cn": "分布式LLM智能体在隐私约束下共享记忆与技能经验",
+      "llm_evidence": "分布式LLM智能体在隐私约束下共享记忆与技能经验",
+      "canonical_evidence": "分布式LLM智能体在隐私约束下共享记忆与技能经验",
+      "llm_tldr_en": "LLM agents accumulate valuable experience but it stays siloed across organizations. Federated Agent Optimization formalizes how distributed agents collaboratively improve via controlled exchange of memory, tools, rewards and skills while keeping raw data local.",
+      "llm_tldr_cn": "LLM智能体在私有环境中积累任务执行、工具使用与本地知识等宝贵经验，但受隐私与产权限制难以跨组织共享，传统联邦学习无法覆盖记忆、工具、奖励与技能等能力。本文提出联邦智能体优化（FAO）问题，定义在保持原始数据与轨迹本地的前提下通过受控信息交换协同提升。该工作为智能体记忆与经验的分布式积累提供了问题框架与多目标权衡视角。",
+      "llm_tldr": "LLM智能体在私有环境中积累任务执行、工具使用与本地知识等宝贵经验，但受隐私与产权限制难以跨组织共享，传统联邦学习无法覆盖记忆、工具、奖励与技能等能力。本文提出联邦智能体优化（FAO）问题，定义在保持原始数据与轨迹本地的前提下通过受控信息交换协同提升。该工作为智能体记忆与经验的分布式积累提供了问题框架与多目标权衡视角。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

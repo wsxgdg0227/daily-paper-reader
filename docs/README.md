@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-10-03</span>
+      <span class="dpr-home-dashboard-kicker">2026-10-04</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 17 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 16 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>6</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>5</dd></div>
     <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-10-03 22:24:27 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-10-04 22:46:37 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,7 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>17篇里两篇满分抢镜：今日精读6篇、速读11篇，焦点落在GPU内核生成与</p>
+<p>2026-10-04日报完成16篇论文筛选，精读5篇、速读11篇，重点覆盖GPU内核生成与多智能体协同学习。</p>
+<p>最值得看的是10分精读《KernelZero》，用“提议者-编码者”共同进化持续提升GPU内核生成；其次是9分《EpiCon》，以共同进化多模态记忆推动集体智能体学习。</p>
+<p>普通读者可先读《KernelZero》把握AI写GPU内核的前沿，再按兴趣扫速读中的Softmax近似加速、长视频稀疏注意力调度或多智能体专家自适应。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -78,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">6 篇</strong>
+    <strong class="dpr-home-dashboard-count">5 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation">KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation</span></li><li><span class="dpr-home-dashboard-paper-title" title="AI as a Compiler: Compiling Triton kernels without the Triton compiler">AI as a Compiler: Compiling Triton kernels without the Triton compiler</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Evolving Algorithm-Design Agents: Escaping In-Context Evolutionary Stagnation via Population-Curated Policy Optimization">Self-Evolving Algorithm-Design Agents: Escaping In-Context Evolutionary Stagnation via Population-Curated Policy Optimization</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation">KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation</span></li><li><span class="dpr-home-dashboard-paper-title" title="EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory">EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents">ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>6</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -94,7 +96,7 @@
     <strong class="dpr-home-dashboard-count">11 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="EvoIn: Bridging Evolution and Internalization for Agent Fine-Tuning">EvoIn: Bridging Evolution and Internalization for Agent Fine-Tuning</span></li><li><span class="dpr-home-dashboard-paper-title" title="SelfSearch: Reward-Free Search for Self-Improving Agents">SelfSearch: Reward-Free Search for Self-Improving Agents</span></li><li><span class="dpr-home-dashboard-paper-title" title="Rep2Skill: Representation-Guided Skill Self-Evolution for LLM Agents">Rep2Skill: Representation-Guided Skill Self-Evolution for LLM Agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration">Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration</span></li><li><span class="dpr-home-dashboard-paper-title" title="WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation">WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Adapting Group of Experts for Multi-Agent Reasoning">Self-Adapting Group of Experts for Multi-Agent Reasoning</span></li></ul>
   </div>
   <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
 </section>

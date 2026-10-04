@@ -1,0 +1,265 @@
+{
+  "date": "20261004",
+  "date_label": "",
+  "generated_at": "2026-10-04 22:46:37 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.33074v1",
+      "route": "202610/04/2609.33074v1-kernelzero-co-evolving-proposer-and-coder-for-continuously-improved-gpu-kernel-generation",
+      "title": "KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 10.0,
+      "evidence": "基于大模型协同进化生成GPU算子代码并持续提升性能",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.37923v1",
+      "route": "202610/04/2609.37923v1-epicon-collective-agent-learning-through-co-evolving-multimodal-memory",
+      "title": "EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "共享多模态记忆支撑智能体集体学习与检索",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.33244v1",
+      "route": "202610/04/2609.33244v1-activemem-dynamic-latent-memory-trees-for-long-horizon-agents",
+      "title": "ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "将智能体经验组织为依赖感知执行树的层次化记忆",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.34385v1",
+      "route": "202610/04/2609.34385v1-just-in-time-agent-memory-with-runtime-agentic-research",
+      "title": "Just-In-Time Agent Memory with Runtime Agentic Research",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "运行时按查询构建并迭代检索的智能体记忆",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.36746v1",
+      "route": "202610/04/2609.36746v1-ease-behavior-adaptive-skill-curation-for-self-evolving-agents",
+      "title": "EASE: Behavior-Adaptive Skill Curation for Self-Evolving Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化智能体通过自适应技能策展积累可复用技能",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.33586v1",
+      "route": "202610/04/2609.33586v1-approximating-softmax-in-pretrained-llms-model-sensitivity-and-kernel-acceleration",
+      "title": "Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "通过softmax近似与模型敏感性分析加速注意力内核",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.34814v1",
+      "route": "202610/04/2609.34814v1-wavealign-cache-aware-query-row-scheduling-for-sparse-attention-in-long-video-generation",
+      "title": "WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "缓存感知的查询行调度，用于提升稀疏注意力 GPU 内核执行效率",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.35412v1",
+      "route": "202610/04/2609.35412v1-self-adapting-group-of-experts-for-multi-agent-reasoning",
+      "title": "Self-Adapting Group of Experts for Multi-Agent Reasoning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "智能体通过同行评审选择并迁移推理策略",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.36630v1",
+      "route": "202610/04/2609.36630v1-distilling-agentic-systems-a-roadmap-across-models-artifacts-and-harnesses",
+      "title": "Distilling Agentic Systems: A Roadmap across Models, Artifacts, and Harnesses",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "智能体组件间的知识迁移与记忆留存",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.37025v1",
+      "route": "202610/04/2609.37025v1-anyact-universal-action-for-self-evolving-agents",
+      "title": "AnyAct: Universal Action for Self-Evolving Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "自进化动作空间支持智能体在动态工具生态中运作",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.37590v1",
+      "route": "202610/04/2609.37590v1-focus-training-free-decision-preserving-context-compression-for-llm-agents",
+      "title": "FOCUS: Training-Free Decision-Preserving Context Compression for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "免训练上下文压缩，保留影响智能体决策的历史交互",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.37953v1",
+      "route": "202610/04/2609.37953v1-topological-coherence-for-self-evolving-multi-agent-systems",
+      "title": "Topological Coherence for Self-evolving Multi-agent Systems",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "自进化多智能体系统对齐记忆与职责边界",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.38334v2",
+      "route": "202610/04/2609.38334v2-evoke-eliciting-world-knowledge-in-agents-for-transferable-decision-making",
+      "title": "EVOKE: Eliciting World Knowledge in Agents for Transferable Decision-Making",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "激发LLM智能体内部世界知识以支持决策",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.38601v1",
+      "route": "202610/04/2609.38601v1-structure-augmented-llms-for-high-level-synthesis-pragma-optimization",
+      "title": "Structure-augmented LLMs for High-Level Synthesis Pragma Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "结构增强LLM用于代码优化指示插入",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2609.39473v1",
+      "route": "202610/04/2609.39473v1-beyond-the-shadows-of-platos-cave-evaluating-false-memory-in-autonomous-agents-via-counterfactual-reasoning",
+      "title": "Beyond the Shadows of Plato's Cave: Evaluating False Memory in Autonomous Agents via Counterfactual Reasoning",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "通过反事实推理评估自主智能体的错误记忆",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    },
+    {
+      "paper_id": "2610.01195v1",
+      "route": "202610/04/2610.01195v1-federated-agent-optimization",
+      "title": "Federated Agent Optimization",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "分布式LLM智能体在隐私约束下共享记忆与技能经验",
+      "first_seen_at": "2026-10-04 22:46:37 UTC",
+      "updated_at": "2026-10-04 22:46:37 UTC"
+    }
+  ]
+}
