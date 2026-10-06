@@ -1,0 +1,137 @@
+{
+  "date": "20261006",
+  "date_label": "",
+  "generated_at": "2026-10-06 01:05:29 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2610.03226v1",
+      "route": "202610/06/2610.03226v1-d2k-bench-can-llm-agents-turn-expert-designs-into-efficient-gpu-kernels",
+      "title": "D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "评估LLM智能体将专家设计转为GPU算子的基准",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2609.33326v1",
+      "route": "202610/06/2609.33326v1-antman-adaptive-need-tracking-for-multi-agent-navigation-in-large-information-spaces",
+      "title": "ANTMAN: Adaptive Need Tracking for Multi-Agent Navigation in Large Information Spaces",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "需求图跟踪未解决需求与证据用于路由",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2609.39207v1",
+      "route": "202610/06/2609.39207v1-asena-self-evolving-agents-for-embodied-navigation",
+      "title": "ASENA: Self-evolving Agents for Embodied Navigation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "自进化编码智能体复用可执行技能并修复失败",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2609.33123v2",
+      "route": "202610/06/2609.33123v2-compositional-safety-failures-in-harness-evolution-identification-and-runtime-monitoring",
+      "title": "Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "自进化智能体框架持续更新记忆、提示、技能与工具",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2609.37538v1",
+      "route": "202610/06/2609.37538v1-avsg-accelerated-vectorized-sparse-gather-for-efficient-kv-cache-offload-in-sparse-attention-llm-serving",
+      "title": "AVSG: Accelerated Vectorized Sparse Gather for Efficient KV Cache Offload in Sparse-Attention LLM Serving",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "加速向量化稀疏聚集以优化KV缓存卸载的GPU内核执行",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2610.02150v1",
+      "route": "202610/06/2610.02150v1-from-knowledge-access-to-source-learning-developing-source-specific-competence",
+      "title": "From Knowledge Access to Source Learning: Developing Source-Specific Competence",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "智能体记忆保存可复用知识并从来源检索",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2610.02255v1",
+      "route": "202610/06/2610.02255v1-macts-em-multi-agent-collaborative-time-series-forecasting-with-emergent-memory",
+      "title": "MACTS-EM: Multi-Agent Collaborative Time Series Forecasting with Emergent Memory",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "支持跨域知识检索的涌现记忆",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    },
+    {
+      "paper_id": "2610.02438v1",
+      "route": "202610/06/2610.02438v1-are-you-synthesizing-or-recalling-evaluating-llms-on-algorithmic-code-retrieval",
+      "title": "Are you Synthesizing or Recalling? Evaluating LLMs on Algorithmic Code Retrieval",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将LLM代码生成建模为算法代码检索",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 01:05:29 UTC"
+    }
+  ]
+}

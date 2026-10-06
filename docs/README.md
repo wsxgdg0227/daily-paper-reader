@@ -48,17 +48,17 @@
 <section class="dpr-home-dashboard-card dpr-home-report-card">
   <div class="dpr-home-dashboard-header">
     <div>
-      <span class="dpr-home-dashboard-kicker">2026-10-04</span>
+      <span class="dpr-home-dashboard-kicker">2026-10-06</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 16 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 8 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
     <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>5</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>11</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-10-04 22:46:37 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-10-06 01:05:29 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,9 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>2026-10-04日报完成16篇论文筛选，精读5篇、速读11篇，重点覆盖GPU内核生成与多智能体协同学习。</p>
-<p>最值得看的是10分精读《KernelZero》，用“提议者-编码者”共同进化持续提升GPU内核生成；其次是9分《EpiCon》，以共同进化多模态记忆推动集体智能体学习。</p>
-<p>普通读者可先读《KernelZero》把握AI写GPU内核的前沿，再按兴趣扫速读中的Softmax近似加速、长视频稀疏注意力调度或多智能体专家自适应。</p>
+<p>今日共筛出 8 篇论文，精读 1 篇、速读 7 篇，主线聚焦 LLM Agent 的能力边界。</p>
+<p>最值得看的是 9.0 分的《D2K-Bench》，它检验 LLM Agent 能否把专家设计转化为高效 GPU Kernel；速读中的 ANTMAN 与 ASENA 则关注大信息空间和具身场景下的多智能体导航。</p>
+<p>普通读者可先读 D2K-Bench 了解 Agent 做底层性能优化的真实水平，再按兴趣挑导航类工作速览。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +80,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">5 篇</strong>
+    <strong class="dpr-home-dashboard-count">1 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation">KernelZero: Co-Evolving Proposer and Coder for Continuously Improved GPU Kernel Generation</span></li><li><span class="dpr-home-dashboard-paper-title" title="EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory">EpiCon: Collective Agent Learning through Co-Evolving Multimodal Memory</span></li><li><span class="dpr-home-dashboard-paper-title" title="ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents">ActiveMem: Dynamic Latent Memory Trees for Long-Horizon Agents</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?">D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +93,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">11 篇</strong>
+    <strong class="dpr-home-dashboard-count">7 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration">Approximating Softmax in Pretrained LLMs: Model Sensitivity and Kernel Acceleration</span></li><li><span class="dpr-home-dashboard-paper-title" title="WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation">WaveAlign: Cache-Aware Query-Row Scheduling for Sparse Attention in Long-Video Generation</span></li><li><span class="dpr-home-dashboard-paper-title" title="Self-Adapting Group of Experts for Multi-Agent Reasoning">Self-Adapting Group of Experts for Multi-Agent Reasoning</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ANTMAN: Adaptive Need Tracking for Multi-Agent Navigation in Large Information Spaces">ANTMAN: Adaptive Need Tracking for Multi-Agent Navigation in Large Information Spaces</span></li><li><span class="dpr-home-dashboard-paper-title" title="ASENA: Self-evolving Agents for Embodied Navigation">ASENA: Self-evolving Agents for Embodied Navigation</span></li><li><span class="dpr-home-dashboard-paper-title" title="Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring">Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>11</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
 </section>
 </div>
 

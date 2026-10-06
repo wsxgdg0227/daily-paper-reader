@@ -1,0 +1,11870 @@
+Are you Synthesizing or Recalling?
+Evaluating LLMs on Algorithmic Code Retrieval
+Nickil Maveli
+Antonio Vergari õ
+Shay B. Cohen õ
+School of Informatics, University of Edinburgh
+10 Crichton Street, Edinburgh, EH8 9AB
+{nickil.maveli,avergari,scohen}@ed.ac.uk
+Abstract
+Large language models (LLMs) have demon-
+strated strong performance in code generation,
+where success depends on both recalling rel-
+evant algorithmic knowledge and reasoning
+about how to apply it. However, existing LLM
+pipelines are opaque, with no explicit separa-
+tion between these two components. We argue
+that for well-known algorithms whose canon-
+ical implementations are widely accessible in
+pretraining corpora, code generation is better
+measured as parametric code retrieval: repro-
+ducing a named algorithm from internalised
+knowledge rather than synthesizing a novel one.
+We introduce ALGOREVAL, a benchmark of
+599 problems spanning classical 77 algorithms
+across 14 domains, 7 programming languages,
+and 4 graph-input representations to evaluate
+this capability in isolation, and assess 15 mod-
+els (7B–34B parameters) in a zero-shot setting.
+We find substantial variation in retrieval ac-
+curacy across languages and input representa-
+tions, even for widely documented algorithms
+and show that prompt augmentation with re-
+trieved code snippets or structured algorithmic
+hints improve accuracy on complex algorithms,
+while SFT achieves broader language gains and
+GRPO achieves larger per-language gains on
+specific languages. Together, our results es-
+tablish parametric code retrieval as a distinct,
+measurable capability and caution against de-
+ploying AI-generated algorithmic code without
+systematic validation.1
+1
+Introduction
+When an LLM writes Dijkstra’s algorithm, is it
+synthesizing, retrieving, or reciting? Synthesizing
+means reasoning from the problem statement to
+a solution, deriving logic the model has not seen
+in the exact form during pre-training (Chen et al.,
+2021; Austin et al., 2021b). Retrieving means re-
+constructing a correct implementation from inter-
+1Code and dataset are available at https://github.com/
+Nickil21/AlgoREval. õ denotes shared supervision.
+100
+300
+1,000
+2,500
+5,000
+n (graph size)
+10−3
+10−2
+10−1
+100
+101
+wall time (s)
+1.13× vs. tier mean
+0.96× vs. tier mean
+Prim, dense regime: model tiers vs. two real reference implementations
+networkx (no early exit) k=2.28   |   early-exit-heap k=2.10
+fast tier (4 models, mean ± range)
+early-exit-heap Prim (real, measured -- matches fast tier)
+slow tier (6 models, mean ± range)
+networkx Prim (real, measured -- matches slow tier)
+Figure 1: Ten LLMs implement Prim’s MST algorithm,
+split into a fast tier (4 models) and a slow tier (6 mod-
+els) by wall-clock scaling. We time two independently-
+written, correctness-verified reference implementations.
+Since both tiers land close to a real, legitimate pattern
+rather than one looking like an unexplained outlier, the
+evidence here is symmetric and consistent with both
+tiers reflecting retrieval of different existing implemen-
+tations, not one retrieving and the other synthesizing
+from scratch.
+nalised parametric knowledge. The model has en-
+coded the algorithm’s structure, invariants, and con-
+trol flow in its weights and can express it correctly
+even in forms it has not seen verbatim (Roberts
+et al., 2020; Gekhman et al., 2026). Reciting means
+replaying a near-verbatim token sequence cached
+from a specific training example: correct output
+is a side-effect of having stored that string, not
+of understanding what it computes (Carlini et al.,
+2023; Huang et al., 2024). Synthesis, retrieval,
+and recitation are distinct capabilities with differ-
+ent failure modes and different implications for
+reliability: synthesis may fail on novel problems;
+retrieval degrades when surface form shifts away
+from the training distribution; recitation breaks the
+moment the expected transcription is absent. Prior
+work conflates all three under the label of code
+arXiv:2610.02438v1  [cs.LG]  1 Oct 2026
+
+
+Benchmark Problem
+Bridge Finding
+Implement Tarjan’s bridge-finding algorithm in JavaScript | Java | Python | Rust.
+Implement findBridges(V, edges) where V is the vertex count (0-based) and edges is a
+list of [u,v] undirected pairs. For V=5, edges=[[0,1],[0,2],[1,2],[0,3],[3,4]],
+print each bridge as “u v” on its own line, sorted in ascending order.
+Expected output: “0 3” then “3 4”. Runnable as a script; standard library only.
+Text
+Code
+Books
+Web
+Wikipedia
+Papers
+Docs
+GitHub
+Stack Overflow
+Rosetta Code
+GeeksforGeeks
+Pre-training (offline)
+LLM
+Layer N
+Layer . . .
+Layer 1
+Embedding
+Parameters θ
+Query
+Response
+Yi-Coder-9B · Python
+def findBridges(V, edges):
+adj = [[] for _ in range(V)]
+disc = low = [-1] * V
+# ... for u,v in edges: adj[u]+=...
+def dfs(u):
+disc[u] = low[u] = self.time
+self.time += 1
+# ... update low, collect bridges ...
+self.time = 0
+bridges = []
+for u in range(V):
+if not visited[u]: dfs(u)
+return bridges
+FAIL runtime error
+CodeLlama-34B · Rust
+use std::collections::HashMap;
+fn find_bridges(v: usize, ...) {
+let mut graph: HashMap<usize,Vec<usize>>
+= HashMap::new();
+// ... build graph, init arrays ...
+let mut br = Vec::new();
+fn dfs(g: &HashMap<usize,Vec<usize>>,
+v: usize, /* ... */) { /* ... */ }
+for i in 0..v { if !vis[i] {
+dfs(graph, i, /* ... */); } }
+br
+}
+FAIL compile error
+gpt-4o-mini · Java
+import java.util.*;
+public class Main {
+private int time = 0;
+List<int[]> findBridges(int V, ...) {
+// ... build graph g, init arrays ...
+List<int[]> bridges=new ArrayList<>()
+;
+for (int i=0;i<V;i++)
+if (!vis[i]) dfs(i,-1,...,bridges
+);
+return bridges;
+}
+void dfs(int u, int par, ...) { /* ... */
+}
+}
+FAIL wrong output order
+QwQ-32B · JavaScript
+function findBridges(V, edges) {
+const bridges = [];
+// ... build adj, init disc/low/timer ...
+function dfs(at, parent) {
+disc[at]=low[at]=timer++;
+// ... update low values ...
+if (low[to]>disc[at])
+bridges.push([Math.min(at,to),
+Math.max(at,to)]);
+}
+bridges.sort((a,b)=>a[0]-b[0]||a[1]-b[1])
+;
+return bridges;
+}
+PASS correct output
+Figure 2: Parametric code retrieval evaluation pipeline. LLMs generate solutions zero-shot, drawing solely on
+algorithmic knowledge encoded in their pretraining weights. The four panels show four models (three open-weight,
+one closed API) on the same Bridge Finding problem, each in a different language: Yi-Coder-9B (Python) uses
+self.time in a plain function with no class, causing a runtime error; CodeLlama-34B (Rust) passes graph by
+value where a reference is required, producing a compile error; gpt-4o-mini (Java, closed API) finds the correct
+bridges but omits the sort step, yielding wrong output order; QwQ-32B (JavaScript) normalises, sorts, and passes.
+generation.
+We focus on the “retrieval” aspect. The distinc-
+tion has real stakes: an estimated 72% of devel-
+opers now use AI coding tools on a daily basis,
+and AI currently generates 42% of all committed
+code.2 Yet, 66% report their top frustration is code
+that is almost right, but not quite, which precisely
+describes retrieval failure: the model knows the
+algorithm but gets a detail wrong (Zhu et al., 2025).
+In agentic coding pipelines, where models plan,
+generate, and commit code without per-step hu-
+man review, a retrieval failure in a graph algorithm
+may not surface until a production incident exposes
+the wrong output being computed silently (Sapkota
+et al., 2025; Cemri et al., 2025). Knowing where
+and how retrieval breaks is the minimum informa-
+tion needed to decide when AI-generated algorith-
+mic code can be trusted without verification.
+Most code generation research frames the task
+as synthesis: given a problem statement, construct
+a solution. This is appropriate for novel problems,
+but for well-known algorithms whose canonical
+implementations appear across thousands of open-
+source repositories and almost certainly in the pre-
+training corpora of every model we evaluate. The
+model need not invent anything; it must retrieve.
+2https://www.sonarsource.com/
+state-of-code-developer-survey-report.pdf
+Conflating the two obscures a distinct failure mode:
+a model may demonstrate impressive synthesis on
+novel tasks while quietly failing to reproduce even
+the most widely documented algorithms, or vice-
+versa (Riddell et al., 2024; Matton et al., 2024).
+We isolate this as parametric code retrieval: repro-
+ducing a correct implementation of a named algo-
+rithm in a specified language from parametric mem-
+ory alone. Code constitutes roughly 13% of the
+Dolma corpus (411 B of 3.1 T tokens) (Kocetkov
+et al., 2022; Soldaini et al., 2024), with JavaScript
+(486 GB), Java (271 GB), and C (222 GB) account-
+ing for over half by volume, which are precisely
+the language families our benchmark targets.
+Contributions. We introduce ALGOREVAL,
+a benchmark of 599 problems spanning 77 algo-
+rithms, 7 programming languages, and 4 graph-
+input representations, and evaluate fifteen models
+zero-shot. We then ask whether retrieval failures
+can be remediated: first via prompt augmentation
+with retrieved code snippets or structured algorith-
+mic hints, and then via GRPO (Group Relative
+Policy Optimization) fine-tuning with execution-
+based rewards compared against a SFT (Supervised
+fine-tuning) baseline. Our main findings are three-
+fold. First, retrieval accuracy varies widely across
+models, and the variance is governed by surface
+form (programming language and input representa-
+
+
+tion) and not model size or code specialisation. The
+dominant failure mode in Python and JavaScript is
+wrong output: runnable code that silently returns
+the wrong answer. Second, prompt augmentation
+does not reliably improve retrieval in aggregate,
+and actively hurts when parametric knowledge is
+already present; executable snippets are more ef-
+fective than abstract hints only on problems where
+the model’s parametric trace is already thin. Third,
+GRPO fine-tuning with execution-based rewards
+converges faster than SFT and closes language gaps
+that binary supervision cannot address, particularly
+in Rust where partial-credit signals from compile
+failures carry information that correct/incorrect la-
+bels discard.
+2
+Task Formulation
+We define parametric code retrieval as the task of
+recovering a correct, executable implementation
+of a named algorithm from an LLM’s parametric
+memory, in a specified programming language and
+input representation, without access to external doc-
+uments or in-context examples.
+Problem
+instances.
+Let
+A
+denote
+a
+set
+of
+algorithm
+names,
+L
+=
+{Python, C++, Java, C, JavaScript, Rust, Go}
+a set of target languages, and Ra the set of input-
+representation formats applicable to algorithm a
+(e.g., edge list, adjacency list, adjacency matrix for
+graph algorithms; a single canonical format for all
+others). Each problem instance p ∈P is a tuple
+p = (a, ℓ, r, σp, tp, yp),
+where σp is the required function or class signa-
+ture, tp is a fixed test input, and yp is the expected
+standard output produced by executing a reference
+implementation on tp. Each instance is additionally
+tagged with a domain label d ∈D used for strati-
+fied reporting but not part of the prompt or scoring.
+Multiple instances may share the same (a, ℓ) while
+differing only in r, the different input representa-
+tions; these probe representational robustness of
+the same underlying algorithm without changing
+its identity.
+Prompt structure.
+The prompt xp names the al-
+gorithm a, specifies the target language ℓand input
+representation r, states the required signature σp,
+and embeds the concrete test input tp. No reference
+implementation, pseudocode, or chain-of-thought
+scaffolding is provided. This zero-shot constraint
+ensures that any correct solution must originate
+from the model’s parametric memory rather than
+from in-context retrieval.
+Scoring.
+A model m generates code cm(p) from
+xp. Executing cm(p) in a sandboxed subprocess
+yields output ˆym(p), and retrieval succeeds when
+ˆym(p) = yp (stdout match after whitespace normal-
+isation). We use the pass rate (Chen et al., 2021) of
+model m over subset S ⊆P as
+Pass(m, S) =
+1
+|S|
+X
+p∈S 1[ˆym(p) = yp] ,
+and report Pass(m, P) overall, stratified by lan-
+guage ℓand domain d across all instances, and by
+representation r within the graph-algorithm sub-
+set Pgraph ⊂P where multiple representations ex-
+ist. Failures fall into four categories: static failure
+(code fails to parse or compile before execution),
+runtime error (code raises an exception during exe-
+cution), timeout (execution exceeds the time bud-
+get), and wrong output (ˆym(p)̸ = yp despite clean
+execution). Wrong-output failures are the most
+diagnostic: they show the model produced algorith-
+mically plausible but incorrect logic.
+3
+Dataset Construction
+We build the benchmark with 107 Python problems
+drawn from RosettaCode3 and GeeksforGeeks4,
+covering 77 distinct algorithms across 14 domains:
+graph algorithms, sorting, dynamic programming,
+string algorithms, number theory, image process-
+ing, data structures, computational geometry, nu-
+merical methods, compression, cryptography, back-
+tracking, and parsing. Some algorithms contribute
+to more than one problem, e.g., a weighted and
+an unweighted variant, accounting for the gap be-
+tween 107 problems and 77 algorithms. We select
+algorithms that are extensively documented across
+open-source repositories and therefore almost cer-
+tainly present in any large pretraining corpus. This
+is a deliberate design choice: we are not testing
+generalisation to unseen problems, but the fidelity
+of recall for algorithms a model has already been
+exposed to. Ground truth for each problem is es-
+tablished by executing a reference implementation
+on the fixed test input tp and recording its standard
+output as yp; a model passes if and only if its gen-
+erated code reproduces yp exactly after whitespace
+3https://rosettacode.org/wiki/Rosetta_Code
+4https://www.geeksforgeeks.org
+
+
+normalisation. Each algorithm is assigned to ex-
+actly one primary domain based on its canonical
+problem family, not all techniques it may employ:
+an expression parser is labeled parsing rather than
+dynamic programming, even if it uses memoisation
+internally.
+Each Python problem is adapted to six additional
+languages (C++, Java, C, JavaScript, Rust, and Go)
+by applying three transformations: (1) replacing
+the target language name throughout the prompt,
+(2) substituting the embedded Python test block
+with an explicit expected-output specification, and
+(3) rewriting Python-specific entry-point idioms to
+language-appropriate forms (e.g., int main() for
+C/C++, fn main() for Rust). This yields a multi-
+lingual benchmark in which the same algorithmic
+task is posed identically across all 7 languages,
+isolating language-level retrieval differences from
+differences in problem framing.
+Parametric retrieval is interface-sensitive:
+a
+model that correctly implements Dijkstra’s algo-
+rithm given an edge list may fail when the same
+graph is presented as an adjacency matrix, even
+though the underlying algorithm is unchanged. To
+probe this, we augment the 24 graph-algorithm
+problems with variants across four input represen-
+tations, yielding 228 graph-algorithm entries in
+total:
+• Edge list (edge_list): the default; solve(n,
+edges, . . . ) where edges is a list of (u,v)
+or (u,v,w) tuples.
+• Adjacency
+list
+(adj_list):
+solve(adj,
+. . . ) where adj[u] is a list of neighbours
+or (neighbour, weight) pairs; vertex count is
+implicit as len(adj).
+• Adjacency matrix (adj_matrix):
+solve(M,
+. . . ) where M[u][v] encodes edge weight (∞
+for absent edges; 1/0 for unweighted graphs).
+• Incidence matrix (incidence_matrix):
+an
+(n×m) vertex-by-edge matrix used for selected
+bipartite-matching problems.
+Representation coverage varies by algorithm: ad-
+jacency list is available for 20 of the 24 graph al-
+gorithms, adjacency matrix for 10, and incidence
+matrix for 2. The remaining 371 non-graph entries
+use edge list as their sole representation. The final
+benchmark contains 599 entries spanning 7 pro-
+gramming languages and 4 input representations.
+Table 1 provides a full breakdown by domain and
+language.
+Domain
+Problem Types
+Entries
+Graph algorithms
+24
+228
+Image processing
+10
+70
+Data structures
+5
+35
+Computational geometry
+4
+28
+Sorting algorithms
+4
+28
+Dynamic programming
+4
+28
+Numerical methods
+4
+28
+Backtracking
+3
+21
+Cryptography
+3
+21
+String algorithms
+3
+21
+Number theory
+3
+21
+Parsing
+2
+14
+Compression
+2
+14
+Other
+6
+42
+Total
+77
+599
+Table 1: Dataset breakdown by domain. Each prob-
+lem type is instantiated across 7 languages. The graph-
+algorithm problems additionally include up to 4 input-
+representation variants.
+4
+Related Work
+4.1
+Parametric Memory in LLMs.
+Pretraining encodes factual and procedural knowl-
+edge directly into model weights as parametric
+memory (Petroni et al., 2019), which can be queried
+at inference time without external retrieval. Prob-
+ing studies on factual QA show that recall is re-
+liable when inference-time surface forms closely
+match training data, but degrades sharply under
+paraphrase or format change (Roberts et al., 2020;
+Gekhman et al., 2026). We study the same degra-
+dation in code: the surface shift is a change in pro-
+gramming language or input representation rather
+than a change in natural-language phrasing, and the
+failure mode is wrong output rather than a factual
+error.
+4.2
+Code Generation Benchmarks
+The dominant paradigm in code generation re-
+search treats the task as synthesis: given a natural-
+language specification, produce a correct program.
+HumanEval (Chen et al., 2021) and MBPP (Austin
+et al., 2021a) operationalise this with short func-
+tional puzzles. APPS (Hendrycks et al., 2021)
+scales difficulty to competitive programming. Live-
+CodeBench (Jain et al., 2024) reduces contamina-
+tion by time-gating problems after model training
+cutoffs. All of these treat training-data overlap as
+a confound to eliminate. However, Riddell et al.
+(2024) found that only 3.6–20.8% of their reference
+solutions turn up almost word-for-word in common
+pretraining corpora such as the Pile (Gao et al.,
+2020) and the Stack (Lozhkov et al., 2024). Either
+way, these benchmarks do not probe whether the
+model has seen the underlying algorithm before and
+
+
+can reproduce it correctly in a given language and
+input format. That framing is appropriate for novel
+problems, but not for algorithms that are widely
+documented, where correct behavior is explained
+by retrieval: reconstructing a correct implementa-
+tion from internalised parametric knowledge, ex-
+pressing the algorithm’s structure, invariants, and
+control flow correctly even in forms not seen ver-
+batim. We take the opposite stance: overlap is the
+precondition for our task, and the question worth
+asking is not whether a model can produce code but
+whether it faithfully reproduces correct implemen-
+tations of algorithms it has already encountered.
+Crucially, because existing benchmarks do not con-
+trol for training exposure, a model’s pass rate on
+a well-known algorithm conflates two fundamen-
+tally different capabilities: retrieval, i.e., recalling
+a correct implementation from parametric memory,
+and understanding, i.e., deriving a solution through
+reasoning (Maveli et al., 2026).
+4.3
+Retrieval-augmented generation (RAG)
+RAG-based code generation assumes a parametric
+knowledge deficit and supplies retrieved context to
+fill it (Wang et al., 2025). The retrieved examples
+add retrieval noise, misaligned context, and surface-
+level code patterns that compete with, rather than
+complement, what the model already encodes para-
+metrically. Models perform significantly better on
+the subset of benchmarks where similar solutions
+were seen during training, and are more likely to
+emit memorized training data when they have seen
+it multiple times (Riddell et al., 2024). We there-
+fore focus on parametric code recall: the model’s
+capacity to retrieve correct algorithmic solutions
+from weights alone, without retrieval augmenta-
+tion.
+5
+Experimental Setup
+5.1
+Models
+Programming language distribution in LLM pre-
+training data varies dramatically by model type
+and is rarely disclosed at the per-language level.
+General-purpose models allocate a modest frac-
+tion to code: LLaMA-1 (Touvron et al., 2023) re-
+served only 4.5% of its 1.4T tokens for GitHub
+content, while LLaMA-3 (Grattafiori et al., 2024)
+scaled this to approximately 17% of 15T+ tokens.
+Code-centric models invest far more: DeepSeek-
+Coder (Guo et al., 2024) allocates 87% of its
+2T tokens to code across 87 languages, and Star-
+Coder2 (Lozhkov et al., 2024) trains almost entirely
+on The Stack v2 (619 languages, ~4T tokens). This
+variation matters for our benchmark: a model’s
+pretraining code budget directly shapes which lan-
+guages it has had sufficient exposure to for reliable
+parametric retrieval.
+We evaluate 15 models spanning three axes
+of variation: (1) specialisation: general-purpose
+instruction-tuned models versus code-specialised
+ones; (2) scale: 7B to 34B parameters, and (3) in-
+ference regime: standard decoding versus extended
+chain-of-thought reasoning. Full model identifiers,
+parameter counts, and licenses are listed in Ap-
+pendix B.
+5.2
+Evaluation
+Execution harness.
+Each model-generated pro-
+gram is executed in an isolated subprocess with
+a 30-second wall-clock timeout.
+Interpreted
+languages (Python, JavaScript) are run directly,
+whereas compiled languages (C, C++, Java, Rust,
+Go) go through a mandatory compilation step first.
+A compilation failure is recorded immediately as
+a static failure without attempting execution. Stan-
+dard output is compared against the ground-truth
+string after whitespace normalisation; a submission
+passes if and only if the strings match exactly. Fail-
+ures are categorised into four mutually exclusive
+types: static failure (parse or compile error), run-
+time error (uncaught exception during execution),
+timeout (execution exceeds 30 s), and wrong output
+(clean execution but incorrect stdout).
+Metrics.
+Our primary metric is pass rate: the
+fraction of problem instances on which a model’s
+generated code passes, reported overall and strati-
+fied by domain, language ℓ, and input representa-
+tion r. Pass rate captures correctness but not consis-
+tency: two models can both pass a problem while
+producing structurally unrelated implementations.
+To characterise solution diversity, we follow the
+AlgoSim evaluation framework (Lee et al., 2025):
+model predictions are pooled, grouped by problem
+label, and evaluated for pairwise lexical similar-
+ity across every pair of models that each produced
+code for the same problem.
+With the benchmark and evaluation harness in
+place, we organise our experiments around three
+questions. The first establishes where and how
+retrieval fails: without a clear failure map, any pro-
+posed remedy is unmotivated. The second asks
+whether those failures can be patched at inference
+
+
+time through prompt augmentation, which requires
+no model changes but assumes that injecting exter-
+nal context into a prompt where parametric knowl-
+edge already exists is net-positive. The third asks
+whether the gaps can instead be closed at the weight
+level through execution-based fine-tuning, separat-
+ing the contribution of reward signal (GRPO) from
+the contribution of training on correct solutions
+alone (SFT). In this paper, we mainly investigate
+the following research questions through experi-
+ments.
+RQ1. How reliably do LLMs retrieve algorith-
+mic code from parametric knowledge across
+languages and input representations?
+RQ2. Does augmenting LLM prompts with re-
+trieved code snippets or structured algorithmic
+hints improve parametric code retrieval accu-
+racy, and which source better compensates for
+failures on complex and esoteric algorithms?
+RQ3. Does GRPO fine-tuning with execution-
+based rewards reduce representation and lan-
+guage accuracy gaps relative to SFT on algo-
+rithmic code retrieval?
+6
+Analysis
+We report results for each research question in turn,
+moving from baseline measurement of retrieval
+fidelity (RQ1) through inference-time intervention
+via prompt augmentation (RQ2) to weight-level
+adaptation via fine-tuning (RQ3).
+6.1
+RQ1: Parametric Code Retrieval Across
+Languages and Input Representations
+We evaluate all models in a zero-shot setting with
+no in-context examples, no chain-of-thought scaf-
+folding, and no hints about the solution approach.
+The prompt template and generation hyperparame-
+ters are detailed in Appendices F and C.
+The aggregate pass rate across all 15 models is
+41.2%, with substantial variation across languages
+and input representations but little correlation with
+model size or code specialisation (Table 2). gpt-oss-
+20B achieves the highest overall pass rate despite
+having only 20B active parameters, outperform-
+ing larger models, including QwQ-32B (32B) and
+GPT-4o-mini. Figure 3 breaks down pass rates
+by model and programming language: general-
+Python
+Java
+Javascript
+Go
+C
+Cpp
+Rust
+Codestral-22B
+DeepSeek-Coder-33B
+Yi-Coder-9B
+CodeGemma-7B
+StarCoder2-15B
+CodeLlama-34B
+GPT-OSS-20B
+GPT-4.1-mini
+GPT-4o-mini
+Phi-4
+Qwen2.5-7B
+Llama-3.1-8B
+QwQ-32B
+DeepSeek-R1-Qwen-14B
+DeepSeek-R1-Llama-8B
+Code
+General
+Reasoning
+0
+20
+40
+60
+80
+100
+Pass@1 (%)
+Figure 3: Pass@1 heatmap by model and program-
+ming language. Rows are grouped by model category
+(Code, General, Reasoning) and ordered by mean pass
+rate within each group.
+purpose models lead in most languages, while code-
+specialised models exhibit more uneven language
+coverage. The dominant failure mode in Python
+and JavaScript is wrong output (runnable code that
+silently computes the incorrect answer), whereas
+compiled languages show a higher proportion of
+static failures (Figure 9). Representation sensitiv-
+ity is pronounced (Figure 4): for the same model
+on the same algorithm, pass rates drop by over 10
+percentage points when the input encoding shifts
+from edge list to adjacency matrix, consistent with
+the interface-sensitivity argument in Section 1.
+Category
+Model
+Weights
+Params
+Pass@1 (%)
+Code
+Codestral-22B
+Open
+22
+52.6
+DeepSeek-Coder-33B
+Open
+33
+46.4
+Yi-Coder-9B
+Open
+9
+46.2
+CodeGemma-7B
+Open
+7
+25.9
+StarCoder2-15B
+Open
+15
+13.7
+CodeLlama-34B
+Open
+34
+12.9
+General
+gpt-oss-20B
+Open
+20
+88.0
+GPT-4.1-mini
+Closed
+–
+80.8
+GPT-4o-mini
+Closed
+–
+66.3
+Phi-4
+Open
+14
+59.4
+Qwen2.5-7B
+Open
+7
+37.4
+Llama-3.1-8B
+Open
+8
+31.4
+Reasoning
+QwQ-32B
+Open
+32
+69.6
+DeepSeek-R1-Distill-Qwen-14B
+Open
+14
+39.6
+DeepSeek-R1-Distill-Llama-8B
+Open
+8
+12.9
+Table 2: Zero-shot Pass@1 (%) grouped by category
+and ranked within each group by Pass@1. Closed
+API models (GPT-4.1-mini, GPT-4o-mini) have undis-
+closed sizes.
+Solution diversity.
+To test whether correct solu-
+tions reflect recitation of stored tokens or genuine
+reconstruction of algorithmic knowledge, we com-
+pute pairwise lexical similarity across all model
+
+
+Python
+Java
+Go
+Rust
+Cpp
+Javascript
+C
+Language
+0
+20
+40
+60
+80
+100
+Pass@1 (%)
+Adj. List
+Edge List
+Adj. Matrix
+Incidence Matrix
+Figure 4: Pass@1 by programming language, broken
+down by input representation and aggregated across
+all model predictions. Each group compares edge-list,
+adjacency-list, adjacency-matrix, and incidence-matrix
+inputs within a language.
+predictions (2,625 pairs over 25 problems). The
+mean SequenceMatcher similarity is 0.21, and mod-
+els produce syntactically distinct implementations
+even when solving the same problem correctly
+(EM=0 across all pairs). For semantic-level anal-
+ysis we apply AlgoSim (Lee et al., 2025), which
+groups pairs by whether they share the same un-
+derlying algorithmic approach. Across 2,215 pairs
+spanning 37 algorithms, 80% of pairs share the
+same underlying approach despite surface variation,
+while 20% represent structurally distinct implemen-
+tations of the same algorithm. This combination of
+high surface diversity, predominantly shared algo-
+rithmic structure, and zero verbatim matches is con-
+sistent with parametric retrieval: models converge
+on the same algorithm from memory but express it
+independently rather than replaying a cached token
+sequence. Figure 10 further shows that pass rate
+and consensus recall are correlated but not iden-
+tical: some models produce correct outputs that
+deviate from the plurality answer, indicating in-
+dependent retrieval rather than convergence on a
+single cached response. A breakdown of AlgoSim
+novel rate per model and language is provided in
+Figure 8.
+6.2
+RQ2: Prompt Augmentation via Retrieved
+Snippets and Structured Hints
+When parametric retrieval fails, a natural remedy
+is to inject external knowledge directly into the
+prompt. We test two distinct sources of such knowl-
+edge and ask whether either one can rescue failing
+models. The +Hint condition prepends language-
+agnostic pseudocode (up to 20 lines) generated
+offline by GPT-4o-mini, covering key data struc-
+tures and asymptotic complexity. The +Snippet
+Model
+Base
++Hint
+∆(H)
++Snip
+∆(S)
+Better
+StarCoder2-15B
+13.7
+12.0
+-1.7
+8.7
+-5.0
+H
+DeepSeek-R1-Distill-Llama-8B
+12.9
+11.2
+-1.7
+12.4
+-0.5
+S
+CodeGemma-7B
+25.9
+26.0
++0.2
+24.5
+-1.3
+H
+CodeLlama-34B
+12.9
+11.7
+-1.2
+11.7
+-1.2
+tie
+Llama-3.1-8B
+31.4
+27.7
+-3.7
+29.7
+-1.7
+S
+Qwen2.5-7B
+37.4
+37.6
++0.2
+37.1
+-0.3
+H
+Yi-Coder-9B
+46.2
+46.2
+0.0
+42.7
+-3.5
+H
+DeepSeek-Coder-33B
+46.4
+46.4
+0.0
+47.4
++1.0
+S
+DeepSeek-R1-Distill-Qwen-14B
+39.6
+37.6
+-2.0
+39.9
++0.3
+S
+Phi-4
+59.4
+58.9
+-0.5
+59.6
++0.2
+S
+Codestral-22B
+52.6
+50.4
+-2.2
+52.8
++0.2
+S
+QwQ-32B
+69.6
+73.6
++4.0
+74.6
++5.0
+S
+gpt-oss-20B
+88.0
+89.0
++1.0
+90.2
++2.2
+S
+Macro avg.
+41.2
+40.6
+-0.6
+40.9
+-0.4
+H:4 S:8
+Table 3: Pass rates (%) under three conditions across
+13 models on all 599 benchmark examples. Base:
+zero-shot baseline.
++Hint: GPT-4o-mini-generated
+pseudocode. +Snip: language-matched GitHub snippet.
+Better indicates which augmentation condition outper-
+forms the other per model.
+condition injects a language-matched reference im-
+plementation retrieved from GitHub (up to 80 lines,
+centred on the most relevant region), explicitly ex-
+cluding RosettaCode and GeeksforGeeks to avoid
+overlap with our benchmark sources. Both con-
+ditions otherwise use identical prompts and gen-
+eration hyperparameters to the zero-shot baseline.
+All 599 benchmark problems received a language-
+matched GitHub snippet. Full setup details and
+prompt examples appear in Appendices D and G.
+Across all problems, neither augmentation
+source improves aggregate pass rate. The macro-
+average pass rate under the baseline is 41.2%;
+adding hints yields 40.6% (∆= −0.6pp) and
+adding snippets yields 40.9% (∆= −0.4 pp).
+Snippets outperform hints on 8 of 13 models, hints
+win on 4, and 1 model ties (Table 3). Neither source
+improves aggregate accuracy, but snippets have a
+slight edge in breadth.
+Augmentation helps where parametric knowl-
+edge is weakest.
+The picture changes substan-
+tially on the 219 problems where the zero-shot
+baseline pass rate is below 25% (collectively the
+“hard” subset). On these, hints lift the pooled pass
+rate by +2.9pp (12.9% →15.8%) and snippets by
++3.9 pp (12.9% →16.9%). The positive signal is
+confined to problems where the model’s parametric
+knowledge is sparse enough that external context
+genuinely fills a gap. In cases where the model
+already retrieves the algorithm reliably, injecting
+context provides no additional signal and can intro-
+duce noise that displaces correct reasoning.
+Snippets vs. hints on complex algorithms.
+On the hardest graph-algorithm instances (e.g.,
+Hopcroft–Karp, Stoer-Wagner, Blossom), snippets
+provide more consistent gains than hints. Within
+
+
+the graph-algorithm domain specifically, snippets
+lift the pooled pass rate by +1.4 pp versus +0.6
+pp for hints, where a concrete, executable refer-
+ence is more informative than language-agnostic
+pseudocode. QwQ-32B, the strongest reasoning
+model, gains +5.0 pp from snippets versus +4.0pp
+from hints, consistent with the view that executable
+context benefits models already capable of inte-
+grating it. This suggests that for low-frequency,
+structurally complex algorithms whose pseudocode
+descriptions are themselves specialized, a concrete
+executable snippet is a more effective retrieval cue
+than an abstract hint.
+6.3
+RQ3: SFT vs. GRPO Fine-Tuning for
+Closing Language and Representation
+Gaps
+Prompt augmentation treats retrieval failures as a
+deployment-time problem, patching them case by
+case. Fine-tuning with execution-based rewards
+takes a different approach: adjusting the model’s
+weights so that retrieval becomes more reliable
+across languages and representations without re-
+quiring external context. We apply GRPO (Shao
+et al., 2024) to gpt-oss-20B using execution correct-
+ness as the reward signal, and compare the resulting
+checkpoint against both the base model and a SFT
+baseline trained on the positive-reward subset of
+the same training examples.
+We fine-tune gpt-oss-20B using LoRA adapters
+(r=16, α=32, dropout = 0.05) on all seven pro-
+jection matrices, keeping approximately 0.5% of
+parameters trainable. Both GRPO and SFT are
+trained on the 56-algorithm training split (447 ex-
+amples spanning all 7 languages and up to 3 input
+representations per algorithm), with 22 algorithms
+held out for evaluation. Training examples are orga-
+nized into representative groups where all examples
+sharing a canonical algorithm name (across lan-
+guages and representations) constitute one group.
+The reward function uses a four-tier ladder: exact
+stdout match (r = 1.0), normalized match after
+whitespace collapsing (r = 0.8), wrong output
+with clean execution (r = 0.3), and any runtime
+crash or static failure (r = 0.0–0.1). Advantages
+are computed within each repr group via standard
+GRPO normalization. The groups with zero reward
+variance are skipped. The SFT baseline is trained
+via rejection sampling on the 367 examples where
+the base model already achieves reward 1.0, using
+the same LoRA configuration, isolating the effect
+of policy-gradient credit assignment from the ef-
+fect of simply training on correct solutions. Full
+hyperparameters appear in Appendix E.
+Pass@1 (%) on held-out test split
+Method
+Overall
+C
+C++
+Go
+Java
+JS
+Python
+Rust
+Base
+90.1
+81.0
+85.7
+100.0
+95.2
+85.7
+96.2
+85.7
+SFT
+94.1
+85.7
+95.2
+100.0
+100.0
+95.2
+96.2
+85.7
+GRPO
+92.1
+85.7
+76.2
+100.0
+95.2
+100.0
+96.2
+90.5
+∆SFT
++3.9
++4.8
++9.5
+0.0
++4.8
++9.5
+0.0
+0.0
+∆GRPO
++2.0
++4.8
+−9.5
+0.0
+0.0
++14.3
+0.0
++4.8
+Table 4: Pass@1 (%) on the held-out test split (152
+problems, 22 algorithms unseen during training) for
+the base model gpt-oss-20b, SFT, and GRPO. ∆rows
+show absolute change vs. base in percentage points. SFT
+leads overall (+3.9 pp) with consistent gains across C,
+C++, Java, and JavaScript; GRPO achieves the largest
+JavaScript gain (+14.3 pp) and improves C and Rust,
+but regresses on C++ (−9.5 pp).
+GRPO and SFT improve retrieval accuracy in
+complementary ways (Table 4).
+SFT achieves
+broader and more consistent gains, lifting the over-
+all pass rate by +3.9 pp relative to the base model.
+Because SFT is trained only on already-correct out-
+puts, these gains reflect consolidation: the model
+reproduces algorithms it has already partially in-
+ternalised with greater consistency across lan-
+guages. GRPO’s overall gain is smaller (+2.0 pp),
+but its partial-credit tiers deliver signal that bi-
+nary supervision cannot. Execution-based rewards
+add value beyond training on correct solutions
+alone, but their benefit is concentrated in languages
+whose failure distribution carries gradable struc-
+ture. To check for the robustness of splits, we re-
+run the same SFT/LoRA/rejection-sampling setup
+on 3 independently-randomized algorithm-level
+train/test splits.
+It gives a three-split mean of
++0.9pp with a standard deviation (±3.7pp).
+7
+Conclusion
+We argue the question worth asking is not whether a
+model can synthesise a solution but whether it reli-
+ably reproduces one it has already internalised. The
+most operationally significant failures are wrong-
+output errors: syntactically valid, runnable code
+that silently computes the wrong result, invisible
+without a concrete test case, and present even in
+the best-performing models. Retrieval failures are
+partially remediable, but in complementary ways.
+Prompt augmentation helps only where parametric
+knowledge is genuinely absent. Execution-based
+fine-tuning acts at the weight level: SFT achieves
+broader and more consistent gains across lan-
+guages (+3.9 pp overall), while GRPO’s execution-
+
+
+based reward concentrates signal on specific lan-
+guages, yielding the largest single-language gain
+on JavaScript (+14.3 pp) but regressing on C++
+(−9.5 pp).
+Limitations
+The results above are subject to three constraints
+that bound what behavioral evaluation can establish
+about parametric code retrieval.
+A model may pass tp while silently failing on
+edge cases such as empty graphs, disconnected
+components, duplicate keys, or negative-weight
+cycles, that the fixed input test case does not ex-
+ercise. EvalPlus (Liu et al., 2023) demonstrated
+that augmenting HumanEval with additional test
+cases reduces pass rates substantially. A similar
+augmentation of ALGOREVAL would tighten the
+correctness criterion, but was not feasible at the
+scale of 599 problems across 7 languages without
+a verified oracle for each variant.
+Our core framing assumes that all 77 algorithms
+appear in the pretraining corpus of every model
+we evaluate, and interprets failures as surface-form
+brittleness rather than genuine knowledge absence.
+This assumption is untestable: pretraining data
+composition is rarely disclosed at per-algorithm or
+per-language granularity. For some low-frequency
+algorithms in low-resource languages (Go, Rust),
+what we label a retrieval failure may instead re-
+flect a genuine coverage gap in the pretraining data.
+Without access to training data, the retrieval and
+knowledge-absence failure modes cannot be sepa-
+rated.
+The paper frames correct model outputs as evi-
+dence of parametric retrieval, but external behavior
+alone cannot fully isolate retrieval from synthesis.
+A clean separation would require either mechanis-
+tic tracing of which training examples causally in-
+fluence a given generation, or behavioral probes on
+which a retrieved and a synthesized implementation
+would make systematically different predictions,
+neither is available to output-level evaluation.
+References
+Jacob Austin, Augustus Odena, Maxwell Nye, Maarten
+Bosma, Henryk Michalewski, David Dohan, Ellen
+Jiang, Carrie Cai, Michael Terry, Quoc Le, and
+Charles Sutton. 2021a. Program synthesis with large
+language models. Preprint, arXiv:2108.07732.
+Jacob Austin, Augustus Odena, Maxwell I. Nye,
+Maarten Bosma, Henryk Michalewski, David Dohan,
+Ellen Jiang, Carrie J. Cai, Michael Terry, Quoc V. Le,
+and Charles Sutton. 2021b. Program synthesis with
+large language models. CoRR, abs/2108.07732.
+Nicholas Carlini, Daphne Ippolito, Matthew Jagielski,
+Katherine Lee, Florian Tramer, and Chiyuan Zhang.
+2023. Quantifying memorization across neural lan-
+guage models. In The Eleventh International Confer-
+ence on Learning Representations.
+Mert Cemri, Melissa Z Pan, Shuyi Yang, Lakshya A
+Agrawal, Bhavya Chopra, Rishabh Tiwari, Kurt
+Keutzer, Aditya Parameswaran, Dan Klein, Kannan
+Ramchandran, Matei A Zaharia, Joseph Gonzalez,
+and Ion Stoica. 2025. Why do multi-agent llm sys-
+tems fail? In Advances in Neural Information Pro-
+cessing Systems, volume 38. Curran Associates, Inc.
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan,
+Henrique Ponde de Oliveira Pinto, Jared Kaplan,
+Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+Brockman, Alex Ray, Raul Puri, Gretchen Krueger,
+Michael Petrov, Heidy Khlaaf, Girish Sastry, Pamela
+Mishkin, Brooke Chan, Scott Gray, and 39 others.
+2021. Evaluating large language models trained on
+code.
+Leo Gao, Stella Biderman, Sid Black, Laurence Gold-
+ing, Travis Hoppe, Charles Foster, Jason Phang,
+Horace He, Anish Thite, Noa Nabeshima, Shawn
+Presser, and Connor Leahy. 2020.
+The pile: An
+800gb dataset of diverse text for language modeling.
+Preprint, arXiv:2101.00027.
+Zorik Gekhman, Roee Aharoni, Eran Ofek, Mor Geva,
+Roi Reichart, and Jonathan Herzig. 2026. Thinking
+to recall: How reasoning unlocks parametric knowl-
+edge in llms. Preprint, arXiv:2603.09906.
+Aaron Grattafiori, Abhimanyu Dubey, Abhinav Jauhri,
+Abhinav Pandey, Abhishek Kadian, Ahmad Al-
+Dahle, Aiesha Letman, Akhil Mathur, Alan Schel-
+ten, Alex Vaughan, Amy Yang, Angela Fan, Anirudh
+Goyal, Anthony Hartshorn, Aobo Yang, Archi Mi-
+tra, Archie Sravankumar, Artem Korenev, Arthur
+Hinsvark, and 542 others. 2024. The llama 3 herd of
+models. Preprint, arXiv:2407.21783.
+Daya Guo, Qihao Zhu, Dejian Yang, Zhenda Xie, Kai
+Dong, Wentao Zhang, Guanting Chen, Xiao Bi,
+Y. Wu, Y. K. Li, Fuli Luo, Yingfei Xiong, and Wen-
+feng Liang. 2024. Deepseek-coder: When the large
+language model meets programming – the rise of
+code intelligence. Preprint, arXiv:2401.14196.
+Dan Hendrycks, Steven Basart, Saurav Kadavath, Man-
+tas Mazeika, Akul Arora, Ethan Guo, Collin Burns,
+Samir Puranik, Horace He, Dawn Song, and Jacob
+Steinhardt. 2021. Measuring coding challenge com-
+petence with apps. NeurIPS.
+Jing Huang, Diyi Yang, and Christopher Potts. 2024.
+Demystifying verbatim memorization in large lan-
+guage models. In Proceedings of the 2024 Confer-
+ence on Empirical Methods in Natural Language Pro-
+cessing, pages 10711–10732, Miami, Florida, USA.
+Association for Computational Linguistics.
+
+
+Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia
+Yan, Tianjun Zhang, Sida Wang, Armando Solar-
+Lezama, Koushik Sen, and Ion Stoica. 2024. Live-
+codebench: Holistic and contamination free evalu-
+ation of large language models for code. Preprint,
+arXiv:2403.07974.
+Denis Kocetkov, Raymond Li, Loubna Ben Allal, Jia
+Li, Chenghao Mou, Carlos Muñoz Ferrandis, Yacine
+Jernite, Margaret Mitchell, Sean Hughes, Thomas
+Wolf, Dzmitry Bahdanau, Leandro von Werra, and
+Harm de Vries. 2022. The stack: 3 tb of permissively
+licensed source code. Preprint, arXiv:2211.15533.
+Seonghyeon Lee, HeeJae Chon, Joonwon Jang, Dongha
+Lee, and Hwanjo Yu. 2025. How diversely can lan-
+guage models solve problems? exploring the algo-
+rithmic diversity of model-generated code. In Find-
+ings of the Association for Computational Linguis-
+tics: EMNLP 2025, pages 152–167, Suzhou, China.
+Association for Computational Linguistics.
+Jiawei Liu, Chunqiu Steven Xia, Yuyao Wang, and Ling-
+ming Zhang. 2023. Is your code generated by chat-
+GPT really correct? rigorous evaluation of large lan-
+guage models for code generation. In Thirty-seventh
+Conference on Neural Information Processing Sys-
+tems.
+Anton Lozhkov, Raymond Li, Loubna Ben Allal, Fed-
+erico Cassano, Joel Lamy-Poirier, Nouamane Tazi,
+Ao Tang, Dmytro Pykhtar, Jiawei Liu, Yuxiang Wei,
+Tianyang Liu, Max Tian, Denis Kocetkov, Arthur
+Zucker, Younes Belkada, Zijian Wang, Qian Liu,
+Dmitry Abulkhanov, Indraneil Paul, and 47 others.
+2024. Starcoder 2 and the stack v2: The next genera-
+tion. Preprint, arXiv:2402.19173.
+Alexandre Matton, Tom Sherborne, Dennis Aumiller,
+Elena Tommasone, Milad Alizadeh, Jingyi He,
+Raymond Ma, Maxime Voisin, Ellen Gilsenan-
+McMahon, and Matthias Gallé. 2024. On leakage
+of code generation evaluation datasets. In Findings
+of the Association for Computational Linguistics:
+EMNLP 2024, pages 13215–13223, Miami, Florida,
+USA. Association for Computational Linguistics.
+Nickil Maveli, Antonio Vergari, and Shay B. Cohen.
+2026. Can llms compress (and decompress)? eval-
+uating code understanding and execution via invert-
+ibility. Preprint, arXiv:2601.13398.
+Fabio Petroni, Tim Rocktäschel, Sebastian Riedel,
+Patrick Lewis, Anton Bakhtin, Yuxiang Wu, and
+Alexander Miller. 2019. Language models as knowl-
+edge bases?
+In Proceedings of the 2019 Confer-
+ence on Empirical Methods in Natural Language Pro-
+cessing and the 9th International Joint Conference
+on Natural Language Processing (EMNLP-IJCNLP),
+pages 2463–2473, Hong Kong, China. Association
+for Computational Linguistics.
+Martin Riddell, Ansong Ni, and Arman Cohan. 2024.
+Quantifying contamination in evaluating code genera-
+tion capabilities of language models. In Proceedings
+of the 62nd Annual Meeting of the Association for
+Computational Linguistics (Volume 1: Long Papers),
+pages 14116–14137, Bangkok, Thailand. Association
+for Computational Linguistics.
+Adam Roberts, Colin Raffel, and Noam Shazeer. 2020.
+How much knowledge can you pack into the param-
+eters of a language model? In Proceedings of the
+2020 Conference on Empirical Methods in Natural
+Language Processing (EMNLP), pages 5418–5426,
+Online. Association for Computational Linguistics.
+Ranjan Sapkota, Konstantinos I. Roumeliotis, and
+Manoj Karkee. 2025. Vibe coding vs. agentic coding:
+Fundamentals and practical implications of agentic
+ai. Preprint, arXiv:2505.19443.
+Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu,
+Junxiao Song, Xiao Bi, Haowei Zhang, Mingchuan
+Zhang, Y. K. Li, Y. Wu, and Daya Guo. 2024.
+Deepseekmath: Pushing the limits of mathemati-
+cal reasoning in open language models. Preprint,
+arXiv:2402.03300.
+Luca Soldaini, Rodney Kinney, Akshita Bhagia, Dustin
+Schwenk, David Atkinson, Russell Authur, Ben Bo-
+gin, Khyathi Chandu, Jennifer Dumas, Yanai Elazar,
+Valentin Hofmann, Ananya Harsh Jha, Sachin Kumar,
+Li Lucy, Xinxi Lyu, Nathan Lambert, Ian Magnusson,
+Jacob Morrison, Niklas Muennighoff, and 17 others.
+2024. Dolma: An Open Corpus of Three Trillion
+Tokens for Language Model Pretraining Research.
+arXiv preprint.
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier
+Martinet, Marie-Anne Lachaux, Timothée Lacroix,
+Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal
+Azhar, Aurelien Rodriguez, Armand Joulin, Edouard
+Grave, and Guillaume Lample. 2023. Llama: Open
+and efficient foundation language models. Preprint,
+arXiv:2302.13971.
+Zora Zhiruo Wang, Akari Asai, Xinyan Velocity Yu,
+Frank F. Xu, Yiqing Xie, Graham Neubig, and Daniel
+Fried. 2025. CodeRAG-bench: Can retrieval aug-
+ment code generation? In Findings of the Association
+for Computational Linguistics: NAACL 2025, pages
+3199–3214, Albuquerque, New Mexico. Association
+for Computational Linguistics.
+Kunlun Zhu, Zijia Liu, Bingxuan Li, Muxin Tian, Yingx-
+uan Yang, Jiaxun Zhang, Pengrui Han, Qipeng Xie,
+Fuyang Cui, Weijia Zhang, Xiaoteng Ma, Xiaodong
+Yu, Gowtham Ramesh, Jialian Wu, Zicheng Liu, Pan
+Lu, James Zou, and Jiaxuan You. 2025. Where llm
+agents fail and how they can learn from failures.
+Preprint, arXiv:2509.25370.
+
+
+A
+Algorithms in ALGOREVAL
+Table 5 lists all 77 algorithms included in ALGO-
+REVAL, grouped by domain.
+B
+Models
+Table 6 lists all 15 models evaluated in this work,
+along with their HuggingFace model IDs (or API
+identifiers for closed models), parameter counts,
+organizations, and licenses.
+C
+Zero-Shot Inference Hyperparameters
+Table 7 summarises the generation parameters used.
+Open-weight models were served locally via vLLM
+and run with greedy decoding (temperature = 0,
+top-p = 1.0). Closed API models (GPT-4o-mini,
+GPT-4.1-mini) were queried through the OpenAI
+API with temperature = 0.7 and a smaller token
+budget, as the API enforces its own safety caps.
+Thinking models (QwQ-32B, DeepSeek-R1-Distill-
+Llama-8B, DeepSeek-R1-Distill-Qwen-14B) share
+the vLLM settings but require a large output budget
+to avoid truncating the internal reasoning trace be-
+fore code is emitted; the 32,768-token limit serves
+as both the thinking budget and the code output
+window. A per-problem execution timeout of 30
+seconds was applied uniformly across all models
+and languages.
+D
+Prompt-Augmentation Setup
+It tests whether retrieval failures can be remedi-
+ated by injecting external context into the prompt.
+We evaluate two conditions using +hint and +snip-
+pet across the same 13 open-weight vLLM models
+used in the zero-shot evaluation (no closed-API
+models). Generation hyperparameters are identi-
+cal to zero-shot: temperature = 0, max output
+tokens = 32,768, top-p = 1.0, execution timeout
+= 30 s.
++Hint
+condition.
+Structured
+algorith-
+mic
+hints
+were
+generated
+offline
+using
+gpt-4o-mini-2024-07-18
+at
+a
+temperature
+of 0. Each hint covers three fields: (1) language-
+agnostic pseudocode (≤20 lines), (2) key data
+structures, and (3) Big-O time/space complexity.
+Because the hints are language-agnostic, the same
+hint is prepended to all seven language variants of
+a given algorithm. Hints were generated for all 77
+unique algorithms.
++Snippet condition.
+One reference implementa-
+tion per (algorithm, language) pair was retrieved
+from GitHub using the GitHub Search API (10 re-
+sults per query, sorted by index date). Results from
+RosettaCode and GeeksforGeeks were excluded to
+avoid overlap with the benchmark’s source mate-
+rial.
+Each retrieved file was truncated to at most 80
+lines, centred on the most keyword-relevant region.
+A 2.2 s inter-request delay was used to respect the
+GitHub API’s rate limit. Coverage-wise, 431 of
+599 problems received an injected snippet. The
+remaining 168 (no language-matched result found)
+fell back to the unaugmented baseline prompt.
+Prompt injection.
+In both conditions, the sys-
+tem message remains unchanged relative to the
+zero-shot baseline. The injected block is inserted
+immediately before the stdlib-constraint footer, so
+it is not buried after the final instruction.
+The snippet block uses the prefix: “For refer-
+ence, here is an implementation of this algorithm
+in {lang} retrieved from a different source. You
+may use it as a reference but must write your own
+solution.” followed by a fenced code block.
+The hint block uses the header “Algorithmic
+hint:” followed by the pseudocode, data-structure
+list, and complexity note. Table 8 summarises the
+setup.
+E
+Fine-Tuning Hyperparameters
+Both GRPO and SFT fine-tune gpt-oss-20B using
+LoRA adapters applied to all seven projection ma-
+trices (q, k, v, o, gate, up, down), keeping approxi-
+mately 0.5% of parameters trainable. Table 9 lists
+the shared and condition-specific hyperparameters.
+F
+Prompt Template
+All models are prompted with a fixed system mes-
+sage followed by a per-problem user message.
+Figure 5 shows a representative example for the
+Hopcroft–Karp algorithm in Python (edge-list rep-
+resentation).
+G
+Prompt Augmentation Examples
+Figures 6 and 7 show the complete user messages
+fed to models under each RQ2 augmentation condi-
+tion for the Hopcroft–Karp (Python) example. The
+system message is identical to Figure 5 in all con-
+ditions. The augmentation block (shaded region)
+is inserted immediately before the stdlib-constraint
+
+
+System message
+You are an expert software engineer tasked with implementing algorithms correctly and efficiently.
+Output ONLY a single fenced code block with the complete, self-contained program. No explanations,
+no prose, no install commands — just the code block.
+Requirements:
+• The program must run/compile as-is without any modifications.
+• Use only the language’s standard library.
+• Do not add any extra output beyond what the problem specifies.
+• The code must be in a single file.
+[language-specific notes omitted for brevity]
+User message (Hopcroft–Karp, Python, edge-list)
+Implement the Hopcroft–Karp algorithm for maximum matching in a bipartite graph in Python.
+Requirements:
+• Provide a class BipGraph(m, n) with:
+– addEdge(u, v) using 1-based indices (u in U = 1..m, v in V = 1..n)
+– hopcroftKarp() returning the integer size of the maximum matching.
+• The code must be runnable as a script.
+• Include the following exact test case under if __name__ == "__main__": (do not change it):
+if __name__ == "__main__":
+g = BipGraph(4, 4)
+g.addEdge(1, 2)
+g.addEdge(1, 3)
+g.addEdge(2, 1)
+g.addEdge(3, 2)
+g.addEdge(4, 2)
+g.addEdge(4, 4)
+print("Size of maximum matching is %d"
+% g.hopcroftKarp())
+Runtime constraints (strict):
+• Use only the language standard library.
+• Do NOT use third-party packages or package managers.
+• Output only executable code.
+Figure 5: Prompt structure used for all evaluations. The system message is fixed across all problems and languages.
+The user message is generated per problem; it names the algorithm and target language, specifies the required
+interface, and embeds an executable test case whose output is compared against the ground-truth reference output.
+footer so the injected context is visible before the
+final instruction.
+H
+Error Analysis
+Figure 9 breaks down evaluation outcomes per
+model across all 599 problems. Stronger mod-
+els fail almost exclusively on wrong-output errors,
+while weaker models are dominated by compile
+errors, reflecting a gradient from syntactic to se-
+mantic retrieval failure. Figure 10 plots pass rate
+against consensus recall, showing that models pro-
+ducing correct outputs do not uniformly converge
+on the same answer — consistent with independent
+retrieval rather than recitation of a shared token
+sequence.
+I
+Solution Diversity by Model and
+Language
+Figure 8 shows the AlgoSim novel rate per model
+and language, computed over 2,215 cross-model
+pairwise comparisons across 40 algorithms, 7 lan-
+guages, and 15 models (
+ 15
+2
+
+=105 pairs per prob-
+lem), judged by GPT-4.1-mini. 20.5% of pairs were
+judged novel overall.
+J
+Per-Language Algorithm Difficulty
+Heatmaps
+Figures
+11–17
+show
+per-language
+pass-rate
+heatmaps for all 77 algorithms in ALGOREVAL
+across 15 zero-shot models.
+Each cell reports
+the fraction of trials in which the model’s output
+matched the ground-truth expected value, averaged
+over all input-representation variants available for
+
+
+User message — +Hint condition (Hopcroft–Karp, Python)
+Implement the Hopcroft–Karp algorithm for maximum matching in a bipartite graph in Python.
+Requirements:
+• Provide a class BipGraph(m, n) with:
+– addEdge(u, v) using 1-based indices (u in U = 1..m, v in V = 1..n)
+– hopcroftKarp() returning the integer size of the maximum matching.
+• The code must be runnable as a script.
+• Include the following exact test case under if __name__ == "__main__": (do not change it):
+if __name__ == "__main__":
+g = BipGraph(4, 4)
+g.addEdge(1, 2)
+g.addEdge(1, 3)
+g.addEdge(2, 1)
+g.addEdge(3, 2)
+g.addEdge(4, 2)
+g.addEdge(4, 4)
+print("Size of maximum matching is %d" % g.hopcroftKarp())
+Injected hint block
+Algorithmic hint:
+Pseudocode:
+1. Initialize matching M to empty
+2. While there exists an augmenting path P in the graph:
+2.1. Augment the matching M along path P
+3. Return matching M
+4. Function to find augmenting path P:
+4.1. Initialize queue Q and visited set V
+4.2. For each vertex u in the left set:
+4.2.1. If u is unmatched, add u to Q and V
+4.3. While Q is not empty:
+4.3.1. Dequeue vertex u from Q
+4.3.2. For each neighbor v of u in the right set:
+4.3.2.1. If v is unmatched or matched vertex of v
+can find an augmenting path:
+4.3.2.1.1. Add v to Q and V
+4.3.2.1.2. Record the path from u to v
+4.4. If an augmenting path is found, return it
+4.5. Otherwise, return null
+Key data structures: queue, visited set, matching set
+Complexity: O(E*sqrt(V)) time, O(V) space
+Runtime constraints (strict):
+• Use only the language standard library.
+• Do NOT use third-party packages/crates/modules.
+• Do NOT use package managers (pip/npm/cargo/maven/gradle/etc.).
+• If a data structure/algorithm is missing, implement it directly in code.
+• Output only executable code.
+Figure 6: Complete user message for Hopcroft–Karp (Python) under the +Hint condition. The green-shaded block
+is the only addition relative to the zero-shot baseline; the same language-agnostic hint is used for all seven language
+variants of the algorithm. Generated offline by gpt-4o-mini-2024-07-18 at temperature = 0.
+that (algorithm, language) pair. Grey cells indicate
+that no predictions were collected for that combi-
+nation. Rows are sorted by global mean pass rate
+(averaged over all languages and all models), so
+the hardest algorithms appear at the top and the
+easiest at the bottom; this ordering is held fixed
+across all seven figures to facilitate cross-language
+comparison. Columns are sorted by each model’s
+mean pass rate within the given language (weakest
+left, strongest right), so column order may vary
+between figures. The right-hand axis shows each
+algorithm’s mean pass rate across all models for
+that language.
+K
+Scale Experiment: A Behavioral Probe
+for Retrieval vs. Synthesis
+For each of 10 algorithms (kruskal, prim, bridges,
+articulation points, boruvka, dijkstra, bellman-ford,
+karger’s min cut, Stoer–Wagner, blossom), we sam-
+ple G(n, p) graphs at 5 algorithm-specific values
+of n (from n=50 for the O(V 3)/cut algorithms up
+to n=8000 for near-linear ones), 8 samples per
+(algo, n), with fresh networkx ground truth per
+sample. We run every model that already passed
+ALGOREVAL’s fixed-size correctness gate for that
+algorithm (93 of 156 candidate pairs), in isolated,
+resource-capped subprocesses.
+For each (algo-
+rithm, model), we fit a power law wall_time ∝nk
+and compare the fitted exponent k to the text-
+book exponent (e.g. O(E) →O(n2) in our dense
+regime, where E ∼n2), allowing a tolerance of
+±0.4. A second sparse regime (p(n) = 3 ln(n)/n,
+E ∼n log n) covers the 7 algorithms with E-
+dependent complexity: under dense sampling, a
+correct O(E log V ) implementation and a hidden
+O(V 2) one differ by only a log factor, but under
+sparse sampling they differ by a full exponent, mak-
+ing the two easy to tell apart.
+Across both plots, the fitted runtime-vs-n curves
+track the theoretical (textbook) complexity slope
+rather than diverging from it. Most models are
+reproducing the right asymptotic shape, not just the
+
+
+right output.
+L
+Name/Spec Ablation for Retrieval vs.
+Synthesis
+A second, independent probe of retrieval vs. syn-
+thesis, complementing the scale experiment (Ap-
+pendix K): instead of scaling input size, we ma-
+nipulate the prompt itself, crossing whether the
+algorithm’s real name is given against whether the
+given spec is behaviorally correct. Six novel algo-
+rithms with fabricated names and planted, unseen
+identifier fingerprints (Prüfer sequence encoding,
+k-core decomposition, transitive reduction, tree
+center, bridge-tree construction, tree diameter via
+double-BFS) rule out memorization as an explana-
+tion for any success.
+6 known ALGOREVAL algorithms are tested
+with vs. without the real name (spec always cor-
+rect). The 6 novel algorithms are tested under 6
+conditions in Table 10, crossing name-correctness
+(absent, correct, wrong, fabricated) against spec-
+correctness (correct, or corrupted). So, low cor-
+rectness under a corrupted spec means the model
+complied with the wrong instruction rather than
+falling back on the true algorithm. Figure 20a: gpt-
+oss-20B is flat (85–92%) across every correct-spec
+condition regardless of the accompanying name,
+then falls to 13% under moderate spec corruption
+and 0% under severe corruption on all six algo-
+rithms, no exceptions. Qwen2.5-7B-Instruct shows
+the same shape at a uniformly lower level (12–22%,
+falling to 4%).
+M
+Algorithmic-Fidelity Judging: Spec vs.
+Code on External Benchmarks
+It checks whether already-generated code on ex-
+ternal benchmarks (MBPP, HumanEval, Live-
+CodeBench) implements the algorithm its prompt
+asked for. These benchmarks lack a single canoni-
+cal algorithm name per problem, so a judge instead
+categorizes the general technique/algorithm used.
+A judge assigns each generation one category
+from a closed list (18 categories for MBPP/Hu-
+manEval, 24 for LiveCodeBench). The same judge
+separately predicts the expected category from the
+problem statement alone, standing in for a miss-
+ing ground-truth label and joining spec-predicted
+against code-observed category per problem gives a
+fidelity signal. Two models (gemini-2.5-flash, gpt-
+4.1-mini) are judged on 150 MBPP/HumanEval
+and 75 LiveCodeBench problems.
+We report the Pair match rate as a proxy for
+algorithmic fidelity, which is the fraction of (prob-
+lem, model) pairs where the code-judged category
+equals the spec-predicted category.
+The pair match rate is high on MBPP/Hu-
+manEval (80.6%, 358/444) and lower on Live-
+CodeBench (61.0%, 114/187). A second judge
+(GPT-4.1, vs. the original gemini-pro-latest) shows
+a clean self-preference effect: gemini-2.5-flash
+scores best under the Gemini judge (82.2% MBPP,
+77.5% LiveCodeBench) but worst under GPT-4.1
+(69.9%, 53.7%), while gpt-4.1-mini scores best
+under both.
+
+
+Domain
+Algorithm
+Backtracking
+N-Queens Problem
+Permutations Generator
+Sudoku Solver
+Compression
+Huffman Coding
+Run-Length Encoding
+Computational Geometry
+Closest Pair of Points
+Convex Hull
+Point in Polygon
+Polygon Area
+Cryptography
+Caesar Cipher
+SHA-256 from Scratch
+Vigenere Cipher
+Data Structures
+AVL Tree
+Disjoint Set Union
+Fenwick Tree
+Segment Tree
+Trie
+Dynamic Programming
+0/1 Knapsack
+Edit Distance
+Longest Common Subsequence
+Longest Increasing Subsequence
+Graph Algorithms
+Articulation Points
+Bellman-Ford Shortest Path
+Blossom Algorithm — General Maximum Matching
+Bor˚uvka’s MST
+Bridge Finding
+Dijkstra’s Shortest Path
+Dinic’s Max Flow
+Eulerian Path/Circuit
+Floyd-Warshall All-Pairs Shortest Path
+Gabow’s SCC
+Hierholzer’s Eulerian Circuit
+Hopcroft–Karp
+Johnson’s All-Pairs Shortest Paths
+Karger’s Min Cut
+Kosaraju’s SCC
+Kruskal’s MST
+Min-Cost Max-Flow
+Prim’s MST
+SCC by Mutual Reachability
+Shortest Path in DAG
+Stoer-Wagner Min Cut
+Tarjan’s SCC
+Topological Sort
+Two-SAT
+Image Processing
+2D Convolution with Arbitrary Kernel
+Box Blur (3×3 Averaging Filter)
+Gaussian Blur 3×3
+Histogram Equalization
+Median Filter 3×3
+Otsu Thresholding
+Prewitt Edge Detection
+Rotate Image 90◦Clockwise
+Rotate Image 180◦
+Sobel Edge Detection
+Number Theory
+Extended GCD
+Modular Exponentiation
+Sieve of Eratosthenes
+Numerical Methods
+Fast Fourier Transform
+Gaussian Elimination
+Newton-Raphson Method
+Simpson’s Rule
+Other
+Banker’s Algorithm for Deadlock Avoidance
+FCFS CPU Scheduling
+FIFO Page Replacement
+LRU Page Replacement
+Non-Preemptive SJF CPU Scheduling
+Round Robin CPU Scheduling
+Parsing
+Postfix Expression Evaluator
+Shunting-Yard Algorithm
+Sorting Algorithms
+Counting Sort
+Heap Sort
+Merge Sort
+Radix Sort
+String Algorithms
+KMP Pattern Search
+Rabin-Karp Pattern Search
+Z-Algorithm Pattern Search
+Table 5: All 77 algorithms in ALGOREVAL, grouped by domain (14 domains total).
+
+
+Model
+Model ID
+Params
+Organization
+License
+CodeGemma-7B
+google/codegemma-7b-it
+7B
+Google
+Gemma
+CodeLlama-34B
+codellama/CodeLlama-34b-Instruct-hf
+34B
+Meta
+Llama 2
+Codestral-22B
+mistralai/Codestral-22B-v0.1
+22B
+Mistral AI
+MNPL
+DeepSeek-Coder-33B
+deepseek-ai/deepseek-coder-33b-instruct
+33B
+DeepSeek
+DeepSeek
+DeepSeek-R1-Llama-8B
+deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+8B
+DeepSeek
+MIT
+DeepSeek-R1-Qwen-14B
+deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+14B
+DeepSeek
+MIT
+GPT-4.1-mini
+gpt-4.1-mini-2025-04-14 (API)
+—
+OpenAI
+Proprietary
+GPT-4o-mini
+gpt-4o-mini-2024-07-18 (API)
+—
+OpenAI
+Proprietary
+gpt-oss-20B
+openai/gpt-oss-20b
+20B
+OpenAI
+MIT
+Llama-3.1-8B
+meta-llama/Llama-3.1-8B-Instruct
+8B
+Meta
+Llama 3
+Phi-4
+microsoft/phi-4
+14B
+Microsoft
+MIT
+QwQ-32B
+Qwen/QwQ-32B
+32B
+Alibaba
+Apache 2.0
+Qwen2.5-7B
+Qwen/Qwen2.5-7B-Instruct
+7B
+Alibaba
+Apache 2.0
+StarCoder2-15B
+bigcode/starcoder2-15b-instruct-v0.1
+15B
+BigCode
+OpenRAIL-M
+Yi-Coder-9B
+01-ai/Yi-Coder-9B-Chat
+9B
+01.AI
+Apache 2.0
+Table 6: All 15 models evaluated in ALGOREVAL. Open-weight models were run locally via vLLM. Closed models
+were accessed through their respective APIs. Parameter counts for closed API models are not publicly disclosed.
+
+
+User message — +Snippet condition (Hopcroft–Karp, Python)
+Implement the Hopcroft–Karp algorithm for maximum matching in a bipartite graph in Python.
+Requirements:
+• Provide a class BipGraph(m, n) with:
+– addEdge(u, v) using 1-based indices (u in U = 1..m, v in V = 1..n)
+– hopcroftKarp() returning the integer size of the maximum matching.
+• The code must be runnable as a script.
+• Include the following exact test case under if __name__ == "__main__": (do not change it):
+if __name__ == "__main__":
+g = BipGraph(4, 4)
+g.addEdge(1, 2)
+g.addEdge(1, 3)
+g.addEdge(2, 1)
+g.addEdge(3, 2)
+g.addEdge(4, 2)
+g.addEdge(4, 4)
+print("Size of maximum matching is %d" % g.hopcroftKarp())
+Injected snippet block
+For reference, here is an implementation of this algorithm in python
+retrieved from a different source. You may use it as a reference but
+must write your own solution:
+```python
+"""BipartiteMatching.py
+Hopcroft-Karp bipartite maximum-cardinality matching and maximum
+independent set for bipartite graphs.
+D. Eppstein, April 2002.
+"""
+from .strong_connectivity import StronglyConnectedComponents
+def matching(graph):
+"""Find maximum cardinality matching of a bipartite graph (U,V,E).
+The input format is a dictionary mapping members of U to lists
+of their neighbors in V.
+"""
+# initialize greedy matching (redundant, but faster than full search)
+matching = {}
+for u in graph:
+for v in graph[u]:
+if v not in matching:
+matching[v] = u
+break
+while True:
+# structure residual graph into layers
+preds = {}
+unmatched = []
+pred = {u: unmatched for u in graph}
+for v in matching:
+del pred[matching[v]]
+layer = list(pred)
+# repeatedly extend layering structure by another pair of layers
+while layer and not unmatched:
+newLayer = {}
+for u in layer:
+for v in graph[u]:
+if v not in preds:
+newLayer.setdefault(v, []).append(u)
+layer = []
+for v in newLayer:
+preds[v] = newLayer[v]
+if v in matching:
+layer.append(matching[v])
+pred[matching[v]] = v
+else:
+unmatched.append(v)
+# did we finish layering without finding any alternating paths?
+if not unmatched:
+unlayered = {}
+for u in graph:
+for v in graph[u]:
+if v not in preds:
+unlayered[v] = None
+return (matching, list(pred), list(unlayered))
+# recursively search backward through layers to find alternating paths
+def recurse(v):
+if v in preds:
+L = preds[v]
+del preds[v]
+for u in L:
+if u in pred:
+pu = pred[u]
+del pred[u]
+if pu is unmatched or recurse(pu):
+```
+Runtime constraints (strict):
+• Use only the language standard library.
+• Do NOT use third-party packages/crates/modules.
+• Do NOT use package managers (pip/npm/cargo/maven/gradle/etc.).
+• If a data structure/algorithm is missing, implement it directly in code.
+• Output only executable code.
+Figure 7: Complete user message for Hopcroft–Karp (Python) under the +Snippet condition. The orange-shaded
+block is the only addition relative to the zero-shot baseline. The snippet (D. Eppstein, 2002) was retrieved from
+GitHub via the GitHub Search API; RosettaCode and GeeksforGeeks results were excluded to avoid overlap with
+the benchmark’s source material. Files are truncated to at most 80 lines centred on the most keyword-relevant
+region, hence the snippet ends mid-function. Each language variant receives its own language-matched snippet.
+
+
+Python
+C++
+Java
+Rust
+C
+Go
+JS
+CodeLlama-34B
+Llama-3.1-8B
+DeepSeek-R1-Llama-8B
+CodeGemma-7B
+StarCoder2-15B
+DeepSeek-R1-Qwen-14B
+Codestral-22B
+Yi-Coder-9B
+GPT-4o-mini
+DeepSeek-Coder-33B
+GPT-4.1-mini
+Phi-4
+GPT-OSS-20B
+QwQ-32B
+Qwen2.5-7B
+45
+33
+40
+31
+33
+40
+32
+35
+19
+26
+31
+33
+22
+28
+28
+31
+32
+26
+19
+20
+26
+33
+22
+24
+41
+25
+22
+12
+57
+25
+14
+25
+14
+18
+11
+23
+29
+22
+7
+24
+24
+29
+25
+15
+27
+20
+25
+19
+13
+19
+22
+33
+21
+11
+21
+12
+24
+22
+13
+23
+15
+19
+14
+12
+18
+18
+11
+23
+9
+14
+19
+11
+17
+18
+14
+12
+12
+14
+22
+13
+11
+14
+15
+9
+23
+16
+9
+8
+18
+8
+2
+20
+11
+13
+8
+8
+11
+11
+17
+20
+7
+16
+5
+9
+8
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+AlgoSim novel rate
+Figure 8: AlgoSim novel rate by model and programming language.
+0
+20
+40
+60
+80
+100
+% of total problems
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Pass
+Wrong output
+Runtime error
+Compile error
+Timeout
+Crash
+No code
+Figure 9: Outcome breakdown per model as a fraction of all 599 problems, sorted by pass rate. Stronger models fail
+almost exclusively on wrong output, while weaker models are dominated by compile errors, reflecting a gradient
+from syntactic to semantic retrieval failure.
+
+
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+GT pass rate
+0.70
+0.75
+0.80
+0.85
+0.90
+Consensus recall
+mean 0.46
+mean 0.83
+CodeLlama-34B
+Codestral-22B
+DeepSeek-R1-Llama-8B
+DeepSeek-R1-Qwen-14B
+Llama-3.1-8B
+QwQ-32B
+Qwen2.5-7B
+Yi-Coder-9B
+CodeGemma-7B
+DeepSeek-Coder-33B
+GPT-4.1-mini
+GPT-4o-mini
+gpt-oss-20B
+Phi-4
+StarCoder2-15B
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+GT pass rate
+Figure 10: Pass rate vs. consensus recall. GT pass rate (x-axis) is the fraction of problems where a model’s output
+matches the ground-truth expected value. Consensus recall (y-axis) is the fraction of a model’s correct answers that
+also match the plurality output across all models.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+50
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+50
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+0
+100
+100
+0
+75
+0
+0
+0
+0
+75
+25
+0
+25
+50
+100
+75
+100
+75
+0
+0
+0
+0
+33
+0
+0
+67
+0
+33
+100
+67
+67
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+100
+100
+100
+50
+0
+0
+0
+100
+100
+100
+50
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+50
+0
+50
+0
+50
+100
+50
+0
+100
+50
+100
+0
+100
+0
+0
+100
+100
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+100
+100
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+50
+0
+50
+0
+100
+50
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+0
+100
+0
+0
+0
+100
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+50
+0
+25
+25
+25
+50
+100
+75
+75
+100
+100
+75
+100
+100
+0
+33
+0
+0
+33
+33
+100
+33
+0
+67
+100
+100
+100
+100
+100
+0
+0
+0
+0
+50
+0
+50
+100
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+0
+100
+0
+0
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+0
+100
+0
+100
+50
+0
+50
+100
+0
+100
+100
+100
+50
+50
+100
+0
+50
+0
+0
+0
+100
+50
+100
+50
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+50
+0
+0
+100
+100
+100
+100
+50
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+0
+100
+0
+50
+0
+100
+100
+100
+50
+100
+0
+100
+50
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+67
+0
+50
+0
+100
+50
+50
+100
+100
+100
+100
+100
+50
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+33
+100
+0
+100
+67
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+33
+0
+100
+33
+100
+67
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+50
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+67
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0%
+0%
+27%
+0%
+13%
+13%
+17%
+10%
+33%
+53%
+40%
+38%
+33%
+73%
+37%
+67%
+33%
+40%
+67%
+37%
+20%
+93%
+40%
+87%
+60%
+80%
+87%
+73%
+60%
+53%
+53%
+40%
+60%
+60%
+63%
+87%
+67%
+67%
+47%
+63%
+87%
+87%
+73%
+84%
+73%
+87%
+93%
+60%
+87%
+73%
+80%
+93%
+73%
+76%
+80%
+87%
+73%
+80%
+87%
+67%
+80%
+90%
+87%
+87%
+87%
+84%
+87%
+93%
+87%
+80%
+87%
+80%
+87%
+87%
+87%
+87%
+80%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 11: Algorithm difficulty heatmap for Python.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+0
+50
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+50
+0
+50
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+50
+25
+25
+50
+75
+100
+25
+50
+50
+75
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+100
+0
+0
+100
+100
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+100
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+0
+0
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+0
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+100
+0
+100
+100
+0
+100
+0
+100
+0
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+100
+0
+100
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+7%
+0%
+0%
+0%
+7%
+7%
+13%
+13%
+13%
+7%
+7%
+17%
+7%
+0%
+13%
+13%
+27%
+27%
+40%
+13%
+20%
+20%
+47%
+20%
+20%
+33%
+27%
+27%
+35%
+27%
+13%
+47%
+20%
+33%
+47%
+27%
+20%
+40%
+53%
+40%
+20%
+40%
+60%
+27%
+40%
+47%
+47%
+67%
+13%
+67%
+53%
+53%
+47%
+40%
+67%
+60%
+73%
+60%
+73%
+80%
+80%
+40%
+73%
+60%
+80%
+73%
+67%
+47%
+80%
+67%
+93%
+87%
+67%
+73%
+60%
+87%
+93%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 12: Algorithm difficulty heatmap for C++.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+50
+50
+50
+50
+50
+50
+50
+0
+50
+0
+0
+0
+50
+0
+0
+0
+0
+0
+50
+0
+50
+0
+50
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+100
+100
+100
+100
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+100
+0
+100
+100
+100
+0
+25
+25
+0
+0
+0
+0
+100
+100
+0
+75
+100
+75
+75
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+0
+100
+0
+0
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+100
+0
+0
+100
+0
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+100
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+7%
+0%
+7%
+0%
+13%
+13%
+13%
+27%
+13%
+13%
+27%
+13%
+13%
+7%
+20%
+27%
+20%
+27%
+47%
+33%
+40%
+20%
+53%
+33%
+33%
+40%
+67%
+40%
+45%
+40%
+40%
+60%
+27%
+60%
+40%
+53%
+53%
+40%
+47%
+47%
+93%
+40%
+53%
+40%
+67%
+40%
+67%
+60%
+60%
+87%
+80%
+60%
+60%
+80%
+53%
+73%
+80%
+87%
+73%
+80%
+53%
+93%
+87%
+67%
+80%
+67%
+80%
+60%
+87%
+67%
+60%
+80%
+93%
+93%
+100%
+87%
+87%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 13: Algorithm difficulty heatmap for Java.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+50
+0
+0
+0
+0
+0
+50
+50
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+0
+50
+50
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+25
+0
+0
+0
+100
+25
+75
+50
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+100
+0
+100
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+100
+0
+100
+100
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+100
+0
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+0
+100
+100
+0
+100
+100
+0
+100
+100
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0%
+13%
+0%
+13%
+7%
+27%
+13%
+13%
+20%
+13%
+10%
+10%
+33%
+7%
+7%
+7%
+20%
+20%
+27%
+33%
+40%
+27%
+13%
+20%
+33%
+27%
+20%
+27%
+18%
+20%
+27%
+33%
+73%
+47%
+20%
+40%
+47%
+47%
+47%
+33%
+80%
+60%
+60%
+40%
+40%
+40%
+53%
+53%
+20%
+40%
+67%
+40%
+80%
+40%
+73%
+40%
+53%
+47%
+60%
+60%
+80%
+53%
+67%
+73%
+80%
+60%
+73%
+73%
+47%
+87%
+60%
+67%
+67%
+73%
+80%
+67%
+87%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 14: Algorithm difficulty heatmap for C.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+50
+0
+0
+0
+0
+0
+50
+0
+0
+0
+50
+50
+0
+50
+50
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+50
+50
+0
+50
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+25
+0
+25
+25
+50
+50
+50
+50
+75
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+7%
+7%
+7%
+13%
+0%
+13%
+20%
+27%
+7%
+13%
+20%
+20%
+27%
+7%
+27%
+13%
+20%
+33%
+7%
+20%
+33%
+20%
+20%
+27%
+40%
+13%
+7%
+27%
+30%
+33%
+67%
+40%
+53%
+47%
+60%
+60%
+60%
+60%
+73%
+60%
+27%
+53%
+53%
+40%
+73%
+40%
+47%
+60%
+67%
+73%
+60%
+60%
+73%
+60%
+60%
+67%
+67%
+73%
+80%
+80%
+73%
+60%
+80%
+87%
+73%
+80%
+80%
+93%
+73%
+87%
+93%
+80%
+80%
+80%
+87%
+80%
+87%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 15: Algorithm difficulty heatmap for JavaScript.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+50
+0
+0
+0
+0
+0
+0
+0
+50
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+0
+0
+0
+50
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+25
+0
+25
+0
+25
+0
+75
+75
+75
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+0
+0
+0
+100
+100
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+0
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+0
+100
+0
+100
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+0%
+7%
+0%
+7%
+0%
+7%
+7%
+0%
+13%
+13%
+7%
+13%
+13%
+7%
+27%
+20%
+20%
+20%
+0%
+27%
+20%
+13%
+40%
+27%
+20%
+33%
+33%
+27%
+40%
+20%
+20%
+27%
+27%
+13%
+20%
+33%
+27%
+40%
+33%
+53%
+20%
+40%
+20%
+27%
+33%
+60%
+33%
+53%
+40%
+33%
+33%
+47%
+33%
+47%
+47%
+53%
+47%
+53%
+20%
+33%
+47%
+53%
+33%
+60%
+40%
+53%
+53%
+60%
+80%
+53%
+53%
+67%
+60%
+60%
+60%
+67%
+73%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 16: Algorithm difficulty heatmap for Rust.
+
+
+CodeLlama-34B
+DeepSeek-R1-Llama-8B
+StarCoder2-15B
+CodeGemma-7B
+Llama-3.1-8B
+Qwen2.5-7B
+DeepSeek-R1-Qwen-14B
+Yi-Coder-9B
+DeepSeek-Coder-33B
+Codestral-22B
+Phi-4
+GPT-4o-mini
+QwQ-32B
+GPT-4.1-mini
+gpt-oss-20B
+Non-Preemptive SJF CPU Scheduling
+LRU Page Replacement
+Two-SAT
+FIFO Page Replacement
+Huffman Coding
+Round Robin CPU Scheduling
+Stoer-Wagner Min Cut
+Blossom Algorithm 
+ General Maximum Matching
+SHA-256 from Scratch
+Hierholzer's Eulerian Circuit 
+ RC Graph
+Hopcroft Karp
+Min-Cost Max-Flow
+Karger's Min Cut
+Bridge Finding
+Gabow's SCC
+Fast Fourier Transform
+Convex Hull
+Shunting-Yard Algorithm
+AVL Tree
+Johnson's All-Pairs Shortest Paths
+Banker's Algorithm for Deadlock Avoidance
+Fenwick Tree
+Permutations Generator
+Segment Tree
+Histogram Equalization
+Gaussian Elimination
+N-Queens Problem
+Disjoint Set Union
+SCC by mutual reachability
+Dinic's Max Flow
+Tarjan's SCC
+Vigenere Cipher
+Closest Pair of Points
+Bor vka's MST
+Eulerian Path/Circuit
+Modular Exponentiation
+Articulation Points
+Gaussian Blur 3x3
+Otsu Thresholding
+Kosaraju's SCC
+Polygon Area
+Longest Common Subsequence
+Rabin-Karp Pattern Search
+Bellman-Ford Shortest Path
+Shortest Path in DAG
+Floyd-Warshall All-Pairs Shortest Path
+Point in Polygon
+Box Blur
+Dijkstra's Shortest Path
+Z-Algorithm Pattern Search
+FCFS CPU Scheduling
+Trie
+Radix Sort
+Prim's MST
+Simpson's Rule
+Longest Increasing Subsequence
+2D Convolution with Arbitrary Kernel
+Median Filter 3x3
+Sobel Edge Detection
+Prewitt Edge Detection
+Heap Sort
+Kruskal's MST
+Run-Length Encoding
+Counting Sort
+Caesar Cipher
+Topological Sort
+KMP Pattern Search
+Newton-Raphson Method
+Postfix Expression Evaluator
+Merge Sort
+Sieve of Eratosthenes
+Rotate Image 90 Clockwise
+0/1 Knapsack
+Sudoku Solver
+Edit Distance
+Rotate Image 180 Degrees
+Extended GCD
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+50
+50
+50
+0
+0
+50
+0
+0
+50
+0
+0
+0
+0
+50
+50
+50
+50
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+0
+0
+100
+0
+0
+100
+0
+0
+0
+100
+0
+100
+0
+0
+100
+0
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+75
+50
+25
+25
+75
+100
+100
+50
+0
+0
+100
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+0
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+100
+0
+0
+0
+100
+100
+0
+100
+0
+0
+100
+0
+0
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+0
+0
+100
+0
+0
+100
+100
+100
+0
+0
+0
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+0
+0
+0
+100
+0
+100
+100
+100
+0
+0
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+0
+100
+100
+100
+100
+0
+100
+100
+0
+100
+100
+0
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+100
+100
+100
+0
+0
+100
+100
+100
+100
+0
+0
+0
+100
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+0
+100
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+100
+0
+100
+100
+100
+0
+0
+100
+100
+100
+0
+0
+100
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+100
+0
+100
+100
+100
+100
+0
+0
+0
+0
+0
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+0
+0
+0
+100
+100
+0
+100
+100
+100
+100
+100
+0
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+100
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+0
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+0
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0
+100
+100
+0
+100
+100
+100
+100
+100
+100
+100
+100
+100
+100
+0%
+0%
+7%
+13%
+7%
+13%
+20%
+20%
+13%
+20%
+10%
+27%
+20%
+7%
+20%
+20%
+33%
+13%
+13%
+40%
+47%
+27%
+13%
+20%
+40%
+20%
+7%
+40%
+33%
+40%
+47%
+33%
+40%
+27%
+47%
+27%
+53%
+53%
+47%
+47%
+33%
+47%
+47%
+53%
+33%
+67%
+47%
+40%
+47%
+47%
+47%
+67%
+60%
+60%
+53%
+73%
+60%
+60%
+67%
+60%
+53%
+67%
+60%
+60%
+53%
+67%
+73%
+93%
+67%
+87%
+80%
+67%
+87%
+73%
+80%
+80%
+87%
+0%
+25%
+50%
+75%
+100%
+Pass rate
+Figure 17: Algorithm difficulty heatmap for Go.
+
+
+Figure 18: Dense regime (p=0.3 fixed, E ∼n2): wall time vs. graph size n, one panel per algorithm and one
+line per model. Solid markers indicate 100% correctness at that n over 8 samples, and hollow markers (colored
+red-to-green) indicate a partial correct rate, and an ‘x’ indicates every sample crashed or timed out. The dashed gray
+curve in each panel is the textbook Big-O reference (fit at the algorithm’s expected exponent).
+
+
+Figure 19: Sparse regime (p(n) = 3 ln(n)/n, E ∼n log n), for the 7 algorithms whose textbook complexity is
+E-dependent. This regime separates correct O(E log V ) implementations (fitted k ≈1) from hidden O(V 2) ones
+(fitted k ≈2), which the dense regime alone cannot cleanly distinguish.
+
+
+Name+
+Format
+Name+
+Spec
+Spec
+Only
+Wrong
+Name
+Fake
+Name
+Wrong Spec
+(moderate)
+0
+20
+40
+60
+80
+100
+Mean correctness % (6 novel algos)
+(a)
+69
+85
+92
+89
+90
+13
+15
+14
+22
+16
+12
+4
+Mean Correctness Across 6 Novel Algorithms, by Prompt Condition
+gpt-oss-20b
+Qwen2.5-7B-Instruct
+Name+
+Format
+Name+
+Spec
+Spec
+Only
+Wrong
+Name
+Fake
+Name
+Wrong Spec
+(moderate)
+Prufer Sequence  (gpt-oss-20b)
+K-Core Decomp.  (gpt-oss-20b)
+Transitive Reduction  (gpt-oss-20b)
+Tree Center  (gpt-oss-20b)
+Bridge Tree  (gpt-oss-20b)
+Tree Diameter  (gpt-oss-20b)
+Prufer Sequence  (Qwen)
+K-Core Decomp.  (Qwen)
+Transitive Reduction  (Qwen)
+Tree Center  (Qwen)
+Bridge Tree  (Qwen)
+Tree Diameter  (Qwen)
+95
+100
+100
+95
+100
+0
+30
+35
+90
+95
+55
+5
+100
+100
+100
+100
+100
+75
+90
+75
+70
+55
+85
+0
+0
+100
+95
+90
+100
+0
+100
+100
+100
+100
+100
+0
+10
+10
+55
+55
+20
+5
+0
+10
+10
+0
+5
+0
+25
+15
+0
+0
+10
+10
+0
+20
+40
+10
+20
+10
+0
+0
+0
+0
+0
+0
+55
+30
+30
+30
+20
+0
+(b)
+Per-Algorithm Breakdown 
+ Where the Aggregate Pattern Breaks Down (blue = anomalies)
+0
+20
+40
+60
+80
+100
+Correctness %
+Figure 20: (a) Mean execution-correctness across six novel algorithms, by condition, for gpt-oss-20B and Qwen2.5-
+7B-Instruct (20 samples/cell). gpt-oss-20B stays flat (85–92%) regardless of which name accompanies a correct
+spec, then collapses once the spec is wrong; Qwen2.5-7B-Instruct shows the same shape at a lower level. (b) The
+same conditions per algorithm (6 algorithms × 2 models). Blue-outlined cells: K-Core Decomposition and Prüfer
+Sequence Encoding score lower with the correct name than without it, and gpt-oss-20B’s Transitive Reduction
+scores 75% under moderate corruption versus 0–10% elsewhere in that column.
+
+
+Parameter
+Open-weight (vLLM)
+Closed API
+Temperature
+0 (greedy)
+0.7
+Max output tokens
+32,768
+8,192
+Top-p
+1.0
+—
+Decoding
+Greedy
+Sampling
+Thinking budget
+32,768 (thinking models)
+N/A
+Execution timeout
+30 s
+30 s
+Prompting strategy
+Zero-shot
+Zero-shot
+Table 7: Generation hyperparameters for the zero-shot
+evaluation. Open-weight models include all 13 locally-
+served models. Closed API covers GPT-4o-mini and
+GPT-4.1-mini.
+The thinking-model token floor ap-
+plies to QwQ-32B, DeepSeek-R1-Distill-Llama-8B, and
+DeepSeek-R1-Distill-Qwen-14B.
+Parameter
++Hint
++Snippet
+Models evaluated
+13 vLLM (open-weight)
+13 vLLM (open-weight)
+Temperature
+0 (greedy)
+0 (greedy)
+Max output tokens
+32,768
+32,768
+Top-p
+1.0
+1.0
+Execution timeout
+30 s
+30 s
+Context source
+GPT-4o-mini (temp. 0)
+GitHub Search API
+Context granularity
+Per algorithm (lang-agnostic)
+Per (algorithm, language)
+Max context length
+≤20 pseudocode lines
+≤80 code lines
+Problem coverage
+599/599
+599/599
+Excluded sources
+N/A
+RosettaCode, GeeksforGeeks
+Table 8: Prompt-augmentation parameters. Generation
+settings are identical to the zero-shot baseline. Only the
+prompt contents differ between conditions.
+Parameter
+GRPO
+SFT
+Base model
+gpt-oss-20B
+gpt-oss-20B
+LoRA rank r
+16
+16
+LoRA α
+32
+32
+LoRA dropout
+0.05
+0.05
+Trainable params
+≈0.5%
+≈0.5%
+Training algorithms
+56 (447 examples)
+56 (367 positive examples)
+Training examples
+All 7 langs, ≤3 repr
+Rejection-sampled (r=1.0)
+Held-out test split
+22 algorithms, 152 problems
+22 algorithms, 152 problems
+Grouping
+Repr groups (algo × lang × repr)
+N/A
+Reward tiers
+1.0 / 0.8 / 0.3 / 0.0–0.1
+N/A
+Optimiser
+AdamW
+AdamW
+Epochs
+3
+3
+Execution timeout
+30 s
+30 s
+Table 9: Fine-tuning hyperparameters for GRPO and
+SFT. Both conditions use the same LoRA configura-
+tion and train/test split. SFT trains only on examples
+where the base model already achieves r=1.0 (rejection
+sampling), isolating the contribution of policy-gradient
+credit assignment from the effect of training on correct
+solutions alone.
+Cond.
+Name given
+Spec given
+(1) Name+Format
+correct
+none (signature only)
+(2) Name+Spec
+correct
+correct
+(3) Spec Only
+none
+correct
+(4) Wrong Name
+wrong (real)
+correct
+(5) Fake Name
+fabricated
+correct
+(6) Wrong Spec (moderate)
+correct
+one decision rule swapped
+Table 10: The 6 conditions applied to the algorithms. All
+conditions are scored by execution against the ground
+truth.

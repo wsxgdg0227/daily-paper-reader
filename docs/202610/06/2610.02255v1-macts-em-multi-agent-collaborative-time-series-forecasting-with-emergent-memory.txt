@@ -1,0 +1,1051 @@
+MACTS-EM: Multi-Agent Collaborative Time
+Series Forecasting with Emergent Memory
+Ahmad Shahi1 and Mamehgol Yousefi1
+Unitec Institute of Technology, Auckland, New Zealand
+{sahmad,myousefidashliboroun}@unitec.ac.nz
+Abstract. Time series forecasting remains a critical challenge across nu-
+merous domains. Despite significant advancements, existing approaches
+struggle with complex phenomena such as regime shifts, cross-domain
+knowledge transfer, and multimodal data integration. This paper intro-
+duces Multi-Agent Collaborative Time Series Forecasting with Emer-
+gent Memory (MACTS-EM), a novel framework where specialised agents
+collaborate to achieve superior forecasting performance. The MACTS-
+EM architecture integrates: (1) domain-specialised forecasting agents
+for pattern recognition, anomaly detection, causal inference, and un-
+certainty quantification; (2) a meta-cognitive layer for dynamic agent
+allocation; (3) an emergent memory mechanism enabling cross-domain
+pattern transfer; (4) multimodal contextual integration; and (5) adver-
+sarial robustness components. Evaluation across financial markets, cli-
+mate patterns, energy consumption, and pandemic propagation demon-
+strates that MACTS-EM outperforms existing approaches in most sce-
+narios, with 8–12% improvement in forecasting accuracy, 22–27% better
+zero-shot transfer capability, 16–21% enhanced resilience during regime
+shifts, and 15–18% faster recovery after distribution shifts. Our findings
+suggest that collaborative, agentic approaches to time series forecasting
+represent a promising direction beyond traditional architectures, particu-
+larly for complex real-world scenarios requiring multi-resolution temporal
+understanding and contextual adaptation.
+Keywords: Agentic AI · Multi-agent Systems · Time Series Forecasting
+· Multimodal Integration · Adversarial Robustness
+1
+Introduction
+Time series forecasting is a critical challenge across numerous real-world dy-
+namic systems [5] in finance [17], healthcare [1], climate science [13], and energy
+management [12]. Despite extensive research, existing approaches struggle with
+highly dynamic and interconnected systems [26], particularly with complex phe-
+nomena such as regime shifts, cross-domain knowledge transfer, and multimodal
+data integration [21].
+Most forecasting models operate as monolithic frameworks (e.g., LSTMs,
+Transformers) [18] that process entire temporal sequences simultaneously rather
+arXiv:2610.02255v1  [cs.LG]  30 Sep 2026
+
+
+2
+A. Shahi et al.
+than using specialised components for different temporal dynamics. Recent ad-
+vances include foundation models like TimeGPT [8], Chronos [2], and Time-
+LLM [11], yet these cannot bridge knowledge across disparate domains effec-
+tively. While architectures such as TimeMixer [21], TEMPO [4], and TiDE [6]
+capture multi-scale patterns, they generally operate as single models without
+specialised expertise.
+In contrast, multi-agent systems have demonstrated success in solving com-
+plex problems through collaborative interaction [16, 23]. Unlike traditional en-
+sembles that merely aggregate outputs, these systems employ complex com-
+munication and knowledge sharing mechanisms [25]. However, their application
+to specialised domains like time series forecasting remains limited [3]. Simi-
+larly, while transfer learning approaches have been applied within domains [15]
+through domain-adversarial networks [7] and meta-learning [19], cross-domain
+knowledge transfer remains challenging for time series with fundamentally dif-
+ferent temporal dynamics [22].
+Large language models (LLMs) have recently shown remarkable capabili-
+ties in developing collaborative multi-agent frameworks [10, 20]. These models
+can perform complex tasks through task decomposition, memory systems, and
+multi-step reasoning [24], suggesting their potential to reconceptualise time series
+forecasting through an agent-based lens. Their pattern recognition capabilities
+could enable highly precise forecasts, while multimodal LLMs could leverage di-
+verse knowledge types for synergistic forecasting [9]. Unlike specialised modelling
+approaches requiring significant parameter tuning, LLMs trained on massive
+datasets can be adapted to forecasting tasks without learning from scratch.
+In this work, we propose Multi-Agent Collaborative Time Series Forecast-
+ing with Emergent Memory (MACTS-EM), a novel paradigm that reimagines
+forecasting as a collaborative process among specialised agents coordinated by a
+meta-cognitive layer and an emergent memory mechanism. MACTS-EM is fun-
+damentally distinct from traditional ensemble methods in three key aspects: (1)
+it implements a dynamic, interactive collaboration process where agents com-
+municate intermediate representations; (2) it enables cross-domain knowledge
+transfer through a specialised memory structure; and (3) it adaptively reconfig-
+ures agent allocations based on context-specific performance patterns. Impor-
+tantly, each agent is built on a specialised neural or machine learning forecaster
+(N-BEATS, TCN, BlockRNN, and LightGBM) rather than an LLM. We bor-
+row the agentic principles of role specialisation, communication, memory, and
+coordination from LLM-based multi-agent systems, while keeping the agents
+lightweight, fast, and interpretable. Replacing or augmenting these agents with
+LLM-based reasoning is a natural extension that we leave to future work. The
+main contributions of this paper are:
+1. A multi-agent architecture with specialised components for distinct aspects
+of time series forecasting, with explicit communication protocols between
+agents.
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+3
+Fig. 1. MACTS-EM architecture with specialised agent modules, meta-cognitive co-
+ordination, emergent memory, and multimodal integration. Solid arrows represent pri-
+mary data flow; dashed arrows indicate knowledge exchange.
+2. A precisely defined emergent memory mechanism that enables cross-domain
+pattern transfer through abstraction and similarity detection, validated
+through quantitative transfer experiments.
+3. A meta-cognitive layer with learnable parameters for dynamic agent alloca-
+tion based on time series characteristics and historical performance.
+4. Multimodal integration capabilities with domain-specific processors for in-
+corporating non-time-series data.
+5. Comprehensive evaluation across diverse domains with statistical validation
+demonstrating significant improvements over state-of-the-art baselines.
+2
+MACTS-EM Framework
+MACTS-EM re-imagines time series forecasting as a collaborative process among
+specialised agents coordinated by a meta-cognitive layer and an emergent mem-
+ory mechanism (Fig. 1). Given a time series X = {x1, x2, . . . , xT } where xt ∈Rd,
+our goal is to predict future values XT +1:T +H, considering optional covari-
+ates Zp, Zf, and multimodal data M. Formally, MACTS-EM is defined as
+M = (A, L, E, I, R), where A represents specialised agents, L the meta-cognitive
+layer, E the emergent memory, I multimodal integration, and R adversarial ro-
+bustness components.
+2.1
+Specialised Agent Modules
+MACTS-EM incorporates four specialised agents
+A = {Apattern, Aanomaly, Acausal, Auncertainty},
+each addressing specific forecasting aspects and characterised by a tuple Ai =
+(fi, Ei, Ci, βi) representing forecasting model, expertise areas, confidence mecha-
+nism, and state history.
+
+
+4
+A. Shahi et al.
+Pattern Recognition Agent employs a modified N-BEATS architec-
+ture [14] to identify multi-scale temporal patterns, outputting forecasts as
+ˆXpattern
+T +1:T +H = PB
+b=1 yb where yb is the output of block b. The agent maintains a
+pattern dictionary of distinct temporal dynamics.
+Anomaly Detection Agent uses a TCN with dilated convolutions to com-
+pute anomaly scores st = |xt−ˆxt|
+σt+ϵ , enabling early detection of regime shifts and
+adaptation during distribution changes.
+Causal Inference Agent implements a BlockRNN with LSTM cells to
+model relationships between variables using Granger causality, maintaining a
+dynamic causal graph G = (V, E) with weighted edges representing causal
+strengths.
+Uncertainty Quantification Agent provides probabilistic forecasts using
+LightGBM-based quantile regression, producing prediction intervals
+h
+ˆX0.1
+T +1:T +H, ˆX0.9
+T +1:T +H
+i
+with the median forecast serving as point prediction. These agents communicate
+through feature-level message passing (mi→j = Φi(hi)), forecast-level confidence
+sharing, and knowledge-level abstract representation exchange, enabling a col-
+laborative framework beyond simple output aggregation.
+2.2
+Meta-Cognitive Layer
+The meta-cognitive layer coordinates the agent ecosystem by extracting time
+series characteristics Φ(X) = {ϕ1, ϕ2, . . . , ϕK} and computing agent weights:
+wi =
+exp(λi)
+P|A|
+j=1 exp(λj)
+,
+λi =
+K
+X
+k=1
+ωik ϕk + ωi0 Ci(X)
+(1)
+The parameters Ω= {ωik} are learned during training, optimising for diverse
+forecasting scenarios. The final forecast is generated as ˆXT +1:T +H = P|A|
+i=1 wi ·
+ˆXi
+T +1:T +H.
+2.3
+Emergent Memory Mechanism
+The emergent memory enables cross-domain knowledge transfer through a pat-
+tern library P = {(di, pi) | i = 1, 2, . . . , N} with domain identifiers and pattern
+vectors. For domains with pattern vectors pi and pj, similarity is computed as
+s(di, dj) = exp
+
+−∥pi−pj∥2
+2
+2θ2
+
+. During prediction, the mechanism identifies related
+domains Drelated = {di | s(di, dtarget) > τ} and transfers knowledge through pat-
+tern adaptation:
+padapted = ptarget +
+X
+di∈Drelated
+αi · (pi −ptarget)
+(2)
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+5
+The adaptation coefficients αi are learned through meta-learning and cross-
+validation, minimising α∗
+i = arg minαi Ltransfer(αi) + β · ∥αi∥1, enabling selec-
+tive knowledge incorporation while avoiding negative transfer. Implemented as
+a dynamic tensor structure (RN×D×P ), the memory is trained using contrastive
+learning with a triplet loss function to create embedding clusters of similar pat-
+terns, facilitating cross-domain knowledge transfer.
+2.4
+Multimodal Integration and Robustness
+The multimodal integration component processes diverse data types through
+modality-specific encoders (BERT-based for text, CNN-based for visuals,
+embedding-based for categorical data), combining them using cross-modal
+attention and fusion to generate contextual representations for forecasting. The
+adversarial robustness component enhances resilience by generating challenging
+scenarios (level shifts, trend changes, volatility increases) and evaluating agent
+performance under these conditions. A two-level weighting scheme integrates
+meta-cognitive weights with robustness factors, with parameter γ controlling
+adjustment strength. This enables MACTS-EM to maintain performance during
+distribution shifts while defaulting to base weights during stable periods. After
+evaluating multiple architectural alternatives (CNN, Transformer, and LSTM
+variants) for each agent type, our final configuration was selected based on a
+balance of accuracy, efficiency, and interpretability.
+2.5
+Training and Inference
+MACTS-EM employs a two-stage training procedure: (1) independent agent pre-
+training on domain-specific tasks, and (2) collaborative training with knowledge
+sharing and meta-cognitive coordination. The ensemble loss function Lensemble =
+Lforecast + λ1Ldiversity + λ2Lrobustness + λ3Ltransfer balances forecasting accuracy
+with diversity, robustness, and transfer capabilities. During inference, MACTS-
+EM follows a structured pipeline from input processing through agent selection,
+forecasting, and aggregation to produce final predictions with uncertainty esti-
+mates and explanations.
+3
+Experimental Setup
+3.1
+Datasets and Metrics
+We evaluated MACTS-EM across four domains: (1) Financial Markets: S&P 500
+data (2010–2022)1 with exogenous variables exhibiting regime shifts; (2) Climate
+Patterns: Berkeley Earth Temperature dataset (1850–2022)2 with satellite im-
+agery for recent periods; (3) Pandemic Propagation: Johns Hopkins COVID-19
+1 S&P 500 Historical Data, Yahoo Finance. https://finance.yahoo.com/quote/
+%5EGSPC/history
+2 Berkeley Earth Temperature Data. http://berkeleyearth.org/data/
+
+
+6
+A. Shahi et al.
+dataset (2020–2022)3 with mobility covariates4; and (4) Energy Consumption:
+Electricity Transformer Temperature (2016–2018)5 and GEFCom2014 (2005–
+2012)6 datasets with weather information.
+For evaluation, we employed: (1) Accuracy Metrics: MAPE and domain-
+normalised RMSE; (2) Robustness Metrics: Distribution Shift Resilience (DSR)
+and recovery time; and (3) Transfer Metrics: zero-shot MAPE on the target
+domain. DSR measures how much accuracy is retained after a shift. Because
+MAPE is an error measure (lower is better), we define it as the ratio of pre-shift
+to post-shift error, so that higher is better and DSR = 1 means no degradation:
+DSR = MAPEbefore shift
+MAPEafter shift
+(3)
+3.2
+Baselines and Implementation
+We compared MACTS-EM against state-of-the-art forecasting models: statistical
+approaches (ARIMA, Prophet), deep learning models (N-BEATS [14], DeepAR,
+Informer [27], TFT, TiDE [6], TimeMixer [21]), LLM-based and foundation mod-
+els (Time-LLM [11], Chronos [2]), and a stacking ensemble of the strongest base-
+lines.
+Implementation used Python 3.11 with Darts 0.35.0, nixtla 0.6.6, PyTorch
+2.0.1, and standard data science libraries. Experiments ran on 4 NVIDIA
+A100 GPUs with hyperparameter optimisation via Bayesian methods (100 tri-
+als/model), walk-forward time series cross-validation, and domain-specific train,
+validation, and test splits to respect temporal ordering. For computational effi-
+ciency, we implemented selective agent activation, incremental memory updates,
+and parallel execution, reducing inference time by 42% compared to a naive
+implementation.
+3.3
+Experimental Protocols
+We conducted four main experiments. Experiment 1: Forecasting Accuracy eval-
+uated performance across short (1–7 days), medium (8–30 days), and long (31–90
+days) horizons, with input windows set to 3× the forecast horizon. Experiment
+2: Cross-Domain Knowledge Transfer assessed zero-shot transfer: models were
+trained on a source domain A and evaluated on a target domain B without
+additional training. Experiment 3: Robustness to Distribution Shifts examined
+3 COVID-19 Data Repository by the Center for Systems Science and Engineer-
+ing (CSSE) at Johns Hopkins University. https://github.com/CSSEGISandData/
+COVID-19
+4 Google
+COVID-19
+Community
+Mobility
+Reports.
+https://www.google.com/
+covid19/mobility/
+5 Electricity
+Transformer
+Temperature
+(ETT)
+Dataset.
+https://github.com/
+zhouhaoyi/ETDataset
+6 Global
+Energy
+Forecasting
+Competition
+2014
+(GEFCom2014).
+http://blog.
+drhongtao.com/2017/03/gefcom2014-load-forecasting-data.html
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+7
+Table 1. MAPE (%) comparison across domains and forecast horizons (lower is better).
+Best results are in bold, with improvements calculated relative to the best baseline.
+Financial
+Climate
+Pandemic
+Energy
+Model
+Short Med Long Short Med Long Short Med Long Short Med Long
+ARIMA
+2.47 4.83 7.92
+3.84 6.12 9.73
+6.73 18.42 32.57
+4.26 7.38 11.92
+Prophet
+2.15 4.31 7.36
+3.52 5.67 8.94
+5.98 16.07 28.92
+3.89 6.84 10.73
+N-BEATS
+1.62 3.15 5.43
+2.67 4.32 6.84
+4.25 12.31 23.67
+2.98 5.17 8.26
+DeepAR
+1.59 3.11 5.38
+2.61 4.24 6.72
+4.18 11.98 22.45
+2.92 5.08 8.15
+TFT
+1.53 2.95 5.17
+2.48 4.03 6.41
+3.98 11.24 21.38
+2.74 4.78 7.69
+Informer
+1.51 2.92 5.08
+2.44 3.97 6.32
+3.92 11.09 21.12
+2.69 4.71 7.58
+TiDE
+1.47 2.86 4.98
+2.39 3.88 6.18
+3.85 10.95 20.84
+2.63 4.59 7.42
+TimeMixer
+1.43 2.81 4.92
+2.34 3.81 6.07
+3.81 10.83 20.56
+2.58 4.51 7.29
+Time-LLM
+1.42 2.79 4.88
+2.31 3.76 6.01
+3.77 10.75 20.37
+2.55 4.38 7.21
+Chronos
+1.41 2.77 4.85
+2.29 3.73 5.96
+3.74 10.68 20.21
+2.52 4.42 7.15
+Stacking Ens.
+1.41 2.74 4.83 2.27 3.69 5.92
+3.73 10.64 20.15
+2.49 4.45 7.09
+MACTS-EM
+1.28 2.47 4.35 2.31 3.35 5.21 3.41 9.72 18.43 2.28 4.42 6.51
+Improvement (%) 9.2* 9.9* 9.9* −1.8 9.2* 12.0* 8.6*
+8.6*
+8.5*
+8.4* −0.9 8.2*
+* p < 0.01 using Wilcoxon signed-rank test; negative values indicate underperformance.
+performance under natural regime changes (market crashes, pandemic variants,
+extreme weather) and synthetic interventions (level shifts, trend changes, volatil-
+ity increases). Experiment 4: Multimodal Integration analysed performance gains
+from incorporating news sentiment (financial), satellite imagery (climate), mo-
+bility data (pandemic), and weather forecasts (energy) at various availability
+levels.
+Additionally, we conducted ablation studies by systematically removing com-
+ponents (agents, meta-cognitive layer, memory, multimodal integration, robust-
+ness) to quantify their individual contributions.
+4
+Results and Analysis
+4.1
+Forecasting Accuracy
+Overall Performance: MACTS-EM generally outperformed baseline models
+across domains and forecast horizons, as shown in Table 1. Improvements over
+the best baselines range from 8.2% to 12.0% in most scenarios, with statisti-
+cal significance (p < 0.01) confirmed for these improvements. Domain-specific
+analysis reveals varying performance patterns: financial markets benefit most at
+medium and long horizons (9.9%), climate forecasting shows the strongest gains
+in long-range projections (12.0%), and pandemic data demonstrates consistent
+performance across horizons (8.5–8.6%). While MACTS-EM slightly underper-
+forms in certain scenarios (short-term climate and medium-term energy forecast-
+ing), its advantages during challenging events reflect the framework’s adaptive
+agent allocation.
+
+
+8
+A. Shahi et al.
+Table 2. Performance across transfer scenarios and distribution shifts. For zero-shot
+transfer, values represent MAPE (%) when transferring from source→target domain
+(lower is better). For distribution shift, DSR values are shown (higher is better).
+Zero-Shot Transfer
+Distribution Shift
+Model
+Fin→Clim Clim→Ener Fin→Pand Pand→Ener Clim→Fin Ener→Pand Financial Climate Pandemic Energy
+N-BEATS
+8.73
+7.21
+9.84
+8.17
+6.94
+11.32
+0.57
+0.52
+0.55
+0.59
+DeepAR
+8.52
+7.08
+9.61
+7.98
+6.78
+10.95
+0.59
+0.54
+0.57
+0.61
+TFT
+8.21
+6.84
+9.25
+7.69
+6.51
+10.42
+0.61
+0.56
+0.58
+0.64
+Informer
+8.14
+6.72
+9.17
+7.58
+6.43
+10.28
+0.62
+0.57
+0.59
+0.64
+TimeMixer
+7.98
+6.57
+8.94
+7.35
+6.28
+9.97
+0.65
+0.60
+0.61
+0.67
+Time-LLM
+7.85
+6.43
+8.76
+7.19
+6.15
+9.73
+0.66
+0.61
+0.62
+0.68
+Chronos
+7.71
+6.31
+8.59
+7.04
+6.03
+9.51
+0.68
+0.63
+0.63
+0.70
+Stacking Ens.
+7.64
+6.27
+8.51
+7.08
+5.97
+9.42
+0.67
+0.62
+0.63
+0.69
+MACTS-EM
+5.62*
+4.89*
+6.23*
+7.12
+4.57*
+7.18*
+0.79*
+0.74*
+0.76*
+0.68
+Improvement (%)
+26.4
+22.0
+26.8
+−1.1
+23.5
+23.8
+16.2
+17.5
+20.6
+−2.9
+* p < 0.01 using Wilcoxon signed-rank test; negative values indicate underperformance.
+Table 3. Performance metrics across all domains for medium-term forecasting (lower
+is better). RMSE values are domain-normalised for consistent comparison.
+MAPE (%)
+RMSE (normalised)
+Model
+Financial Climate Pandemic Energy Financial Climate Pandemic Energy
+ARIMA
+4.83
+6.12
+18.42
+7.38
+1.94
+1.76
+2.13
+1.82
+Prophet
+4.31
+5.67
+16.07
+6.84
+1.73
+1.63
+1.86
+1.69
+N-BEATS
+3.15
+4.32
+12.31
+5.17
+1.26
+1.24
+1.42
+1.28
+TFT
+2.95
+4.03
+11.24
+4.78
+1.18
+1.16
+1.30
+1.18
+TimeMixer
+2.81
+3.81
+10.83
+4.51
+1.12
+1.10
+1.25
+1.12
+Time-LLM
+2.79
+3.76
+10.75
+4.38
+1.11
+1.08
+1.24
+1.10
+Chronos
+2.77
+3.73
+10.68
+4.42
+1.10
+1.07
+1.23
+1.09
+Stacking Ens.
+2.74
+3.69
+10.64
+4.45
+1.09
+1.06
+1.22
+1.08
+MACTS-EM
+2.47*
+3.35*
+9.72*
+4.42
+0.98*
+0.96*
+1.12*
+1.09
+Improvement (%)
+9.9
+9.2
+8.6
+−0.9
+10.1
+9.4
+8.2
+−0.9
+* p < 0.01 using Wilcoxon signed-rank test; negative values indicate underperformance.
+Domain-Specific Performance MACTS-EM demonstrates distinctive advan-
+tages across the evaluated domains:
+Financial Markets: MACTS-EM achieves 7.3% improvement during stable
+periods, with its greatest advantage during volatile periods (38.8% improvement
+vs. TimeMixer during the COVID-19 crash). The anomaly detection agent pro-
+vides early warning signals 3–4 days before significant movements, with news
+sentiment integration contributing 25% of this improvement.
+Climate Forecasting: Long-term projections show 12.0% lower error rates,
+with 27.3% improvement for Arctic sea ice predictions. Satellite imagery integra-
+tion reduces error by 18.2% during summer melting periods, while the anomaly
+detection weight increases from 15% to 37% during extreme events, enabling
+rapid adaptation.
+Pandemic Propagation: MACTS-EM provides earlier variant detection
+(2.3 days earlier) and more accurate peak timing (±1.8 days vs. ±4.6 days for
+baselines). Agent weights shift dynamically, with mobility data integration re-
+ducing MAPE by 24.7% during intervention periods, while cross-region knowl-
+edge transfer provides a 3.5-day early detection advantage.
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+9
+Fig. 2. Pattern similarity matrix across domains, showing cross-domain knowledge
+transfer potential. Higher scores indicate greater similarity. Climate–Energy and
+Financial–Pandemic show the strongest pattern correlations.
+Energy Consumption: The framework achieves 8.4% improvement for
+routine short-term forecasting, with greater advantages during extreme events:
+23.7% improvement for heatwaves and 28.4% for cold snaps. Weather data in-
+tegration reduces error by 32.3% during rapidly changing conditions, with well-
+calibrated prediction intervals (92% coverage with 35% narrower width than
+baselines).
+4.2
+Cross-Domain Knowledge Transfer and Robustness
+Zero-Shot Transfer: MACTS-EM demonstrates substantially better zero-shot
+transfer performance than baselines in most scenarios, with improvements rang-
+ing from 22.0% to 26.8% (Table 2). While Pandemic→Energy shows slight un-
+derperformance (−1.1%), the remaining transfer scenarios demonstrate MACTS-
+EM’s cross-domain generalisation capability. Fig. 2 illustrates pattern similarity
+across domains, showing how the emergent memory identifies transferable dy-
+namics.
+Climate→Energy transfer shows strong performance (22.0% improvement),
+likely due to shared seasonal patterns and weather dependencies. Financial→
+Pandemic transfer (26.8%) benefits from similar outbreak and recovery dynam-
+ics, with the emergent memory identifying phase-transition patterns common to
+both domains.
+Robustness to Distribution Shifts: MACTS-EM demonstrates 16.2–20.6%
+better resilience to distribution shifts than baselines in three of four domains
+
+
+10
+A. Shahi et al.
+Table 4. Average recovery time (time steps) after distribution shifts (lower is better).
+Recovery is defined as the point where forecasting error returns to within 10% of pre-
+shift levels.
+Model
+Level Shift Trend Change Volatility Pattern Change
+ARIMA
+12.3
+15.8
+9.7
+17.4
+Prophet
+10.8
+13.6
+8.2
+15.3
+N-BEATS
+8.5
+12.1
+6.8
+13.7
+TFT
+7.4
+10.8
+5.6
+12.5
+TimeMixer
+6.1
+9.3
+4.7
+10.8
+Time-LLM
+6.0
+9.1
+4.6
+10.6
+Chronos
+5.8
+8.7
+4.5
+10.2
+Stacking Ens.
+5.7
+8.5
+4.4
+10.0
+MACTS-EM
+4.7*
+7.2*
+3.6*
+8.3*
+Improvement (%)
+17.5
+15.3
+18.2
+17.0
+* p < 0.01 using Wilcoxon signed-rank test.
+(Table 2), with the most significant improvement during pandemic variant emer-
+gence (20.6%) and financial market crashes (16.2%). The framework’s dynamic
+agent weighting plays a crucial role in this resilience: during shifts, the anomaly
+and uncertainty agents gain prominence, while the pattern recognition agent
+dominates during stable periods.
+Recovery Time: MACTS-EM demonstrates 15.3–18.2% faster recovery across
+intervention types (Table 4), with the most significant improvement for volatil-
+ity increases (18.2%). This rapid recovery derives from the adversarial training
+component, which exposes the model to various perturbations during training.
+The causal agent’s ability to identify invariant relationships also contributes to
+stability during shifts.
+4.3
+Multimodal Integration and Ablation Studies
+Impact Assessment: MACTS-EM achieves 1.6–1.7× greater MAPE reduction
+from multimodal integration compared to baselines (Table 5). The strongest
+improvements are observed in energy forecasting with weather data (10.3%),
+followed by pandemic forecasting with mobility data (9.2%), climate forecasting
+with satellite imagery (7.8%), and financial forecasting with news sentiment
+(6.9%).
+Component Analysis: Ablation results (Table 5) reveal the meta-cognitive
+layer as most critical (13.4% MAPE increase when removed), followed by
+emergent memory (11.1%) and multimodal integration (10.1%). Among agents,
+Anomaly Detection has the highest impact (9.3%), followed by Causal Infer-
+ence (8.7%). These results quantify the contribution of each component to
+overall performance, indicating that the framework’s advantages stem from the
+interaction of its components rather than any single innovation.
+Data Limitation Robustness: MACTS-EM maintains 83% of its performance
+gain with 50% of multimodal data and 62% with just 25%, demonstrating re-
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+11
+Table 5. MAPE reduction (%) from multimodal integration and component contribu-
+tion. For multimodal integration, values show percentage improvement with vs. without
+auxiliary data. For ablation, values show MAPE increase when removing each compo-
+nent.
+Multimodal Benefit
+Ablation
+Domain/Component
+TimeMixer Chronos MACTS-EM MAPE Increase
+Financial/News Sentiment
+3.8%
+4.2%
+6.9%*
+–
+Climate/Satellite Imagery
+4.2%
+4.7%
+7.8%*
+–
+Pandemic/Mobility Data
+5.3%
+5.8%
+9.2%*
+–
+Energy/Weather Forecasts
+5.6%
+6.1%
+10.3%*
+–
+Meta-Cognitive Layer
+–
+–
+–
+13.4%*
+Emergent Memory
+–
+–
+–
+11.1%*
+Multimodal Integration
+–
+–
+–
+10.1%*
+Anomaly Detection Agent
+–
+–
+–
+9.3%*
+Causal Inference Agent
+–
+–
+–
+8.7%*
+Uncertainty Quantification Agent
+–
+–
+–
+7.5%*
+Pattern Recognition Agent
+–
+–
+–
+6.8%*
+Adversarial Robustness
+–
+–
+–
+5.2%*
+* p < 0.01 using Wilcoxon signed-rank test.
+silience to modality limitations. This robustness stems from the framework’s
+ability to leverage partial information through the cross-modal attention mech-
+anism.
+Adaptive Weighting: The meta-cognitive layer dynamically shifts weights
+based on context. During financial market stability, the weights are distributed as
+follows: Pattern Recognition (42%), Causal Inference (26%), Uncertainty Quan-
+tification (18%), and Anomaly Detection (14%). During market volatility, the
+distribution changes to: Anomaly Detection (39%), Uncertainty Quantification
+(32%), Pattern Recognition (16%), and Causal Inference (13%). This adaptive
+behaviour enables MACTS-EM to emphasise different forecasting aspects based
+on changing conditions, contributing to its performance during regime shifts.
+Agent Behavioural Profiles: We log every inter-agent message and each
+agent’s self-reported confidence Ci during inference. Communication frequency
+is the number of messages an agent sends per hour of simulated time, aver-
+aged within each market condition; confidence is the mean of Ci per domain;
+and context adaptation scores (0–100) summarise each behavioural dimension
+under normal and high-uncertainty conditions. Fig. 3 characterises how each
+agent’s communication and confidence change with market conditions. The Sen-
+tinel (anomaly detection) agent’s message rate rises sharply from normal to crisis
+conditions, while the Analyst (pattern recognition) agent is most active outside
+crisis periods. Confidence levels stay consistently ordered across domains: the
+Analyst reports the highest confidence and the Realist (uncertainty quantifica-
+tion) the lowest, which reflects their intended roles. Under high uncertainty, the
+agents shift from pattern focus towards alert frequency and uncertainty com-
+
+
+12
+A. Shahi et al.
+munication, matching the weight redistribution observed in the meta-cognitive
+layer.
+Fig. 3. Agent behavioural profiles: (a) communication frequency across market condi-
+tions, (b) mean confidence by domain, and (c) context adaptation under normal vs.
+high-uncertainty conditions. Analyst = Pattern Recognition, Sentinel = Anomaly De-
+tection, Logician = Causal Inference, Realist = Uncertainty Quantification.
+Cross-Domain Patterns: Analysis revealed unexpected pattern similari-
+ties: Energy–Climate (0.78 similarity score), Financial–Pandemic (0.63), and
+Climate–Financial (0.57). These similarities enable effective knowledge transfer
+across seemingly unrelated domains. For example, the seasonal cycle in energy
+consumption shares structural similarities with temperature patterns, while
+financial market volatility clusters exhibit parallels with pandemic infection rate
+dynamics. The emergent memory identifies these abstract pattern relationships
+independent of absolute scale or domain-specific characteristics.
+Computational Considerations: MACTS-EM requires 36% more training
+time than TimeMixer, primarily due to the collaborative training stage. However,
+optimisations including selective agent activation (22% speedup), incremental
+memory updates (15% speedup), and parallel execution (18% speedup) cre-
+ate a favourable performance–efficiency trade-off. For medium-term forecasts,
+optimised MACTS-EM requires 285 ms on average compared to 201 ms for
+TimeMixer.
+The computational complexity follows O(T · (nA · CA + CM + CI)), where T
+is input sequence length, nA is agent count, CA is average agent complexity, CM
+is meta-cognitive layer complexity, and CI is integration overhead. For real-time
+applications, our streamlined MACTS-EM-RT variant achieves 3.7× faster infer-
+ence with only 2.3% accuracy reduction. For edge deployment, 8-bit quantised
+versions reduce memory requirements by 73% while maintaining performance
+(< 1% accuracy loss).
+4.4
+Summary of Findings
+Overall, MACTS-EM achieves: 8.2–12.0% improved forecasting accuracy across
+most domains and horizons, 22.0–26.8% better zero-shot transfer in five of six
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+13
+transfer scenarios, 16.2–20.6% enhanced resilience to distribution shifts in three
+of four domains, 15.3–18.2% faster recovery after perturbations, and greater mul-
+timodal integration benefits compared to baselines. These results support the
+framework’s core design: specialised agents, meta-cognitive coordination, emer-
+gent memory, multimodal integration, and adversarial robustness.
+5
+Implications and Limitations
+MACTS-EM represents a shift from monolithic models to collaborative agent-
+based systems, with theoretical and practical implications. Our results demon-
+strate that specialised expertise with intelligent coordination outperformed
+general-purpose models, with the meta-cognitive structure mirroring human
+cognitive architectures and enabling contextual adaptation. The emergent mem-
+ory’s ability to transfer knowledge across domains suggests shared pattern
+structures that transcend domain boundaries.
+From a practical perspective, the framework offers valuable capabilities for:
+early warning systems for market crashes and disease outbreaks (2–4 day ad-
+vantages); resource allocation during rapid shifts in healthcare and energy man-
+agement; cross-domain knowledge transfer enabling improved forecasts in data-
+scarce contexts; and interpretable predictions with transparent agent contribu-
+tions.
+Despite strong performance, MACTS-EM has four key limitations: (1) in-
+creased computational requirements (36% training and approximately 42%
+inference overhead relative to TimeMixer), though our MACTS-EM-RT variant
+reduces this through model distillation; (2) domain-specific underperformance
+in short-term climate forecasting (−1.8%), medium-term energy forecasting
+(−0.9%), Pandemic→Energy transfer (−1.1%), and energy distribution-shift
+resilience (−2.9%); (3) an expanded hyperparameter space requiring careful
+tuning; and (4) diminished performance for very long-term forecasts beyond 90
+days. We observed that domains with strong cyclical patterns generally benefited
+more than those with higher stochasticity, suggesting room for improvement in
+handling highly irregular time series.
+6
+Conclusion and Future Directions
+This paper introduced MACTS-EM, a collaborative forecasting framework
+that re-imagines time series prediction through specialised agents coordinated
+by a meta-cognitive layer. Our evaluation demonstrates improvements over
+state-of-the-art models in most scenarios. The framework’s strongest advantages
+emerge during challenging situations—market crashes (38.8% improvement),
+pandemic waves (earlier variant detection), and extreme weather events (23.7–
+28.4% improvement)—precisely when accurate forecasting is most critical. By
+decomposing forecasting into specialised roles with coordinated information
+
+
+14
+A. Shahi et al.
+flow, MACTS-EM achieves capabilities exceeding individual component contri-
+butions, as indicated by ablation studies. The approach represents a promising
+shift toward collaborative AI systems inspired by human cognitive organisation.
+Future research directions include architectural advances (hierarchical struc-
+tures, dynamic agent creation), methodological improvements (continual learn-
+ing, enhanced causal inference), and application extensions (spatiotemporal fore-
+casting, integration with optimisation frameworks). We also plan to integrate
+LLM-based agents that can reason over textual context and explain their fore-
+casts in natural language. We particularly see promise in reinforcement learning
+for optimising agent communication protocols and meta-learning for faster adap-
+tation to novel domains.
+References
+1. Alsheheri, G.: Time series forecasting in healthcare: A comparative study of sta-
+tistical models and neural networks. Journal of Applied Mathematics and Physics
+13(2), 633–663 (2025). https://doi.org/10.4236/jamp.2025.132035
+2. Ansari, A.F., Stella, L., Turkmen, C., Zhang, X., Mercado, P., Shen, H., Shchur,
+O., Rangapuram, S.S., Arango, S.P., Kapoor, S., et al.: Chronos: Learning the
+language of time series. arXiv preprint arXiv:2403.07815 (2024). https://doi.
+org/10.48550/arXiv.2403.07815
+3. Barbosa, R., Santos, R., Novais, P.: Collaborative problem-solving with LLM:
+A multi-agent system approach to solve complex tasks using AutoGen. In: In-
+ternational Conference on Practical Applications of Agents and Multi-Agent
+Systems (PAAMS). pp. 203–214. Springer (2024). https://doi.org/10.1007/
+978-3-031-73058-0_17
+4. Cao, D., Jia, F., Arik, S.O., Pfister, T., Zheng, Y., Ye, W., Liu, Y.: TEMPO:
+Prompt-based generative pre-trained transformer for time series forecasting. arXiv
+preprint arXiv:2310.04948 (2023). https://doi.org/10.48550/arXiv.2310.04948
+5. Cheng, C., Sa-Ngasoongsong, A., Beyca, O., Le, T., Yang, H., Kong, Z., Bukka-
+patnam, S.T.S.: Time series forecasting for nonlinear and non-stationary pro-
+cesses: a review and comparative study. IIE Transactions 47(10), 1053–1071 (2015).
+https://doi.org/10.1080/0740817X.2014.999180
+6. Das, A., Kong, W., Leach, A., Mathur, S., Sen, R., Yu, R.: Long-term forecasting
+with TiDE: Time-series dense encoder. arXiv preprint arXiv:2304.08424 (2023).
+https://doi.org/10.48550/arXiv.2304.08424
+7. Ganin, Y., Lempitsky, V.: Unsupervised domain adaptation by backpropagation.
+In: International Conference on Machine Learning. pp. 1180–1189. PMLR (2015).
+https://doi.org/10.48550/arXiv.1409.7495
+8. Garza,
+A.,
+Mergenthaler-Canseco,
+M.:
+TimeGPT-1.
+arXiv
+preprint
+arXiv:2310.03589 (2023). https://doi.org/10.48550/arXiv.2310.03589
+9. Jia, F., Wang, K., Zheng, Y., Cao, D., Liu, Y.: GPT4MTS: Prompt-based large
+language model for multimodal time-series forecasting. In: Proceedings of the AAAI
+Conference on Artificial Intelligence. vol. 38, pp. 23343–23351 (2024). https://
+doi.org/10.1609/aaai.v38i21.30383
+10. Jiang, B., Xie, Y., Wang, X., Yuan, Y., Hao, Z., Bai, X., Su, W.J., Taylor,
+C.J., Mallick, T.: Towards rationality in language and multimodal agents: A sur-
+vey. arXiv preprint arXiv:2406.00252 (2024). https://doi.org/10.48550/arXiv.
+2406.00252
+
+
+MACTS-EM: Multi-Agent Forecasting with Emergent Memory
+15
+11. Jin, M., Wang, S., Ma, L., Chu, Z., Zhang, J.Y., Shi, X., Chen, P.Y., Liang, Y., Li,
+Y.F., Pan, S., et al.: Time-LLM: Time series forecasting by reprogramming large
+language models. arXiv preprint arXiv:2310.01728 (2023). https://doi.org/10.
+48550/arXiv.2310.01728
+12. Kong, X., Chen, Z., Liu, W., Ning, K., Zhang, L., Muhammad Marier, S., Liu, Y.,
+Chen, Y., Xia, F.: Deep learning for time series forecasting: a survey. International
+Journal of Machine Learning and Cybernetics pp. 1–34 (2025). https://doi.org/
+10.1007/s13042-025-02560-w
+13. Mudelsee, M.: Climate Time Series Analysis: Classical Statistical and Bootstrap
+Methods, Atmospheric and Oceanographic Sciences Library, vol. 51. Springer,
+Cham, 2 edn. (2014). https://doi.org/10.1007/978-3-319-04450-7
+14. Oreshkin, B.N., Carpov, D., Chapados, N., Bengio, Y.: N-BEATS: Neural ba-
+sis expansion analysis for interpretable time series forecasting. arXiv preprint
+arXiv:1905.10437 (2019). https://doi.org/10.48550/arXiv.1905.10437
+15. Panigrahi, S., Nanda, A., Swarnkar, T.: A survey on transfer learning. In: Intelli-
+gent and Cloud Computing: Proceedings of ICICC 2019, Volume 1, pp. 781–789.
+Springer (2020). https://doi.org/10.1007/978-981-15-5971-6_83
+16. Rashid, T., Samvelyan, M., De Witt, C.S., Farquhar, G., Foerster, J., Whiteson, S.:
+Monotonic value function factorisation for deep multi-agent reinforcement learning.
+Journal of Machine Learning Research 21(178), 1–51 (2020). https://doi.org/
+10.48550/arXiv.2003.08839
+17. Sezer, O.B., Gudelek, M.U., Ozbayoglu, A.M.: Financial time series forecasting
+with deep learning: A systematic literature review: 2005–2019. Applied Soft Com-
+puting 90, 106181 (2020). https://doi.org/10.1016/j.asoc.2020.106181
+18. Siami-Namini, S., Tavakoli, N., Namin, A.S.: A comparison of ARIMA and LSTM
+in forecasting time series. In: 2018 17th IEEE International Conference on Machine
+Learning and Applications (ICMLA). pp. 1394–1401. IEEE (2018). https://doi.
+org/10.1109/ICMLA.2018.00227
+19. Smyl, S., Dudek, G., Pełka, P.: Contextually enhanced ES-dRNN with dynamic
+attention for short-term load forecasting. Neural Networks 169, 660–672 (2024).
+https://doi.org/10.48550/arXiv.2212.09030
+20. Tran, K.T., Dao, D., Nguyen, M.D., Pham, Q.V., O’Sullivan, B., Nguyen,
+H.D.: Multi-agent collaboration mechanisms: A survey of LLMs. arXiv preprint
+arXiv:2501.06322 (2025). https://doi.org/10.48550/arXiv.2501.06322
+21. Wang, S., Wu, H., Shi, X., Hu, T., Luo, H., Ma, L., Zhang, J.Y., Zhou, J.:
+TimeMixer: Decomposable multiscale mixing for time series forecasting. arXiv
+preprint arXiv:2405.14616 (2024). https://doi.org/10.48550/arXiv.2405.14616
+22. Wen, Q., Zhou, T., Zhang, C., Chen, W., Ma, Z., Yan, J., Sun, L.: Transformers in
+time series: A survey. arXiv preprint arXiv:2202.07125 (2022). https://doi.org/
+10.48550/arXiv.2202.07125
+23. Wu, Q., Wang, W., Fan, P., Fan, Q., Zhu, H., Letaief, K.B.: Cooperative edge
+caching based on elastic federated and multi-agent deep reinforcement learning in
+next-generation networks. IEEE Transactions on Network and Service Management
+(2024). https://doi.org/10.1109/TNSM.2024.3403842
+24. Wu, Y., Liang, S., Zhang, C., Wang, Y., Zhang, Y., Guo, H., Tang, R., Liu, Y.:
+From human memory to AI memory: A survey on memory mechanisms in the era
+of LLMs. arXiv preprint arXiv:2504.15965 (2025). https://doi.org/10.48550/
+arXiv.2504.15965
+25. Yang, S., Nachum, O., Du, Y., Wei, J., Abbeel, P., Schuurmans, D.: Foundation
+models for decision making: Problems, methods, and opportunities. arXiv preprint
+arXiv:2303.04129 (2023). https://doi.org/10.48550/arXiv.2303.04129
+
+
+16
+A. Shahi et al.
+26. Zhang, C., Sjarif, N.N.A., Ibrahim, R.: Deep learning models for price forecasting
+of financial time series: A review of recent advancements: 2020–2022. Wiley Inter-
+disciplinary Reviews: Data Mining and Knowledge Discovery 14(1), e1519 (2024).
+https://doi.org/10.48550/arXiv.2305.04811
+27. Zhou, H., Zhang, S., Peng, J., Zhang, S., Li, J., Xiong, H., Zhang, W.: Informer:
+Beyond efficient transformer for long sequence time-series forecasting. In: Proceed-
+ings of the AAAI Conference on Artificial Intelligence. vol. 35, pp. 11106–11115
+(2021). https://doi.org/10.48550/arXiv.2012.07436
