@@ -51,14 +51,14 @@
       <span class="dpr-home-dashboard-kicker">2026-10-06</span>
       <h3 class="dpr-home-dashboard-title">今日汇总</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">共 8 篇</strong>
+    <strong class="dpr-home-dashboard-count">共 19 篇</strong>
   </div>
   <dl class="dpr-home-dashboard-stats">
-    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>1 次</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>1</dd></div>
-    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>7</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>累计更新</dt><dd>2 次</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>精读</dt><dd>5</dd></div>
+    <div class="dpr-home-dashboard-stat"><dt>速读</dt><dd>14</dd></div>
   </dl>
-  <p class="dpr-home-dashboard-body">最近更新：2026-10-06 01:05:29 UTC<br>状态：成功</p>
+  <p class="dpr-home-dashboard-body">最近更新：2026-10-06 23:10:45 UTC<br>状态：成功</p>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-brief-card">
   <div class="dpr-home-dashboard-header">
@@ -69,9 +69,7 @@
     <strong class="dpr-home-dashboard-count">AI</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<p>今日共筛出 8 篇论文，精读 1 篇、速读 7 篇，主线聚焦 LLM Agent 的能力边界。</p>
-<p>最值得看的是 9.0 分的《D2K-Bench》，它检验 LLM Agent 能否把专家设计转化为高效 GPU Kernel；速读中的 ANTMAN 与 ASENA 则关注大信息空间和具身场景下的多智能体导航。</p>
-<p>普通读者可先读 D2K-Bench 了解 Agent 做底层性能优化的真实水平，再按兴趣挑导航类工作速览。</p>
+<p>今日精读5篇、速读14篇共19篇，重点聚焦LLM Agent能否把专家设计转化为高效GPU内核。最值得看的是两篇9分工作——D2K-Bench与MetaKernelBench，分别考察Agent生成GPU内核的能力和超越代码的内核知识迁移。普通读者可先读这两篇了解Agent做底层性能优化的边界，再按兴趣扫速读中的Agent库设计与代码检索评测。</p>
   </div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-deep-card">
@@ -80,12 +78,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">精读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">1 篇</strong>
+    <strong class="dpr-home-dashboard-count">5 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?">D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?">D2K-Bench: Can LLM Agents Turn Expert Designs into Efficient GPU Kernels?</span></li><li><span class="dpr-home-dashboard-paper-title" title="MetaKernelBench: Measuring GPU Kernel Knowledge Transfer Beyond Code">MetaKernelBench: Measuring GPU Kernel Knowledge Transfer Beyond Code</span></li><li><span class="dpr-home-dashboard-paper-title" title="ASENA: Self-evolving Agents for Embodied Navigation">ASENA: Self-evolving Agents for Embodied Navigation</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>1</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>5</strong></span></div>
 </section>
 <section class="dpr-home-dashboard-card dpr-home-skim-card">
   <div class="dpr-home-dashboard-header">
@@ -93,12 +91,12 @@
       <span class="dpr-home-dashboard-kicker">今日累计</span>
       <h3 class="dpr-home-dashboard-title">速读推荐</h3>
     </div>
-    <strong class="dpr-home-dashboard-count">7 篇</strong>
+    <strong class="dpr-home-dashboard-count">14 篇</strong>
   </div>
   <div class="dpr-home-dashboard-body">
-<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="ANTMAN: Adaptive Need Tracking for Multi-Agent Navigation in Large Information Spaces">ANTMAN: Adaptive Need Tracking for Multi-Agent Navigation in Large Information Spaces</span></li><li><span class="dpr-home-dashboard-paper-title" title="ASENA: Self-evolving Agents for Embodied Navigation">ASENA: Self-evolving Agents for Embodied Navigation</span></li><li><span class="dpr-home-dashboard-paper-title" title="Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring">Compositional Safety Failures in Harness Evolution: Identification and Runtime Monitoring</span></li></ul>
+<ul class="dpr-home-dashboard-paper-list"><li><span class="dpr-home-dashboard-paper-title" title="Can Agents Design Libraries for Agents?">Can Agents Design Libraries for Agents?</span></li><li><span class="dpr-home-dashboard-paper-title" title="From Knowledge Access to Source Learning: Developing Source-Specific Competence">From Knowledge Access to Source Learning: Developing Source-Specific Competence</span></li><li><span class="dpr-home-dashboard-paper-title" title="Are you Synthesizing or Recalling? Evaluating LLMs on Algorithmic Code Retrieval">Are you Synthesizing or Recalling? Evaluating LLMs on Algorithmic Code Retrieval</span></li></ul>
   </div>
-  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>7</strong></span></div>
+  <div class="dpr-home-dashboard-tags"><span class="dpr-home-dashboard-tag">gkg <strong>14</strong></span></div>
 </section>
 </div>
 

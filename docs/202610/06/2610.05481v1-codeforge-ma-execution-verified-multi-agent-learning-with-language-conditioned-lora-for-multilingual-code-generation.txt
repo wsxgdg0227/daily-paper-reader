@@ -1,0 +1,522 @@
+Title: CodeForge-MA: Execution-Verified Multi-Agent Learning with Language-Conditioned LoRA for Multilingual Code Generation
+
+URL Source: https://arxiv.org/pdf/2610.05481v1
+
+Published Time: Tue, 06 Oct 2026 01:56:33 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# CodeForge-MA: Execution-Verified Multi-Agent Learning with Language-Conditioned LoRA for Multilingual Code Generation 
+
+Zhizhou Gu* 
+
+Northeastern University 
+
+Bellevue, USA gu.zhiz@northeastern.edu 
+
+Xianting Wu 
+
+Columbia University 
+
+New York, USA xianting.wu@outlook.com 
+
+Siyu Gu 
+
+University of Pennsylvania 
+
+Philadelphia, USA gusiyu88@engineering.upenn.edu 
+
+Tian Zhang 
+
+University of Southern California 
+
+San Jose, USA 0tianzhang0@gmail.com 
+
+Kejian Tong 
+
+Independent Researcher 
+
+Mukilteo, USA tongcs2021@gmail.com 
+
+Abstract —Large language models for code generation often fail on execution, multilingual coverage, and contamination control, especially under frozen backbone constraints. We present CodeForge-MA, a unified framework that improves code synthe-sis through a multi-agent data forge, execution verified reinforced instruction tuning, and a language conditioned mixture of LoRA adapters. Four specialized agents, Composer, Reviewer, Executor, and Curator, iteratively refine instruction code pairs, validate them with tests, and filter duplicates and benchmark leakage. During training, we combine masked supervised fine tuning with a test driven reinforcement objective to align generations with executable correctness. For the larger model, we use sparse expert routing over low rank adapters to improve cross language transfer while keeping the base model unchanged at inference. Experiments show that joint data, objective, and adapter design yields robust gains across programming languages. 
+
+Index Terms —code generation, multi-agent learning, instruc-tion tuning, parameter-efficient fine-tuning, reinforcement learn-ing, multilingual programming 
+
+I. I NTRODUCTION 
+
+Generating correct code from natural language remains a critical challenge because success requires more than flu-ent text production, it demands syntactic validity, semantic correctness, and robust behavior across diverse programming languages. In practice, many systems produce answers that appear plausible but fail at compilation or unit testing, which makes execution grounded evaluation indispensable for real code tasks [1].Analogous reliability concerns arise in high-stakes LLM deployments such as financial anti-fraud systems, where hallucinations and unverifiable numerical or logical claims motivate layered verification and guardrail mechanisms [2]. Recent advances in prompting and large language model reasoning have improved code synthesis, yet they still strug-gle with long tail languages, prompt contamination, and the mismatch between reference style and executable correctness. Instruction tuning alone often optimizes surface form, while test time search and reasoning strategies add cost without directly fixing data quality or adapter efficiency [3]. At the same time, scaling model size is not always feasible when the backbone must remain frozen and inference overhead must stay low [4].These efficiency concerns are especially acute for edge-class Arm CPU deployment, where memory capacity, bandwidth pressure, low-precision throughput, and kernel-level optimization jointly constrain practical LLM infer-ence [5].This emphasis on architecture-level efficiency under realistic deployment constraints is consistent with recent evi-dence that different LLM reasoning architectures can exhibit markedly different accuracy, auditability, and cost trade-offs in resource-constrained settings [6]. To address these constraints, we introduce CodeForge MA, a framework that jointly improves training data, optimization objective, and parameter efficient adaptation. Our approach uses a multi agent data forge to create and verify code samples, an execution verified reinforced instruction tuning objective to reward passing tests, and a language conditioned mixture of low rank adapters to specialize efficiently across programming languages. The result is a frozen backbone pipeline that concentrates learning where it matters most, in the data, the reward signal, and the adapters. II. R ELATED WORK 
+
+Work on core code generation has established that large language models can synthesize programs from natural lan-guage, but benchmark performance remains sensitive to dataset quality, language imbalance, and execution reliability [7]. Recent studies also show that model scaling alone does not resolve compilation errors or hidden test failures, especially in multilingual settings where training corpora are unevenly distributed [8]. Auxiliary approaches have therefore focused on strengthen-ing supervision through better prompting, self refinement, and arXiv:2610.05481v1 [cs.AI] 4 Oct 2026 execution feedback. Instruction tuning and reasoning centered decoding can improve outputs, yet they still depend heavily on the quality of the underlying synthetic or curated data, and they may not reliably eliminate contaminated examples or silent failures [9]. Parameter efficient adaptation methods further reduce training cost, but standard adapters or low rank modules can underutilize capacity when task diversity is high [10]. Our framework is closest to recent efforts that combine data curation, execution grounded learning, and modular adaptation for code oriented LLMs. In contrast to single stage tuning, we integrate a multi agent forge with verification, a reinforced in-struction objective tied to unit tests, and language conditioned expert routing over LoRA modules to reduce cross language interference. This design is motivated by broader findings that structured supervision and sparse adaptation can improve controllability and efficiency in large scale language models [11] [12].Related ideas about robustness through structured representations and causal disentanglement have also been explored in graph-based fraud detection, where suppressing spurious environmental correlations improves generalization under distribution shift [13].Similar efficiency-driven design principles have also appeared in cloud-native performance prediction, where multimodal generative modeling, long-range dependency mechanisms, and calibrated uncertainty estimation are combined to support online deployment under dynamic workloads [14]. III. M ETHODOLOGY 
+
+Under a frozen-backbone, limited-compute setting, ar-chitectural novelty is unavailable, so gains must come from the data pipeline, the supervised objective, and the parameter-efficient adaptation layer. Built on the Qwen-1.8B and Qwen-72B backbones—decoder-only Transformers with RoPE, RMSNorm, SwiGLU, and tied embeddings—we pro-pose CodeForge-MA, a unified framework pairing a multi-agent data forge with a mixture-of-adapter tuning layer. On the data side, four specialized LLM agents—Composer, Reviewer, sandboxed Executor, and Curator—cooperate in a Reflexion-style loop that drafts instruction-code pairs, critiques them via self-consistency voting, compiles and tests them against auto-generated unit tests, and finally deduplicates and decon-taminates survivors against HumanEval, HumanEvalFix, and MBPP using MinHash LSH. This addresses three practical failures we observed: silent compile-time errors in single-shot synthetic data, the long-tail scarcity of Rust and Go samples, and prompt-level leakage in Evol-Instruct-style corpora. On the optimization side, we introduce an execution-verified rein-forced instruction-tuning objective that combines token-level cross-entropy on the assistant turn with a PPO-style surrogate whose reward is the unit-test pass ratio, gated by a warm-up schedule so fluency is acquired before execution signals are injected. For the 72B regime, where full fine-tuning is infeasible, we attach a language-conditioned mixture-of-LoRA module to the attention projections, in which six low-rank experts are blended by a top-k router conditioned on the mean-pooled prompt representation, regularized by a Switch-style load-balancing term and a soft language-identity prior to prevent expert collapse and encourage cross-lingual transfer. The Qwen architecture remains strictly untouched at inference, adding only negligible routing overhead, while all trainable capacity is concentrated in the agentic curation process and the low-rank adapters. Fig. 1 summarizes how the multi-agent data forge, the execution-verified reinforced instruction tuning stage, and the language-conditioned mixture-of-LoRA adapter stack on top of the strictly frozen Qwen backbone. IV. A LGORITHM AND MODEL 
+
+In this section we describe CodeForge-MA, the end-to-end framework we designed for the Qwen AI Challenge. Because the competition forbids any modification to the backbone net-work itself, everything that can actually move the needle, i.e. the training data, the supervised objective, and the parameter-efficient adaptation, has to be reconsidered jointly rather than in isolation. We therefore organize the method around three tightly coupled components, preceded by a short description of the base model we build upon. 
+
+A. Base Model: Qwen-1.8B and Qwen-72B 
+
+We adopt Qwen-1.8B for the preliminary round and Qwen-72B for the final round, both released by Alibaba Cloud in late 2023 under an open weight license. Architecturally they are decoder-only autoregressive Transformers sharing the same recipe, differing only in depth, width and number of attention heads. Given an input token sequence x = ( x1, . . . , x T ) drawn from a byte-level BPE vocabulary of roughly 152 K symbols, the model factorizes the joint distribution in the standard causal way, 
+
+pθ (x) = 
+
+> T
+
+Y
+
+> t=1
+
+pθ (xt | x<t ) , (1) and stacks L pre-norm Transformer blocks equipped with Rotary Position Embedding (RoPE), Root-Mean-Square Nor-malization and a SwiGLU feed-forward network: 
+
+˜h(ℓ) = h(ℓ−1) + MHA  RMSNorm( h(ℓ−1) ), (2) 
+
+h(ℓ) = ˜h(ℓ) + FFN SwiGLU 
+
+ RMSNorm( ˜h(ℓ)). (3) The attention in each head reads 
+
+Attn( Q, K, V) = softmax 
+
+ QK ⊤
+
+> √dh
+
++ M
+
+
+
+V, (4) with causal mask M, and the SwiGLU block is 
+
+FFN( x) =  SiLU( xW g ) ⊙ xW u
+
+Wd, (5) where SiLU( u) = u σ (u). An important practical detail is that the base checkpoint uses ⟨endoftext ⟩ as its EOS, whereas the fine-tuned ChatML variant switches to ⟨im_end ⟩;mixing the two is a subtle but common source of degenerate generations, and throughout our pipeline we explicitly re-tokenize every sample so that the EOS token is consistent with the target format. Qwen also ties input and output embeddings, which we deliberately do not break, to keep the gradient footprint minimal during parameter-efficient tuning. Fig. 1. Overview of the CodeForge-MA framework. Four sequential stages (Multi-Agent Data Forge, EV-RIT Training, LC-MoLoRA Adaptation, Inference) operate above a frozen Qwen-1.8B/72B backbone, faithfully respecting the competition’s no-modification rule. 
+
+B. Multi-Agent Data Forge 
+
+The first component of CodeForge-MA is a hierarchical multi-agent data forge. The rationale is that the scarcity of high-quality, execution-verified multilingual code instruc-tions, not model capacity, is the real bottleneck in this competition. Instead of scraping and lightly filtering as the common baselines do, we organize four specialized LLM agents into a closed control loop. The agent set is A =
+
+{ACmp , A Rev , A Exe , A Cur }, where ACmp is a Composer that drafts a candidate instruction-code pair from a seed, ARev 
+
+is a Reviewer that scores style, correctness and pedagogical value, AExe is an Executor that compiles and runs the code inside a sandbox, and ACur is a Curator that performs global deduplication and decontamination. Formally, the state of a sample at iteration k is zk = ( Xk, Y k, r k, q k, π k), where Xk
+
+is the prompt, Yk the code, rk the natural-language review, qk
+
+a scalar quality score and πk ∈ { 0, 1} the execution indicator. The forge transitions according to 
+
+zk+1 = F(zk; A) = AExe ◦ ARev ◦ ACmp (zk), (6) and a sample is accepted only when 
+
+Accept( zk) = [ πk = 1] ∧ [qk ≥ τq ] ∧ [k ≤ Kmax ], (7) with τq = 0 .75 and Kmax = 3 . We found empirically that a naive single-pass synthesis protocol produces code which frequently looks plausible but fails to compile, particularly in Rust and Go where trait bounds and package declarations are easy to miss; constraining every survivor through πk = 1 
+
+eliminates this failure mode at the source. The closed-loop structure of the forge, including the Reflexion-style feedback path from the Executor back to the Composer, is depicted in Fig. 2.                       
+
+> Fig. 2. The Multi-Agent Data Forge. Four specialized agents
+> {ACmp , A Rev , A Exe , A Cur }cooperate in aclosed Reflexion-style loop; a sample is accepted only when πk= 1 ,qk≥τq, and k≤Kmax .
+
+To stabilize the Reviewer, which is itself an LLM and there-fore a noisy judge, we apply self-consistency. The Reviewer is sampled M times with temperature τR, and the scalar score is 
+
+qk = 1
+
+M
+
+> M
+
+X
+
+> m=1
+
+A(m)Rev (Xk, Y k), M = 5 , (8) which, in our ablations, correlates more reliably with down-stream pass rate than a deterministic single critique. Whenever 
+
+Accept( zk) returns false, we do not discard the sample immediately. Instead, the Composer is re-invoked with aprompt augmented by the Reviewer’s report and the Executor’s traceback, 
+
+Prompt k+1 = Prompt k ⊕ rk ⊕ Ψ( πk), (9) where Ψ extracts the compiler/runtime message when πk = 0 .This realizes a Reflexion-style self-improvement loop inside data generation rather than at inference time, and it substan-tially reduces the number of samples wasted due to off-by-one slicing, missing imports, or incorrect function signatures, which were the most common failure modes we observed on seed corpora such as Evol-Instruction-66k. A second practical issue is language imbalance. Open instruction corpora are heavily Python-skewed, which is ex-actly the opposite of what the benchmark rewards, since pass@1 is averaged uniformly over six languages. We there-fore condition the Composer on a language token ℓ ∈ L =
+
+{Py , Js , Java , Go , Cpp , Rust } drawn from a temperature-flattened distribution, 
+
+qℓ = N αℓP 
+
+> ℓ′∈L
+
+N αℓ′
+
+, α = 0 .3, (10) where Nℓ is the seed count in language ℓ. The trick is small but effective: with α = 1 (natural frequency) the forge produces more than 70% Python samples, whereas α = 0 .3 delivers a near-uniform distribution that we find markedly healthier for the cross-lingual pass-rate curve. Finally, the Curator applies global near-duplicate removal and contamination filtering. For every pair of surviving prompts we approximate the Jaccard similarity over 5-character shingles, 
+
+J(Sk(X), S k(X′)) = |Sk(X) ∩ Sk(X′)||Sk(X) ∪ Sk(X′)| , (11) using MinHash locality-sensitive hashing for tractability. Any sample with J > 0.8 against a retained instance, or against any HumanEval/HumanEvalFix/MBPP evaluation prompt, is dropped. An early version of our pipeline skipped this step and produced training curves that looked deceptively good but failed to generalize; re-enabling contamination filtering costs us several percentage points of apparent accuracy on the training distribution but restores the benchmark behavior we actually care about. 
+
+C. Execution-Verified Reinforced Instruction Tuning 
+
+Even with a high-quality corpus, pure maximum-likelihood fine-tuning rewards the model for producing code that looks like the reference rather than for producing code that actually runs. The second component of CodeForge-MA addresses this mismatch by combining the standard supervised loss with an execution-grounded surrogate reward. Let y = ( y1, . . . , y T ) be the target sequence and m ∈{0, 1}T the assistant-turn mask, where mt = 1 iff yt lies be-tween ⟨im_start ⟩assistant and the closing ⟨im_end ⟩.The masked cross-entropy loss is 
+
+LSFT (θ) = − 1
+
+P 
+
+> t
+
+mtTX
+
+> t=1
+
+mt log pθ (yt | y<t ). (12) Restricting the gradient to the assistant turn is not a cosmetic choice: in preliminary experiments we observed that including system and user tokens in the loss made the model fixate on reproducing the docstring verbatim instead of the solution body, which depressed pass@1 noticeably. To inject execution awareness, we attach the test suite T (X)
+
+that the Executor has already produced during forging. For a sampled completion ˆY ∼ pθ (· | X), the scalar reward is the fraction of unit tests that pass, 
+
+R( ˆY ; X) = 1
+
+|T (X)|
+
+X 
+
+> t∈T (X)
+
+I
+
+h
+
+Exec( ˆY , t ) = ⊤
+
+i
+
+. (13) Since R is not differentiable with respect to θ, we optimize it with a PPO-style clipped surrogate, regularized with a Kullback-Leibler penalty against the frozen reference policy 
+
+pθ0 ,
+
+LRL (θ) = −Emin  ρ(θ)A, clip( ρ(θ), 1−ϵ, 1+ ϵ)A 
+
++ βKL KL( pθ ∥pθ0 ). (14) where ρ(θ) = pθ ( ˆY | X)/p θold ( ˆY | X) and the advantage is A = R( ˆY ; X) − b, with b a moving-average baseline that absorbs problem-level difficulty. The KL term, with βKL =0.02 , is indispensable in our setting; without it we repeatedly observed reward-hacking behavior in which the model emitted very short programs that exploited pathological edge cases in the auto-generated tests instead of learning the intended semantics. Fig. 3 visualizes the dual-stream optimization of EV-RIT, where the supervised cross-entropy path and the execution-grounded PPO path are merged through the warm-up schedule λt.The two losses are combined with a scheduled coefficient, 
+
+LEV -RIT (θ) = LSFT (θ) + λtLRL (θ), (15) 
+
+λt = λmax · min 
+
+
+
+1, t−T0
+
+> TW
+
+
+
+· I[t ≥ T0], (16) so that execution rewards are activated only after T0 opti-mization steps, once the model has acquired basic fluency. Applying the reinforcement signal from step zero tends to amplify noisy reward estimates on a still-undertrained policy; deferring it by a few hundred steps removes this instability entirely. Across languages, we additionally aggregate with an inverse-frequency weighting wℓ ∝ |D ⋆ℓ |−0.5:
+
+L(θ) = X
+
+> ℓ∈L
+
+wℓ
+
+P 
+
+> ℓ′
+
+wℓ′
+
+E(x,y)∼D ⋆ℓ [LEV -RIT (θ)] . (17) Fig. 3. Execution-Verified Reinforced Instruction Tuning (EV-RIT). The upper lane implements masked cross-entropy on the assistant span; the lower lane implements a PPO surrogate whose reward is the unit-test pass ratio. The two streams are combined by the warm-up coefficient λt.
+
+D. Language-Conditioned Mixture-of-LoRA 
+
+The third component targets the Qwen-72B regime. Full fine-tuning at this scale is infeasible on the provided API quota, and a single monolithic LoRA tends to let the six target languages interfere with one another, a phenomenon we observed as a small but consistent drop on Rust whenever the Python subset was oversampled. We therefore replace the conventional LoRA with a language-conditioned mixture of low-rank experts attached to the attention projections. For each frozen weight W0 ∈ Rdout ×din in 
+
+{WQ, WK , WV , WO }, we instantiate E low-rank pairs, 
+
+∆We = αr BeAe, e = 1 , . . . , E, (18) with Ae ∈ Rr×din , Be ∈ Rdout ×r , rank r = 32 , scaling 
+
+α = 64 , and E = 6 . Following the standard LoRA initial-ization, Ae is drawn from a zero-mean Gaussian while Be is zero-initialized, so the adapter is the identity at t = 0 and training starts from the exact pretrained behavior. A small but important implementation detail is that we keep LoRA strictly on the attention block rather than the SwiGLU block; extending it to the feed-forward weights roughly doubled the trainable parameter count in our early attempts without a corresponding benefit. A lightweight router decides how to combine the experts per prompt. Let ¯z ∈ Rd be the mean-pooled final-layer representation of the prompt tokens. The router computes expert logits μ = ¯ zW g with Wg ∈ Rd×E , and produces a sparse top-k gate, 
+
+ge = exp( μe) · I[e ∈ TopK( μ, k )] 
+
+P 
+
+> e′∈TopK( μ,k )
+
+exp( μe′ ) , k = 2 , (19) so that each prompt activates only two of the six experts. The adapted weight is then the gated linear combination 
+
+W = W0 +
+
+> E
+
+X
+
+> e=1
+
+ge ∆We. (20) Using a top-2 rather than top-1 gate was a deliberate choice, because many real test prompts are genuinely multilingual in spirit (for instance, rewriting a Python reference into Rust). Hard routing to a single expert made such prompts fragile; soft blending of two experts smoothed the transition. Two auxiliary regularizers keep the router well-behaved. The first is the Switch-style load-balancing term that penalizes any expert from dominating a batch, 
+
+Lbal = E
+
+> E
+
+X
+
+> e=1
+
+fe ¯ge, fe = 1
+
+B
+
+> B
+
+X
+
+> b=1
+
+I[e ∈ TopK( μ(b), k )] ,
+
+(21) where fe is the fraction of batch tokens routed to expert e
+
+and ¯ge the mean gate value. Without this term, the router quickly collapses onto two or three experts and the remaining adapters become dead weight. The second regularizer is a soft language-identity prior that ties each expert to its intended language family, 
+
+Lid = −
+
+> E
+
+X
+
+> e=1
+
+yℓe log softmax( μ)e, (22) where yℓ ∈ ∆E−1 is a soft target produced by a lightweight language classifier applied to the prompt. The softness of yℓ
+
+matters: a one-hot target encouraged full specialization and hurt cross-lingual transfer, whereas a temperature-smoothed distribution preserved enough ambiguity for the router to still share knowledge across related languages such as C++ and Rust. The complete objective for the final round is 
+
+Ltotal (ϕ) = L(θ0 ⊕ ϕ) + γ1Lbal + γ2Lid + λW ∥ϕ∥2 
+
+> F
+
+, (23) where ϕ = {Ae, Be, Wg } collects the only trainable param-eters, θ0 ⊕ ϕ denotes the gated LoRA injection of (20) into the frozen backbone, and the coefficients are set to γ1 = 0 .01 ,
+
+γ2 = 0 .05 , λW = 10 −4. Optimization proceeds with AdamW under a cosine-annealed schedule with 3% warm-up, 
+
+ϕt+1 = ϕt − ηt
+
+ ˆmt
+
+√ˆvt + ϵ + λW ϕt
+
+
+
+, (24) and the resulting trainable footprint is well under one percent of the 72B backbone. A compact summary of the key hyper-parameters that govern CodeForge-MA is given in Table I.                             
+
+> TABLE I KEY HYPERPARAMETERS OF CODE FORGE -MA.
+> Symbol Value Description
+> τq0.75 Forge acceptance threshold
+> Kmax 3Max forge revisions per sample
+> M5Reviewer self-consistency samples
+> α0.3Language sampling temperature
+> τJ0.8MinHash deduplication threshold
+> βKL 0.02 KL penalty in PPO surrogate
+> T0, T W500 ,1000 RL warm-up schedule
+> r, α LoRA , E 32 ,64 ,6LoRA rank, scale, number of experts
+> k2Top-krouter activation
+> γ1, γ 20.01 ,0.05 Balance / identity loss weights
+
+At inference, no agent, executor or reward model is in the loop. The prompt is encoded once, the gates in (19) are evaluated, the adapted attention weights in (20) are formed on the fly, and greedy decoding produces a deterministic response suitable for pass@1 evaluation. The architectural footprint visible to the Qwen backbone therefore reduces to a negligible 
+
+O(dE ) routing overhead per layer, faithfully respecting the competition’s no-modification rule while concentrating all of CodeForge-MA’s capacity in the agentic data loop and the language-conditioned adapters. V. P ROMPT ENGINEERING 
+
+Since every agent in the forge and every evaluation call is routed through Qwen’s ChatML interface, the prompts themselves are load-bearing pieces of the pipeline. Two design points individually shift pass@1 by a non-trivial margin and deserve explicit treatment. 
+
+A. Role-Specialized ChatML Templates 
+
+All four forge agents and the final fine-tuned model speak through the Qwen ChatML protocol, which delimits turns by ⟨im_start ⟩ and ⟨im_end ⟩. Instead of a single generic system prompt, we use a role-specialized family 
+
+{P Cmp , PRev , PExe , PCur }, each declaring its agent’s respon-sibility, output schema, and refusal behavior. For seed problem 
+
+s and target language ℓ, the Composer prompt expands as 
+
+PCmp (s, ℓ ) = τ Cmp sys ⊕ τlang (ℓ) ⊕ τsig (s) ⊕ τfmt , (25) where ⊕ denotes ChatML-separated concatenation, and the four fragments fix the role, bind the emission language, carry the signature extracted from s, and enforce a JSON-fenced response schema. Before we imposed this schema, the Composer often embedded explanations inside code blocks, breaking downstream compilation in Go and Rust where stray top-level prose is rejected; fixing the schema at the prompt level eliminated a class of bugs the Curator would otherwise have had to repair. At fine-tuning time, assembly matters: we place the problem in the user turn, the reference solution in the assistant 
+
+turn, and a compact declaration (“You are an expert program-mer. Write a complete, self-contained solution in ℓ.”) in the 
+
+system turn. The loss mask of (12) then fires only on the assistant span, where the useful signal resides. 
+
+B. Chain-of-Repair for Fix-Style Tasks 
+
+HumanEvalFixTests requires repairing a buggy snippet against a hidden unit test. Treated as ordinary instruction-following, early models preferred full rewrites over localized patches, hurting accuracy. We therefore adopt a Chain-of-Repair schema in which the answer is an ordered triple 
+
+Yfix = Φ loc (X) ⊕ Φrat (X) ⊕ Φfix (X), (26) with Φloc identifying faulty lines, Φrat stating the minimal correction rationale, and Φfix outputting the repaired function. The first two fields are stripped before evaluation so only Φfix 
+
+faces the unit tests, and a soft consistency regularizer 
+
+LCoR = −Elog pθ
+
+ Φfix X, Φloc , Φrat 
+
+ , (27) ties the three fields at training time, grounding repairs in an explicit localization rather than the raw bug description. Combined with the language-conditioned adapter, this schema discouraged spurious rewriting and recovered most of the base model’s gap on non-Python fix tasks. The schema and evaluation-time stripping are sketched in Fig. 4.         
+
+> Fig. 4. Chain-of-Repair prompting schema. The model emits an ordered triple (Φ loc ,Φrat ,Φfix ); only Φfix is forwarded to the hidden unit tests at evaluation time, while LCoR ties the three fields together during training.
+
+VI. D ATA PREPROCESSING 
+
+After the forge produces its output stream, a second pipeline turns raw samples into tensorizable batches. Although the forge already enforces compile- and test-time soundness, two preprocessing steps are far from cosmetic. 
+
+A. Syntactic and Semantic Filtering 
+
+The evaluator treats any Python response with an 
+
+IndentationError or unbalanced bracket as a hard zero, even when the logic is correct. We therefore run every sample through a language-specific static checker ( ast for Python, 
+
+acorn for JavaScript, javac -Xstdout for Java, go vet for Go, clang -fsyntax-only for C++, rustc --emit=metadata for Rust), and combine syntactic valid-ity Σ( ·) with a lightweight semantic score into a single filter: 
+
+Dsyn = (X, Y ) ∈ D ⋆ : Σ( Y ) = ⊤ , (28) 
+
+s(X, Y ) = 
+
+> 3
+
+X
+
+> i=1
+
+βifi(X, Y ),
+
+> 3
+
+X
+
+> i=1
+
+βi = 1 , (29) where f1, f 2, f 3 denote the presence of a docstring or comment, cyclomatic complexity, and perplexity under the base Qwen-1.8B. We retain the top-p quantile at p = 0 .85 . The perplexity term is the most informative of the three—samples the base model finds extremely surprising tend to be either nonsensical or rare-but-valuable idioms—so we winsorize it at the 1% and 99% quantiles to prevent outlier domination. TABLE II CONSOLIDATED RESULTS ACROSS FOUR METRICS . T OP : 1.8B-CLASS BACKBONES , PASS @1 AVERAGED OVER HUMAN EVAL SYNTHESIZE /HUMAN EVAL FIX TESTS / MBPP. M IDDLE : 70B-CLASS BACKBONES , WHERE THE FIRST COLUMN IS Score final FROM (32). B OTTOM : ABLATION OF 
+
+CODE FORGE -MA ON QWEN -1.8B. A LL NUMBERS IN %. 
+
+Model / Configuration pass@1 / Score CodeBLEU CR BMPS 
+
+1.8B-class backbones 
+
+Qwen-1.8B (base) 13.6 22.1 48.3 10.9 CodeGen-2B-mono 16.6 25.8 55.7 13.1 StarCoderBase-3B 21.0 29.6 62.4 17.4 Qwen-1.8B + Evol-Instruct 21.9 30.2 63.8 17.9 DeepSeek-Coder-1.3B-Instruct 27.1 34.7 71.2 22.8 CODE FORGE -Q WEN -1.8B 31.0 38.5 78.4 27.6 
+
+70B-class backbones 
+
+Qwen-72B (base) 42.4 41.2 74.6 38.1 Qwen-72B + Alpaca-LoRA 45.0 43.0 76.5 40.5 Qwen-72B + Evol-Instruct-LoRA 48.5 45.4 79.1 43.8 CodeLlama-70B-Instruct 49.5 46.1 80.3 44.6 DeepSeek-Coder-33B-Instruct 51.2 47.3 82.0 46.9 CODE FORGE -Q WEN -72B 54.8 50.2 85.7 51.3 
+
+Ablation on Qwen-1.8B backbone 
+
+Full C ODE FORGE -Q WEN -1.8B 31.0 38.5 78.4 27.6 w/o Multi-Agent Data Forge 21.9 30.2 63.8 17.9 w/o Execution-Verified RL 28.4 36.4 72.9 24.8 w/o Language-Conditioned MoLoRA 29.1 37.0 74.6 23.1 w/o Chain-of-Repair 29.7 37.3 75.8 26.0 w/o Balanced Language Sampling 28.6 36.6 74.1 22.4 w/o Contamination Filter 29.9 38.1 77.5 26.3 w/o Loss Masking 26.7 34.5 70.2 22.9 
+
+B. Packing, Truncation and EOS Hygiene 
+
+Code samples span dozens to several thousand tokens, so naive padding wastes compute. We use greedy sequence packing at Lmax = 2048 : samples are concatenated with a reset attention boundary until appending the next would exceed 
+
+Lmax . With padding fraction ηpad = ∆ /L max per block, the greedy packer empirically keeps ηpad below 4% , more than doubling effective throughput versus right-padding. A second hygiene issue is the EOS token: the base Qwen checkpoint and its ChatML-tuned counterpart use different end markers, and mixing them yields responses that either never terminate or cut off mid-function. We normalize every sample so both the assistant turn and the terminal token use ⟨im_end ⟩, and truncate from the left whenever a packed block exceeds Lmax ,so the assistant span carrying the training signal is never sacrificed for prompt context. VII. E VALUATION METRICS 
+
+Although the official leaderboard score is pass@1, during development we track a richer battery of metrics. Four of them are described below. 
+
+A. Pass@1 as Unbiased Functional Correctness 
+
+The primary metric follows the HumanEval protocol. For a problem where n samples are drawn and c pass every hidden unit test, the unbiased estimator is 
+
+pass@ k = Eproblems 
+
+
+
+1 −
+
+n − ck
+
+.nk
+
+ 
+
+, (30) which at k = 1 reduces to the empirical mean of functional correctness, 
+
+pass@1 = 1
+
+|Q| 
+
+X
+
+> q∈Q
+
+I
+
+h
+
+Exec( ˆYq , T q ) = ⊤
+
+i
+
+, (31) with Q the evaluation set, ˆYq the generated code and Tq the hidden test suite. The final-round score follows the competition rule 
+
+Score final = 0 .5 · Score 72B pre + 0 .5 · Score hidden . (32) 
+
+B. CodeBLEU as a Reference-Based Complement 
+
+Since pass@1 is binary and hard to read early in training, we complement it with CodeBLEU, which mixes token BLEU, keyword-weighted BLEU, AST match and data-flow match, 
+
+CodeBLEU = αBLEU+ βBLEU w +γMatch ast +δMatch df ,
+
+(33) with α + β + γ + δ = 1 . CodeBLEU is never used for model selection but serves as a smooth proxy for training stability. 
+
+C. Compile Rate and Exact-Match Repair 
+
+To diagnose error sources, we track the compile rate sepa-rately from functional correctness, 
+
+CR = 1
+
+|Q| 
+
+X
+
+> q∈Q
+
+I
+
+h
+
+Σ( ˆYq ) = ⊤
+
+i
+
+, (34) and for HumanEvalFix the localization-aware exact-match rate against the reference patch ∆Y ⋆q ,
+
+EM fix = 1
+
+|Q| 
+
+X
+
+> q∈Q
+
+I
+
+h
+
+∆ ˆYq = ∆ Y ⋆q
+
+i
+
+. (35) The gap between CR and pass@1 tells us whether residual errors are syntactic or logical. 
+
+D. Aggregate Multilingual Score 
+
+Since the benchmark averages uniformly over six languages, we also track a balanced mean with a cross-language standard-deviation penalty, 
+
+BMPS = 1
+
+|L| 
+
+X
+
+> ℓ∈L
+
+pass@1 (ℓ) − μ · σ
+
+
+
+{pass@1 (ℓ)}ℓ∈L 
+
+
+
+, (36) with μ = 0 .2. BMPS guards against routing collapse and was our main development-time stopping criterion. VIII. E XPERIMENT RESULTS 
+
+A. Implementation Details 
+
+Qwen-1.8B is fine-tuned on eight A100-80G GPUs with global batch size 256 , peak learning rate 2 × 10 −5, cosine schedule with 3% warm-up, sequence length 2048 , for 3
+
+epochs; the RL term of (15) is activated at T0 = 500 and ramped over TW = 1000 steps to λmax = 0 .3. Qwen-72B is adapted via the organizer API with LC-MoLoRA ( r = 32 ,
+
+E = 6 , top-k = 2 ), effective batch size 128 , learning rate 
+
+1 × 10 −4 for 2 epochs. Evaluation uses greedy decoding. 
+
+B. Main Comparison and Ablation 
+
+Table II consolidates all three evaluations under the four metrics of Section VII: functional correctness (pass@1, or Score final via (32) for the 70B block), reference similarity (CodeBLEU), syntactic soundness (compile rate CR), and cross-language balance (BMPS). The top block compares 1.8B-class backbones averaged over HumanEvalSynthesize, HumanEvalFixTests and MBPP; the middle block reports 70B-class results; the bottom block ablates CodeForge-MA on Qwen-1.8B. Three observations follow. At the 1.8B scale, C ODE FORGE -QWEN -1.8B surpasses all baselines on every metric, including larger code-specialized models built on general-purpose back-bones. At the 70B scale, C ODE FORGE -Q WEN -72B outper-forms both in-family LoRA controls and external code LLMs such as DeepSeek-Coder-33B-Instruct and CodeLlama-70B-Instruct across all four metrics, while updating less than one percent of backbone parameters. The ablation shows the multi-agent forge as the single largest contributor, with execution-grounded RL and LC-MoLoRA each adding meaningful gains on top; removing the MinHash contamination filter inflates CodeBLEU and CR but erodes pass@1 and BMPS, and the BMPS column confirms that balanced language sampling is disproportionately responsible for cross-language stability. IX. C ONCLUSION 
+
+We presented CodeForge-MA, a framework for improving code generation with Qwen-1.8B and Qwen-72B under a strict no-architecture-modification rule, combining a multi-agent data forge, an execution-verified reinforced instruc-tion tuning objective, and a language-conditioned mixture-of-LoRA adapter. It consistently outperforms comparable open-source baselines, and the ablations confirm that every ma-jor component contributes—supporting the view that under frozen foundation models, agentic data curation paired with execution-grounded fine-tuning is a principled path to stronger code LLMs. REFERENCES [1] J. Wei, X. Wang, D. Schuurmans, M. Bosma, F. Xia, E. Chi, Q. V. Le, D. Zhou et al. , “Chain-of-thought prompting elicits reasoning in large language models,” Advances in neural information processing systems ,vol. 35, pp. 24 824–24 837, 2022. [2] M. Huo, Z. Xue, K. Lu, and W. Yan, “Suppressing hallucinations in anti-fraud llm agents: The robust dual-verification (rdv) architecture,” in 2026 10th International Conference on Electronic Information Technology and Computer Engineering (EITCE) . IEEE, 2026, pp. 1450–1455. [3] X. Wang, J. Wei, D. Schuurmans, Q. Le, E. Chi, S. Narang, A. Chowdh-ery, and D. Zhou, “Self-consistency improves chain of thought reasoning in language models,” arXiv preprint arXiv:2203.11171 , 2022. [4] R. Rafailov, A. Sharma, E. Mitchell, C. D. Manning, S. Ermon, and C. Finn, “Direct preference optimization: Your language model is secretly a reward model,” Advances in neural information processing systems , vol. 36, pp. 53 728–53 741, 2023. [5] Q. Zhou, “Roofline-guided mixed quantization and kernel co-optimization for efficient large language model inference on arm cpus,” in 2026 3rd International Conference on Digital Image Processing and Computer Applications (DIPCA) . IEEE, 2026, pp. 123–129. [6] J. Liu, J. Yang, X. Li, W. Yan, Y. Wu, P. Liang, and M. Yuan, “Archi-tecture matters more than scale: A comparative study of retrieval and memory augmentation for financial qa under sme compute constraints,” in 2026 6th International Conference on Artificial Intelligence and Industrial Technology Applications (AIITA) . IEEE, 2026, pp. 353–364. [7] M. Chen, J. Tworek, H. Jun, Q. Yuan, H. P. D. O. Pinto, J. Kaplan, H. Edwards, Y. Burda, N. Joseph, G. Brockman et al. , “Evaluating large language models trained on code,” arXiv preprint arXiv:2107.03374 ,2021. [8] D. Kocetkov, R. Li, L. B. Allal, J. Li, C. Mou, C. M. Ferrandis, Y. Jernite, M. Mitchell, S. Hughes, T. Wolf et al. , “The stack: 3 tb of permissively licensed source code,” arXiv preprint arXiv:2211.15533 , 2022. [9] S. Wang, L. Yu, and J. Li, “Lora-ga: Low-rank adaptation with gradient approximation,” Advances in Neural Information Processing Systems ,vol. 37, pp. 54 905–54 931, 2024. [10] T. Dettmers, A. Pagnoni, A. Holtzman, and L. Zettlemoyer, “Qlora: Efficient finetuning of quantized llms,” Advances in neural information processing systems , vol. 36, pp. 10 088–10 115, 2023. [11] W. Fedus, B. Zoph, and N. Shazeer, “Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity,” Journal of Machine Learning Research , vol. 23, no. 120, pp. 1–39, 2022. [12] N. Du, Y. Huang, A. M. Dai, S. Tong, D. Lepikhin, Y. Xu, M. Krikun, Y. Zhou, A. W. Yu, O. Firat et al. , “Glam: Efficient scaling of language models with mixture-of-experts,” in International conference on machine learning . PMLR, 2022, pp. 5547–5569. [13] X. Luo, “Robust financial fraud detection via causal intervention and multi-view contrastive learning on dynamic hypergraphs,” Mathematics ,vol. 13, no. 24, p. 4018, 2025. [14] Z. Gu and Q. Zhou, “Efficient multimodal generative forecasting of cloud host metrics with calibrated uncertainty,” in 2026 9th Interna-tional Conference on Advanced Algorithms and Control Engineering (ICAACE) . IEEE, 2026, pp. 2341–2347.

@@ -1,9 +1,9 @@
 {
   "date": "20261006",
   "date_label": "",
-  "generated_at": "2026-10-06 01:05:29 UTC",
+  "generated_at": "2026-10-06 23:10:45 UTC",
   "recommend_exists": true,
-  "run_count": 1,
+  "run_count": 2,
   "papers": [
     {
       "paper_id": "2610.03226v1",
@@ -17,9 +17,169 @@
         }
       ],
       "score": 9.0,
-      "evidence": "评估LLM智能体将专家设计转为GPU算子的基准",
+      "evidence": "大模型智能体借助专家设计指导生成高效GPU算子",
       "first_seen_at": "2026-10-06 01:05:29 UTC",
-      "updated_at": "2026-10-06 01:05:29 UTC"
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.05014v1",
+      "route": "202610/06/2610.05014v1-metakernelbench-measuring-gpu-kernel-knowledge-transfer-beyond-code",
+      "title": "MetaKernelBench: Measuring GPU Kernel Knowledge Transfer Beyond Code",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "GPU内核优化智能体保留并跨DSL迁移蒸馏经验",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2609.39207v1",
+      "route": "202610/06/2609.39207v1-asena-self-evolving-agents-for-embodied-navigation",
+      "title": "ASENA: Self-evolving Agents for Embodied Navigation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化具身智能体在不改变模型权重下修复失败并复用技能",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.04277v1",
+      "route": "202610/06/2610.04277v1-syclkittens-a-tile-programming-model-for-programmers-and-coding-agents-on-intel-gpus",
+      "title": "SyclKittens: A Tile Programming Model for Programmers and Coding Agents on Intel GPUs",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "编码智能体在Intel GPU上编写、编译并调优内核",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.05481v1",
+      "route": "202610/06/2610.05481v1-codeforge-ma-execution-verified-multi-agent-learning-with-language-conditioned-lora-for-multilingual-code-generation",
+      "title": "CodeForge-MA: Execution-Verified Multi-Agent Learning with Language-Conditioned LoRA for Multilingual Code Generation",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "多智能体框架迭代精炼指令代码对进行大模型代码生成",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2609.36730v1",
+      "route": "202610/06/2609.36730v1-can-agents-design-libraries-for-agents",
+      "title": "Can Agents Design Libraries for Agents?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体依据规范实现完整代码库",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.02150v1",
+      "route": "202610/06/2610.02150v1-from-knowledge-access-to-source-learning-developing-source-specific-competence",
+      "title": "From Knowledge Access to Source Learning: Developing Source-Specific Competence",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体记忆系统与持久源模型存储可复用的源知识",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.02438v1",
+      "route": "202610/06/2610.02438v1-are-you-synthesizing-or-recalling-evaluating-llms-on-algorithmic-code-retrieval",
+      "title": "Are you Synthesizing or Recalling? Evaluating LLMs on Algorithmic Code Retrieval",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "将LLM代码生成评估为参数化代码检索",
+      "first_seen_at": "2026-10-06 01:05:29 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.04889v1",
+      "route": "202610/06/2610.04889v1-forkpilot-self-evolving-policy-for-retrospective-search-in-long-horizon-agents",
+      "title": "ForkPilot: Self-Evolving Policy for Retrospective Search in Long-Horizon Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向长程智能体回溯搜索的自进化两阶段策略学习",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.05683v1",
+      "route": "202610/06/2610.05683v1-resolve-language-agnostic-validation-of-gpu-kernels-through-testing-reduction-and-proof",
+      "title": "RESOLVE: Language-Agnostic Validation of GPU Kernels Through Testing, Reduction, and Proof",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "验证AI编写与优化的生产级GPU内核",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.06269v1",
+      "route": "202610/06/2610.06269v1-evolving-in-thought-space-training-a-small-model-at-test-time-unlocks-better-discoveries",
+      "title": "Evolving in Thought Space: Training a Small Model at Test Time Unlocks Better Discoveries",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "测试时训练依据验证反馈自适应调整生成策略",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
     },
     {
       "paper_id": "2609.33326v1",
@@ -38,9 +198,9 @@
       "updated_at": "2026-10-06 01:05:29 UTC"
     },
     {
-      "paper_id": "2609.39207v1",
-      "route": "202610/06/2609.39207v1-asena-self-evolving-agents-for-embodied-navigation",
-      "title": "ASENA: Self-evolving Agents for Embodied Navigation",
+      "paper_id": "2609.37538v1",
+      "route": "202610/06/2609.37538v1-avsg-accelerated-vectorized-sparse-gather-for-efficient-kv-cache-offload-in-sparse-attention-llm-serving",
+      "title": "AVSG: Accelerated Vectorized Sparse Gather for Efficient KV Cache Offload in Sparse-Attention LLM Serving",
       "section": "quick",
       "tags": [
         {
@@ -48,10 +208,74 @@
           "label": "gkg"
         }
       ],
-      "score": 7.0,
-      "evidence": "自进化编码智能体复用可执行技能并修复失败",
+      "score": 6.0,
+      "evidence": "为KV缓存卸载优化GPU稀疏gather算子",
       "first_seen_at": "2026-10-06 01:05:29 UTC",
-      "updated_at": "2026-10-06 01:05:29 UTC"
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.02658v1",
+      "route": "202610/06/2610.02658v1-annotation-driven-migration-of-cuda-programs-to-tenstorrent-blackhole",
+      "title": "Annotation-Driven Migration of CUDA Programs to Tenstorrent Blackhole",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于MLIR的编译器自动生成CUDA内核代码与数据放置",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.03796v1",
+      "route": "202610/06/2610.03796v1-prosabuddy-assisting-mechanized-real-time-schedulability-analysis-with-llm-based-agents",
+      "title": "ProsaBuddy: Assisting Mechanized Real-Time Schedulability Analysis with LLM-based Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "基于检索的LLM智能体生成机械化证明",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.05854v1",
+      "route": "202610/06/2610.05854v1-turbopairformer-fast-and-stable-protein-folding-model-training-with-an-optimized-triangle-attention-kernel",
+      "title": "TurboPairFormer: Fast and Stable Protein Folding Model Training with an Optimized Triangle Attention Kernel",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "面向NVIDIA Hopper GPU的优化三角注意力核",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
+    },
+    {
+      "paper_id": "2610.06689v1",
+      "route": "202610/06/2610.06689v1-programmatic-search-agents-extending-agentic-search-beyond-query-reformulation",
+      "title": "Programmatic Search Agents: Extending Agentic Search Beyond Query Reformulation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "智能体以程序化方式检索并呈现证据",
+      "first_seen_at": "2026-10-06 23:10:45 UTC",
+      "updated_at": "2026-10-06 23:10:45 UTC"
     },
     {
       "paper_id": "2609.33123v2",
@@ -70,38 +294,6 @@
       "updated_at": "2026-10-06 01:05:29 UTC"
     },
     {
-      "paper_id": "2609.37538v1",
-      "route": "202610/06/2609.37538v1-avsg-accelerated-vectorized-sparse-gather-for-efficient-kv-cache-offload-in-sparse-attention-llm-serving",
-      "title": "AVSG: Accelerated Vectorized Sparse Gather for Efficient KV Cache Offload in Sparse-Attention LLM Serving",
-      "section": "quick",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 6.0,
-      "evidence": "加速向量化稀疏聚集以优化KV缓存卸载的GPU内核执行",
-      "first_seen_at": "2026-10-06 01:05:29 UTC",
-      "updated_at": "2026-10-06 01:05:29 UTC"
-    },
-    {
-      "paper_id": "2610.02150v1",
-      "route": "202610/06/2610.02150v1-from-knowledge-access-to-source-learning-developing-source-specific-competence",
-      "title": "From Knowledge Access to Source Learning: Developing Source-Specific Competence",
-      "section": "quick",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 6.0,
-      "evidence": "智能体记忆保存可复用知识并从来源检索",
-      "first_seen_at": "2026-10-06 01:05:29 UTC",
-      "updated_at": "2026-10-06 01:05:29 UTC"
-    },
-    {
       "paper_id": "2610.02255v1",
       "route": "202610/06/2610.02255v1-macts-em-multi-agent-collaborative-time-series-forecasting-with-emergent-memory",
       "title": "MACTS-EM: Multi-Agent Collaborative Time Series Forecasting with Emergent Memory",
@@ -114,22 +306,6 @@
       ],
       "score": 6.0,
       "evidence": "支持跨域知识检索的涌现记忆",
-      "first_seen_at": "2026-10-06 01:05:29 UTC",
-      "updated_at": "2026-10-06 01:05:29 UTC"
-    },
-    {
-      "paper_id": "2610.02438v1",
-      "route": "202610/06/2610.02438v1-are-you-synthesizing-or-recalling-evaluating-llms-on-algorithmic-code-retrieval",
-      "title": "Are you Synthesizing or Recalling? Evaluating LLMs on Algorithmic Code Retrieval",
-      "section": "quick",
-      "tags": [
-        {
-          "kind": "query",
-          "label": "gkg"
-        }
-      ],
-      "score": 6.0,
-      "evidence": "将LLM代码生成建模为算法代码检索",
       "first_seen_at": "2026-10-06 01:05:29 UTC",
       "updated_at": "2026-10-06 01:05:29 UTC"
     }

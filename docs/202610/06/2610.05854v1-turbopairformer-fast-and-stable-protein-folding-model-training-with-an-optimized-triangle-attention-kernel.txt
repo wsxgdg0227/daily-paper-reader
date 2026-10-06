@@ -1,0 +1,1490 @@
+Title: TurboPairFormer: Fast and Stable Protein Folding Model Training with an Optimized Triangle Attention Kernel
+
+URL Source: https://arxiv.org/pdf/2610.05854v1
+
+Published Time: Tue, 06 Oct 2026 02:57:21 GMT
+
+Number of Pages: 33
+
+Markdown Content:
+Preprint 
+
+# TURBO PAIR FORMER : F AST AND STABLE PROTEIN 
+
+# FOLDING MODEL TRAINING WITH AN OPTIMIZED 
+
+# TRIANGLE ATTENTION KERNEL 
+
+Yide Ran 1, Chelsea Lowman 2, Jan Doma ´ nski 3, David Hartmann 2, Jenke Scheen 3,
+
+Jennifer Wei 3, Chuan Li 2, Jianwen Xie †2, Zhaozhuo Xu †11Stevens Institute of Technology, 2Lambda, 3Open Molecular Software Foundation 
+
+## ABSTRACT 
+
+Triangular attention is a core computation in AlphaFold3-style biomolecular mod-els, with computational cost that grows cubically with token count. FlashAttention reduces attention memory traffic through IO-aware tiling and backward recomputa-tion. However, the shared pair bias in triangular attention adds a gradient reduction across attention slices to the usual reductions over queries and keys. The open-source backends we examine handle these reductions through repeated probability recomputation, floating-point atomics, or full score-gradient storage. Separately, computing the softmax backward correction from BF16-rounded forward outputs incurs a loss of numerical precision. We present TurboPairFormer, a triangular at-tention implementation for NVIDIA Hopper GPUs that addresses these two issues. Our key-tile-parallel backward algorithm recomputes each probability tile once and reuses it for the query, key, value, and pair-bias gradients, using ordered partial reductions to achieve deterministic accumulation without floating-point atomics or full score-gradient storage. Our output-residual compensation retains a BF16 approximation of the output-rounding residual and uses it to compute the backward correction more accurately in FP32, without changing the BF16 output. With BF16 inputs at crop sizes 384, 640, and 768 and head dimensions 16 and 32, TurboPair-Former achieves the lowest mean query, key, and pair-bias gradient RMSE against an FP64 reference among eight evaluated implementations; residual compensation mitigates the precision loss from output rounding, reducing these RMSE values by 28–47% in controlled ablations. All four gradients are bitwise identical across five repeated calls in all 600 input cases under fixed execution conditions. Integrated into OpenFold3 together with our triangle multiplication kernels, TurboPairFormer achieves the lowest GPU computation time per optimizer step among eight eval-uated backend configurations on 16 H100 GPUs, with speedups of 1.73 × over OpenFold3’s Triton backend and 1.13 × over cuEquivariance at crop size 768. 
+
+## 1 INTRODUCTION 
+
+AlphaFold3 predicts the joint structure of complexes containing proteins, nucleic acids, and small molecules (Abramson et al., 2024). OpenFold3 provides an open-source implementation of Al-phaFold3 with support for training and fine-tuning (The OpenFold3 Team, 2025). Both models use one token per standard amino acid or nucleotide residue and one token per heavy atom for other components. They maintain a pair representation, with one learned vector for each pair of tokens, and repeatedly update it through triangular attention and triangle multiplication. In triangular attention, fixing one token index, which we call the outer index, selects the pair vectors between that token and every token in the crop. These vectors form an attention slice with one query and one key per token, as in standard attention, and all slices share the same pair bias. There is one slice per token, and the cost of each slice grows with the square of the token count. The cost of triangular attention therefore grows with the cube of the token count: doubling the training crop makes it eight times as expensive. 
+
+> †
+
+Equal advising Website: https://pypi.org/project/turbopairformer 
+
+1arXiv:2610.05854v1 [cs.LG] 5 Oct 2026 Preprint IO-aware kernels such as FlashAttention fuse attention into tiled kernels and recompute probabilities in the backward pass instead of storing them (Dao et al., 2022); their successors improve parallelism and overlap data movement with computation on Hopper GPUs (Dao, 2024; Shah et al., 2024). However, extending these kernels to triangular attention requires an additional reduction of the shared pair-bias gradient across slices. The backward pass thus has three reduction directions (Figure 1a): the query gradient sums over keys, the key and value gradients over queries, and the pair-bias gradient over outer indices. All four gradients reuse the same probability tiles, but their reductions favor different work partitionings. With one recomputation, they share one work partitioning, so any gradient whose reduction axis is split across thread blocks requires a cross-block reduction. The open-source triangular-attention kernels we inspect make different compromises to handle this reduction (Figure 1b): TriFast (Atkinson, 2025) and Protenix (ByteDance AML AI4Science Team et al., 2025) recompute the probabilities three times, DeepSpeed-Evo (Song et al., 2023) accumulates the pair-bias gradient with floating-point atomics whose order is not fixed, and ScaleFold (Zhu et al., 2024) stores the full FP32 score gradient. FlashAttention-3’s deterministic mode orders in-place query-gradient updates with semaphores, and DASH improves its scheduling (Shah et al., 2024; Qiang et al., 2026), but neither computes a bias gradient. a Triangular attention: N slices share one pair bias           
+
+> keys k
+> queries  q
+> outer index o
+> bias
+> pair bias
+> added to every slice
+> dQ sums over keys, within a slice
+> dK ,dV sum over queries, within a slice
+> dbias sums over the outer index, across slices
+> All four gradients reuse the same tiles Pand dS .
+
+b Backward designs for the four gradients                                                       
+
+> Split backward
+> TriFast, Protenix
+> Fused + atomic adds
+> DeepSpeed-Evo
+> Fused + materialized dS
+> ScaleFold
+> Fused + partials
+> TurboPairFormer (ours)
+> P,dS dQ
+> P,dS dK ,dV
+> P,dS dbias
+> P and dS recomputed 3 times
+> P,dS once
+> dQ ,dK ,dV
+> in the thread block
+> dbias
+> FP32 atomics
+> across slices
+> P,dS once
+> dQ ,dK ,dV full dS
+> materialized in HBM
+> dbias
+> P,dS once per tile
+> dK ,dV local
+> dQ dbias
+> one writer each
+> reduction kernel: FP32 sum in index order →dQ ,dbias
+> ✗3 recomputations
+> ✓no atomics
+> ✓no materialized dS
+> ✓deterministic
+> ✓1 recomputation
+> ✗atomic dbias
+> ✓no materialized dS
+> ✗non-deterministic
+> ✓1 recomputation
+> ✓no atomics
+> ✗materializes full dS
+> ✓deterministic
+> ✓1 recomputation
+> ✓no atomics
+> ✓no materialized dS
+> ✓deterministic
+> •cost: partial buffers
+
+Figure 1: Triangular attention and backward design comparison. (a) Triangular attention consists of N slices sharing one pair bias. Its backward pass involves three reduction axes: dQ over keys, dK 
+
+and dV over queries, and d bias across outer slices. All four gradients share the same intermediates (P and dS ). (b) Prior backends either recompute probabilities 3 ×, use non-deterministic atomics, or store the full score gradient dS , whose size is cubic in N . TurboPairFormer evaluates P and dS only once: it keeps dK and dV in local registers, writes dQ and d bias into independent partial buffers, and reduces them in a deterministic FP32 order. Determinism does not guarantee accuracy. In the softmax backward pass, all score gradients in a query row depend on the same correction δ, the dot product of the output gradient and the forward output for that row (Dao et al., 2022). Kernels usually compute δ from the saved BF16 output, whose rounding error can shift these score gradients in the same direction. A deterministic kernel reproduces this error on every run. The forward pass matters as well: with 64-row query tiles and head dimension 32, a bias tile holds as many bytes as the key and value tiles combined, and recycling and checkpointing run two to five forward passes per backward pass. Our challenge is therefore threefold: to reuse each recomputed probability tile for all four gradients with fixed accumulation orders and sufficient parallelism, to compute δ accurately, and to stage the shared bias efficiently in the forward pass. We propose TurboPairFormer, a triangular-attention kernel for Hopper GPUs: 2Preprint 1. Work partitioning for three reduction directions: We analyze how the shared pair bias trades recomputation against parallelism and storage (Section 2.1 and Appendix I), and assign each thread block a key tile and a group of outer indices, which keeps the key and value gradients local and leaves two cross-block reductions. 2. Single recomputation with ordered partial reductions: Like DeepSpeed-Evo and ScaleFold, TurboPairFormer recomputes each probability tile once for all four gradients, but without floating-point atomics or full score-gradient storage. Query and pair-bias partials have unique writers and are reduced in fixed FP32 orders, without blocks waiting for one another. Gradient bits do not depend on thread-block completion order or on supported workspace schedules; the cost is a query-partial buffer cubic in crop size (Appendix E). 3. Output-residual compensation: The forward epilogue saves a BF16 approximation of the output-rounding residual, which the backward pass adds to the BF16 output in FP32 when computing 
+
+δ (Qiu & Yao, 2026; Henry et al., 2019). This lowers the mean RMSE of the query, key, and pair-bias gradients by 28–47% in controlled ablations, without changing the BF16 output or adding a recomputation; the cost is one extra output-sized BF16 tensor. 4. Forward staging of the shared bias: The forward kernel loads each bias tile with the Tensor Memory Accelerator alongside the key and value tiles, reads it directly in the score-accumulator register layout, prefetches the key mask, and evaluates probabilities in 16-key chunks just before value aggregation, without changing the floating-point operations or their order. We evaluate TurboPairFormer on H100 GPUs at crop sizes of 384, 640, and 768 and head dimensions 
+
+D = 16 and 32 . Compared with the other methods evaluated in this paper, TurboPairFormer produces more accurate query, key, and pair-bias gradients, as measured by mean RMSE against an FP64 reference. All four gradients are bitwise identical across five repeated calls in all 600 fixed-input cases (Appendix G.4), whereas cuEquivariance, OpenFold3 Triton, and DeepSpeed-Evo pass none; the fastest non-deterministic variants of our kernel take 2.8–4.1% less backward time at 
+
+D = 32 and 11.0–13.7% less at D = 16 (Appendix I). One TurboPairFormer attention call takes 35.6–45.6% less forward-plus-backward time than cuEquivariance (NVIDIA Corporation, 2026) and ranges from 7.4% faster to 3.6% slower than Protenix (Appendix H.1); the forward changes cut forward time by 25.5–27.5% at D = 32 (Appendix H.2). Combined with our triangle multiplication kernels, TurboPairFormer has the lowest GPU computation time per step among eight OpenFold3 backend configurations on 16 H100 GPUs, 1.73 × faster than OpenFold3 Triton and 1.13 × faster than cuEquivariance at crop 768. In paired 400-update continuations from a shared step-1000 checkpoint, the losses of runs using an earlier build of our kernels remain finite, whereas OpenFold3 Triton produces NaN losses within 10 updates (Section 3.3). 
+
+## 2 TURBO PAIR FORMER 
+
+TurboPairFormer implements triangular attention and triangle multiplication for OpenFold3 pair updates (TriMul details in Appendix J). The attention kernel combines one probability recomputation, fixed accumulation orders, and output-residual compensation. Figure 2 and Algorithm 1 summarize the backward pass; Table 1 defines the notation. 2.1 TRIANGULAR ATTENTION AND ITS REDUCTION AXES 
+
+OpenFold3 learns features Z for each ordered token pair. Standard amino acids and nucleotides contribute one token each; other components use one token per heavy atom (Abramson et al., 2024). A crop selects N tokens, possibly across chains. Starting-node triangular attention fixes a token index o, called the outer index , and takes row o of Z as one slice. Within the slice, the token indices 
+
+q and k mark the query and key positions (worked example in Figure 6, Appendix B.3). The outer index identifies a token, not a chain or geometric plane. Ending-node attention uses the same core after permuting the pair axes (Appendix B). For one slice and one head, omitting the batch index, linear projections of the slice give query, key, and value matrices Q, K, V ∈ RN ×D with one row per pair, where D is the head dimension: row q of Q comes from the pair (o, q ), and row k of K and V from the pair (o, k ). The pair bias 
+
+bias ∈ RN ×N , whose entry (q, k ) is projected from the pair (q, k ), is shared by all N slices. With 3Preprint additive mask M , the attention core computes 
+
+S = QK ⊤
+
+√D + bias + M, P = softmax( S), O = P V, (1) where the softmax acts on each row. Given the incoming gradient dO , the softmax backward forms the probability gradient dP and the score gradient dS , which with P give dQ , dK , and dV :
+
+dP = dO V ⊤, dS = P ◦ (dP − δ),dQ = dS K 
+
+√D , dK = dS ⊤Q
+
+√D ,dV = P ⊤dO, δ = rowsum( dO ◦ O),
+
+(2) where δ is the row correction, one value per query row. Because every slice adds the same bias, the fourth gradient, d bias , is the sum of dS over all N slices. These gradients reuse the same intermediates but sum along different axes: keys for dQ , queries for dK/dV , and outer indices for 
+
+d bias . This determines which results a thread block can finish locally and which require a later reduction. Appendix D.1 derives the identities. 2.2 ONE RECOMPUTATION FOR FOUR GRADIENTS 
+
+Each thread block, or cooperative thread array (CTA), owns one key tile and a group of four outer indices, called an outer group, for one example and head. It traverses query tiles in ascending order, using 64 keys and 32 query rows per tile. Different key tiles provide independent work. Within each owned slice, dK/dV accumulators stay in FP32 registers throughout the traversal (Figure 2). For each query tile, the thread block recomputes P = exp( S − LSE) from the scores and saved row log-sum-exp. It forms dP and dS as in Equation (2), with the compensated row correction bδ
+
+of Section 2.4 in place of δ. The tile P supplies dV , while dS supplies dK , dQ , and the pair-bias gradient. Shared memory makes these intermediates available to their consumers before the next tile. Each thread block writes its query contributions as partials indexed by key tile and its bias contributions as partials indexed by outer group. Every partial has one writer. Separate reduction kernels sum these BF16 partials in FP32, without recomputing probabilities or storing the full score gradient. Proposition D.1 establishes the partitioning. Algorithm 1 omits batch and head indices; inside the slice loop, Q, K, V , dO , M , LSE , bδ, dK , and dV denote the current tiles of the current slice. Row statistics and the key mask broadcast along the other tile axis; fully masked rows and invalid outer positions have P = 0 . All matrix products use BF16 operands and FP32 accumulation, so P and dS are rounded when consumed by a matrix product; the bias sum instead uses FP32 dS .The main kernel uses two warpgroups (256 threads), WGMMA for S and dP , and mma.sync for the gradient products. Appendix D.3 gives the thread-block view with explicit slice and tile indices, including the fixed addition tree over the four slices, synchronization, and instruction order. 2.3 DETERMINISTIC REDUCTIONS AND WORKSPACE SCHEDULING 
+
+Partitioning work across key tiles and outer groups exposes parallelism, but distributes contributions to dQ and the shared pair-bias gradient across thread blocks. We fix their floating-point addition order to make these reductions reproducible. TurboPairFormer separates the production of these contributions from their reduction: each block writes its partials to unique addresses, and a later kernel consumes them in a prescribed order. The addition sequence is therefore independent of block completion order. For each dQ element, the reducer adds BF16 partials sequentially in ascending key-tile order, using an FP32 accumulator. The pair-bias reduction follows the same principle along the outer axis: each outer group first forms one BF16 partial through a fixed FP32 addition tree, and the reducer adds these partials in ascending outer-group order. The dK/dV accumulations remain local to their owning block and follow ascending query-tile order. Final scaling and BF16 output conversion occur after the respective reductions. These fixed paths need no global floating-point atomics. The workspace planner changes how much work is resident in each launch while preserving these arithmetic paths. It partitions examples, query rows, and outer groups into consecutive chunks. After reducing a chunk of bias partials, the next launch reloads the FP32 running sum and continues    
+
+> NVIDIA PTX ISA 8.8, CUDA 12.9.1 archive (2025): wgmma.mma_async and mma.sync .
+
+4Preprint a Work owned by one thread block   
+
+> dK ,dV dQ dbias
+> one key tile across the four slices of an outer group queries (32-row tiles) keys (64-key tiles)
+
+b Where each gradient is summed         
+
+> dK ,dV : finished inside the block
+> dQ : split across key tiles
+> dbias : split across outer groups
+> query tiles FP32 registers, one per slice
+> written once
+> dK ,dV
+> this block one partial per key tile FP32 sum in key-tile order dQ
+> 4 slices, FP32 tree
+> one partial per outer group FP32 sum in group order dbias
+
+Figure 2: Work partitioning of the backward kernel. (a) A thread block owns one key tile in each of the four slices of an outer group and visits every query tile. (b) dK and dV finish inside the block; 
+
+dQ and d bias leave as partials with one writer each, which separate kernels add in a fixed order. 
+
+Algorithm 1 TURBO PAIR FORMER backward pass 
+
+Require: For each slice: Q, K, V, dO ∈ RN ×D , mask M , saved LSE ∈ RN , and the saved output and residual (Section 2.4). The shared bias ∈ RN ×N . All in HBM. 1: In a preprocessing kernel, compute the compensated row correction bδ ∈ RN of every slice in FP32. 2: Divide the keys into tiles of 64, the queries into tiles of 32, and the outer indices into outer groups of four. 3: for each key tile and outer group, in parallel do 
+
+4: Load K, V , and M of the key tile for the four slices from HBM to on-chip memory. 5: On chip, initialize dK = dV = (0) ∈ R64 ×D in FP32 for each of the four slices. 6: for each query tile, in ascending order do 
+
+7: Load Q, dO , LSE , and bδ for the four slices, and the bias tile, to on-chip memory. 8: for each of the four slices do 
+
+9: On chip, compute S = QK ⊤/√D + bias + M and recompute P = exp( S − LSE) .10: On chip, compute dP = dO V ⊤ and dS = P ◦ (dP − bδ) ∈ R32 ×64 .11: On chip, update dV ← dV + P ⊤dO and dK ← dK + dS ⊤Q.12: Write the dQ partial dS K ∈ R32 ×D of this key tile to HBM. 13: end for 
+
+14: Add the four dS in a fixed FP32 order, and write the d bias partial of this outer group to HBM. 15: end for 
+
+16: Write dK/ √D and dV of the four slices to HBM. 17: end for 
+
+18: In a reduction kernel, add the dQ partials in ascending key-tile order in FP32, and scale by 1/√D.19: In a reduction kernel, add the d bias partials in ascending outer-group order in FP32. 20: return dQ, dK, dV, d bias .
+
+with the next outer group. If query traversal spans launches, dK/dV likewise resume their FP32 accumulators at the next query tile. A launch boundary thus inserts only a store and reload; it introduces neither a new subtotal nor an extra rounding step. For fixed inputs, binary, device, tile sizes, and outer grouping, supported workspace schedules consequently produce bitwise-identical gradients. Appendix D.4 proves this property; Algorithm 3 specifies the launch boundaries. In FlashAttention-3’s deterministic backward, semaphores order in-place dQ updates (Shah et al., 2024; Qiang et al., 2026). TurboPairFormer orders the later reductions, allowing key-tile blocks to write their partials independently. This approach also covers the shared pair-bias gradient. Appendix I compares these designs with FlashAttention-2 and DASH. The cost is storage for the partials and an additional pass to read them. Reusing the pair-bias buffers limits their resident size, but the current implementation retains all dQ partials, one per key tile, so their size grows with the cube of the crop size N . Workspace scheduling does not remove this cubic allocation. Whether it increases peak 5Preprint training memory depends on which other tensors are live during the reduction; Appendix E gives the allocation sizes and lifetime analysis. 2.4 PRESERVING PRECISION WITH AN OUTPUT RESIDUAL 
+
+The row correction δ in Equation (2) comes from the forward output without another probability traversal. Computing it from the saved BF16 output loses information discarded during output conver-sion. Following analyses of attention precision and multiple-component BF16 representations (Qiu & Yao, 2026; Henry et al., 2019), we save a BF16 approximation to the difference between the FP32 forward result O32 and the public output O16 :
+
+E16 = RN 16 (O32 − O16 ), bδ ≈ rowsum  dO ◦ (O16 + E16 ). (3) Here RN 16 rounds to BF16. The subtraction, reconstruction, and dot product execute in FP32; the approximation sign accounts for floating-point evaluation. In our controlled ablations, using bδ in the shared dS reduces the mean RMSE of dQ , dK , and the pair-bias gradient, while leaving the public output and dV bitwise unchanged (Section 3.2). The cost is one output-sized BF16 tensor and its memory traffic, without additional probability recomputation. Appendix D.5 specifies the evaluation and analyzes its precision. 
+
+Forward pipeline. The forward kernel employs tiled online softmax (Milakov & Gimelshein, 2018), using double-buffered shared memory to overlap Tensor Memory Accelerator loads of keys, values, and pair bias with Tensor Core compute. Probability evaluation is interleaved with value aggregation, and the epilogue saves the rounding residual alongside the BF16 output (Algorithm 2; details in Appendix C). 
+
+## 3 EXPERIMENTS 
+
+We evaluate TurboPairFormer through training performance, backward numerical accuracy against an FP64 reference, training stability, and fine-tuning validation; supplementary hardware measurements, additional accuracy results, component ablations, deterministic replay, and validation details appear in the appendix. 3.1 TRAINING PERFORMANCE 
+
+We compare TurboPairFormer, Protenix, cuEquivariance, TriFast, MegaFold, DeepSpeed-Evo, Scale-Fold, and OpenFold3 Triton at crops 384, 640, and 768 on two nodes with eight NVIDIA H100 GPUs each and 16 samples per optimizer step. Each backend runs one 200-step training trajectory per crop. We measure GPU computation time with CUDA events, taking the maximum across ranks at each step and averaging over steps 21–200. Timings exclude data loading, host-to-device transfer, and EMA updates. TurboPairFormer achieves the lowest measured mean GPU computation time at all three crops : 5.26, 9.40, and 12.58 seconds per optimizer step, respectively (Figure 3). These times are 17.4–42.1% lower than OpenFold3 Triton’s and 6.1–11.7% lower than cuEquivariance’s. Appendices G.1, J, and G.2 report supplementary training measurements on eight H200 GPUs, component ablations, and training-loss comparisons, respectively. 3.2 BACKWARD NUMERICAL ACCURACY 
+
+On one H100, we compare eight attention implementations at crops N ∈ { 384 , 640 , 768 } and head dimensions D ∈ { 16 , 32 }, using ten seeds per shape. All methods receive the same BF16 inputs and incoming gradient, with zero pair bias and mask. Figure 4 reports the mean and sample standard deviation of absolute RMSE for the four public BF16 gradients against an FP64 reference evaluated on the same quantized inputs. TurboPairFormer has the lowest mean RMSE for dQ , dK , and d bias 
+
+in all six shapes, reducing errors relative to cuEquivariance by 31.4–44.4%, 28.7–42.4%, and 16.9– 37.9%, respectively. Its dV error is essentially tied with that of cuEquivariance. Enabling residual compensation lowers the dQ , dK , and d bias errors in every paired case, by 36.3–47.1%, 28.7– 42.4%, and 28.3–43.1% in mean RMSE, while the output and dV stay bitwise identical (Figure 9; 
+
+> NVIDIA Hopper Tuning Guide, Section 1.4.1.2: Tensor Memory Accelerator, CUDA 12.9.1 archive (2025).
+
+6Preprint Crop 384 Crop 640 Crop 768 
+
+0510 15 20 25 30 
+
+> GPU computation time (s / step)
+> 5.26 9.40 12.58
+> 5.35 9.62 12.93 5.60 10.43 14.25 5.39 9.79 13.18 5.66 11.42 15.94 5.78 11.81 16.63 5.96 11.17 15.71 6.37 14.48 21.72
+> TurboPairFormer MegaFold Protenix DeepSpeed-Evo cuEquivariance ScaleFold TriFast OpenFold3 Triton
+
+Figure 3: OpenFold3 training performance on 16 ×H100 GPUs. Mean GPU computation time per optimizer step on two nodes with eight H100 GPUs each and 16 samples per step. Statistics cover steps 21–200; data loading, host-to-device transfer, and EMA updates are excluded. Lower is better. TurboPairFormer has the lowest measured mean at all three crop sizes. Appendix G.3 adds captured-input checks). Appendix G.4 reports five-repeat gradient determinism across 600 fixed inputs. 1248
+
+> D = 16
+
+dQ 
+
+> 0.4 0.8 1.6 3.2
+
+dK 
+
+> 0.5 1248
+
+dV 
+
+> 1.2 2.4 4.8 9.6
+
+dbias     
+
+> 384 640 768 1248
+> D = 32
+> 384 640 768 0.4 0.8 1.6 3.2
+> 384 640 768 0.5 1248
+> 384 640 768 1.2 2.4 4.8 9.6
+
+Crop size N
+
+Absolute RMSE × 10 −3 · log scale · lower is better 
+
+> TurboPairFormer MegaFold Protenix DeepSpeed-Evo cuEquivariance ScaleFold TriFast OpenFold3 Triton
+
+Figure 4: Attention backward accuracy against FP64. Rows show D = 16 and D = 32 ; columns show dQ , dK , dV , and d bias . Points and error bars report mean absolute RMSE and sample standard deviation over ten seeds. Logarithmic axes show RMSE in units of 10 −3. Implementation variants and additional results are described in Appendix G.3. 7Preprint 3.3 TRAINING STABILITY 
+
+Post-warmup training setup. Starting from OpenFold3 Preview2 weights, we first train with cuEquivariance at crop 640 for 1,000 optimizer updates, following OpenFold3’s default linear learning-rate warmup from zero to a configured peak of 1.8 × 10 −3. Five backend configurations then resume this shared checkpoint, including its optimizer and scheduler states, on one H100 with BF16 mixed precision and one sample per update. Each run uses seed 42 and is scheduled for 400 further updates at crop 384, 640, or 768; recorded sample order matches across configurations within each crop. TurboPairFormer and cuEquivariance each supply both attention and triangle multiplication (TriMul), while TriFast and MegaFold attention use cuEquivariance TriMul. Unlike Section 3.1, OpenFold3 Triton attention here uses PyTorch TriMul. These runs use archived backend builds; Appendix G.2 specifies their versions, data, and restoration protocol. Results. OpenFold3 Triton first records NaN loss at resumed updates 7, 10, and 8 for crops 384, 640, and 768, respectively (Figure 8 in Appendix G.2). MegaFold completes 400 updates at each crop but reaches a raw loss of 53.9 at crop 768. TurboPairFormer, cuEquivariance, and TriFast remain finite throughout the 400-update interval. TurboPairFormer’s mean raw training losses are 1.640, 1.603, and 1.603, compared with 1.646, 1.608, and 1.598 for cuEquivariance. Each configuration has one trajectory per crop, so these observations characterize stability after warmup under this shared-checkpoint protocol; they do not establish convergence or final model quality. 3.4 FINE -T UNING VALIDATION 0.71 0.72 0.73                
+
+> Step 0 PyTorch OpenFold3 Triton cuEq Protenix TriFast MegaFold DeepSpeed-Evo ScaleFold
+> TurboPairFormer
+> Model selection
+> 0.79 0.80 0.81 0.82
+> lDDT intra-protein
+> 0.72 0.74 0.76
+> lDDT protein-ligand
+> 0.93 0.94 0.95
+> lDDT intra-ligand
+> 0.46 0.49 0.52
+> Step 0 PyTorch OpenFold3 Triton cuEq Protenix TriFast MegaFold DeepSpeed-Evo ScaleFold
+> TurboPairFormer
+> lDDT protein-protein
+> 0.40 0.42 0.44
+> DockQ weighted
+> 0.78 0.79 0.80
+> GDT-TS
+> 3.6 4.0 4.4
+> RMSD (Å) ↓
+> Higher is better except RMSD. Step 0 is the starting checkpoint.
+
+Figure 5: Preview2 validation after fine-tuning on 16 H100 GPUs. Points show means and sample SDs over five evaluation seeds on 85 kinase validation complexes after 1,000 global training steps, with step 0 as a reference. Structure metrics average top-1 and best-of-five values; model selection combines lDDT and RASA means (Appendix G.5). Higher is better except for RMSD. 
+
+Training setup. We fine-tune OpenFold3 Preview2 (The OpenFold3 Team, 2026) on 9,297 kinase PDB complexes for 1,000 global steps with each of the eight backend configurations of Section 3.1 and with the stock PyTorch configuration, on two nodes with eight H100 GPUs each (settings in Table 5). Each final EMA checkpoint and the Preview2 starting point (step 0) are evaluated on the same 85-complex kinase validation cohort using five evaluation seeds (0–4), which fix the 8Preprint diffusion noise of every target. Validation results. The model-selection means of the nine fine-tuned checkpoints span 0.713–0.723, with a pooled standard deviation of 0.0045 over evaluation seeds (Figure 5). In paired comparisons over targets, TurboPairFormer’s score differs from those of seven other fine-tuned configurations by −0.005 to +0 .001 , with 95% bootstrap intervals that include zero. Its score is 0.0082 below MegaFold’s, with an interval of [−0.0169 , −0.0002] (Appendix G.5). The measured model-selection scores are broadly similar, with a small advantage for MegaFold in this paired comparison; these results do not establish equivalence across backend configurations. 
+
+## 4 RELATED WORK 
+
+Triangular attention and kernel dataflow. AlphaFold2 and AlphaFold3 use triangular updates to pair representations (Jumper et al., 2021; Abramson et al., 2024); FastFold, ScaleFold, and MegaFold accelerate these models through kernel and system optimizations (Cheng et al., 2022; Zhu et al., 2024; La et al., 2025). FlashAttention and its successors establish tiled recomputation and hardware-specific pipelines (Dao et al., 2022; Dao, 2024; Shah et al., 2024; Zadouri et al., 2026). NeuralPLexer3 avoids explicit bias replication (Qiao et al., 2025), FlexAttention compiles PyTorch score modifications (Dong et al., 2025; Paszke et al., 2019), and FlashBias factorizes some structured biases exactly and approximates general biases (Wu et al., 2025). TurboPairFormer retains the dense shared bias. The inspected DeepSpeed-Evo and ScaleFold kernels already recompute probabilities once, but combine bias gradients through atomic accumulation and full score-gradient storage, respectively (Song et al., 2023; Zhu et al., 2024). Our distinction is combining key-tile parallelism with ordered query and pair-bias partials (Appendix F). 
+
+Deterministic gradient reduction. Order-sensitive floating-point summation (Higham, 1993) motivates either order-independent accumulators (Ahrens et al., 2020; Collange et al., 2015) or prescribed reduction sequences. FlashAttention-2’s deterministic mode uses FP32 query-gradient buffers per split (Appendix I.2); FlashAttention-3 and FlashAttention-4 order in-place updates with semaphores (Qiang et al., 2026; Zadouri et al., 2026), and DASH improves the scheduling of these ordered updates (Qiang et al., 2026). TurboPairFormer materializes partials for both query and shared pair-bias gradients, allowing key-tile blocks to write independently before fixed FP32 reductions. This avoids waiting for accumulation turns, but requires partial storage; the query-partial buffer remains cubic in crop length (Appendices E and I). 
+
+Precision of the backward correction. Mixed-precision training allocates precision selectively (Mi-cikevicius et al., 2018), while multi-component representations retain rounding information in BF16 arithmetic and training states (Henry et al., 2019; Yu et al., 2024). Qiu & Yao (2026) connect attention-output error to the backward correction δ = ⟨dO, O ⟩ and adjust the softmax shift to mitigate biased rounding. Attn-QAT computes an auxiliary output from unquantized probabilities for this correction in FP4 attention (Zhang et al., 2026). TurboPairFormer instead extracts a BF16 rounding residual from the existing FP32 output accumulator and reconstructs the saved output for δ. This preserves the public BF16 output and avoids another P V product; it targets output-conversion error, while other rounding errors remain (Appendix D.5). 
+
+## 5 CONCLUSION 
+
+TurboPairFormer combines one probability recomputation for all four triangular-attention gradients, fixed-order partial reductions, output-residual compensation, and shared-bias staging on NVIDIA Hopper GPUs. Under the tested conditions, it achieves bitwise gradient repeatability and the lowest mean query, key, and pair-bias gradient RMSE against an FP64 reference among eight attention implementations. Integrated with our triangle multiplication kernels, it achieves the lowest measured GPU computation time per optimizer step among eight OpenFold3 backend configurations on 16 H100 GPUs. Relative to our deterministic implementation, the fastest tested non-deterministic variants take 2.8–4.1% less backward time at the Pairformer head dimension D = 32 and 11.0–13.7% less at D = 16 . The query-partial buffer grows cubically with crop size; reducing this storage while preserving a fixed accumulation order is the main direction for future work. 9Preprint 
+
+## ACKNOWLEDGMENTS 
+
+We thank Ravali Reddy, Thomas Bordes, Paul Zhao, Niranjan Hira, Stephen Balaban, Michael Balaban, and Dave Ward from Lambda, as well as Mallory Tollefson from the Open Molecular Software Foundation, for their support throughout this project. 
+
+## REFERENCES 
+
+Josh Abramson, Jonas Adler, Jack Dunger, Richard Evans, Tim Green, Alexander Pritzel, Olaf Ronneberger, Lindsay Willmore, Andrew J. Ballard, Joshua Bambrick, Sebastian W. Bodenstein, David A. Evans, Chia-Chun Hung, Michael O’Neill, David Reiman, Kathryn Tunyasuvunakool, Zachary Wu, Akvil˙ e Žemgulyt˙ e, Eirini Arvaniti, Charles Beattie, Ottavia Bertolli, Alex Bridgland, Alexey Cherepanov, Miles Congreve, Alexander I. Cowen-Rivers, Andrew Cowie, Michael Fig-urnov, Fabian B. Fuchs, Hannah Gladman, Rishub Jain, Yousuf A. Khan, Caroline M. R. Low, Kuba Perlin, Anna Potapenko, Pascal Savy, Sukhdeep Singh, Adrian Stecula, Ashok Thillaisun-daram, Catherine Tong, Sergei Yakneen, Ellen D. Zhong, Michal Zielinski, Augustin Žídek, Victor Bapst, Pushmeet Kohli, Max Jaderberg, Demis Hassabis, and John M. Jumper. Accurate structure prediction of biomolecular interactions with AlphaFold 3. Nature , 630(8016):493–500, 2024. doi: 10.1038/s41586-024-07487-w. Willow Ahrens, James Demmel, and Hong Diep Nguyen. Algorithms for efficient reproducible floating point summation. ACM Trans. Math. Softw. , 46(3):22:1–22:49, 2020. doi: 10.1145/ 3389360. URL https://doi.org/10.1145/3389360 .Liam Atkinson. TriFast: Fused triangle self-attention kernels in Triton. Version 0.1.13 software, 2025. URL https://github.com/latkins/trifast .Sankar Basu and Björn Wallner. DockQ: A quality measure for protein-protein docking models. 
+
+PLOS ONE , 11(8):e0161879, 2016. doi: 10.1371/journal.pone.0161879. URL https://doi. org/10.1371/journal.pone.0161879 .ByteDance AML AI4Science Team, Xinshi Chen, Yuxuan Zhang, Chan Lu, Wenzhi Ma, Jiaqi Guan, Chengyue Gong, Jincai Yang, Hanyu Zhang, Ke Zhang, Shenghao Wu, Kuangqi Zhou, Yanping Yang, Zhenyu Liu, Lan Wang, Bo Shi, Shaochen Shi, and Wenzhi Xiao. Protenix – advancing structure prediction through a comprehensive AlphaFold3 reproduction. bioRxiv , 2025. doi: 10.1101/2025.01.08.631967. URL https://www.biorxiv.org/content/early/ 2025/01/11/2025.01.08.631967 .Shenggan Cheng, Xuanlei Zhao, Guangyang Lu, Jiarui Fang, Zhongming Yu, Tian Zheng, Ruidong Wu, Xiwen Zhang, Jian Peng, and Yang You. FastFold: Reducing AlphaFold training time from 11 days to 67 hours. arXiv preprint arXiv:2203.00854 , 2022. doi: 10.48550/arXiv.2203.00854. Caroline Collange, David Defour, Stef Graillat, and Roman Iakymchuk. Numerical reproducibility for the parallel reduction on multi- and many-core architectures. Parallel Computing , 49:83–97, 2015. doi: 10.1016/j.parco.2015.09.001. Tri Dao. FlashAttention-2: Faster attention with better parallelism and work partitioning. In 
+
+The Twelfth International Conference on Learning Representations, ICLR 2024, Vienna, Austria, May 7-11, 2024 . OpenReview.net, 2024. URL https://openreview.net/forum?id= mZn2Xyh9Ec .Tri Dao, Daniel Y. Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. FlashAttention: Fast and memory-efficient exact attention with IO-awareness. In Advances in Neural Information Processing Systems (NeurIPS) , volume 35, pp. 16344–16359, 2022. Juechu Dong, Boyuan Feng, Driss Guessous, Yanbo Liang, and Horace He. Flex-Attention: A programming model for generating fused attention variants. In 
+
+Proceedings of Machine Learning and Systems , volume 7, 2025. URL 
+
+https://proceedings.mlsys.org/paper_files/paper/2025/hash/ 61a9278dfef5f871b5e472389f8d6fa1-Abstract-Conference.html .10 Preprint Greg Henry, Ping Tak Peter Tang, and Alexander Heinecke. Leveraging the bfloat16 artificial intelligence datatype for higher-precision computations. In 2019 IEEE 26th Symposium on Computer Arithmetic (ARITH) , pp. 69–76, 2019. doi: 10.1109/ARITH.2019.00019. URL https: //arxiv.org/abs/1904.06376 .Nicholas J. Higham. The accuracy of floating point summation. SIAM Journal on Scientific Computing , 14(4):783–799, 1993. doi: 10.1137/0914050. John Jumper, Richard Evans, Alexander Pritzel, Tim Green, Michael Figurnov, Olaf Ronneberger, Kathryn Tunyasuvunakool, Russ Bates, Augustin Žídek, Anna Potapenko, Alex Bridgland, Clemens Meyer, Simon A. A. Kohl, Andrew J. Ballard, Andrew Cowie, Bernardino Romera-Paredes, Stanislav Nikolov, Rishub Jain, Jonas Adler, Trevor Back, Stig Petersen, David Reiman, Ellen Clancy, Michal Zielinski, Martin Steinegger, Michalina Pacholska, Tamas Berghammer, Sebastian Bodenstein, David Silver, Oriol Vinyals, Andrew W. Senior, Koray Kavukcuoglu, Push-meet Kohli, and Demis Hassabis. Highly accurate protein structure prediction with AlphaFold. 
+
+Nature , 596(7873):583–589, 2021. doi: 10.1038/s41586-021-03819-2. Hoa La, Ahan Gupta, Alex Morehead, Jianlin Cheng, and Minjia Zhang. MegaFold: Efficient training of next-generation 3D attention protein models on cross-platform GPUs. arXiv preprint arXiv:2506.20686 , 2025. doi: 10.48550/arXiv.2506.20686. URL https://arxiv.org/ abs/2506.20686v2 . Version 2, revised 13 June 2026; version 1 appeared as “MegaFold: System-Level Optimizations for Accelerating Protein Structure Prediction Models”. Valerio Mariani, Marco Biasini, Alessandro Barbato, and Torsten Schwede. lDDT: A local superposition-free score for comparing protein structures and models using distance difference tests. Bioinformatics , 29(21):2722–2728, 2013. doi: 10.1093/bioinformatics/btt473. URL 
+
+https://doi.org/10.1093/bioinformatics/btt473 .Paulius Micikevicius, Sharan Narang, Jonah Alben, Gregory Diamos, Erich Elsen, David Garcia, Boris Ginsburg, Michael Houston, Oleksii Kuchaiev, Ganesh Venkatesh, and Hao Wu. Mixed precision training. In International Conference on Learning Representations (ICLR) , 2018. Maxim Milakov and Natalia Gimelshein. Online normalizer calculation for softmax. arXiv preprint arXiv:1805.02867 , 2018. NVIDIA Corporation. cuEquivariance documentation. Version 0.10.0, released 2026-04-21, 2026. URL https://docs.nvidia.com/cuda/cuequivariance/changelog.html .Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban Desmaison, Andreas Köpf, Edward Z. Yang, Zachary DeVito, Martin Raison, Alykhan Tejani, Sasank Chilamkurthy, Benoit Steiner, Lu Fang, Junjie Bai, and Soumith Chintala. PyTorch: An imperative style, high-performance deep learning library. In Hanna M. Wallach, Hugo Larochelle, Alina Beygelzimer, Florence d’Alché-Buc, Emily B. Fox, and Roman Garnett (eds.), Advances in Neural Information Processing Systems 32: Annual Conference on Neural Information Pro-cessing Systems 2019, NeurIPS 2019, December 8-14, 2019, Vancouver, BC, Canada , pp. 8024–8035, 2019. URL https://proceedings.neurips.cc/paper/2019/hash/ bdbca288fee7f92f2bfa9f7012727740-Abstract.html .Xinwei Qiang, Hongmin Chen, Shixuan Sun, Jingwen Leng, Xin Liu, and Minyi Guo. DASH: Deterministic attention scheduling for high-throughput reproducible LLM training. In International Conference on Learning Representations (ICLR) , 2026. URL https://openreview.net/ forum?id=bMi5ssfPoM .Zhuoran Qiao, Feizhi Ding, Thomas Dresselhaus, Mia A. Rosenfeld, Xiaotian Han, Owen Lewis Howell, Aniketh Iyengar, Stephen Opalenski, Anders S. Christensen, Sai Krishna Sirumalla, Frederick R. Manby, Thomas F. Miller, III, and Matthew Welborn. NeuralPLexer3: Accurate biomolecular complex structure prediction with flow models. In Advances in Neural Information Processing Systems , 2025. URL https://arxiv.org/abs/2412.10743 .Haiquan Qiu and Quanming Yao. Why low-precision transformer training fails: An analysis on flash attention. In International Conference on Learning Representations , 2026. URL https: //openreview.net/forum?id=0jHyEKHDyx .11 Preprint Markus N. Rabe and Charles Staats. Self-attention does not need O(n2) memory. arXiv preprint arXiv:2112.05682 , 2021. Jay Shah, Ganesh Bikshandi, Ying Zhang, Vijay Thakkar, Pradeep Ramani, and Tri Dao. FlashAttention-3: Fast and accurate attention with asynchrony and low-precision. In Advances in Neural Information Processing Systems , volume 37, pp. 68658–68685, 2024. doi: 10.52202/ 079017-2193. URL https://proceedings.neurips.cc/paper_files/paper/ 2024/hash/7ede97c3e082c6df10a8d6103a2eebd2-Abstract-Conference. html .Shuaiwen Leon Song, Bonnie Kruft, Minjia Zhang, Conglong Li, Shiyang Chen, Chengming Zhang, Masahiro Tanaka, Xiaoxia Wu, Jeff Rasley, Ammar Ahmad Awan, et al. DeepSpeed4Science initiative: Enabling large-scale scientific discovery through sophisticated AI system technologies. 
+
+arXiv preprint arXiv:2310.04610 , 2023. doi: 10.48550/arXiv.2310.04610. URL https:// arxiv.org/abs/2310.04610 .Cecilia Summers and Michael J. Dinneen. Nondeterminism and instability in neural network optimization. In Proceedings of the 38th International Conference on Machine Learning (ICML) ,volume 139 of Proceedings of Machine Learning Research , pp. 9913–9922, 2021. URL https: //proceedings.mlr.press/v139/summers21a.html .The OpenFold3 Team. OpenFold3-preview. Software archive, version 0.3.1-zenodo, 2025-10-30, 2025. URL https://doi.org/10.5281/zenodo.17485510 .The OpenFold3 Team. OpenFold3-preview2 technical report. Technical report, OpenFold Consortium, 2026. URL https://portal.openfold.omsf.io/reports/of3p2_technical_ report.pdf .Haixu Wu, Minghao Guo, Yuezhou Ma, Yuanxu Sun, Jianmin Wang, Wojciech Matusik, and Mingsheng Long. FlashBias: Fast computation of attention with bias. In Danielle Belgrave, Cheng Zhang, Laura N. Montoya, Hsuan-Tien Lin, Razvan Pascanu, Piotr Ko-niusz, Marzyeh Ghassemi, Nancy Chen, Iván Vladimir Meza Ruíz, and Arturo Loaiza-Bonilla (eds.), Advances in Neural Information Processing Systems 38: Annual Con-ference on Neural Information Processing Systems 2025, NeurIPS 2025, San Diego, CA, USA, December 2-7, 2025 / Mexico City, Mexico, November 30 - December 5, 2025 , 2025. URL http://papers.nips.cc/paper_files/paper/2025/hash/ 1dc3d70df51a218497529df998a8a8ce-Abstract-Conference.html .Tao Yu, Gaurav Gupta, Karthick Gopalswamy, Amith R. Mamidala, Hao Zhou, Jeffrey Huynh, Youngsuk Park, Ron Diamant, Anoop Deoras, and Luke Huan. Collage: Light-weight low-precision strategy for LLM training. In Ruslan Salakhutdinov, Zico Kolter, Katherine A. Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp (eds.), Forty-first International Conference on Machine Learning, ICML 2024, Vienna, Austria, July 21-27, 2024 , volume 235 of 
+
+Proceedings of Machine Learning Research , pp. 57459–57479. PMLR / OpenReview.net, 2024. URL https://proceedings.mlr.press/v235/yu24d.html .Ted Zadouri, Markus Hoehnerbach, Jay Shah, Timmy Liu, Vijay Thakkar, and Tri Dao. FlashAttention-4: Algorithm and kernel pipelining co-design for asymmetric hardware scaling. 
+
+arXiv preprint arXiv:2603.05451 , 2026. Adam Zemla. LGA: A method for finding 3D similarities in protein structures. Nucleic Acids Research , 31(13):3370–3374, 2003. doi: 10.1093/nar/gkg571. URL https://doi.org/10. 1093/nar/gkg571 .Peiyuan Zhang, Matthew Noto, Wenxuan Tan, Chengquan Jiang, Will Lin, Wei Zhou, and Hao Zhang. Attn-QAT: 4-bit attention with quantization-aware training. arXiv preprint arXiv:2603.00040 ,2026. URL https://arxiv.org/abs/2603.00040 .Feiwen Zhu, Arkadiusz Nowaczynski, Rundong Li, Jie Xin, Yifei Song, Michal Marcinkiewicz, Sukru Burc Eryilmaz, Jun Yang, and Michael Andersch. ScaleFold: Reducing AlphaFold initial training time to 10 hours. In Vivek De (ed.), Proceedings of the 61st ACM/IEEE Design Automation Conference, DAC 2024, San Francisco, CA, USA, June 23-27, 2024 , pp. 265:1–265:6. ACM, 2024. doi: 10.1145/3649329.3657326. URL https://doi.org/10.1145/3649329.3657326 .12 Preprint 
+
+## APPENDIX 
+
+This appendix gives the technical details, proofs, and additional experiments that support the main text. It is organized as follows. Appendix A lists the notation. Appendix B explains how pair features form slices that share one pair bias, with a worked example. Appendix C describes the forward pipeline: online softmax, staging, and the saved output residual. Appendix D derives the backward gradient identities, describes the key-tile partitioning and ordered accumulation, and proves that the result does not depend on the workspace schedule. It also bounds the error of the output-residual compensation. Appendix E analyzes the workspace and its effect on peak training memory. Appendix F compares our kernels with existing attention kernels and their recomputation and accumulation strategies. Appendix G gives additional end-to-end results: step latency on eight H200 GPUs, training loss, numerical accuracy, deterministic replay, and sixteen-GPU fine-tuning validation. Appendix H reports single-GPU operator measurements for triangular attention and triangle multiplication, plus a forward dataflow ablation. Appendix I explains which gradients need a cross-block reduction, compares ways to make such reductions deterministic, and measures their cost. Appendix J presents the design of the triangle multiplication kernel and a component ablation. 
+
+## A NOTATION 
+
+Table 1 defines the variables used in the method and appendix. A colon in a tensor subscript selects all entries along that axis, and ⊤ denotes transpose. Parenthesized superscripts identify key tiles or outer groups rather than powers. 
+
+Table 1: Symbols used in the method and appendix. Tensor shapes are logical; batch and head indices are omitted where stated. 
+
+Notation Meaning 
+
+B, N , No Examples per GPU, tokens per crop, and number of fixed-token attention slices. The label o in No denotes the outer axis; No = N .
+
+H, D, Cz Heads, features per head, and features per pair; the label z refers to the pair tensor Z.
+
+o, q, k ; i, j Token indices: the fixed token (outer index), and the query and key positions within its slice. The triangle example uses i = o and j = q. A subscript o alone selects one fixed-token slice. 
+
+d; t, ℓ, c Feature coordinate; key tile, outer group, and forward 16-key chunk indices. There are four chunks per forward tile. In the memory analysis, t
+
+denotes an execution point. 
+
+Z Pair features of shape [B, N, N, C z ]. Zij : selects one pair, and Zo, : (also written Zo, :,:) the slice of a fixed token o; numeric subscripts such as Z2,4,:
+
+select individual pairs. 
+
+Q, K, V, O Query, key, value, and attention output tensors, each of shape 
+
+[B, N o, H, N, D ]; for one example, slice, and head, each is an N × D
+
+matrix. 
+
+bias , M Shared pair bias of shape [B, H, N, N ] and additive mask. Moqk selects a score mask; the key-only form is Mik .
+
+T, S, P Unscaled query–key scores, scores after scaling and adding bias and mask, and softmax probabilities. Their tensor indices follow o, q, k .
+
+X, dX Any tensor and its loss gradient, including dZ . The prefix d means gradient; a subscript d means feature coordinate. Local dK accumulators are unscaled until the final store. 
+
+LSE , δ Saved log-sum-exp and softmax backward correction for each row. Subscript oq selects query row q in fixed-token slice o.
+
+τq , τ k Query and key tile sizes. Superscript f denotes forward: τ f 
+
+> q
+
+= τ f 
+
+> k
+
+= 64 .Backward uses τq = 32 , τk = 64 . Here q, k label the tile axes. 
+
+Kt, JK , JQ Keys in backward tile t, and numbers of backward key and query tiles; the labels K and Q refer to keys and queries. Kf 
+
+> t
+
+is the corresponding forward tile. 
+
+Lℓ, G, L Fixed tokens in outer group ℓ, tokens per group ( G = 4 ), and number of groups. Groups need not follow chain boundaries. 
+
+13 Preprint 
+
+Notation Meaning 
+
+o0, o 1, o 2, o 3 Four fixed-token positions within one outer group. dS o0 , . . . , dS o3 are their contributions to the same bias element; invalid positions contribute zero. 
+
+Bc, Qs, R Examples per batch chunk, query rows per query chunk, and outer groups per launch. Here c and s label the two chunk sizes, not the chunk index c
+
+used elsewhere. 
+
+dQ (t)part Unscaled query-gradient partial from key tile t; part means partial. Added subscripts oq : select its output row. The identities use exact partials; algorithms use their stored BF16 values. 
+
+d bias (ℓ)part Bias-gradient partial from outer group ℓ. Added subscripts qk select one output element. The identities use exact partials; algorithms use their stored BF16 values. 
+
+\d bias (ℓ)part , d bias (ℓ)acc The hat marks a stored BF16 bias partial. The label acc marks the FP32 sum through group ℓ; state 0 already contains group 0’s partial. 
+
+μ, λ Running row maximum and softmax normalizer. Subscripts oq identify the row; a prime marks the value after the current key tile. 
+
+ρ, acc Row rescaling factor and unnormalized FP32 output sum. Subscripts oq or 
+
+oq : select a row scalar or vector; a prime marks the updated value. 
+
+O32 , O16 , E16 FP32 output before conversion, public BF16 output, and saved BF16 approximation of the output-rounding residual. Subscripts 32 and 16 label precision, not tensor coordinates; 16 denotes BF16. 
+
+eO32 , O∗ Output reconstructed from O16 and E16 , and exact attention output. The tilde marks reconstruction; the star marks the exact result. 
+
+x, y, e ; be, ex One FP32 output entry, its BF16 rounding, and the discarded residual. The hat marks the rounded BF16 residual; the tilde marks the reconstructed entry. 
+
+u16 , u32 BF16 and FP32 unit roundoffs under the stated normal-range assumptions; the subscripts label precision. 
+
+RN 16 , RN 32 , FP32( ·),
+
+PFP32 
+
+Round-to-nearest conversion to BF16 and to FP32, exact conversion of a BF16 value to FP32, and a sum evaluated in FP32. 
+
+◦, ⟨· , ·⟩ , softmax , diag ,
+
+rowsum , rowmax , X⊤
+
+Elementwise product, inner product over the feature coordinate, softmax over the keys of each query row, the diagonal matrix of a vector, the sum and the maximum over each row, and the transpose. Sc, Vo,c , and Pc
+
+restrict a tile to the keys of forward chunk c.
+
+R Real numbers; for example, one score tile lies in Rτq ×τk .
+
+Θ( ·), ∥ · ∥ 1, ∥ · ∥ 2 Asymptotic order, and the sum of absolute values and the Euclidean norm over all entries. The relative L2 error of a tensor X against a reference X′
+
+is ∥X − X′∥2/∥X′∥2.
+
+bδ, η Approximate row correction (marked by the hat) and its difference from the reference correction. ηoq is one row’s difference; ηo collects the differences for slice o.
+
+∆dX Change in a gradient when only the row correction changes; the prefix ∆
+
+marks the difference. 
+
+WQ Bytes for all BF16 query-gradient partials; Q labels the query gradient. 
+
+Wbias ,all , Wbias ,res Bytes for all BF16 bias partials or only the resident subset. The labels all 
+
+and res mean all and resident. 
+
+WE , WdS Bytes for one attention call’s BF16 output residual and for a complete FP32 score gradient; E and dS label these tensors. 
+
+A(t), W (t); P0, P1 Bytes of other live tensors and of temporary operator workspace at execution point t; peak memory without and with this workspace. Subscripts 0, 1 label the two cases; these are not attention probabilities. 
+
+## B BIOMOLECULAR INPUTS AND TENSOR ORGANIZATION 
+
+B.1 TOKENS , P AIRS , AND THE OUTER INDEX 
+
+AlphaFold3 assigns one token to each standard polymer residue and one to each heavy atom of other components (Abramson et al., 2024), and a crop selects N tokens, which can include noncontiguous residues from several chains. The pair representation of one example is Z ∈ RN ×N ×Cz , where 14 Preprint 
+
+Zij : is a learned feature vector for the ordered token pair (i, j ). These features encode pairwise information rather than coordinates or chemical bonds, and masks decide which pairs can attend. Starting-node triangular attention fixes the first pair index, the outer index o: the slice Zo, : holds the 
+
+N pairs between token o and every token, and attention runs along its second index, so a crop has N
+
+slices, each with an N × N score matrix per head. Ending-node attention fixes the second index and uses the same core after permuting the pair axes (The OpenFold3 Team, 2025). Section B.3 follows one score through a seven-token example. B.2 SHARED PAIR BIAS AND ITS GRADIENT 
+
+For starting-node attention, suppress batch and head indices and let the projections act on normalized pair features. A score for updating pair (i, j ) using pair (i, k ) has the form 
+
+Sijk = 1
+
+√D ⟨Qij :, K ik :⟩ + bias jk + Mik . (B.1) The score connects the pair relations (i, j ), (i, k ), and (j, k ), which form the triangle. Here i is the outer index and j, k are the query and key indices. The same bias jk is used for every i, so by the chain rule 
+
+d bias jk = X
+
+> i
+
+dS ijk . (B.2) The forward pass evaluates outer slices independently, whereas the shared bias gradient couples them through this sum. B.3 A W ORKED EXAMPLE 
+
+Figure 6 follows one attention score through a crop of seven tokens. Steps 1–4 trace the forward pass of query row q = 4 in slice o = 2 , and step 5 shows the three backward sums that the gradient of the same score joins. 
+
+## C FORWARD PIPELINE 
+
+Algorithm 2 follows one query tile through the forward kernel. C.1 ONLINE SOFTMAX AND CHUNKED VALUE AGGREGATION 
+
+The forward kernel evaluates Equation (B.1) with tiled online softmax (Milakov & Gimelshein, 2018), which avoids storing the full score and probability matrices (Rabe & Staats, 2021; Dao et al., 2022). A thread block of four warps owns τ f 
+
+> q
+
+= 64 query rows of one slice and head, and traverses key tiles of τ f 
+
+> k
+
+= 64 keys in ascending order. After key tiles 0, . . . , t − 1, it carries for each query row a running maximum μoq , a running normalizer λoq , and an unnormalized FP32 output acc oq :. With Kf
+
+> t
+
+the keys of tile t, the update is 
+
+μ′ 
+
+> oq
+
+= max 
+
+
+
+μoq , max 
+
+> k∈K f
+> t
+
+Soqk 
+
+
+
+, ρoq = exp  μoq − μ′
+
+> oq
+
+, (C.1) 
+
+λ′ 
+
+> oq
+
+= ρoq λoq + X
+
+> k∈K f
+> t
+
+exp  Soqk − μ′
+
+> oq
+
+, (C.2) 
+
+acc ′ 
+
+> oq :
+
+= ρoq acc oq : + X
+
+> k∈K f
+> t
+
+exp  Soqk − μ′
+
+> oq
+
+Vok :, (C.3) and after the last key tile the block emits 
+
+O32 ,oq : = acc oq :
+
+λoq 
+
+, LSE oq = μoq + log λoq . (C.4) A masked score of −∞ receives zero probability, and a row without valid keys gets O32 = 0 and 
+
+LSE = −∞ ; the saved LSE serves the backward recomputation. Each score tile is consumed in ascending 16-key chunks indexed by c: the exponentials of a chunk are computed just before its values are aggregated, and each thread reads the bias entries of its score fragment from shared memory in the register layout of the score accumulator. Ascending chunk and key-tile traversal fixes the accumulation order in Equation (C.3). 15 Preprint Example: N = 7 tokens, slice o = 2, query q = 4, key k = 6, one head 
+
+1 Tokens and pair features 
+
+1 2 3 4 5 6 7
+
+11223344556677
+
+> first token
+
+second token Each cell is one pair's feature vector in Z.Row o = 2 is one slice; pair (4, 6) gives a bias. 
+
+2 Row 2 gives Q, K, V
+
+pair query key value 
+
+Z2, 1, : Q1, : K1, : V1, : 
+
+Z2, 2, : Q2, : K2, : V2, : 
+
+Z2, 3, : Q3, : K3, : V3, : 
+
+Z2, 4, : Q4, : K4, : V4, : 
+
+Z2, 5, : Q5, : K5, : V5, : 
+
+Z2, 6, : Q6, : K6, : V6, : 
+
+Z2, 7, : Q7, : K7, : V7, : 
+
+Every pair in the slice gives a query, a key, and a value. 
+
+3 Pair (4, 6) gives the bias 
+
+Z2, 4, : Q4, : query 
+
+Z2, 6, : K6, : key Both pairs contain token 2; the bias adds the relation between tokens 4 and 6. 
+
+Z4, 6, : bias 4, 6 scalar 
+
+𝘚 𝟦 , 𝟨 = ⟨𝘘 𝟦 , : , 𝘒 𝟨 , : ⟩√ 𝘋 + 𝖻𝗂𝖺𝗌 𝟦 , 𝟨 
+
+Slice o = 3 uses the same bias 4, 6 
+
+for pairs (3, 4) and (3, 6): all slices share it. 
+
+4 Forward: softmax over the 7 keys, then a weighted sum 
+
+score weight value 
+
+S4, 1 
+
+P4, 1 
+
+×
+
+V1, : 
+
+S4, 2 
+
+P4, 2 
+
+×
+
+V2, : 
+
+S4, 3 
+
+P4, 3 
+
+×
+
+V3, : 
+
+S4, 4 
+
+P4, 4 
+
+×
+
+V4, : 
+
+S4, 5 
+
+P4, 5 
+
+×
+
+V5, : 
+
+S4, 6 
+
+P4, 6 
+
+×
+
+V6, : 
+
+S4, 7 
+
+P4, 7 
+
+×
+
+V7, : 
+
+softmax over the 7 scores of query row 4 
+
+O4, : = 7
+
+∑
+
+k = 1 
+
+P4, k Vk, : 
+
+the 7 weights of row 4 sum to one gating and an output projection update pair (2, 4) 
+
+5 Backward: the same score feeds three sums in three directions 
+
+11223344556677
+
+> query  q
+
+key k
+
+score gradients dS ; front: slice o = 2 entry (4, 6) of slices o = 1, …, 7 
+
+dQ of the query pair (2, 4) 
+
+adds the 7 entries of row 4 in slice 2: sum over keys 
+
+dK , dV of the key pair (2, 6) 
+
+add the 7 entries of column 6 in slice 2: sum over queries 
+
+d bias of the bias pair (4, 6) 
+
+adds entry (4, 6) of all 7 slices: sum over outer indices 
+
+One recomputed tile of P and dS feeds all three sums. 
+
+Figure 6: Worked example of triangular attention. We follow one attention score through a crop of seven tokens with one head; numbers in subscripts are token positions. (1) Z stores one feature vector for every pair of tokens, and fixing token o = 2 takes row 2 of Z as one slice. (2) Each pair in this row is projected into a query, a key, and a value; the pair (2 , 4) gives the query Q4,:, and the pair 
+
+(2 , 6) gives the key K6,: and the value V6,:. (3) Their score also adds a bias taken from the third pair, 
+
+(4 , 6) , and every slice uses this same bias for its positions 4 and 6. (4) The seven scores of query 4 go through a softmax, and the resulting weights average the seven values into the output that updates the pair (2 , 4) . (5) In the backward pass, this one score enters three different sums: over keys for dQ ,over queries for dK and dV , and over slices for d bias . Other queries and slices work the same way; masks and the normalization before the projections are omitted. 16 Preprint 
+
+Algorithm 2 TURBO PAIR FORMER forward pass, thread-block view 
+
+Require: Q, K, V ∈ RB×No×H×N ×D , bias ∈ RB×H×N ×N , M in HBM; one query tile of τ f 
+
+> q
+
+rows in slice 
+
+o; key tiles Kf 
+
+> t
+
+of τ f 
+
+> k
+
+keys. 
+
+Stage the query tile once 
+
+1: Load Qo from HBM to shared memory, then to registers. 2: Prefetch Ko, Vo, Mo, and the bias tile of key tile 0 into shared-memory buffer 0.3: On chip, set μ = −∞ , λ = 0 , and acc = 0 ∈ Rτ f  
+
+> q×D
+
+in FP32. 
+
+Visit the key tiles 
+
+4: for each key tile t, in ascending order do 
+
+5: Wait for Ko of tile t; on chip, compute T = QoK⊤ 
+
+> o
+
+(WGMMA). 6: Prefetch Ko, Vo, Mo, and the bias tile of key tile t + 1 into the other buffer. 7: Wait for the bias tile of tile t; on chip, compute S = T / √D + bias + Mo.8: On chip, compute μ′ = max( μ, rowmax( S)) .9: Per row, set ρ = 0 if μ = −∞ , otherwise ρ = exp( μ − μ′).10: On chip, set λ ← ρλ , acc ← ρ acc , and μ ← μ′.11: Wait for Vo of tile t.12: for each 16-key chunk c, in ascending order do 
+
+13: Set each Pc entry to zero if its score is −∞ , otherwise to exp( Sc − μ).14: On chip, compute acc ← acc + PcVo,c (mma.sync). 15: end for 
+
+16: On chip, compute λ ← λ + rowsum( P ).17: end for Write the outputs 
+
+18: Per row with λ > 0, compute O32 = acc /λ and LSE = μ + log λ.19: For rows with λ = 0 , set O32 = 0 and LSE = −∞ .20: On chip, round O32 to O16 in BF16, and round the residual O32 − O16 to E16 in BF16. 21: Write O16 , E16 , and LSE to HBM. 
+
+C.2 STAGING AND OUTPUT RESIDUAL 
+
+The Tensor Memory Accelerator (TMA) loads the key, value, and pair-bias tiles into two alternating shared-memory buffers, so the transfers for key tile t + 1 overlap the computation on tile t; the key mask is prefetched with ordinary loads. Scores use WGMMA and value aggregation uses mma.sync ,both with BF16 operands and FP32 accumulation, and the kernel is instantiated for D ∈ { 16 , 32 , 64 }.The epilogue rounds the FP32 output to the public BF16 output O16 and also saves its BF16 rounding residual E16 (Equation (D.14)), which Section D.5 analyzes. 
+
+## D BACKWARD IDENTITIES AND ORDERED ACCUMULATION 
+
+D.1 GRADIENT IDENTITIES 
+
+Suppressing batch and head indices, the attention core is 
+
+Soqk = 1
+
+√D ⟨Qoq :, K ok :⟩ + bias qk + Moqk , (D.1) 
+
+Poq : = softmax( Soq :), Ooq : = X
+
+> k
+
+Poqk Vok :. (D.2) For a scalar loss and incoming derivative dO , the backward identities are, in exact arithmetic, 
+
+dP oqk = ⟨dO oq :, V ok :⟩, (D.3) 
+
+δoq = X
+
+> k
+
+Poqk dP oqk = ⟨dO oq :, O oq :⟩, (D.4) 
+
+dS oqk = Poqk (dP oqk − δoq ), (D.5) 
+
+dQ oq : = 1
+
+√D
+
+X
+
+> k
+
+dS oqk Kok :, dK ok : = 1
+
+√D
+
+X
+
+> q
+
+dS oqk Qoq :, (D.6) 
+
+dV ok : = X
+
+> q
+
+Poqk dO oq :, d bias qk = X
+
+> o
+
+dS oqk . (D.7) 17 Preprint These identities apply to rows with at least one valid key. For fully masked rows, adopting the zero-output convention gives zero attention gradients. 
+
+Derivation. Differentiating O = P V gives dP = dO V ⊤ and dV = P ⊤dO . The softmax Jacobian in each row is diag( P ) − P P ⊤, yielding Equation (D.5). Differentiating the bilinear score gives Equation (D.6); differentiating the broadcast bias gives the sum over o in Equation (D.7). Finally, exchanging the finite sums over k and feature index d gives 
+
+X
+
+> k
+
+Poqk 
+
+X
+
+> d
+
+dO oqd Vokd = X
+
+> d
+
+dO oqd 
+
+X
+
+> k
+
+Poqk Vokd = ⟨dO oq :, O oq :⟩.
+
+This last identity makes the row correction available before a key-tile traversal when the forward output is retained. The three reduction axes determine the backward ownership problem: dQ sums over keys, dK, dV 
+
+sum over queries, and d bias sums over outer indices. The next construction shares the recomputed intermediates while assigning each partial a unique writer. D.2 KEY -T ILE OWNERSHIP AND GRADIENT PARTITIONING 
+
+Partition keys into disjoint tiles Kt and outer indices into disjoint outer groups Lℓ. A thread block owns one key tile, one head, and one outer group, and then traverses query tiles. Separate dK, dV 
+
+accumulators retain the contribution for each owned outer index. The remaining reductions are partitioned into the exact partials 
+
+dQ (t)part ,oq : = X
+
+> k∈K t
+
+dS oqk Kok :, (D.8) 
+
+d bias (ℓ)part ,qk = X
+
+> o∈L ℓ
+
+dS oqk . (D.9) 
+
+Proposition D.1 (Partitioned backward) . If every logical (o, q, k ) contribution is computed exactly once, then 
+
+dQ oq : = 1
+
+√D
+
+X
+
+> t
+
+dQ (t)part ,oq :, d bias qk = X
+
+> ℓ
+
+d bias (ℓ)part ,qk , (D.10) 
+
+and the thread blocks that own the key tiles obtain dK, dV by completing their query traversals. The computation can reuse one recomputation of each probability tile for all four gradients without retaining the complete score gradient. Proof. Substitute the disjoint key and outer partitions into the finite sums in Equations (D.6)–(D.7). Every term belongs to exactly one partial. Once δ is available, a recomputed tile P supplies dV ; its associated tile dS supplies dQ , dK , and d bias . A thread block that owns a key tile visits all query tiles required by its dK, dV entries. The remaining sums are exactly Equation (D.10). Each thread block writes its partials at unique addresses, and separate reduction kernels add them in a prescribed order, so one probability recomputation per tile suffices without floating-point atomics. The partials are stored in BF16 and reduced in FP32. Numerical accuracy is evaluated against a reference, whereas repeatability follows from the fixed operation order below. D.3 BACKWARD KERNEL IMPLEMENTATION 
+
+Algorithm 3 expands the main kernel of Algorithm 1 into thread-block steps, and Figure 7 shows where each tensor resides. A thread block of two warpgroups keeps the key-tile operands in shared memory, double-buffers the query-tile operands, and forms S, P , dP , and dS once per tile for all four gradients. Each warpgroup adds the score gradients of its two slices into an FP32 bias subtotal, and the two subtotals form the outer group’s partial. Probabilities are zero in fully masked rows and at invalid outer indices, so they add nothing. The row correction bδ comes from a preprocessing kernel, and enabling residual compensation changes only this scalar. The reduction kernels give each output element one owner and add its partials in ascending key-tile order for dQ and in ascending outer-group order for d bias (Equations (D.10) and (D.13)). 18 Preprint a From a molecular crop to an attention slice 
+
+Cropped complex: N tokens 
+
+may contain several chains 
+
+Model pair features Z
+
+N × N token pairs, Cz features each 
+
+Outer index o: attend within Zo, : , : 
+
+(o, q) attends to ( o, k)
+
+b Preprocessing: compensated row correction 
+
+Saved output and residual 
+
+O16 , E16 in HBM 
+
+Preprocessing kernel, FP32 ̂
+
+δ = rowsum( dO ± (O16 + E16 )) ̂
+
+δ in HBM 
+
+one scalar per row 
+
+c Main backward kernel 
+
+One thread block: key tile t × outer group ℓ
+
+> 64 keys, 4 outer indices, one batch element and head
+
+Shared memory (SMEM)    
+
+> K,V,M: staged once for the 4 outer indices
+> Q,dO , bias: each 32-query tile, two buffers
+
+Registers (RMEM) and tensor cores 
+
+Recompute once per 32-query tile            
+
+> S=QK >/√D+ bias + M,dP =dO V >(WGMMA)
+
+P = exp( S − LSE), dS = P ± (dP −̂ δ)  
+
+> Warpgroup 0: o0,o1
+
+dK ← dK + dS > QdV ← dV + P > dO   
+
+> FP32, mma.sync
+> Warpgroup 1: o2,o3
+
+dK ← dK + dS > QdV ← dV + P > dO 
+
+> FP32, mma.sync
+
+Shared memory (SMEM) 
+
+dS , K tiles (BF16) 
+
+> dS
+
+bias subtotals (FP32)   
+
+> dS , FP32  dQ (t)part =dS K
+> mma.sync, FP32
+> fixed tree (FP32)
+> (o0+o1)+( o2+o3)
+
+d HBM writes and ordered reductions 
+
+HBM (GMEM) 
+
+> global memory
+
+Q, K, V, dO  
+
+> bias, M
+> inputs
+
+LSE,  ̂ δ
+
+> one per row
+
+dK , dV (BF16)     
+
+> FP32 state kept between launches
+> dQ partials (BF16)
+> one per key tile t
+> dbias partials (BF16)
+> one per outer group ℓ
+
+Reduction kernels  
+
+> separate launches
+> FP32 sum over t
+> in ascending order, then × 1/ √D
+
+dQ (BF16)  
+
+> FP32 sum over ℓ
+> in ascending order, kept across launches
+
+d bias (BF16) 
+
+> × 1/ √D
+
+Figure 7: Backward data movement. (a) Fixing the outer index o selects the slice Zo, :,:, in which the query pair (o, q ) attends to the pairs (o, k ). (b) A preprocessing kernel computes the compensated row correction ˆδ in FP32 and writes it to HBM. (c) Each thread block of the main backward kernel owns one key tile and one outer group, and further thread blocks run concurrently on other SMs. It stages K, V , and M once and double-buffers Q, dO , and the bias tile in shared memory (SMEM), recomputes S, P , dP , and dS once per query tile, and accumulates dK and dV in FP32 registers (RMEM). The score gradient passes through SMEM to form one query-gradient partial per key tile and, through a fixed FP32 tree, one pair-bias partial per outer group. (d) The thread block writes dK ,
+
+dV , and its partials to HBM; separate reduction kernels add the partials in ascending index order in FP32, and the pair-bias partial buffers are reused once consumed (dashed arrow). D.4 WORKSPACE SCHEDULE INVARIANCE 
+
+To bound the resident workspace, the planner splits the backward pass into launches over consecutive chunks of Bc examples, Qs query rows, and R outer groups; each query row still attends to all valid keys. These units describe GPU work and memory residency, not protein chains or additional crops. 19 Preprint 
+
+Algorithm 3 TURBO PAIR FORMER main backward kernel, thread-block view 
+
+Require: Q, K, V, dO, bias , M, LSE , bδ in HBM; key tile t; outer group ℓ with outer indices o0, . . . , o 3; the query rows of this launch. 
+
+Stage the key tile once 
+
+1: Load Ko, V o, M o of key tile t for o ∈ L ℓ from HBM to shared memory. 2: On chip, set dK o = dV o = 0 in FP32, or reload the FP32 values saved by an earlier launch. 3: Prefetch Qo, dO o and the bias tile of the first query tile into shared-memory buffer 0.
+
+Visit the query tiles 
+
+4: for each query tile, in ascending order do 
+
+5: Wait for this tile’s buffer; prefetch the next query tile into the other buffer. 6: for each warpgroup in parallel, and each of its two outer indices o in order do 
+
+7: On chip, compute S = QoK⊤ 
+
+> o
+
+/√D + bias + Mo and dP = dO oV ⊤ 
+
+> o
+
+(WGMMA). 8: On chip, compute P = exp( S − LSE) and dS o = P ◦ (dP − bδ).9: On chip, compute dV o ← dV o + P ⊤dO o and dK o ← dK o + dS ⊤ 
+
+> o
+
+Qo (mma.sync). 10: Add dS o to the FP32 bias subtotal of this warpgroup; copy dS o to shared memory in BF16. 11: end for 
+
+12: Synchronize the thread block. 13: Write d bias (ℓ)part = ( dS o0 + dS o1 ) + ( dS o2 + dS o3 ), the sum of the two subtotals, to HBM in BF16. 14: On chip, compute dQ (t)part ,o = dS oKo for each o (mma.sync); write them to HBM in BF16. 15: end for Store the key-tile gradients 
+
+16: if this launch covers the last query rows then 
+
+17: Write dK o/√D and dV o to HBM in BF16. 18: else 
+
+19: Write dK o and dV o to HBM in FP32, to be reloaded by the next launch. 20: end if 
+
+Let \d bias (ℓ)part denote the stored BF16 bias partial for one output element of outer group ℓ. At a common query and key coordinate, its local reduction is 
+
+\d bias (ℓ)part = RN 16 (RN 32 [RN 32 (dS o0 + dS o1 ) + RN 32 (dS o2 + dS o3 )]) . (D.11) The two inner additions are the warpgroup subtotals; the remaining FP32 addition combines them before BF16 storage. Invalid outer positions contribute zero. Here RN 16 and RN 32 denote round-to-nearest conversion to BF16 and FP32. Fix the input bits, binary, device, arithmetic tiles, and instruction semantics, including this grouping, precision, and parenthesization. Exact BF16-to-FP32 conversion gives the ordered sum 
+
+d bias (0) acc = FP32( \d bias (0) part ), (D.12) 
+
+d bias (ℓ)acc = RN 32 
+
+ d bias (ℓ−1) acc + FP32( \d bias (ℓ)part ), 1 ≤ ℓ < L. (D.13) The final cast occurs after the last outer group. Across launches, the reduction kernel retains the current FP32 state and resumes at the next outer group. Query partials follow the fixed key-tile order. 
+
+Proposition D.2 (Workspace schedule invariance) . Suppose a physical schedule changes only residency and execution timing, and satisfies all of the following conditions: 1. Every logical partial is produced once by the same deterministic floating-point operations and written by one thread block to its own workspace location. 2. Each reduction kernel consumes the same ordered partials. Across a launch boundary it stores and reloads the current FP32 running state without conversion or reassociation. 3. If query traversal spans several launches, dK, dV retain their FP32 accumulator states and continue the same ordered query-tile operations. 4. Stream ordering between the main kernel and the reduction kernels prevents stale reads and buffer reuse before consumption, and the final output casts remain unchanged. Then all four output gradients are bitwise invariant across such schedules. 
+
+20 Preprint 
+
+Proof. Each schedule evaluates the same directed acyclic graph of deterministic floating-point operations. Induct over its dependencies: input nodes have the same bits; a node with identical operand bits and the same operation has identical result bits. Unique writers and synchronization preserve those operands. In particular, dividing Equation (D.13) into launches only inserts bit-preserving FP32 stores and loads. Query chunks partition dQ and d bias output coordinates, while their contributions to the same dK, dV entries continue the original FP32 recurrences. Batch chunks act on independent batch coordinates. Thus every output node has the same bits. The distinction between rescheduling and regrouping is essential. Under FP32 round-to-nearest with ties to even, 
+
+RN 32 
+
+ RN 32 (2 24 + 1) + 1  = 2 24 ,
+
+RN 32 
+
+ 224 + RN 32 (1 + 1)  = 2 24 + 2 .
+
+A launch boundary therefore preserves the current FP32 state instead of introducing a new partial sum: regrouping changes the arithmetic even when both schedules are deterministic. D.5 OUTPUT RESIDUAL COMPENSATION 
+
+The row correction enters every score gradient in a query row. Retaining the forward output’s rounding residual reduces the output-reconstruction error bound and can improve this shared quantity before probability recomputation. The forward epilogue computes 
+
+O16 = RN 16 (O32 ), E16 = RN 16 (RN 32 (O32 − O16 )) . (D.14) The subtraction widens O16 to FP32. Once dO is available, a separate row reduction computes 
+
+bδoq =
+
+> FP32
+
+X
+
+> d
+
+dO oqd RN 32 (O16 ,oqd + E16 ,oqd ) . (D.15) All BF16 operands are widened to FP32; both the reconstruction and the dot product execute in FP32. This scalar is available before the key-tile traversal and requires no probability recomputation. The following proposition isolates its effect on the four gradients. 
+
+Proposition D.3 (Propagation of the row correction) . For rows with at least one valid key, hold 
+
+P, dP, Q, K, V, dO fixed in exact arithmetic and replace δ by bδ = δ + η. Then 
+
+∆dS oqk = −Poqk ηoq , X
+
+> k
+
+∆dS oqk = −ηoq , (D.16) 
+
+∆dQ oq : = − 1
+
+√D ηoq 
+
+X
+
+> k
+
+Poqk Kok :, (D.17) 
+
+∆dK ok : = − 1
+
+√D
+
+X
+
+> q
+
+Poqk ηoq Qoq :, (D.18) 
+
+∆d bias qk = − X
+
+> o
+
+Poqk ηoq , ∆dV = 0 . (D.19) 
+
+Proof. Subtract the two instances of Equation (D.5) and substitute the difference into Equations (D.6)– (D.7). The row-sum identity follows from P 
+
+> k
+
+Poqk = 1 .The same ηoq acts on every key in the row, with ∥∆dS oq :∥1 = |ηoq |. Before weighting by P ,the broadcast difference −ηo1⊤ has rank at most one; the resulting score-gradient difference is 
+
+− diag( ηo)Po. Its propagation into dQ, dK , and d bias depends on the subsequent contractions and possible cancellation. This identifies the shared precision channel that the residual addresses. To isolate output conversion, let x be one entry of the normalized FP32 forward result O32 , and define 
+
+y = RN 16 (x), e = x − y, be = RN 16 (e), ex = y + be. 
+
+The corresponding elementwise output reconstruction is eO32 = O16 + E16 . The sums defining ex and 
+
+eO32 are interpreted over the reals for the following bound. Assume round-to-nearest, no overflow 21 Preprint or relevant underflow, and exact evaluation of the residual subtraction. With BF16 unit roundoff 
+
+u16 = 2 −8,
+
+|ex − x| = |be − e| ≤ u16 |e| ≤ u216 |x|, |y − x| ≤ u16 |x|. (D.20) Rounded subtraction contributes its own term, and explicit FP32 reconstruction contributes at most 
+
+u32 |ex|, where u32 = 2 −24 , under the same normal-range assumptions. For an exactly evaluated row dot product, Equation (D.20) gives 
+
+⟨dO, eO32 − O32 ⟩ ≤ u216 
+
+X
+
+> d
+
+|dO d(O32 )d|.
+
+To relate this component to the computed row correction, let O∗ = P V be the exact mathematical output and decompose 
+
+bδ − ⟨ dO, O ∗⟩ = bδ − ⟨ dO, eO32 ⟩
+
+| {z }
+
+> evaluation rounding
+
+(D.21) 
+
++ ⟨dO, eO32 − O32 ⟩
+
+| {z }
+
+> output conversion
+
++ ⟨dO, O 32 − O∗⟩
+
+| {z }
+
+> forward arithmetic
+
+.
+
+Residual retention reduces the bound on the output-conversion term from first to second order in BF16 unit roundoff under the stated assumptions. This does not guarantee a lower error in every row correction: reconstruction errors can cancel in the dot product, and the other two terms remain. The design preserves the public BF16 output and supplies the correction without another probability recomputation, at the cost of one saved BF16 tensor. 
+
+## E WORKSPACE COMPLEXITY AND TRAINING MEMORY 
+
+TurboPairFormer stores BF16 gradient partials to reuse each recomputed tile and to fix the accumula-tion order. The query partials form one buffer of logical shape [JK , BN o, H, N, D ]; with two bytes per element and No = N ,
+
+WQ = 2 JK BN oHN D = 2 BHDN 2
+
+ Nτk
+
+
+
+= Θ 
+
+ BHDN 3
+
+τk
+
+
+
+(E.1) for a fixed tile width. Storing the bias partials of all outer groups would take Wbias ,all = 2 BLHN 2
+
+bytes; the planner instead keeps Bc examples, R outer groups, and Qs query rows resident, 
+
+Wbias ,res = 2 BcRHQ sN, (E.2) and reuses these buffers in successive launches. The saved output residual occupies WE =2BN oHN D bytes per attention call. A complete FP32 score gradient would occupy WdS = 4 BHN 3
+
+bytes, so when τk divides N , WQ
+
+WdS 
+
+= D
+
+2τk
+
+, (E.3) which is one quarter at D = 32 and τk = 64 . Table 2 lists these sizes. At crop 768, the selected plan uses Qs = 768 and R = 56 , keeping 252 MiB of bias partials resident beside 1728 MiB of query partials and a 144 MiB residual per call. Table 2: Analytical allocation sizes in MiB for B = 1 , No = N , H = 4 , D = 32 , τk = 64 , G = 4 ,and BF16 partials. These are tensor sizes, not measured training peaks; crop 1024 is extrapolated. 
+
+N WQ Wbias ,all Wbias ,res WE WdS 
+
+384 216 108 108 36 864 640 1000 500 500 100 4000 768 1728 864 252 144 6912 1024 4096 2048 256 256 16384 
+
+22 Preprint Whether this workspace raises the training peak depends on its lifetime. Let A(t) be the bytes of all other live tensors and W (t) the temporary workspace at execution point t, and let P0 = max t A(t)
+
+and P1 = max t{A(t) + W (t)}. Then 
+
+P1 = P0 ⇐⇒ W (t) ≤ P0 − A(t) for every t, (E.4) because the right-hand condition states A(t)+ W (t) ≤ P0, while W (t) ≥ 0 gives P1 ≥ P0. Transient workspace can therefore fit below a peak set elsewhere in the step by saved activations, gradients, or optimizer states. At crop 768, sweeping the bias-workspace target from 64 to 512 MiB left the measured peak memory unchanged. The sweep holds the query-partial buffer fixed, so it shows only that bias scheduling does not raise the peak. The main limitation is this buffer, which grows cubically with crop size and linearly with local batch size; reducing it while keeping the fixed accumulation order is future work. 
+
+## F COMPARISON WITH EXISTING KERNELS 
+
+Triangular-attention backward kernels differ in how they share recomputed probabilities and combine contributions across thread blocks. Table 3 summarizes the inspected implementations. Among them, only TurboPairFormer combines one recomputation, no dense FP32 score gradient, no floating-point atomics, and a fixed accumulation order. Table 3: Structure of the inspected backward kernels. The three “No” columns indicate the absence of dense FP32 score-gradient storage or floating-point atomic accumulation. “Fixed” denotes an accumulation order independent of block retirement under fixed execution settings. Partial storage in TurboPairFormer remains cubic in N .                                                             
+
+> Backend Auto-PNo dense No dQ No bias Fixed tune recomputations FP32 dS atomics atomics order TurboPairFormer No 1Yes Yes Yes Yes TriFast Yes 3Yes Yes Yes Yes Protenix Yes 3Yes Yes Yes Yes MegaFold No 2Yes Yes No No OpenFold3 Triton (newer) No 2Yes No Yes No OpenFold3 Triton (earlier) No 2Yes Yes No No ScaleFold No 1No Yes Yes Yes DeepSpeed-Evo No 1Yes Yes No No
+
+Separate recomputation passes. TriFast and Protenix compute dQ , (dK, dV ), and the pair-bias gradient in three kernels, each recomputing the probabilities from the saved softmax statistics. Every gradient element has one writer and no atomics are used, at the cost of three recomputations. 
+
+Dense score-gradient storage. The ScaleFold path in Apex OpenFold Triton recomputes the probabilities once, writes the complete FP32 score gradient, and reduces the pair-bias gradient from it in a subsequent kernel. This avoids both repeated recomputation and atomics, but stores 
+
+WdS = 4 BHN 3 bytes (Appendix E). 
+
+Atomic accumulation. MegaFold recomputes twice, in a (dK, dV ) kernel and a fused (dQ, d bias) 
+
+kernel, and accumulates the bias gradient across outer positions with an atomic addition, so only that gradient can vary across replays. The newer OpenFold3 Triton source also recomputes twice but accumulates dQ with atomics; the earlier source, used for the synthetic accuracy and replay results, accumulates the shared bias gradient with FP32 atomics. DeepSpeed-Evo, the DS4Sci Evoformer attention in DeepSpeed, recomputes once in a fused backward kernel in which a block owns one slice and head and accumulates dQ without atomics, but it combines the bias gradient across slices with atomic additions whose order depends on block execution.  
+
+> Inspected sources: TriFast, Protenix, MegaFold, and the newer and earlier OpenFold3 kernels. Official DS4Sci documentation: deepspeed.ai/tutorials/ds4sci_evoformerattention .
+
+23 Preprint 
+
+Ordered partials. Like DeepSpeed-Evo and ScaleFold, TurboPairFormer recomputes each proba-bility tile once for the four gradients, but it differs from both in three ways. It assigns key tiles rather than whole slices to thread blocks, which exposes more parallelism at the cost of a query-partial reduction. It sums the shared pair-bias gradient through a fixed tree over four slices and ordered BF16 partials with FP32 running sums (Equations (D.10) and (D.13)), instead of global atomics or a dense FP32 score gradient. It also forms the softmax correction from the BF16 output plus a saved residual, which neither of the two retains (Section D.5). Its query-partial buffer is D/ (2 τk) of a dense FP32 score gradient, one quarter at the reported configuration (Equation (E.3)), but it remains cubic in N .
+
+## G ADDITIONAL END -TO -E ND RESULTS 
+
+This appendix reports a supplemental eight-H200 training comparison, training-loss behavior, addi-tional accuracy and replay results, and fine-tuning validation details. The synthetic tests use absolute RMSE, whereas the captured-call studies use relative L2 error. G.1 TRAINING STEP LATENCY ON EIGHT H200 GPU S
+
+Table 4 reports the supplemental comparison on eight H200 GPUs; each value is the mean GPU computation time over steps 21–400 of a 400-step run. Table 4: Mean seconds per optimizer step on eight NVIDIA H200 GPUs, excluding 20 warmup steps from each 400-step run. Protenix, TriFast, MegaFold, and ScaleFold use cuEquivariance triangle multiplication. Bold denotes the lowest mean in each column.                            
+
+> Backend Crop 384 Crop 640 Crop 768 TurboPairFormer 7.01 11.17 14.67
+> Protenix 7.35 11.30 14.92 cuEquivariance 7.43 12.11 16.51 TriFast 7.51 11.44 15.14 MegaFold 7.63 13.11 18.02 DeepSpeed-Evo 7.52 13.34 18.42 ScaleFold 7.91 12.58 17.15 OpenFold3 Triton 8.02 15.22 22.53
+
+TurboPairFormer has the lowest mean at every crop. Its step time is 12.6%, 26.6%, and 34.9% lower than OpenFold3 Triton’s and 6.8%, 16.3%, and 20.4% lower than DeepSpeed-Evo’s at crops 384, 640, and 768. At crop 768, it is lower than cuEquivariance’s, ScaleFold’s, Protenix’s, and TriFast’s by 11.1%, 14.5%, 1.7%, and 3.1%. Pairing the 380 matched steps at crop 640 gives reductions of 1.18% [0 .89 , 1.53] and 2.31% [1 .98 , 2.66] relative to Protenix and TriFast (95% moving-block bootstrap intervals); these intervals cover variation over matched inputs within one run, not across repeated runs. These integrated configurations do not isolate the effect of attention (Table 13). G.2 TRAINING LOSS 
+
+In the H200 runs at crops 384 and 640, every loss remains finite, and the final-50-step mean losses of the seven original configurations span 1.31650–1.31981 and 1.35317–1.35514, which shows agreement over this interval, not equal losses. 
+
+Post-warmup protocol. Table 5 lists the settings of the runs in Figure 8. Each run restores the model, EMA, optimizer, scheduler, training-loop, and data-module states of the shared checkpoint (Section 3.3) and continues on the post-warmup plateau of OpenFold3’s learning-rate schedule. The runs use Adam (betas 0.9 and 0.95, epsilon 10 −8), gradient clipping at 10, BF16 mixed precision, batch size one, a model with 48 Pairformer blocks, and a fixed PDB training subset cropped con-tiguously, spatially, or at an interface with weights 0.2, 0.4, and 0.4. Matching sample order does not imply identical random draws throughout training. The backends are cuEquivariance 0.10.0, TriFast 0.1.13, MegaFold, OpenFold3 Triton with Triton 3.6.0, and an archived August 2026 Tur-boPairFormer build with single-recomputation backward and the output residual. After 400 updates, 24 Preprint 0 200 400 1234    
+
+> Training loss
+> NaN at step 7
+> MegaFold clipped
+> Crop 384
+> 0200 400
+> NaN at step 10
+> Crop 640
+> 0200 400
+> NaN at step 8
+> MegaFold clipped raw max 53.9
+> Crop 768
+> Updates after the step-1000 checkpoint
+> TurboPairFormer MegaFold cuEquivariance OpenFold3 Triton TriFast
+
+Figure 8: Training stability after a shared 1,000-step learning-rate warmup. Five backend configurations resume the same checkpoint on one H100, with the same restart seed and matched sample order within each crop. Curves show trailing 25-update mean losses, except OpenFold3 Triton, whose finite raw losses are shown before the first NaN. MegaFold curves at crops 384 and 768 exceed the displayed range; 53.9 is the maximum raw loss at crop 768. TriFast’s mean losses are 1.648, 1.625, and 1.609, which, with the means of Section 3.3, gives a within-crop spread of at most about 0.022; MegaFold’s are 2.962, 1.746, and 2.680. Table 5: Settings of the post-warmup study (Figure 8) and of fine-tuning (Section 3.4). 
+
+Setting Post-warmup study Fine-tuning validation Starting weights Preview2 after 1,000 updates at crop 640 Preview2 GPUs One H100 16 H100 (two nodes) Crop size 384, 640, 768 384 Training updates 400 1,000 Learning rate 1.8 × 10 −3, post-warmup plateau 3 × 10 −4, 50 warmup steps EMA decay 0.999 0.98 Diffusion samples 48 32 Seed 42 42 
+
+G.3 ADDITIONAL ACCURACY RESULTS 
+
+Synthetic inputs. On one H100, we evaluate N ∈ { 384 , 640 , 768 } and D ∈ { 16 , 32 } with ten seeds per shape, batch size one, four heads, and N slices. Each entry of Q, K, and V is standard normal plus, with probability 0.001, a normal outlier with standard deviation 10; dO is standard normal. All are rounded once to BF16, and the bias and mask are zero. We report the absolute RMSE of the public BF16 gradients against an FP64 reference evaluated on the same quantized inputs, as the mean and sample standard deviation over seeds. 
+
+Implementation variants. The accuracy and replay studies use TurboPairFormer with the resid-ual, Protenix, cuEquivariance 0.10.0, the earlier OpenFold3 Triton source (Appendix F), TriFast 0.1.13, MegaFold, ScaleFold, and DeepSpeed-Evo from DeepSpeed 0.19.8. TriFast, MegaFold, and DeepSpeed-Evo include our numerical modifications: TriFast and MegaFold save the FP32 row max-imum and exponential sum separately for backward probability recomputation, and DeepSpeed-Evo centers scores in FP32 before exponentiation, accepts the FP32 additive mask, and has corrected stream and boundary handling. ScaleFold runs through an adapter for these shapes. 
+
+Residual ablation. Figure 9 shows the residual ablation summarized in Section 3.2. Its dashed lines give the RMSE of the FP64 reference rounded once to BF16, the smallest RMSE any BF16 tensor can attain. With the residual, the mean dQ error falls from 2.76–3.37 times this floor to 1.76–1.78 times, and the mean dK and d bias errors from 1.98–2.50 times to 1.42–1.43 times. On 25 Preprint captured inputs, the corresponding OpenFold3 median errors decrease by 35.9–55.5%, at an additional forward-plus-backward cost of 1.06–2.33% across five H100 operator cases. 0.0 0.8 1.6 2.4                 
+
+> D = 16
+> dQ
+> 0.0 0.2 0.4 0.6
+> dK
+> 0.0 0.2 0.4 0.6
+> dV
+> 0.0 0.8 1.6 2.4
+> dbias
+> 384 640 768
+> Crop N
+> 0.0 0.8 1.6 2.4
+> D = 32
+> 384 640 768
+> Crop N
+> 0.0 0.2 0.4 0.6 384 640 768
+> Crop N
+> 0.0 0.2 0.4 0.6 384 640 768
+> Crop N
+> 0.0 0.8 1.6 2.4
+> Absolute RMSE ×10 −3(lower is better) Residual on (TurboPairFormer) Residual o ff FP64 reference rounded to BF16
+
+Figure 9: Residual compensation on and off. TurboPairFormer runs with and without the saved output residual on one H100, with identical inputs and incoming gradients. Bars show the mean absolute RMSE of the public BF16 gradients against an FP64 reference over ten seeds, and error bars the sample standard deviation. Dashed lines mark the RMSE of the FP64 reference rounded once to BF16. The residual enters only the softmax correction, so dV is bitwise identical in both settings. 
+
+Captured training inputs. Table 6 reports relative L2 errors over 32 attention calls captured during OpenFold3 training. TurboPairFormer’s median dQ error is 0.3769%, about 54% lower than either comparator’s; dK and the bias gradient also improve, while the output and dV remain close. Table 6: Median relative L2 error (%) against an FP64 reference over 32 captured OpenFold3 attention calls. Output error is evaluated on valid query rows. Bold marks the lowest value in each row. 
+
+Quantity Protenix cuEquivariance TurboPairFormer 
+
+O 0.1695 0.1686 0.1686 
+
+dQ 0.8202 0.8222 0.3769 
+
+dK 0.4347 0.4358 0.2437 
+
+dV 0.2201 0.2164 0.2164 
+
+d bias 0.3534 0.3506 0.2449 
+
+G.4 DETERMINISTIC FIXED -I NPUT REPLAY 
+
+On one H100, we test 100 seeds for each of the six shapes, 600 cases per method, with the input recipe of Section G.3. Each case runs five forward and backward calls in one process with fixed BF16 inputs and dO , and passes when all four gradients are finite and bitwise identical across the five calls. TurboPairFormer, Protenix, ScaleFold, and TriFast pass all 600 cases; MegaFold passes 165, while cuEquivariance, OpenFold3 Triton, and DeepSpeed-Evo pass none (Figure 10). These measurements assess operator repeatability, not end-to-end training determinism, since optimization can amplify small numerical perturbations (Summers & Dinneen, 2021). G.5 SIXTEEN -GPU F INE -T UNING VALIDATION 
+
+Table 5 lists the fine-tuning settings. Each final EMA checkpoint and the Preview2 starting point (The OpenFold3 Team, 2026) are evaluated with OpenFold3’s native validation, using five rollouts per 26 Preprint N=384 D=16 N=640 D=16 N=768 D=16 N=384 D=32 N=640 D=32 N=768 D=32                                         
+
+> TurboPairFormer
+> Protenix cuEquivariance ScaleFold TriFast MegaFold DeepSpeed-Evo
+> 100/100 100/100 100/100 100/100 100/100 100/100
+> 100/100 100/100 100/100 100/100 100/100 100/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 0/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 100/100 1/100 46/100 93/100 0/100 1/100 24/100 0/100 0/100 0/100 0/100 0/100 0/100
+> 025 50 75 100
+> Cases with all four gradients identical (%)
+> OpenFold3 Triton
+
+Figure 10: Bitwise gradient replay across eight attention implementations. Each shape contains 100 fixed synthetic inputs, with five calls per input on one H100. A case passes only when all four public BF16 gradients are finite and bitwise identical across all five calls; forward output is excluded from this joint criterion. target and averaging, for each metric, the top-1 value (the rollout with the lowest predicted distance error) and the best-of-five value. All checkpoints use the same OpenFold3 Triton evaluation kernels and, for a given evaluation seed, the same diffusion noise, so seeds 0–4 measure evaluation sampling variability rather than variation across training runs. The model-selection score weights the intra-protein, intra-ligand, and protein–protein lDDT (Mariani et al., 2013) by 20 and the protein–ligand lDDT and the relative accessible surface area (RASA) term by 10, normalized by 80. Of the 85 complexes, 11, 77, 66, and 12 are eligible for the intra-protein, protein–ligand, intra-ligand, and protein–protein lDDT, 12 for weighted DockQ (Basu & Wallner, 2016), 83 for RASA, and all 85 for GDT-TS (Zemla, 2003) and RMSD. Exclusion from the training split and from Preview2 pretraining was not verified, so the cohort is not an established holdout. 
+
+Results. The pooled standard deviation over seeds is 0.0045 for model selection, larger than the 0.0029 standard deviation of the nine fine-tuned means. Table 7 averages each target over the five seeds and bootstraps the 85 targets 2,000 times. A second TurboPairFormer run with identical code, configuration, and seed scores 0.0057 higher under seeds 0–2, which exceeds the magnitude of seven of the eight TurboPairFormer–comparator differences; two runs cannot characterize training variability across backends. Table 7: Paired model-selection difference, TurboPairFormer minus each checkpoint, with targets averaged over the five seeds and 95% bootstrap intervals over the 85 targets. 
+
+Checkpoint Difference 95% interval Preview2 (step 0) −0.0076 [−0.0236 , +0 .0052] 
+
+PyTorch −0.0030 [−0.0092 , +0 .0022] 
+
+OpenFold3 Triton +0 .0012 [−0.0036 , +0 .0057] 
+
+cuEquivariance −0.0035 [−0.0092 , +0 .0024] 
+
+Protenix −0.0009 [−0.0083 , +0 .0061] 
+
+TriFast −0.0030 [−0.0094 , +0 .0032] 
+
+MegaFold −0.0082 [−0.0169 , −0.0002] 
+
+DeepSpeed-Evo −0.0006 [−0.0077 , +0 .0055] 
+
+ScaleFold −0.0050 [−0.0131 , +0 .0019] 
+
+27 Preprint 
+
+## H SINGLE -GPU O PERATOR MEASUREMENTS 
+
+This appendix times single operator calls on one NVIDIA H100. Both operators are only part of a training step, so these reductions do not carry over directly to step time (Table 13). H.1 TRIANGULAR ATTENTION 
+
+We time one attention call at N ∈ { 384 , 640 , 768 } and D ∈ { 16 , 32 }, with B = 1 , No = N ,and H = 4 ; OpenFold3 uses D = 16 only in its two-block template stack. The backends are TurboPairFormer in its training configuration, cuEquivariance 0.10.0, and Protenix after autotuning, each called as the OpenFold3 attention layer calls it, with gradients taken with respect to the projection outputs. Each entry in Table 8 averages two processes, each pooling five rounds of 15 calls with the backend order rotated between rounds. Table 8: Time in ms of one attention call on one H100 ( B = 1 , No = N , H = 4 ) for TurboPairFormer (Ours) in its training configuration, cuEquivariance 0.10.0 (cuEq), and Protenix after autotuning. The last three columns give TurboPairFormer’s change in time relative to cuEquivariance; negative values mean TurboPairFormer is faster.                                                                                               
+
+> Forward Backward Forward + backward Change vs. cuEq (%)
+> DNOurs cuEq Protenix Ours cuEq Protenix Ours cuEq Protenix Fwd Bwd F+B 16 384 0.384 0.640 0.417 1.167 2.097 1.285 1.493 2.623 1.587 −39 .9−44 .3−43 .1
+> 16 640 1.177 2.041 1.316 4.300 8.046 4.655 5.398 9.918 5.830 −42 .3−46 .6−45 .6
+> 16 768 1.870 3.341 2.137 7.392 13.244 7.563 9.025 16.478 9.499 −44 .0−44 .2−45 .2
+> 32 384 0.474 0.708 0.502 1.520 2.430 1.482 1.920 3.015 1.854 −33 .1−37 .5−36 .3
+> 32 640 1.538 2.192 1.602 5.468 8.764 5.654 6.810 10.823 7.129 −29 .8−37 .6−37 .1
+> 32 768 2.448 3.557 2.630 9.348 14.544 8.764 11.578 17.965 11.262 −31 .2−35 .7−35 .6
+
+TurboPairFormer is faster than cuEquivariance at every shape and in every mode: at D = 32 , its forward, backward, and forward-plus-backward times are 29.8–33.1%, 35.7–37.6%, and 35.6–37.1% lower, and at D = 16 they are 39.9–44.0%, 44.2–46.6%, and 43.1–45.6% lower. Against Protenix, its forward pass is 3.9–12.5% faster at every shape. Its backward pass is 2.3–9.2% faster at D = 16 ;at D = 32 , it is 3.3% faster at N = 640 but 2.5% and 6.7% slower at N = 384 and 768 , so forward plus backward ranges from 7.4% faster to 3.6% slower. The saved residual adds 1.0–2.6% to forward-plus-backward time. TurboPairFormer’s gradients differ from those of the other two backends by a relative L2 distance of at most 4.4 × 10 −3.
+
+One recomputation versus two. As an ablation, a two-pass backward variant that recomputes the probabilities once for the key and value gradients and again for the query and pair-bias gradients takes 28.3–64.0% longer than the single-recomputation backward, with the output residual disabled in both. Its kernels also differ in other respects, so the gap does not isolate the recomputation count. One call of our kernel allocates 0.36–3.09 GiB beyond its inputs, compared with 0.19–1.46 GiB for cuEquivariance, 0.10–0.73 GiB for Protenix, and 0.24–1.23 GiB for the two-pass variant, which stores no query partials. At D = 32 and N = 768 , the query partials take 1.69 of the 3.09 GiB. H.2 FORWARD DATAFLOW ABLATION 
+
+Forward executions outnumber backward executions in OpenFold3 training: in a profiled crop-768 update with three recycling iterations, 600 forward executions of triangular attention, 120 of them repeated by activation checkpointing, accompany 120 backward executions. A four-arm ablation isolates the forward changes of Appendix C at D = 32 . The baseline stages keys and values with TMA but reads the bias and mask directly from global memory and evaluates all probabilities of a key tile before aggregation. The core arm adds bias staging, mask prefetching, and chunked evaluation; the pack arm changes only the repacking of Q, K, and V ; and the combined arm contains both changes. All arms share the same backward kernels and give bitwise-identical outputs and gradients. The core changes cut forward time by 25.5–27.5%, the combined arm by 29.1–30.0%, and repacking alone by 2.4–3.5%. The combined arm lowers forward-plus-backward time by 8.5–9.2%, while 28 Preprint Table 9: Forward dataflow ablation on one H100 ( B = 1 , No = N , H = 4 , D = 32 ). Times are means of 160 forward calls per arm; percentages are mean reductions over eight paired blocks relative to the baseline.                               
+
+> Forward time (ms) Forward reduction (%) F+B reduction (%)
+> NBaseline Core Combined Core Combined Core Combined 384 0.547 0.408 0.388 25.5 29.1 8.1 9.2 640 2.037 1.478 1.426 27.4 30.0 8.3 9.0 768 3.336 2.419 2.341 27.5 29.8 7.8 8.5
+
+backward time changes by at most 0.2%. The core changes are measured together, so the ablation does not apportion their saving among bias staging, mask prefetching, and chunked evaluation. H.3 TRIANGLE MULTIPLICATION 
+
+We time one forward-plus-backward triangle multiplicative update against cuEquivariance 0.10.0 at the twelve OpenFold3 training shapes with one example: crops 384, 640, and 768; 128 channels, as in the Pairformer and MSA module, or 64, as in the template stack; and the incoming and outgoing directions. Each call runs under BF16 autocast, and each of three rounds times cuEquivariance, TurboPairFormer, and cuEquivariance again. Table 10: Median time in ms of one triangle multiplicative update, forward plus backward, on one H100 with one example. Parentheses give TurboPairFormer’s (Ours) change in time relative to cuEquivariance 0.10.0; negative values mean TurboPairFormer is faster.                                     
+
+> Incoming Outgoing
+> NChannels cuEquivariance Ours cuEquivariance Ours 384 128 2.769 1.326 ( −52 .1% )2.777 1.323 ( −52 .4% )640 128 3.615 3.334 ( −7.8% )3.678 3.336 ( −9.3% )768 128 5.142 4.788 ( −6.9% )5.210 4.782 ( −8.2% )384 64 2.734 1.111 ( −59 .4% )2.735 1.116 ( −59 .2% )640 64 2.777 1.921 ( −30 .8% )2.784 1.922 ( −31 .0% )768 64 2.842 2.692 ( −5.3% )2.879 2.691 ( −6.5% )
+
+TurboPairFormer is faster at all twelve shapes. With 128 channels, it takes 52.1–52.4%, 7.8–9.3%, and 6.9–8.2% less time at N = 384 , 640, and 768. cuEquivariance takes 2.7–2.9 ms at every shape except the 128-channel shapes with N ≥ 640 , a per-call floor that explains the large reductions at 
+
+N = 384 and with 64 channels. 
+
+## I CHOOSING THE DETERMINISTIC REDUCTION 
+
+With one recomputation, a thread block emits each tile’s contributions to all four gradients, so any gradient that sums along an axis the block does not span needs a reduction across thread blocks. Under the work partitioning of Section 2.2, two remain: the query gradient over key tiles and the pair-bias gradient over outer groups. TurboPairFormer makes both deterministic with materialized partials summed in index order (Section 2.3). This appendix explains the choice and measures it on one H100. At D = 32 , the fastest tested non-deterministic variant of our kernel, which accumulates the pair-bias gradient with atomics, takes 2.8–4.1% less backward time, and the deterministic kernel is faster than assigning one thread block per slice at every shape. At D = 16 , which only the template stack uses, the fastest tested non-deterministic variant takes 11.0–13.7% less time. I.1 WHICH GRADIENTS NEED A CROSS -B LOCK REDUCTION 
+
+Kernels that traverse the scores once per gradient need no cross-block reduction, because each traversal can span the axis along which its gradient sums; TriFast and Protenix work this way at the 29 Preprint price of three recomputations (Appendix F). With one recomputation, the work partitioning decides which gradients need such a reduction and how many blocks a launch contains (Table 11). The pair-bias gradient stays within a thread block only if the block spans all No outer indices (lower block of Table 11). A block that owns one query–key tile then leaves dQ , dK , and dV to cross-block reductions, and a block that owns a key tile leaves too few blocks: HJ K = 48 at N = 768 with four heads, fewer than the 132 SMs of an H100. We therefore partition the outer indices, a design choice that requires a cross-block pair-bias reduction; this reduction exists only because all slices share the bias. Among the partitionings that split the outer indices, assigning key tiles keeps dK 
+
+and dV in registers and leaves dQ as the only slice-shaped cross-block reduction, whereas assigning whole slices, as DeepSpeed-Evo does, removes that reduction but launches JK times fewer blocks. Grouping G = 4 outer indices per block sums their pair-bias contributions on chip in a fixed tree, dividing the number of bias partials by G.Table 11: Work partitioning for one example. A thread block handles one head, owns the listed part of the (o, q, k ) tile space, and iterates over the axes it spans. JQ and JK are the numbers of query and key tiles. The partials column counts the Q-sized partial tensors needed when the cross-block reductions of slice-shaped gradients use materialized partials; the upper block also needs L = No/G 
+
+bias-sized partials for the pair bias.                                               
+
+> Thread block owns Local Cross-block Partials Thread blocks
+> Gouter indices per thread block
+> Key tile (ours) dK ,dV dQ ,dbias JKHJ KNo/G
+> Query tile dQ dK ,dV ,dbias 2JQHJ QNo/G
+> Whole slices (DeepSpeed-Evo) dQ ,dK ,dV dbias none HN o/G
+> All Noouter indices per thread block
+> Query–key tile dbias dQ ,dK ,dV JK+ 2 JQHJ QJK
+> Key tile dK ,dV ,dbias dQ JKHJ K
+
+I.2 THREE WAYS TO MAKE A CROSS -B LOCK REDUCTION DETERMINISTIC 
+
+A reduction across thread blocks is bitwise repeatable only if its association order is fixed or its arithmetic is order-independent, as with binned accumulators (Ahrens et al., 2020) or superaccumula-tors (Collange et al., 2015). Attention kernels fix the order in three ways (Figure 11a). 
+
+Semaphore-ordered atomic accumulation. Each thread block atomically adds its contribution to one FP32 buffer, and a semaphore grants the turns in a fixed order, so a block whose turn has not come waits. The deterministic mode of FlashAttention-3 accumulates the query gradient this way, in ascending key-tile order for non-causal attention (Shah et al., 2024), and DASH chooses the turn order together with the tile schedule so that, in its scheduling model, the waits do not lengthen the critical path (Qiang et al., 2026). 
+
+One thread block per slice. A thread block that owns whole slices visits every key tile itself and accumulates the query gradient in program order. DeepSpeed-Evo obtains a deterministic query gradient this way (Song et al., 2023), and so does the deterministic mode of FlashAttention-2 for triangular attention. It keeps one FP32 query-gradient buffer per split and sets the number of splits to the SM count divided by the number of attention problems, rounded up, which yields one split per slice for the BN oH problems of triangular attention (3,072 at N = 768 with four heads). No block waits, but the launch has JK times fewer blocks than partitioning by key tile. 
+
+Materialized partials and a reduction kernel. Each thread block writes its contribution as a partial that no other block writes, and after these blocks finish, a separate kernel sums the partials in index order. TurboPairFormer applies this to the query gradient, in the ascending key-tile order of FlashAttention-3’s turns, and to the pair-bias gradient, a reduction that standard attention does not have. No block waits; the partials cost memory, one additional pass, and, because they are stored in BF16, one rounding per partial before the FP32 sum.  
+
+> Official FlashAttention-2 implementation, commit 98eb7998 : FP32 buffers per split and deterministic launch and reduction.
+
+30 Preprint 
+
+Choice for triangular attention. Once the outer indices are partitioned, semaphore ordering would need, for every pair-bias tile, a chain of turns through all L = No/G outer groups (192 at N = 768 ,against JK = 12 key tiles for dQ ), and a schedule that keeps both families of chains free of stalls. Materialized partials handle both reductions with one mechanism. Because each sum is ordered by partial index, they also let the planner split the backward pass into memory-bounded launches without changing the gradient bits (Proposition D.2). I.3 MEASURED COST OF THE REDUCTION IMPLEMENTATIONS 
+
+We replace the deterministic reductions of our backward kernel with FP32 atomic accumulation and keep everything else fixed: atomic pair-bias accumulation; per-element atomic additions to dQ ; or, as FlashAttention-3 accumulates the query gradient, dQ tiles staged in shared memory and added with one TMA bulk reduction each. Each variant is timed in six rounds of 30 calls with the variant order rotated, and a second process reproduces every percentage within 0.7 percentage points. Table 12: Backward time of one TurboPairFormer attention call on one H100 ( B = 1 , No = N ,
+
+H = 4 ). The deterministic kernel reduces both gradients through materialized partials. Each other column replaces the named reductions with non-deterministic atomic accumulation in FP32 and gives the change in time relative to the deterministic kernel; positive values mean the variant is slower. “Both” combines atomic pair-bias accumulation with the named query-gradient accumulation.                                             
+
+> Change with non-deterministic atomic accumulation (%)
+> DN
+> Deterministic (ms) Atomic
+> dbias
+> Per-element
+> dQ
+> Both, per-element TMA bulk
+> dQ
+> Both, TMA bulk 16 384 0.849 −8.0+1 .9−6.7−5.2−11 .0
+> 16 640 3.582 −7.3−0.3−7.2−7.1−12 .6
+> 16 768 6.349 −7.9−0.1−7.8−7.2−13 .7
+> 32 384 1.091 −4.1+21 .5+13 .6+8 .3+2 .2
+> 32 640 4.505 −2.8+18 .9+13 .3+4 .6−0.1
+> 32 768 8.045 −3.9+19 .6+13 .0+4 .2−1.3
+
+At D = 32 , the materialized query-gradient partials beat both atomic alternatives, which lengthen the backward pass by 18.9–21.5% and 4.2–8.3%, and atomic pair-bias accumulation alone is the fastest tested non-deterministic variant, 2.8–4.1% faster. At D = 16 , combining TMA bulk reduction of dQ with atomic pair-bias accumulation is fastest, 11.0–13.7% faster. Profiles at N = 768 and 
+
+D = 32 trace the slowdown of per-element atomics to contention in the L2 cache, which receives 99.1 million single-sector reduction requests, whereas the reduction kernel reads the 1.69 GiB of query partials once in 0.63 ms under profiler clocks. This compares BF16 partials and a fixed FP32 reduction with direct FP32 atomics, so it does not isolate the cost of determinism, and it does not bound semaphore-ordered accumulation, which requires direct measurement. I.4 ONE THREAD BLOCK PER SLICE 
+
+Assigning each thread block the whole slices of its four outer indices removes the query-gradient reduction, as in DeepSpeed-Evo: the block visits every key tile itself and accumulates dQ in a dense FP32 buffer. We built this as a variant of our kernel with the same pair-bias path and timed it against the key-tile kernel of the same build, under the default workspace plan and under a plan with every outer group resident, which the variant can afford because it stores no query partials. It is deterministic, and its key, value, and pair-bias gradients equal ours bit for bit, but its backward pass is 22.8–95.9% slower across the six shapes and two plans. The gap narrows when more outer groups run concurrently, from 45.9% to 22.8% at D = 32 and N = 768 , which points to its JK
+
+times smaller launch. I.5 WORKSPACE PLANS , M EMORY , AND PRECISION 
+
+At every shape, our kernel’s four gradients are bitwise identical under the default workspace plan and under the plan with every outer group resident, as Proposition D.2 predicts; at N = 768 , these 31 Preprint a Deterministic cross-block reductions in triangular attention            
+
+> Semaphore-ordered atomic adds
+> FA3 deterministic, DASH
+> One block per slice
+> DeepSpeed-Evo and FA2 deterministic
+> Partials + reduction kernel
+> TurboPairFormer
+> CTA 0 CTA 1 CTA 2 CTA 3 time
+> FP32 buffer
+> waits on semaphore
+> FP32 buffer
+> t= 0 123
+> no other thread blocks
+> 0123
+> reduction kernel: sum 0 –3in order, FP32
+> partials
+> fixed turn order blocks wait no cross-block reduction
+> JK× fewer thread blocks no waiting; index order cost: partial buffers chains of Lturns cross-slice sum remains Lpartials, index order
+> dQ dbias
+
+b Measured cost at D = 32          
+
+> 020 40 Backward time vs. ours (%) One block per slice (deterministic) Atomic dQ ,per element Atomic dQ ,TMA bulk reduce Atomic dbias Both atomic (TMA dQ)
+> ours
+> non-deterministic N= 384
+> N= 640
+> N= 768
+
+Figure 11: Making the cross-block reductions deterministic. (a) Four thread blocks (CTA 0–3) contribute to one query-gradient reduction; the bottom row gives each scheme’s consequence for the pair-bias gradient, which sums across slices. With semaphore-ordered atomic adds, the blocks add into one FP32 buffer in turns and wait for them; FlashAttention-3 grants the turns in key-tile order, and DASH chooses the order together with the schedule. With one thread block per slice, a single block visits all JK key tiles t of the slice, so the launch has JK times fewer thread blocks; the deterministic mode of FlashAttention-2 falls in this class here. With materialized partials, blocks write one partial per key tile without waiting and a reduction kernel sums them in index order; TurboPairFormer uses this for dQ (JK partials) and d bias (L partials). (b) Change in backward time of variants of our kernel relative to the deterministic kernel at D = 32 on one H100 (Table 12 and Section I.4). The atomic variants are not deterministic; “both atomic” combines TMA bulk reduction for dQ with atomic d bias . Semaphore-ordered variants are not measured. plans process the 192 outer groups in four launches and in one. The resident plan shortens the backward pass by 5.1% there but needs an 864 MiB rather than a 252 MiB bias workspace. The BF16 partials are the main memory cost: 1.69 GiB of query partials at D = 32 and N = 768 , against one 288 MiB FP32 buffer for semaphore-ordered or per-slice accumulation. Relative to FP32 atomic accumulation, their BF16 rounding changes dQ and d bias by a relative L2 error of 2.7–2.8 × 10 −3
+
+and 1.6–1.7 × 10 −3, whereas FP32 accumulations that differ only in addition order agree within 
+
+2.4 × 10 −5. The accuracy comparison of Section 3.2 includes this rounding. 
+
+## J TRIANGLE MULTIPLICATION 
+
+Triangle multiplication updates a pair by combining two transformed pair features that share a third token, contracting over that token separately for each channel. Our outgoing implementation (Figure 12) places two fused CUDA kernels around one cuBLAS batched matrix multiplication. The input kernel normalizes each pair and computes five projections: two branch values, two branch gates, and the output-gate logits. The output kernel normalizes the contraction result, projects it, and applies the saved output gate. Fusion removes the global-memory round trips of intermediates within each stage, while the branch tensors and the contraction result still pass through global memory. The backward pass evaluates the projection tiles again instead of storing them and combines weight-gradient chunks in a fixed FP32 order; the attention replay results do not cover TriMul. Unlike cuEquivariance 0.10.0, which evaluates the output gate in its output stage in FP32 registers, we compute the gate logits in the input kernel and store them in BF16. Against a PyTorch FP32 reference, the median relative L2 errors nevertheless match closely: 0.386% versus 0.384% for the output and 0.604% versus 0.607% for the input gradient, compared with 0.440% and 0.823% for PyTorch with BF16 inputs. This compares complete implementations and does not isolate the effect of BF16 gate storage. 
+
+Component ablation. Table 13 replaces attention, TriMul, or both in a cuEquivariance-enabled OpenFold3 run of 100 steps per crop with gradient accumulation of 16. The percentages are reductions in full training step latency, and the combined results are measured directly rather than summed. 32 Preprint Triangular multiplicative update 
+
+1 Fused input kernel Five independent projections 
+
+Z
+
+> N×N×Cz
+
+LayerNorm 
+
+Linear 
+
+> Left values
+
+Linear 
+
+> Left gate
+
+Linear 
+
+> Right values
+
+Linear 
+
+> Right gate
+
+Linear   
+
+> Output gate
+> Normalized features in shared memory
+> Branch values in registers
+> Sigmoid Sigmoid
+> Value × gate × mask Value × gate × mask
+> Save logits
+> in BF16
+
+2 cuBLAS batched GEMM 
+
+Triangle contraction 
+
+> One matrix product per channel
+
+3 Fused output kernel Sigmoid 
+
+> LayerNorm
+> Across channels
+> Output projection
+> Kept in registers
+> Multiply
+> by gate
+> Pair update
+
+Figure 12: Outgoing triangle multiplicative update. The fused input kernel normalizes the pair features and computes five independent projections: two branch values, two branch gates, and the output gate logits. The normalized features use shared memory, while branch values remain in registers until gating and masking. A separate cuBLAS batched GEMM contracts the branch operands independently for each channel. The fused output kernel combines normalization, output projection, and multiplication by the sigmoid of the saved output gate logits. Table 13: Training step latency reduction (%) from replacing attention, TriMul, or both in a cuEquivariance-enabled OpenFold3 baseline. 
+
+Crop Attention only TriMul only Both 384 2.21 2.86 5.55 640 5.59 2.78 8.45 768 6.43 2.99 9.63 
+
+33
