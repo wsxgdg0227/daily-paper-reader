@@ -1,0 +1,281 @@
+{
+  "date": "20261007",
+  "date_label": "",
+  "generated_at": "2026-10-07 23:48:27 UTC",
+  "recommend_exists": true,
+  "run_count": 1,
+  "papers": [
+    {
+      "paper_id": "2609.37834v1",
+      "route": "202610/07/2609.37834v1-mixture-of-self-improving-branches-for-agent-harness-optimization",
+      "title": "Mixture of Self-Improving Branches For Agent Harness Optimization",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "通过迭代式智能体代码生成与评估，实现自适应分支搜索的递归自改进",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.38662v1",
+      "route": "202610/07/2609.38662v1-collabflow-recursive-self-improvement-of-agent-collaboration",
+      "title": "CollabFlow: Recursive Self-Improvement of Agent Collaboration",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "通过结果再训练导演实现多智能体协作的递归自改进",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.05014v1",
+      "route": "202610/07/2610.05014v1-metakernelbench-measuring-gpu-kernel-knowledge-transfer-beyond-code",
+      "title": "MetaKernelBench: Measuring GPU Kernel Knowledge Transfer Beyond Code",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "衡量GPU算子优化智能体技能蒸馏与迁移的基准",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.06964v1",
+      "route": "202610/07/2610.06964v1-principles-that-guide-actions-that-inform-agent-evolution-via-knowledge-abstraction",
+      "title": "Principles that Guide, Actions that Inform: Agent Evolution via Knowledge Abstraction",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 9.0,
+      "evidence": "外部记忆让智能体在不改参数下积累经验并抽象知识",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.00650v1",
+      "route": "202610/07/2610.00650v1-self-evolving-coding-rules-for-ai-coding-agents",
+      "title": "Self-Evolving Coding Rules for AI Coding Agents",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "为AI编码智能体自动迭代进化编码规则",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.02616v1",
+      "route": "202610/07/2610.02616v1-verse-verified-self-evolving-optimizer-for-agent-harnesses",
+      "title": "VERSE: Verified Self-Evolving Optimizer for Agent Harnesses",
+      "section": "deep",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "自进化优化器通过带验证的迭代改进智能体框架",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.06361v1",
+      "route": "202610/07/2610.06361v1-capability-driven-self-evolution-of-agent-memory",
+      "title": "Capability-Driven Self-Evolution of Agent Memory",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "智能体记忆存取的自进化",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.06830v1",
+      "route": "202610/07/2610.06830v1-mempilot-orchestrating-on-demand-multimodal-memory-curation-for-llm-agents",
+      "title": "MemPilot: Orchestrating On-Demand Multimodal Memory Curation for LLM Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "面向LLM智能体的按需记忆整理框架",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.07335v1",
+      "route": "202610/07/2610.07335v1-selective-critique-for-cost-aware-llm-agents-in-long-horizon-decision-making",
+      "title": "Selective Critique for Cost-Aware LLM Agents in Long-Horizon Decision Making",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 8.0,
+      "evidence": "带门控批评的自改进LLM智能体，在长程任务中决定何时自我批评",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.39102v1",
+      "route": "202610/07/2609.39102v1-false-frontiers-diagnosing-and-mitigating-co-cheating-in-self-evolving-search-agents",
+      "title": "False Frontiers: Diagnosing and Mitigating Co-Cheating in Self-Evolving Search Agents",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "诊断自进化搜索智能体中的共谋作弊失效模式",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.39148v1",
+      "route": "202610/07/2609.39148v1-do-self-evolving-skills-generalize-to-held-out-tasks",
+      "title": "Do Self-Evolving Skills Generalize to Held-Out Tasks?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "自进化技能在留出任务上的泛化",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.39306v1",
+      "route": "202610/07/2609.39306v1-resail-mitigating-collapse-in-iterative-agent-self-distillation",
+      "title": "ReSAIL: Mitigating Collapse in Iterative Agent Self-Distillation",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "缓解迭代式智能体自蒸馏崩溃的插件式增强",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.07118v1",
+      "route": "202610/07/2610.07118v1-amber-training-long-horizon-web-agents-through-append-only-memory",
+      "title": "AMBER: Training Long-Horizon Web Agents through Append-Only Memory",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "面向长程LLM智能体的追加式记忆",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.07792v1",
+      "route": "202610/07/2610.07792v1-servelearnbench-how-well-can-agents-self-improve-from-serving-experience",
+      "title": "ServeLearnBench: How Well Can Agents Self-Improve from Serving Experience?",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 7.0,
+      "evidence": "智能体从服务经验中自我改进",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.36406v1",
+      "route": "202610/07/2609.36406v1-from-retrieval-to-reasoning-agentic-mechanism-prediction-from-cell-painting-profiles",
+      "title": "From Retrieval to Reasoning: Agentic Mechanism Prediction from Cell Painting Profiles",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "将基于检索的预测重构为对检索邻居的校准证据推理，把邻居视为不确定观测",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2609.38143v2",
+      "route": "202610/07/2609.38143v2-learning-meta-skills-for-agent-harness-design-in-test-time-ai4ai",
+      "title": "Learning Meta-Skills for Agent Harness Design in Test-Time AI4AI",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "可复用元技能提升智能体表现",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    },
+    {
+      "paper_id": "2610.00671v1",
+      "route": "202610/07/2610.00671v1-megaflux-skew-resilient-moe-megakernels-via-pipelined-expert-replication",
+      "title": "MegaFlux: Skew-Resilient MoE Megakernels via Pipelined Expert Replication",
+      "section": "quick",
+      "tags": [
+        {
+          "kind": "query",
+          "label": "gkg"
+        }
+      ],
+      "score": 6.0,
+      "evidence": "MoE巨型内核结合流水化专家复制以缓解GPU负载偏斜并提升内核执行效率",
+      "first_seen_at": "2026-10-07 23:48:27 UTC",
+      "updated_at": "2026-10-07 23:48:27 UTC"
+    }
+  ]
+}

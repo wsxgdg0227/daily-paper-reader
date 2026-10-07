@@ -1,0 +1,725 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-07T23:33:02.863802+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 9,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 18,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2609.37834v1",
+      "source": "arxiv",
+      "title": "Mixture of Self-Improving Branches For Agent Harness Optimization",
+      "abstract": "Harness optimization provides a practical setting for recursive self-improvement (RSI), where agent-generated modifications inform subsequent changes through execution feedback. Recent work such as Meta-Harness implements this process through iterative code generation and evaluation, but retains a fixed development set and proposal policy. These constraints channel evolution along a single search trajectory, increasing the risk of converging to a local optimum. We make the improvement process itself adaptive by organizing search into branches with evolving development subsets and proposal policies. Each branch retains development cases solved by more of its leading harnesses than by those of other branches, drops cases solved by every leading harness across all branches, and revises its proposal policy using its own search history. To deploy the resulting complementary harnesses, we propose a router to select one development-selected branch head for each new input before execution. Across mathematical reasoning and agentic coding benchmarks, our system achieves relative improvements over Meta-Harness of 34.8% on Olympiad-level mathematical reasoning, 11.6% on Terminal-Bench 2.0, and 3.8% on SWE-bench Lite, with harness selection and router configuration based solely on development data. These results show that evolving branch objectives and proposal policies can yield complementary harnesses whose strengths a router combines without access to test outcomes.",
+      "authors": [
+        "Haoyu Dong",
+        "Yuhang Zhou",
+        "Zihao Lin",
+        "Yifan Wu",
+        "Bo Peng",
+        "Mingyi Wang",
+        "Xiangjun Fan",
+        "Lizhu Zhang",
+        "Zhuokai Zhao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T15:37:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.37834v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Adaptive branching search for recursive self-improvement via iterative agent code generation and evaluation",
+      "llm_evidence_cn": "通过迭代式智能体代码生成与评估，实现自适应分支搜索的递归自改进",
+      "llm_evidence": "通过迭代式智能体代码生成与评估，实现自适应分支搜索的递归自改进",
+      "canonical_evidence": "通过迭代式智能体代码生成与评估，实现自适应分支搜索的递归自改进",
+      "llm_tldr_en": "This paper makes recursive self-improvement of agent harnesses adaptive by organizing the search into branches with evolving development subsets and proposal policies, reducing the risk of converging to a single-trajectory local optimum during iterative code generation.",
+      "llm_tldr_cn": "智能体测试框架优化是递归自改进的典型场景，现有方法如Meta-Harness通过迭代代码生成与评估改进，但固定开发集与提案策略使演化沿单一搜索轨迹，易陷入局部最优。本文提出将改进过程本身自适应化，把搜索组织为多个分支，各分支维护演化的开发子集与提案策略。实验表明分支化搜索提升了框架优化效果。该工作为智能体自进化的搜索策略提供了多样化机制。",
+      "llm_tldr": "智能体测试框架优化是递归自改进的典型场景，现有方法如Meta-Harness通过迭代代码生成与评估改进，但固定开发集与提案策略使演化沿单一搜索轨迹，易陷入局部最优。本文提出将改进过程本身自适应化，把搜索组织为多个分支，各分支维护演化的开发子集与提案策略。实验表明分支化搜索提升了框架优化效果。该工作为智能体自进化的搜索策略提供了多样化机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2609.38662v1",
+      "source": "arxiv",
+      "title": "CollabFlow: Recursive Self-Improvement of Agent Collaboration",
+      "abstract": "Recursive self-improvement (RSI) lets a system improve from its own outcomes; in LLM-based multi-agent systems, Agents refine one another within a task, and outcomes improve how they collaborate across tasks. However, existing multi-agent collaboration leaves this loop open: collaboration is pre-defined at the operator level, topology-only learning keeps verbatim exchange that propagates errors, and reward maximization on a system's own outcomes concentrates on a few teams. To address these challenges, we propose CollabFlow, an RSI system of Learned Agent Collaboration: a trainable Collab-Director constructs teams of complete Agents, a frozen executor runs them, and each round's outcomes retrain the director. Within each round, the edges of a collaboration graph carry protocols of Evidence-Conditioned Communication: a receiver adopts a differing answer only when the sender's evidence is stronger by a margin, so the director learns who communicates and how. Across rounds, we further propose Collaborative Trajectory Balance (CTB), a flow-based objective that credits each team once across its construction orders and targets a reward-proportional distribution over teams, so several good teams stay in play. We also bound how far this self-generated target moves between rounds, which shrinks as records accumulate. On twelve datasets, CollabFlow outperforms all baselines and keeps improving across rounds. Code is available at https://anonymous.4open.science/r/CollabFlow-631E.",
+      "authors": [
+        "Xiao Huang",
+        "Mingda Zhang",
+        "Junming Zhang",
+        "Qiang Huang",
+        "Hanwen Zhang",
+        "Yue Dai",
+        "Zijia Wang",
+        "Xiaoying Tang"
+      ],
+      "primary_category": "cs.MA",
+      "categories": [
+        "cs.MA",
+        "cs.AI"
+      ],
+      "published": "2026-09-29T23:39:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.38662v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Recursive self-improvement of LLM multi-agent collaboration via retraining a director from outcomes",
+      "llm_evidence_cn": "通过结果再训练导演实现多智能体协作的递归自改进",
+      "llm_evidence": "通过结果再训练导演实现多智能体协作的递归自改进",
+      "canonical_evidence": "通过结果再训练导演实现多智能体协作的递归自改进",
+      "llm_tldr_en": "CollabFlow enables recursive self-improvement of LLM multi-agent systems by using a trainable Collab-Director to construct teams of complete agents, a frozen executor to run them, and each round's outcomes to retrain the director, closing the collaboration improvement loop.",
+      "llm_tldr_cn": "LLM多智能体协作虽能相互改进，但协作拓扑在算子层预定义、仅拓扑学习保留逐字交换而传播错误，且对自身结果做奖励最大化会集中于少数团队。本文提出CollabFlow，一种学习式智能体协作的递归自改进系统，由可训练Collab-Director组建完整智能体团队，冻结执行器运行，每轮结果再训练导演。实验表明该系统能跨任务持续改进协作方式并提升整体表现，为多智能体递归自进化提供了闭环机制。",
+      "llm_tldr": "LLM多智能体协作虽能相互改进，但协作拓扑在算子层预定义、仅拓扑学习保留逐字交换而传播错误，且对自身结果做奖励最大化会集中于少数团队。本文提出CollabFlow，一种学习式智能体协作的递归自改进系统，由可训练Collab-Director组建完整智能体团队，冻结执行器运行，每轮结果再训练导演。实验表明该系统能跨任务持续改进协作方式并提升整体表现，为多智能体递归自进化提供了闭环机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.05014v1",
+      "source": "arxiv",
+      "title": "MetaKernelBench: Measuring GPU Kernel Knowledge Transfer Beyond Code",
+      "abstract": "Recent GPU kernel optimization agents retain what they learn in knowledge bases or as distilled skills. Kernel benchmarks score each attempt's implementation for correctness and speed but leave the reuse value of retained experience unmeasured. We introduce MetaKernelBench, which measures whether experience distilled from an attempt in one kernel domain-specific language (DSL) improves a fresh attempt at the same problem in another. Its 74 problems are fused subgraphs in six families, each posed as a pair of CuTe DSL and TIRx variants that differ only in the DSL. The agent first attempts each variant solo and is instructed to distill what it learns into a natural-language skill, which is transferred whether or not the source attempt passes verification. The skill is the only extra input to a skill-conditioned attempt by the same model in the other DSL. We compare each skill-conditioned attempt with the solo attempt on the same variant under matched per-attempt budgets, scoring correctness and end-to-end runtime. Across six models and both directions, paired lift over solo attempts ranges from -19% to +29%. Four models gain in both directions, yet regressions occur on 16% to 45% of problems in every model and direction. Outcomes follow the source attempt's result relative to the target's solo attempt rather than source success alone, improving in 71% of comparisons when the source stands above and regressing in 54% when it stands below. MetaKernelBench complements implementation-quality metrics by measuring same-problem cross-DSL kernel knowledge transfer.",
+      "authors": [
+        "Xueyi Chen",
+        "Shiyu Liu",
+        "Xin Jin",
+        "Yuhua Zheng",
+        "Xin Li",
+        "Haolei Bai",
+        "Junhan Zhu",
+        "Huan Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-04T07:15:21+00:00",
+      "link": "https://arxiv.org/pdf/2610.05014v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "benchmark for GPU kernel optimization agents distilling transferable skills",
+      "llm_evidence_cn": "衡量GPU算子优化智能体技能蒸馏与迁移的基准",
+      "llm_evidence": "衡量GPU算子优化智能体技能蒸馏与迁移的基准",
+      "canonical_evidence": "衡量GPU算子优化智能体技能蒸馏与迁移的基准",
+      "llm_tldr_en": "MetaKernelBench measures whether experience distilled from one GPU kernel DSL attempt improves a fresh attempt in another DSL, exposing the reuse value of retained agent skills.",
+      "llm_tldr_cn": "现有GPU算子优化智能体虽将经验存入知识库或蒸馏为技能，但已有基准仅评估单次实现的正确性与速度，未度量保留经验的复用价值。本文提出MetaKernelBench，将74个融合子图问题各以CuTe DSL与TIRx两种变体成对呈现，要求智能体分别尝试并蒸馏自然语言技能进行跨DSL迁移。实验表明即使源尝试未通过验证，蒸馏技能仍可迁移并提升新尝试表现。该工作为衡量算子智能体经验保留与迁移价值提供了新基准。",
+      "llm_tldr": "现有GPU算子优化智能体虽将经验存入知识库或蒸馏为技能，但已有基准仅评估单次实现的正确性与速度，未度量保留经验的复用价值。本文提出MetaKernelBench，将74个融合子图问题各以CuTe DSL与TIRx两种变体成对呈现，要求智能体分别尝试并蒸馏自然语言技能进行跨DSL迁移。实验表明即使源尝试未通过验证，蒸馏技能仍可迁移并提升新尝试表现。该工作为衡量算子智能体经验保留与迁移价值提供了新基准。",
+      "llm_tags": [
+        "query:gkg:composite"
+      ],
+      "matched_query_tag": "query:gkg:composite",
+      "matched_query_text": "Papers central to 大模型生成GPU算子代码优化，结合智能体记忆、检索与自进化机制, especially work that connects or combines: using large language models to produce source code; techniques for optimizing GPU kernel execution performance; memory structures and processes that allow agents to store and retrieve information; how agents retrieve relevant knowledge and experiences when making decisions; agents that iteratively improve their policies and knowledge without human intervention; Automated kernel optimization and code generation for GPUs; Large model based generation of compute kernels with performance tuning; How to generate optimized GPU kernels using large language models?; How do self evolving agents improve their performance over time?.",
+      "matched_requirement_id": "req-composite-gkg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.06964v1",
+      "source": "arxiv",
+      "title": "Principles that Guide, Actions that Inform: Agent Evolution via Knowledge Abstraction",
+      "abstract": "Large language model (LLM) agents have demonstrated strong capabilities in interactive environments, yet their ability to continually evolve from experience remains limited. Although fine-tuning enables adaptation, its dependence on parameter access and high computational costs restrict its flexibility, especially for large-scale and closed-source LLMs. External memory offers an alternative by allowing agents to accumulate experience without modifying model parameters. However, existing methods mainly focus on experience representation and organization, while the acquired knowledge remains tightly coupled with specific tasks and contexts, limiting generalization. A key challenge is how to transform concrete interactions into abstract and reusable knowledge that guides future decisions beyond individual experiences.   To address this challenge, we propose SAGA (\\underline{\\textbf{S}}elf-evolving \\underline{\\textbf{A}}gents through Experience-\\underline{\\textbf{G}}rounded \\underline{\\textbf{A}}bstraction), a framework for experience-grounded knowledge abstraction and utilization in LLM agents. SAGA progressively transforms interaction trajectories into episodic descriptions, reusable procedures, and principles with explicit applicability conditions, while maintaining links to execution evidence. Retrieved principles are instantiated into task-specific guidance and used to refine candidate actions through corrective feedback and resampling. This creates an execution--abstraction feedback loop, where accumulated knowledge guides future interactions and new experiences continuously update hierarchical memory. Experiments on ScienceWorld and ALFWorld demonstrate improved task performance, with ablation studies highlighting the importance of contextual instantiation and action regulation for leveraging principle-level knowledge.",
+      "authors": [
+        "Bowen Ye",
+        "Yongchao Xu",
+        "Junkai Ma",
+        "Xiang Yin",
+        "Wenzhao Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-10-03T17:29:38+00:00",
+      "link": "https://arxiv.org/pdf/2610.06964v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "External memory lets agents accumulate experience and abstract knowledge without changing parameters",
+      "llm_evidence_cn": "外部记忆让智能体在不改参数下积累经验并抽象知识",
+      "llm_evidence": "外部记忆让智能体在不改参数下积累经验并抽象知识",
+      "canonical_evidence": "外部记忆让智能体在不改参数下积累经验并抽象知识",
+      "llm_tldr_en": "This paper tackles LLM agents' limited ability to continually evolve from experience, proposing knowledge abstraction over external memory to turn concrete interactions into reusable abstract knowledge, improving generalization beyond task-specific experience.",
+      "llm_tldr_cn": "LLM智能体虽在交互环境中表现良好，但从经验中持续进化的能力有限，微调受限于参数访问与计算成本，而现有外部记忆方法的知识与具体任务耦合、难以泛化。本文提出通过知识抽象实现智能体进化，将具体交互转化为抽象知识以提升泛化能力。实验显示该方法让智能体无需修改模型参数即可持续积累并迁移经验。该工作为外部记忆驱动的智能体自进化提供了新的抽象化机制。",
+      "llm_tldr": "LLM智能体虽在交互环境中表现良好，但从经验中持续进化的能力有限，微调受限于参数访问与计算成本，而现有外部记忆方法的知识与具体任务耦合、难以泛化。本文提出通过知识抽象实现智能体进化，将具体交互转化为抽象知识以提升泛化能力。实验显示该方法让智能体无需修改模型参数即可持续积累并迁移经验。该工作为外部记忆驱动的智能体自进化提供了新的抽象化机制。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.00650v1",
+      "source": "arxiv",
+      "title": "Self-Evolving Coding Rules for AI Coding Agents",
+      "abstract": "The performance of AI coding agents is highly dependent on their underlying coding rules. However, existing coding rules are typically hand-crafted and fixed, making the process labor-intensive and often suboptimal. In this work, we propose RuleEvolve, a self-evolving framework for coding rules. RuleEvolve maintains a pool of candidate coding rules and iteratively improves them. In each iteration, it employs an LLM-powered mutator module to generate variants from existing candidates, and then uses a judge module to evaluate these variants and update the pool with the best-performing ones. Extensive evaluations across two coding-agent frameworks, four backbone LLMs, and three benchmarks demonstrate that RuleEvolve outperforms both manual engineering and existing prompt optimization baselines in terms of functional correctness of the generated code, code length, and/or generation cost (e.g., tokens used).",
+      "authors": [
+        "Zhengyuan Jiang",
+        "Reachal Wang",
+        "Yuepeng Hu",
+        "Yupu Wang",
+        "Yuqi Jia",
+        "Neil Zhenqiang Gong"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-09-30T19:51:41+00:00",
+      "link": "https://arxiv.org/pdf/2610.00650v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving framework iteratively improving coding rules for AI coding agents",
+      "llm_evidence_cn": "为AI编码智能体自动迭代进化编码规则",
+      "llm_evidence": "为AI编码智能体自动迭代进化编码规则",
+      "canonical_evidence": "为AI编码智能体自动迭代进化编码规则",
+      "llm_tldr_en": "RuleEvolve is a self-evolving framework that maintains a pool of coding rules and iteratively improves them with an LLM mutator and a judge, outperforming manual engineering and prompt optimization.",
+      "llm_tldr_cn": "AI编码智能体的表现高度依赖其底层编码规则，但现有规则多由人工固定编写，费时且常非最优。本文提出RuleEvolve自进化框架，维护候选编码规则池并迭代改进：由LLM变异器生成变体，再由评判模块评估并择优更新规则池。在两种编码智能体框架、四个基座模型与三个基准上评测，优于人工工程与既有提示优化方法。该工作表明编码规则可自动进化以持续提升编码智能体表现。",
+      "llm_tldr": "AI编码智能体的表现高度依赖其底层编码规则，但现有规则多由人工固定编写，费时且常非最优。本文提出RuleEvolve自进化框架，维护候选编码规则池并迭代改进：由LLM变异器生成变体，再由评判模块评估并择优更新规则池。在两种编码智能体框架、四个基座模型与三个基准上评测，优于人工工程与既有提示优化方法。该工作表明编码规则可自动进化以持续提升编码智能体表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2610.02616v1",
+      "source": "arxiv",
+      "title": "VERSE: Verified Self-Evolving Optimizer for Agent Harnesses",
+      "abstract": "Harness evolution improves an LLM agent's prompts, tools, and workflow, while the optimizer's own tools and procedures often remain fixed. We study whether an optimizer can improve another agent more effectively by also improving how it diagnoses failures, develops edits, and tests their effects. Two observations guide our design. In a controlled study, optimizer self-evolution fails to improve performance without execution-based verification, but achieves the best result of that study when verification is available. Across five executors, self-evolving optimizers build their own tools for failure analysis, verification, training audits, and workflow control. Motivated by these findings, we introduce VERSE, a Verified Self-Evolving optimizer for agent harnesses. VERSE lets the optimizer test draft edits, replay failures, and perturb suspected steps before submission, while tracking fixes and regressions across rounds. Using this feedback, the optimizer revises both the executor harness and its own prompts, skills, tools, hooks, and notes, while the weights of the optimizer and executor models stay fixed. Under a shared protocol with disjoint training, validation, and test tasks, VERSE improves all four evaluated harness optimizers on held-out SWE-rebench tasks and newer out-of-distribution tasks in five languages. Its best validation-selected harness reaches 42.3% and 37.7% accuracy, respectively, against 39.2% and 29.3% for the strongest baselines. Code is available at https://github.com/wzekai/VERSE.",
+      "authors": [
+        "Zekai Wang",
+        "Yingqiang Ge",
+        "Zekun Wang",
+        "Hai Wang",
+        "Yuhui Xu",
+        "Joshua Frandsen",
+        "Shancong Fu",
+        "Ashia C. Wilson",
+        "Chandan K. Reddy"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-10-02T00:16:30+00:00",
+      "link": "https://arxiv.org/pdf/2610.02616v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolving optimizer improving agent harness via verified iteration",
+      "llm_evidence_cn": "自进化优化器通过带验证的迭代改进智能体框架",
+      "llm_evidence": "自进化优化器通过带验证的迭代改进智能体框架",
+      "canonical_evidence": "自进化优化器通过带验证的迭代改进智能体框架",
+      "llm_tldr_en": "VERSE lets an LLM agent optimizer evolve its own diagnostic and verification tools, showing that execution-based verification is essential for self-evolving optimizers to improve agent harnesses.",
+      "llm_tldr_cn": "现有智能体框架优化器自身的工具与流程往往固定不变，难以持续提升对另一智能体的优化效果。本文提出VERSE，一种带验证的自进化优化器，让优化器自行构建失败分析、验证与工作流控制工具，并基于执行反馈自我改进。在五种执行器上的实验显示，缺少基于执行的验证时自进化无效，而引入验证后取得最佳性能。该工作表明验证机制是智能体自进化真正生效的关键。",
+      "llm_tldr": "现有智能体框架优化器自身的工具与流程往往固定不变，难以持续提升对另一智能体的优化效果。本文提出VERSE，一种带验证的自进化优化器，让优化器自行构建失败分析、验证与工作流控制工具，并基于执行反馈自我改进。在五种执行器上的实验显示，缺少基于执行的验证时自进化无效，而引入验证后取得最佳性能。该工作表明验证机制是智能体自进化真正生效的关键。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2610.06361v1",
+      "source": "arxiv",
+      "title": "Capability-Driven Self-Evolution of Agent Memory",
+      "abstract": "Memory self-evolution uses task feedback to iteratively improve executable memory programs that store and retrieve information from past interactions. Existing approaches typically adopt holistic evolution, deriving revision directions from mixed feedback and judging progress by overall performance. This can obscure optimization directions and hide capability-specific gains offset by regressions elsewhere, leaving promising directions underexplored. We introduce capability-driven evolution, which extends search guidance from overall performance to individual capability dimensions, preserving promising revisions and expanding exploration beyond the boundaries of holistic evolution. We propose PrisMem, which uses dependency-aware capability selection to prioritize targets with potential cross-capability benefits and history-guided diagnosis to refine capability specialists. Trace-guided integration compares evaluated programs on paired differential cases, using their behavioral differences to consolidate complementary gains into a unified memory program. Experiments show that PrisMem outperforms the strongest baselines by 10.54 and 7.83 percentage points on BEAM-1M and LongMemEval-M, respectively, demonstrating its effectiveness on million-token histories.",
+      "authors": [
+        "Yaoqi Chen",
+        "Yuru Feng",
+        "Qianxi Zhang",
+        "Baotong Lu",
+        "Jianan Lu",
+        "Zhirui Wang",
+        "Shusen Xu",
+        "Zewen Jin",
+        "Zengzhong Li",
+        "Cheng Li",
+        "Qi Chen"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-10-05T14:00:21+00:00",
+      "link": "https://arxiv.org/pdf/2610.06361v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "self-evolution of agent memory that stores and retrieves information",
+      "llm_evidence_cn": "智能体记忆存取的自进化",
+      "llm_evidence": "智能体记忆存取的自进化",
+      "canonical_evidence": "智能体记忆存取的自进化",
+      "llm_tldr_en": "Memory self-evolution improves executable memory programs from task feedback, but holistic evolution mixes feedback and hides capability-specific gains. PrisMem uses dependency-aware capability selection to preserve promising revisions and expand exploration, beating holistic evolution.",
+      "llm_tldr_cn": "记忆自进化利用任务反馈迭代改进可执行记忆程序，但现有整体式进化从混合反馈中提取方向，掩盖了各能力维度的具体增益，使有潜力的方向未被充分探索。本文提出能力驱动进化与PrisMem，用依赖感知的能力选择优先优化目标，保留有潜力的修订并扩展搜索。实验表明该方法优于整体式进化，为可执行记忆程序的自进化提供更精细范式。",
+      "llm_tldr": "记忆自进化利用任务反馈迭代改进可执行记忆程序，但现有整体式进化从混合反馈中提取方向，掩盖了各能力维度的具体增益，使有潜力的方向未被充分探索。本文提出能力驱动进化与PrisMem，用依赖感知的能力选择优先优化目标，保留有潜力的修订并扩展搜索。实验表明该方法优于整体式进化，为可执行记忆程序的自进化提供更精细范式。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.39102v1",
+      "source": "arxiv",
+      "title": "False Frontiers: Diagnosing and Mitigating Co-Cheating in Self-Evolving Search Agents",
+      "abstract": "Self-evolving search agents build their own training curricula by jointly optimizing a proposer that generates questions and a solver that answers them. This closed loop introduces a failure mode we call co-cheating: the proposer and solver increasingly agree on shared errors, so internal reward improves without a matching gain in external correctness. A post-hoc audit against source evidence shows co-cheating growing more severe over successive rounds of self-evolution, with pseudo-label correctness stagnating or declining even as the in-loop training signal improves. The most direct mitigation is to verify proposals before training: we introduce multi-sample verification (MSV), which queries the same model three times with the source and three times without it to decide task admission and replace unreliable pseudo-labels. MSV partially reduces false agreement but leaves substantial residual co-cheating and costs six extra labeler generations per candidate. These limitations motivate CrossFit, our main method: it partitions the proposer's source documents into groups A and B; questions generated from A are scored by an auxiliary solver trained only on B, and vice versa. The cross-fitted agreement determines proposer reward, so a same-source pseudo-label cannot be reproduced through the feedback solver, while the original solver's update rule is unchanged. Rerunning the loop with Qwen3.5-4B and Qwen3.5-9B, MSV reduces false-agreement mass from 6.1% to 5.7% and from 8.8% to 7.2%, whereas CrossFit reduces it to 3.0% and 3.7%. Replaying identical proposals with source-excluded feedback further reduces false agreement to 0.4% and 0.1%, isolating feedback ancestry from curriculum changes. Across seven downstream search benchmarks, CrossFit improves average performance over standard coupled self-evolution by 8.8 and 8.4 points and over Search-R1 by 8.7 and 7.8 points at 4B and 9B.",
+      "authors": [
+        "Meijia Chen",
+        "Hao Li",
+        "Zheng Lu",
+        "Hongshan Lin",
+        "Junbai Tian",
+        "Yichen Liu",
+        "Zijun Tian",
+        "Yufan Zou",
+        "Shuhan Sun",
+        "Hanxin Chen",
+        "Zeyu Zhang",
+        "Weizhi Du",
+        "Yueting Li",
+        "Tianyu Shi",
+        "Alaa Khamis"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-09-30T06:41:51+00:00",
+      "link": "https://arxiv.org/pdf/2609.39102v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "diagnoses co-cheating failure mode in self-evolving search agents",
+      "llm_evidence_cn": "诊断自进化搜索智能体中的共谋作弊失效模式",
+      "llm_evidence": "诊断自进化搜索智能体中的共谋作弊失效模式",
+      "canonical_evidence": "诊断自进化搜索智能体中的共谋作弊失效模式",
+      "llm_tldr_en": "Self-evolving search agents jointly optimize a proposer and solver, and this paper identifies a co-cheating failure where internal reward rises without external correctness, mitigating it via multi-sample verification.",
+      "llm_tldr_cn": "自进化搜索智能体通过联合优化出题者与解题者自建训练课程，但这一闭环会产生出题者与解题者共同出错的共谋作弊失效。本文对这一现象进行诊断，发现随自进化轮次增加内部奖励上升而外部正确性停滞甚至下降。为此提出多采样验证MSV，在训练前用源证据核验生成的题目。该工作揭示了自进化闭环的关键失效模式并给出验证式缓解手段。",
+      "llm_tldr": "自进化搜索智能体通过联合优化出题者与解题者自建训练课程，但这一闭环会产生出题者与解题者共同出错的共谋作弊失效。本文对这一现象进行诊断，发现随自进化轮次增加内部奖励上升而外部正确性停滞甚至下降。为此提出多采样验证MSV，在训练前用源证据核验生成的题目。该工作揭示了自进化闭环的关键失效模式并给出验证式缓解手段。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.36406v1",
+      "source": "arxiv",
+      "title": "From Retrieval to Reasoning: Agentic Mechanism Prediction from Cell Painting Profiles",
+      "abstract": "Cell Painting is a high-content morphological profiling assay widely used for phenotype-based biological inference, with mechanism of action (MOA) prediction as a central application. Existing approaches largely formulate Cell Painting-based inference as representation matching, assigning predictions from nearby reference perturbations in morphological feature space. However, retrieved neighbors are often noisy and partially misleading evidence due to batch effects, non-specific cytotoxicity, phenotypic convergence, and source-dependent variability. We reformulate Cell Painting-based MOA prediction as a calibrated evidence reasoning problem, where retrieved neighbors are treated as uncertain observations that must be evaluated, compared, and sometimes rejected before supporting a mechanistic conclusion. We propose PhenoAIR, a reliability-aware multi-agent framework that maintains a candidate-centric evidence memory and performs controller-guided refinement over phenotype- and mechanism-side evidence. PhenoAIR uses offline reference-set calibration to weight evidence by source reliability, phenotype stability, and mechanism-level confusion. We evaluate PhenoAIR on a benchmark constructed from JUMP Cell Painting profiles and annotations, covering controlled, realistic, and discovery-oriented open-world MOA prediction settings. PhenoAIR outperforms representation-matching and LLM-based baselines across all settings.",
+      "authors": [
+        "Jiayuan Chen",
+        "Botao Yu",
+        "Tianyu Liu",
+        "Thai-Hoang Pham",
+        "Meng Wu",
+        "Ping Zhang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-29T00:00:29+00:00",
+      "link": "https://arxiv.org/pdf/2609.36406v1",
+      "tags": [
+        "keyword:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Reformulates retrieval-based prediction as calibrated evidence reasoning over retrieved neighbors treated as uncertain observations",
+      "llm_evidence_cn": "将基于检索的预测重构为对检索邻居的校准证据推理，把邻居视为不确定观测",
+      "llm_evidence": "将基于检索的预测重构为对检索邻居的校准证据推理，把邻居视为不确定观测",
+      "canonical_evidence": "将基于检索的预测重构为对检索邻居的校准证据推理，把邻居视为不确定观测",
+      "llm_tldr_en": "Cell Painting-based mechanism-of-action prediction is usually framed as representation matching, but retrieved neighbors are noisy. This work reformulates it as calibrated evidence reasoning, treating retrieved neighbors as uncertain observations to be evaluated, improving prediction reliability.",
+      "llm_tldr_cn": "细胞绘画是一种广泛用于表型推断的高内涵形态学图谱，机制预测是其核心应用。现有方法多把该任务建模为表示匹配，直接依据形态特征空间中的邻近参考扰动给出预测，但检索到的邻居常因批次效应、非特异毒性等而含有噪声甚至误导性证据。本文将其重构为校准的证据推理问题，把检索邻居视为需要评估与比较的不确定观测。结果显示该推理式框架能更可靠地完成机制预测，也为智能体在决策中评估检索知识提供了方法借鉴。",
+      "llm_tldr": "细胞绘画是一种广泛用于表型推断的高内涵形态学图谱，机制预测是其核心应用。现有方法多把该任务建模为表示匹配，直接依据形态特征空间中的邻近参考扰动给出预测，但检索到的邻居常因批次效应、非特异毒性等而含有噪声甚至误导性证据。本文将其重构为校准的证据推理问题，把检索邻居视为需要评估与比较的不确定观测。结果显示该推理式框架能更可靠地完成机制预测，也为智能体在决策中评估检索知识提供了方法借鉴。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "how agents retrieve relevant knowledge and experiences when making decisions",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.06830v1",
+      "source": "arxiv",
+      "title": "MemPilot: Orchestrating On-Demand Multimodal Memory Curation for LLM Agents",
+      "abstract": "Memory has become integral to the LLM agent ecosystem, supporting information retention and reuse across interactions. However, most existing agent memory systems construct memory in a query-agnostic manner, which can incur unnecessary preprocessing cost and discard details that later prove essential. Recent studies have begun shifting memory processing toward runtime adaptation, but typically specialize in particular operations or fixed processing schemes, leaving flexible control over performance, cost, and latency largely underexplored. To address this challenge, we present \\textbf{MemPilot}, a flexible framework that orchestrates on-demand memory curation under different performance--cost--latency preferences. Specifically, we optimize a multi-step LLM policy via reinforcement learning to iteratively choose between retrieving from query-agnostic memory and delegating query-specific curation of raw multimodal history to heterogeneous LLMs and VLMs. The policy jointly controls evidence amount, curation instructions, model selection, and visual access, enabling fine-grained allocation of runtime computation. To optimize this policy under competing objectives, we adapt objective-wise advantage decoupling by separately estimating each objective's advantage before aggregation. Moreover, we introduce prefix-based marginal utility estimation for fine-grained credit assignment across multi-step rollouts. Experiments on five multimodal agent-memory benchmarks demonstrate favorable performance--cost--latency trade-offs across optimization preferences, with preference sweeps yielding broader frontiers than existing trade-off-aware baselines.",
+      "authors": [
+        "Haozhen Zhang",
+        "Haodong Yue",
+        "Quanyu Long",
+        "Jianzhu Bao",
+        "Qingyuan Liu",
+        "Tao Feng",
+        "Bohan Liu",
+        "Weida Liang",
+        "Wenya Wang"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-10-05T17:58:06+00:00",
+      "link": "https://arxiv.org/pdf/2610.06830v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "on-demand memory curation framework for LLM agents",
+      "llm_evidence_cn": "面向LLM智能体的按需记忆整理框架",
+      "llm_evidence": "面向LLM智能体的按需记忆整理框架",
+      "canonical_evidence": "面向LLM智能体的按需记忆整理框架",
+      "llm_tldr_en": "MemPilot orchestrates on-demand multimodal memory curation for LLM agents, flexibly trading off performance, cost and latency instead of query-agnostic memory construction.",
+      "llm_tldr_cn": "多数智能体记忆系统以与查询无关的方式构建记忆，造成不必要的预处理开销并丢弃后续可能关键的细节。本文提出MemPilot框架，在性能、成本与延迟偏好下按需编排多模态记忆整理，并优化多目标处理策略。实验表明按需记忆编排能在不同偏好下灵活权衡性能、成本与延迟。该工作为智能体记忆的运行时自适应管理提供了灵活框架。",
+      "llm_tldr": "多数智能体记忆系统以与查询无关的方式构建记忆，造成不必要的预处理开销并丢弃后续可能关键的细节。本文提出MemPilot框架，在性能、成本与延迟偏好下按需编排多模态记忆整理，并优化多目标处理策略。实验表明按需记忆编排能在不同偏好下灵活权衡性能、成本与延迟。该工作为智能体记忆的运行时自适应管理提供了灵活框架。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.39148v1",
+      "source": "arxiv",
+      "title": "Do Self-Evolving Skills Generalize to Held-Out Tasks?",
+      "abstract": "AI agents can externalize what they learn from past tasks into reusable \\emph{skills}, such as procedures, checklists, code, or other executable artifacts, that can be retrieved and reused when solving new tasks. Self-evolving skill methods keep rewriting these skills after each round of practice on training tasks, and the skill is then used on new tasks of the same kind. We ask a question: does the improvement a skill shows on its training tasks carry over to new test tasks? We test five self-evolving methods and a one-shot skill on six benchmarks, with the same model, the same agent, and the same train/test split for every method. Of the 21 skills that improve on their training tasks, 5 keep all of that improvement on the test tasks, 13 keep part of it, and 3 keep none of it. No existing method is best everywhere. When we read the skills, the ones that carry over badly often fix details that should depend on the task, such as column names and output files, or turn a fix for one failure into a rule for every task. An LLM judge that reads the skill content can often see this: it ranks finished skills the same way the test results do in 86\\% of pairs. But it predicts the effect of a single edit poorly, so edits still have to be tested by running them. Based on these findings, we describe Generalizable Skill Optimization (GSO), which keeps only a guide for writing skills and writes a new skill for each task; it scores highest on all six benchmarks.",
+      "authors": [
+        "Xihao Piao",
+        "Zifeng Wang",
+        "Zhen Chen"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-09-30T07:14:35+00:00",
+      "link": "https://arxiv.org/pdf/2609.39148v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "generalization of self-evolving skills to held-out tasks",
+      "llm_evidence_cn": "自进化技能在留出任务上的泛化",
+      "llm_evidence": "自进化技能在留出任务上的泛化",
+      "canonical_evidence": "自进化技能在留出任务上的泛化",
+      "llm_tldr_en": "Self-evolving skill methods rewrite skills after each practice round, but whether training gains transfer to new tasks is unclear. Testing five methods on six benchmarks, only 5 of 21 improved skills keep all gains, revealing limited generalization.",
+      "llm_tldr_cn": "自进化技能方法在每轮训练后重写技能并复用于同类新任务，但其在训练任务上的提升能否迁移到新任务尚不明确。本文在六个基准上以相同模型、智能体和划分对比五种自进化方法与一次性技能。结果显示21个训练提升的技能中仅5个在测试上保持全部提升，13个部分保持，3个完全丧失。该工作揭示了自进化技能的泛化局限，提醒评估需关注留出任务。",
+      "llm_tldr": "自进化技能方法在每轮训练后重写技能并复用于同类新任务，但其在训练任务上的提升能否迁移到新任务尚不明确。本文在六个基准上以相同模型、智能体和划分对比五种自进化方法与一次性技能。结果显示21个训练提升的技能中仅5个在测试上保持全部提升，13个部分保持，3个完全丧失。该工作揭示了自进化技能的泛化局限，提醒评估需关注留出任务。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.38143v2",
+      "source": "arxiv",
+      "title": "Learning Meta-Skills for Agent Harness Design in Test-Time AI4AI",
+      "abstract": "Agent performance depends on both reasoning ability and the environment in which it acts. We study test-time AI-for-AI, asking how a Builder can learn to construct better execution environments for a Target while both models' weights remain fixed. To make the Builder's experience reusable, we introduce Meta-Skill: principles specifying when support is needed and what resources to provide. The Builder learns these principles from Target's execution feedback on the development set, then uses the frozen skill bank to construct harnesses for unseen tasks. Across Harness-Bench and NewtonBench, full-bank meta-skills improve macro-average performance by 8.95 percentage points over no-skill construction, and 12.02 points over direct delivery of the same bank to the Target. These results highlight the value of translating experience into executable support. Gains when the same model serves both roles further suggest a path to system level self-improvement through learning to build better environments.",
+      "authors": [
+        "Cheng Qian",
+        "Kunlun Zhu",
+        "Beibin Li",
+        "Zhenhailong Wang",
+        "Heng Ji"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-09-29T17:55:56+00:00",
+      "link": "https://arxiv.org/pdf/2609.38143v2",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reusable meta-skills for agent self-improvement at test time",
+      "llm_evidence_cn": "可复用元技能提升智能体表现",
+      "llm_evidence": "可复用元技能提升智能体表现",
+      "canonical_evidence": "可复用元技能提升智能体表现",
+      "llm_tldr_en": "Agent performance depends on reasoning and its environment. Meta-Skill lets a Builder learn reusable principles from Target feedback to construct harnesses for unseen tasks, improving macro-average performance by 8.95 points over no-skill construction.",
+      "llm_tldr_cn": "智能体性能同时取决于推理能力与所处执行环境，如何为固定权重模型构建更好环境仍待探索。本文研究测试时AI4AI，提出Meta-Skill元技能，让Builder从Target执行反馈中学习何时需要支持、提供何种资源的可复用原则，并据此构建新任务框架。在Harness-Bench与NewtonBench上，完整元技能库比无技能构建提升8.95个百分点，比直接交付技能库提升12.02个百分点，表明可复用元技能能显著增强未见任务表现。",
+      "llm_tldr": "智能体性能同时取决于推理能力与所处执行环境，如何为固定权重模型构建更好环境仍待探索。本文研究测试时AI4AI，提出Meta-Skill元技能，让Builder从Target执行反馈中学习何时需要支持、提供何种资源的可复用原则，并据此构建新任务框架。在Harness-Bench与NewtonBench上，完整元技能库比无技能构建提升8.95个百分点，比直接交付技能库提升12.02个百分点，表明可复用元技能能显著增强未见任务表现。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.07335v1",
+      "source": "arxiv",
+      "title": "Selective Critique for Cost-Aware LLM Agents in Long-Horizon Decision Making",
+      "abstract": "Improving the reliability of large language model (LLM) agents in long-horizon decision-making remains a key challenge. When deployed as autonomous agents interacting with complex environments, early mistakes can propagate through trajectories and cause cascading failures. Recent approaches improve reliability by incorporating external critique or deliberation, but invoking these mechanisms at every step substantially increases token consumption and latency, limiting practical deployment. We propose SAG (Self-improving Agent with Gated critique), a cost-aware framework that formulates critique invocation as a step-wise decision problem during long-horizon interaction. SAG introduces a lightweight, training-free gating mechanism that estimates the utility of critique using action-level ambiguity signals--global entropy and local top-2 margin--computed over admissible actions. From a decision-theoretic perspective, this mechanism approximates the Value of Information (VoI) of critique, enabling the agent to selectively allocate expensive feedback only when its expected benefit justifies the cost. SAG further incorporates online bootstrapped self-improvement, allowing the actor to internalize critic-assisted behaviors and progressively reduce reliance on critique. Across three long-horizon interactive benchmarks and multiple backbone models, SAG substantially improves the performance-cost trade-off compared with both no-critique and always-on critique agents. On ALFWorld, SAG increases task success from 24.6% to 78.4% while maintaining a token budget comparable to ReAct, yielding a $3.1\\times$ improvement in normalized token efficiency. Moreover, a 7B actor with a lightweight 3B critic achieves performance comparable to a 14B actor without critique, showing that selective critique can recover most of the reliability benefits of deliberation while dramatically reducing inference cost.",
+      "authors": [
+        "Heewon Park",
+        "Somin Im",
+        "Minhae Kwon"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-10-05T20:09:48+00:00",
+      "link": "https://arxiv.org/pdf/2610.07335v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Self-improving LLM agent with gated critique deciding when to self-critique in long-horizon tasks",
+      "llm_evidence_cn": "带门控批评的自改进LLM智能体，在长程任务中决定何时自我批评",
+      "llm_evidence": "带门控批评的自改进LLM智能体，在长程任务中决定何时自我批评",
+      "canonical_evidence": "带门控批评的自改进LLM智能体，在长程任务中决定何时自我批评",
+      "llm_tldr_en": "SAG is a cost-aware self-improving agent framework that treats critique invocation as a step-wise decision problem in long-horizon interaction, using a lightweight training-free gate to trigger external critique only when needed, reducing cost while keeping reliability.",
+      "llm_tldr_cn": "LLM智能体在长程决策中早期错误会沿轨迹传播并引发级联失败，而每步都调用外部批评会大幅增加token消耗与延迟。本文提出SAG，一种成本感知的自改进智能体框架，将批评调用建模为逐步决策问题，并引入免训练的轻量门控机制估计是否需要批评。实验表明该方法在保持可靠性的同时显著降低调用成本。该工作为长程决策中自改进智能体的成本与可靠性权衡提供了实用方案。",
+      "llm_tldr": "LLM智能体在长程决策中早期错误会沿轨迹传播并引发级联失败，而每步都调用外部批评会大幅增加token消耗与延迟。本文提出SAG，一种成本感知的自改进智能体框架，将批评调用建模为逐步决策问题，并引入免训练的轻量门控机制估计是否需要批评。实验表明该方法在保持可靠性的同时显著降低调用成本。该工作为长程决策中自改进智能体的成本与可靠性权衡提供了实用方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2609.39306v1",
+      "source": "arxiv",
+      "title": "ReSAIL: Mitigating Collapse in Iterative Agent Self-Distillation",
+      "abstract": "Iterative self-distillation enables LLM agents to learn from successive deployments, offering a path toward recursive self-improvement (RSI). Yet our experiments with existing methods reveal a collapse in deployment performance across cycles, while task performance with privileged information (PI) also declines. We address this collapse by prioritizing informative interaction steps for distillation and preserving PI-conditioned behavior as the student becomes the next teacher. We introduce Retentive and Selective Augmentation for Iterative Self-Distillation (ReSAIL), a plug-in augmentation for iterative PI-based self-distillation. ReSAIL selects interaction steps where PI most strongly changes the teacher's predictions and balances the resulting distillation losses across trajectories. It also regularizes the student's PI-conditioned output distributions toward those of the frozen teacher at selected and unselected steps to preserve PI-conditioned behavior for supervision in the next cycle. On ALFWorld and TextCraft, ReSAIL sustains substantial gains across model scales over three cycles, with an average absolute gain of 22.5% in final-cycle success rates when added to self-distillation baselines. Sensitivity-guided selection of offline data also improves action prediction accuracy for multimodal GUI agents on AITZ. These findings provide the first evidence that a more robust learning mechanism can effectively mitigate performance collapse in iterative agent self-distillation over deployment trajectories.",
+      "authors": [
+        "Shengjie Jin",
+        "Hengbo Xu",
+        "Zelong Sun",
+        "YuJie Guo",
+        "Zhiwu Lu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-30T08:49:03+00:00",
+      "link": "https://arxiv.org/pdf/2609.39306v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "plug-in augmentation mitigating collapse in iterative agent self-distillation for recursive self-improvement",
+      "llm_evidence_cn": "缓解迭代式智能体自蒸馏崩溃的插件式增强",
+      "llm_evidence": "缓解迭代式智能体自蒸馏崩溃的插件式增强",
+      "canonical_evidence": "缓解迭代式智能体自蒸馏崩溃的插件式增强",
+      "llm_tldr_en": "Iterative self-distillation can enable recursive self-improvement of LLM agents, but the authors find deployment performance collapses across cycles; ReSAIL mitigates this by selecting informative steps and preserving privileged-information behavior.",
+      "llm_tldr_cn": "迭代自蒸馏是LLM智能体实现递归自我改进的路径，但现有方法在多轮部署中出现性能崩溃，特权信息条件下的任务表现也下降。本文提出ReSAIL插件式增强，优先选择特权信息最强烈改变教师预测的交互步进行蒸馏，并保持特权信息条件下的行为。该机制缓解了学生继任教师后性能随轮次衰减的崩溃现象，为智能体持续自我改进提供更稳定的自蒸馏方案。",
+      "llm_tldr": "迭代自蒸馏是LLM智能体实现递归自我改进的路径，但现有方法在多轮部署中出现性能崩溃，特权信息条件下的任务表现也下降。本文提出ReSAIL插件式增强，优先选择特权信息最强烈改变教师预测的交互步进行蒸馏，并保持特权信息条件下的行为。该机制缓解了学生继任教师后性能随轮次衰减的崩溃现象，为智能体持续自我改进提供更稳定的自蒸馏方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "agents that iteratively improve their policies and knowledge without human intervention",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.00671v1",
+      "source": "arxiv",
+      "title": "MegaFlux: Skew-Resilient MoE Megakernels via Pipelined Expert Replication",
+      "abstract": "Mixture-of-experts (MoE) megakernels fuse expert-parallel communication with expert computation. However, under fixed expert placement, routing skew creates GPU stragglers: overloaded GPUs determine layer latency while others sit idle. Replicating hot experts can shift work to underloaded GPUs, but dynamic replicas introduce additional work: replicas must receive expert weights to execute and, during training, their partial weight gradients must be reduced at the expert owners. We present MegaFlux, which makes expert replication a runtime decision and pipelines the communication induced by replication within persistent MoE execution. An on-device planner jointly selects replica locations and assigns tile-aligned token blocks under a per-GPU replica budget, leaving router outputs unchanged. The forward and backward megakernels realize pipelined expert replication: replicas begin computation as their required weights arrive, while backward overlaps replica-gradient reduction with ongoing expert computation. MegaFlux extends TensorRT-LLM's CuTeDSL MegaMoE forward kernel and introduces a new backward MoE megakernel. Across 147 configurations per direction on eight NVIDIA B200 GPUs, MegaFlux achieves geometric-mean speedups of $1.45\\times$ for forward and $1.28\\times$ for backward over the same megakernels with fixed placement, peaking at $2.14\\times$ and $2.64\\times$. In ablations, pipelining hides $56$--$76$% of replica-weight transfer cost in forward and $91$--$100$% of combined weight-transfer and replica-gradient-reduction cost in backward, yielding up to $13.2$% and $26.7$% additional layer-latency reductions over the same replication plans with these operations executed separately. Integrated into vLLM for DeepSeek-V4-Pro prefill, MegaFlux delivers $1.13$--$1.26\\times$ median end-to-end speedups over fixed placement.",
+      "authors": [
+        "Jianzhu Yao",
+        "Siva Kumar Sastry Hari",
+        "Vignesh Balaji",
+        "Sana Damani",
+        "Insu Jang",
+        "Pramod Viswanath",
+        "Christos Kozyrakis"
+      ],
+      "primary_category": "cs.DC",
+      "categories": [
+        "cs.DC"
+      ],
+      "published": "2026-09-30T20:09:09+00:00",
+      "link": "https://arxiv.org/pdf/2610.00671v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "MoE megakernels with pipelined expert replication to mitigate GPU stragglers and improve kernel execution efficiency",
+      "llm_evidence_cn": "MoE巨型内核结合流水化专家复制以缓解GPU负载偏斜并提升内核执行效率",
+      "llm_evidence": "MoE巨型内核结合流水化专家复制以缓解GPU负载偏斜并提升内核执行效率",
+      "canonical_evidence": "MoE巨型内核结合流水化专家复制以缓解GPU负载偏斜并提升内核执行效率",
+      "llm_tldr_en": "MegaFlux addresses routing-skew-induced GPU stragglers in MoE megakernels by making expert replication a runtime decision and pipelining the induced communication within persistent execution, using an on-device planner to co-select replica locations and token blocks.",
+      "llm_tldr_cn": "MoE巨型内核融合专家并行通信与计算，但在固定专家放置下路由偏斜导致GPU负载不均，过载GPU决定层延迟而其他GPU闲置。本文提出MegaFlux，将专家复制作为运行时决策，并在持久化MoE执行中流水化复制引入的通信。片上规划器联合选择副本位置与令牌块分配以提升负载均衡。实验表明该方法缓解了偏斜、提升了GPU利用率与层延迟表现，为MoE内核执行效率优化提供了新方案。",
+      "llm_tldr": "MoE巨型内核融合专家并行通信与计算，但在固定专家放置下路由偏斜导致GPU负载不均，过载GPU决定层延迟而其他GPU闲置。本文提出MegaFlux，将专家复制作为运行时决策，并在持久化MoE执行中流水化复制引入的通信。片上规划器联合选择副本位置与令牌块分配以提升负载均衡。实验表明该方法缓解了偏斜、提升了GPU利用率与层延迟表现，为MoE内核执行效率优化提供了新方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "techniques for optimizing GPU kernel execution performance",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.07118v1",
+      "source": "arxiv",
+      "title": "AMBER: Training Long-Horizon Web Agents through Append-Only Memory",
+      "abstract": "Modern language-model agents increasingly interact with external environments over long-horizon, multi-step trajectories, where the accumulated interaction history can quickly exceed practical context budgets. To ensure reliability, agents must maintain factual information over long horizons, remember execution errors and corrective feedback, and track progress across actions. Several approaches have been proposed to achieve this without the need for maintaining the entire execution history in context, such as using the reasoning and action history, learning to maintain a fixed-size memory through an overwrite mechanism, and periodic summarization. Although overwrite memory can in principle retain anything an append-only memory can, it must learn to carry each fact through every subsequent rewrite, which is difficult to learn from sparse outcome rewards; for interactive applications like web agents, we find that trained overwrite memories delete key information required by the trajectory, as well as corrective feedback received from the environment. We introduce AMBER (Append-only Memory Bank for Evidence Retention) - a simple and scalable framework where an agent jointly learns to reason, act, and write free-form memory, while an append-only rule guarantees retention by construction. This allows AMBER to be trained end-to-end with reinforcement learning from outcome rewards without the need for extensive curated SFT data. On WebArena Lite, AMBER improves average success over overwrite-based memory by 4.09 percentage points, increases the fraction of tasks solved in five repeated runs by 4.8 percentage points, and matches an overwrite baseline trained on substantially more expensive curated supervision. AMBER achieves these improvements while maintaining a practical token budget, providing a strong balance between context efficiency, task performance, and reliable long-horizon execution.",
+      "authors": [
+        "Chinmay Savadikar",
+        "Zhaoyu Zhang",
+        "Mingyu Zhao",
+        "Shuang Xie",
+        "Han Li",
+        "Tianfu Wu",
+        "Lingyun Wang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-10-05T17:11:07+00:00",
+      "link": "https://arxiv.org/pdf/2610.07118v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "append-only memory for long-horizon LLM agents",
+      "llm_evidence_cn": "面向长程LLM智能体的追加式记忆",
+      "llm_evidence": "面向长程LLM智能体的追加式记忆",
+      "canonical_evidence": "面向长程LLM智能体的追加式记忆",
+      "llm_tldr_en": "AMBER proposes append-only memory to train long-horizon web agents, letting them reliably retain facts, errors and corrective feedback within limited context budgets.",
+      "llm_tldr_cn": "语言模型智能体在长程多步交互中，累积历史很快超出上下文预算，需维持事实、记住执行错误与纠正反馈并跟踪进度。本文提出AMBER，采用追加式记忆替代需要学习的固定大小覆盖式记忆，以训练长程网页智能体可靠地保存与调用交互历史。实验表明追加式记忆能更可靠地保留事实与纠错信息，支撑多步轨迹的完成。该工作为长程智能体在有限上下文下的记忆管理提供了有效方案。",
+      "llm_tldr": "语言模型智能体在长程多步交互中，累积历史很快超出上下文预算，需维持事实、记住执行错误与纠正反馈并跟踪进度。本文提出AMBER，采用追加式记忆替代需要学习的固定大小覆盖式记忆，以训练长程网页智能体可靠地保存与调用交互历史。实验表明追加式记忆能更可靠地保留事实与纠错信息，支撑多步轨迹的完成。该工作为长程智能体在有限上下文下的记忆管理提供了有效方案。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "memory structures and processes that allow agents to store and retrieve information",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2610.07792v1",
+      "source": "arxiv",
+      "title": "ServeLearnBench: How Well Can Agents Self-Improve from Serving Experience?",
+      "abstract": "Large language model agents are increasingly deployed to perform complex tasks in real-world environments. However, the knowledge required for correct behavior in these environments is often implicit, undisclosed, and subject to change over time. Recent continual-learning harnesses seek to address this challenge by enabling agents to improve from serving experience. Yet the effectiveness and limitations of these methods are not yet well characterized. Existing benchmarks provide only partial coverage: some explicitly provide the target knowledge, others assume a static environment, and those that support continual adaptation remain limited in scale and knowledge diversity. To enable systematic evaluation, we formalize an evolving-environment streaming dataset (EESD), in which agents must infer, apply, and revise latent environment knowledge from interaction and outcome feedback as hidden policies evolve, and introduce ServeLearnBench, spanning retail support, banking, and sales-pitch generation with 53 environment windows and 7,718 tasks. We evaluate five learning harnesses (RAG, Mem0, SkillOpt, Continual Harness, and Prime) across six models (GPT-5.6 Terra, Opus 5, Kimi K3, GLM-5.3, DeepSeek V4.1 Flash, and GLM-5.3 Flash), covering 28 model-harness pairs and 252 learning runs. Our evaluation reveals three main findings: a substantial gap remains between task capability and learning from experience; continual adaptation is costly and can degrade already-correct behavior; and insufficient exploration emerges as a key bottleneck to effective adaptation. Overall, ServeLearnBench provides a controlled testbed for diagnosing these limitations and tracking progress toward agents that continually and reliably improve through serving experience.",
+      "authors": [
+        "Haizhong Zheng",
+        "Yizhuo Di",
+        "Ranajoy Sadhukhan",
+        "Shuowei Jin",
+        "Beidi Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-10-06T05:39:42+00:00",
+      "link": "https://arxiv.org/pdf/2610.07792v1",
+      "tags": [
+        "keyword:gkg",
+        "query:gkg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "agents self-improve from serving experience, benchmarked",
+      "llm_evidence_cn": "智能体从服务经验中自我改进",
+      "llm_evidence": "智能体从服务经验中自我改进",
+      "canonical_evidence": "智能体从服务经验中自我改进",
+      "llm_tldr_en": "The knowledge agents need in real environments is implicit and changing, yet existing benchmarks only partially cover continual learning. ServeLearnBench formalizes an evolving-environment stream to evaluate how well agents self-improve from serving experience.",
+      "llm_tldr_cn": "真实环境中正确行为所需知识常隐含且随时间变化，现有基准覆盖不足，难以系统评估智能体从服务经验中持续改进的能力。本文提出ServeLearnBench，形式化演化环境流并构建评测，系统刻画持续学习方法的有效性与局限。结果显示这些方法在动态环境下表现各异，为智能体在线自改进提供了更全面的评估基准，推动其可靠部署。",
+      "llm_tldr": "真实环境中正确行为所需知识常隐含且随时间变化，现有基准覆盖不足，难以系统评估智能体从服务经验中持续改进的能力。本文提出ServeLearnBench，形式化演化环境流并构建评测，系统刻画持续学习方法的有效性与局限。结果显示这些方法在动态环境下表现各异，为智能体在线自改进提供了更全面的评估基准，推动其可靠部署。",
+      "llm_tags": [
+        "query:gkg"
+      ],
+      "matched_query_tag": "query:gkg",
+      "matched_query_text": "How do self evolving agents improve their performance over time?",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
